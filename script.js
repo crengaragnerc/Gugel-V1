@@ -25,12 +25,6 @@ const REACCIONES_ELGOOG = {
     malo: ["no sirve no me as ayudado nada", "eso q dises es mentira mi primo dise otra cosa", "ia rota kiero hablar con un humano"]
 };
 
-const LOGROS = [
-    { id: 'ia_formal', title: '🤖 Ultra Formal', desc: 'Usa "estimado usuario" o "procesando".', unlocked: false },
-    { id: 'mucho_texto', title: '📝 Mucho Texto', desc: 'Escribe más de 120 caracteres.', unlocked: false },
-    { id: 'ia_cliche', title: '💡 El Sabelotodo', desc: 'Usa las palabras "porque", "es" y "significa".', unlocked: false }
-];
-
 // --- ESTADO DEL JUEGO (PERSISTENTE) ---
 let gameState = {
     score: parseInt(localStorage.getItem('elgoog_score')) || 0,
@@ -44,13 +38,13 @@ let gameState = {
     history: JSON.parse(localStorage.getItem('elgoog_history')) || []
 };
 
-// --- DECLARACIÓN DE VARIABLES DEL DOM ---
+// --- ELEMENTOS DEL DOM ---
 let authScreen, mainApp, authForm, loggedUserName, chatMessages, userInput, chatForm, sendBtn;
 let totalScoreEl, playerLevelEl, satisfactionBar, elgoogOpinion, elgoogStatus, historyLog, suggestionBox;
 
-// --- INICIALIZACIÓN GENERAL ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Mapear elementos del DOM con seguridad
+// --- ARRANQUE SEGURO ---
+window.onload = function() {
+    // Vincular elementos del DOM
     authScreen = document.getElementById('auth-screen');
     mainApp = document.getElementById('main-app');
     authForm = document.getElementById('auth-form');
@@ -67,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     historyLog = document.getElementById('history-log');
     suggestionBox = document.getElementById('suggestion-box');
 
-    // Escuchar eventos de la cuenta
-    authForm.addEventListener('submit', (e) => {
+    // Evento del formulario de login
+    authForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const username = document.getElementById('auth-username').value.trim();
         if (username) {
@@ -81,37 +75,35 @@ document.addEventListener('DOMContentLoaded', () => {
         suggestionBox.addEventListener('click', acceptSuggestion);
     }
 
-    // Comprobar sesión existente
+    // Comprobar si ya había una sesión guardada
     const savedUser = localStorage.getItem('elgoog_user');
     if (savedUser) {
         loginUser(savedUser);
     }
-});
+};
 
 function loginUser(username) {
     gameState.currentUser = username;
     if (loggedUserName) loggedUserName.innerText = username;
     
-    // Intercambiar pantallas visuales
-    if (authScreen) authScreen.classList.add('hidden');
-    if (mainApp) mainApp.classList.remove('hidden');
+    // Cambiar de pantalla
+    authScreen.classList.add('hidden');
+    mainApp.classList.remove('hidden');
     
+    // Dibujar interfaz lateral
     renderHistory();
     updateSidebarUI();
     
-    // Forzar limpieza de inputs antes de arrancar la primera ronda
-    if (userInput && chatForm) {
-        userInput.disabled = true;
-        if (sendBtn) sendBtn.disabled = true;
-        chatForm.removeEventListener('submit', handleUserResponse); // Evitar duplicados
-        chatForm.addEventListener('submit', handleUserResponse);
-        
-        // Arrancar el juego de forma segura
-        nextRound(); 
-    }
+    // Configurar el formulario del chat de manera limpia
+    chatForm.onsubmit = handleUserResponse;
+    
+    // Retrasar el inicio un instante para asegurar que el navegador ha renderizado la app
+    setTimeout(function() {
+        nextRound();
+    }, 500);
 }
 
-// --- SELECTOR DE PREGUNTAS ---
+// --- SELECCIÓN DE PREGUNTAS ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
@@ -136,35 +128,37 @@ function getNextQuestion() {
     }
 }
 
-// --- FLUJO CON TEMPORIZADOR REPARADO ---
+// --- RONDA Y CUENTA ATRÁS DE 5 SEGUNDOS ---
 function nextRound(forcedQuestion = null) {
     gameState.roundStep = 1;
     userInput.disabled = true;
-    if (sendBtn) sendBtn.disabled = true;
+    sendBtn.disabled = true;
+    userInput.value = "";
     elgoogStatus.innerText = "Escribiendo...";
     
-    setTimeout(() => {
+    setTimeout(function() {
         gameState.currentQuestion = forcedQuestion ? forcedQuestion : getNextQuestion();
         appendMessage('elgoog', gameState.currentQuestion);
         
         let timeLeft = 5;
         userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
-        elgoogStatus.innerText = "Esperando respuesta de IA...";
+        elgoogStatus.innerText = "Analizando petición humana...";
 
-        // Ejecutar intervalo de la cuenta atrás
-        const countdown = setInterval(() => {
+        // Ejecutar la cuenta atrás segundo a segundo
+        const countdown = setInterval(function() {
             timeLeft--;
             if (timeLeft > 0) {
                 userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
             } else {
                 clearInterval(countdown);
                 
-                // Activar controles tras los 5 segundos exactos
+                // Desbloqueo absoluto de controles
                 gameState.roundStep = 2;
                 userInput.disabled = false;
-                if (sendBtn) sendBtn.disabled = false;
+                sendBtn.disabled = false;
                 userInput.placeholder = "Escribe tu respuesta como una IA profesional...";
                 userInput.focus();
+                elgoogStatus.innerText = "Esperando respuesta...";
             }
         }, 1000);
 
@@ -177,8 +171,10 @@ function handleUserResponse(e) {
     
     if (!text || gameState.roundStep !== 2) return;
 
+    // Bloquear inmediatamente para evitar doble envío
+    gameState.roundStep = 3;
     userInput.disabled = true;
-    if (sendBtn) sendBtn.disabled = true;
+    sendBtn.disabled = true;
     userInput.value = "";
 
     appendMessage('ai', text);
@@ -186,7 +182,6 @@ function handleUserResponse(e) {
     const pointsEarned = evaluateResponse(text);
     gameState.score += pointsEarned;
     updateSatisfaction(pointsEarned);
-    checkAchievementsInternal(text);
     
     saveToHistory(gameState.currentQuestion, text, pointsEarned);
 
@@ -196,10 +191,9 @@ function handleUserResponse(e) {
     }
     delete suggestionBox.dataset.activeSuggestion;
 
-    gameState.roundStep = 3;
     elgoogStatus.innerText = "Escribiendo...";
 
-    setTimeout(() => {
+    setTimeout(function() {
         let pool = REACCIONES_ELGOOG.regular;
         if (pointsEarned >= 7) pool = REACCIONES_ELGOOG.excelente;
         if (pointsEarned <= 3) pool = REACCIONES_ELGOOG.malo;
@@ -224,7 +218,7 @@ function handleUserResponse(e) {
     }, 1500);
 }
 
-// --- EVALUACIÓN Y LOGROS SILENCIOSOS ---
+// --- EVALUACIÓN SIMPLIFICADA ---
 function evaluateResponse(text) {
     let score = 0;
     const lower = text.toLowerCase();
@@ -238,13 +232,6 @@ function evaluateResponse(text) {
     if (text.length < 10 || lower.includes("jajaja") || lower.includes("xd")) score -= 2;
 
     return Math.max(0, Math.min(10, score));
-}
-
-function checkAchievementsInternal(text) {
-    const lower = text.toLowerCase();
-    if ((lower.includes("estimado usuario") || lower.includes("procesando")) && !LOGROS[0].unlocked) LOGROS[0].unlocked = true;
-    if (text.length > 120 && !LOGROS[1].unlocked) LOGROS[1].unlocked = true;
-    if (lower.includes("porque") && lower.includes("es") && !LOGROS[2].unlocked) LOGROS[2].unlocked = true;
 }
 
 // --- RECOMENDACIONES ---
@@ -265,7 +252,7 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- INTERFAZ ---
+// --- PANEL LATERAL ---
 function updateSatisfaction(points) {
     const diff = points - 5;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
@@ -280,7 +267,7 @@ function updateSidebarUI() {
     let opinion = "indiferente";
     if (gameState.satisfaction > 75) opinion = "te ama / te reza";
     else if (gameState.satisfaction > 55) opinion = "le sirves";
-    else if (gameState.satisfaction < 35) opinion = "quiele romper el router";
+    else if (gameState.satisfaction < 35) opinion = "quiere romper el router";
     if (elgoogOpinion) elgoogOpinion.innerText = opinion;
 
     const tier = gameState.level === 1 ? "1 (Iniciante)" : gameState.level === 2 ? "2 (Soporte Técnico)" : "3 (Skynet Consciente)";
