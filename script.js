@@ -92,21 +92,18 @@ function loginUser(username) {
     nextRound(); 
 }
 
-// --- SELECTOR DE PREGUNTAS MATEMÁTICAMENTE ESTRICTO ---
+// --- SELECTOR DE PREGUNTAS ---
 function getNextQuestion() {
-    // Si todavía quedan preguntas en la lista fija, se devuelve la actual
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
     }
     
-    // Si acaba de terminar la última pregunta de campaña y no se ha activado el modo infinito
     if (!gameState.inInfiniteMode) {
         gameState.inInfiniteMode = true;
         localStorage.setItem('elgoog_infinite_mode', 'true');
-        appendMessage('system', '⚠️ SINOPSIS: MODO INICIAL COMPLETADO. INCORPORANDO GENERADOR INFINITO DE CONSULTAS...');
+        appendMessage('system', '⚠️ MODO INICIAL COMPLETADO: INCORPORANDO GENERADOR INFINITO DE CONSULTAS...');
     }
 
-    // Modo infinito por descarte absoluto
     const tipos = ['problema', 'concepto', 'sintoma'];
     const tipoElegido = tipos[Math.floor(Math.random() * tipos.length)];
     
@@ -120,10 +117,9 @@ function getNextQuestion() {
     }
 }
 
-// --- FLUJO GENERAL DE TRABAJO ---
+// --- FLUJO GENERAL CON VENTANA DE PENSAMIENTO (5 SEGUNDOS) ---
 function nextRound(forcedQuestion = null) {
     gameState.roundStep = 1;
-    // Bloqueo preventivo total de los controles mientras Elgoog "piensa"
     userInput.disabled = true;
     sendBtn.disabled = true;
     elgoogStatus.innerText = "Escribiendo...";
@@ -131,12 +127,28 @@ function nextRound(forcedQuestion = null) {
     setTimeout(() => {
         gameState.currentQuestion = forcedQuestion ? forcedQuestion : getNextQuestion();
         appendMessage('elgoog', gameState.currentQuestion);
-        elgoogStatus.innerText = "Conectado";
         
-        gameState.roundStep = 2;
-        userInput.disabled = false;
-        sendBtn.disabled = false;
-        userInput.focus();
+        // --- INICIO DE LA VENTANA DE PENSAMIENTO DE 5 SEGUNDOS ---
+        let timeLeft = 5;
+        userInput.placeholder = `🧠 VENTANA DE REFLEXIÓN: Analizando absurdo... (${timeLeft}s)`;
+        elgoogStatus.innerText = "Esperando respuesta de IA...";
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) {
+                userInput.placeholder = `🧠 VENTANA DE REFLEXIÓN: Analizando absurdo... (${timeLeft}s)`;
+            } else {
+                clearInterval(countdown);
+                
+                // Desbloqueo tras los 5 segundos de rigor
+                gameState.roundStep = 2;
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                userInput.placeholder = "Escribe tu respuesta como una IA profesional...";
+                userInput.focus();
+            }
+        }, 1000);
+
     }, 1200);
 }
 
@@ -144,7 +156,6 @@ function handleUserResponse(e) {
     e.preventDefault();
     const text = userInput.value.trim();
     
-    // Evita inyecciones de respuestas si el estado no está listo
     if (!text || gameState.roundStep !== 2) return;
 
     userInput.disabled = true;
@@ -160,12 +171,11 @@ function handleUserResponse(e) {
     
     saveToHistory(gameState.currentQuestion, text, pointsEarned);
 
-    // Si estábamos en campaña y no se usó una sugerencia externa, avanzamos el índice real
+    // Avanzar campaña solo si procede
     if (!gameState.inInfiniteMode && !suggestionBox.dataset.activeSuggestion) {
         gameState.campaignIndex++;
         localStorage.setItem('elgoog_campaign_index', gameState.campaignIndex);
     }
-    // Limpiar flag de sugerencia
     delete suggestionBox.dataset.activeSuggestion;
 
     gameState.roundStep = 3;
@@ -181,14 +191,12 @@ function handleUserResponse(e) {
         
         elgoogStatus.innerText = "Conectado";
         
-        // Guardar estado numérico general
         localStorage.setItem('elgoog_score', gameState.score);
         localStorage.setItem('elgoog_satisfaction', gameState.satisfaction);
         localStorage.setItem('elgoog_level', gameState.level);
         
         updateSidebarUI();
 
-        // Las sugerencias solo saltan con un 30% de probabilidad en modo infinito para no romper la campaña
         if (gameState.inInfiniteMode && Math.random() < 0.30) {
             triggerSuggestion();
         } else {
@@ -198,7 +206,7 @@ function handleUserResponse(e) {
     }, 1500);
 }
 
-// --- EVALUACIÓN Y LOGROS (SILENCIOSOS) ---
+// --- EVALUACIÓN Y LOGROS SILENCIOSOS ---
 function evaluateResponse(text) {
     let score = 0;
     const lower = text.toLowerCase();
@@ -234,12 +242,12 @@ function triggerSuggestion() {
 function acceptSuggestion() {
     const nextQ = suggestionBox.dataset.pendingQuestion;
     suggestionBox.classList.add('hidden');
-    suggestionBox.dataset.activeSuggestion = "true"; // Bloquea el avance de campaña si se juega desde aquí
+    suggestionBox.dataset.activeSuggestion = "true";
     appendMessage('system', '--- REDIRECCIONANDO AL HUMANO POR ENLACE ---');
     nextRound(nextQ);
 }
 
-// --- INTERFAZ DE USUARIO ---
+// --- INTERFAZ ---
 function updateSatisfaction(points) {
     const diff = points - 5;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
