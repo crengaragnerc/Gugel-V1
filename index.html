@@ -7,14 +7,11 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="app-container" id="main-app" style="display: flex;">
-        
+    <div class="app-container">
         <aside class="sidebar">
             <div class="brand">
-                <h2>🤖 IA_CORE_v1.2</h2>
+                <h2>🤖 IA_CORE_v1.0</h2>
                 <span class="status-badge"><span class="status-dot"></span> EN LÍNEA</span>
-                <p class="user-logged">Operador: <span id="logged-user-name">IA_SYS_ADMIN</span></p>
             </div>
             
             <div class="panel-section">
@@ -22,13 +19,20 @@
                 <div class="stat-box">
                     <p><strong>Nivel:</strong> <span id="player-level">1 (Iniciante)</span></p>
                     <p><strong>Satisfacción Elgoog:</strong> <span id="satisfaction-bar">50%</span></p>
-                    <p class="subtext">Opinión: <span id="elgoog-opinion">indiferente</span></p>
+                    <p class="subtext">"Opinion: <span id="elgoog-opinion">indiferente</span>"</p>
                 </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>🏆 LOGROS DESBLOQUEADOS</h3>
+                <ul id="achievements-list" class="achievements-list">
+                    </ul>
             </div>
 
             <div class="panel-section history-section">
                 <h3>📁 HISTORIAL RECIENTE</h3>
                 <div id="history-log" class="history-log"></div>
+                <button id="clear-history" class="btn-secondary">Limpiar Historial</button>
             </div>
         </aside>
 
@@ -47,7 +51,8 @@
             <div id="chat-messages" class="chat-messages">
                 </div>
 
-            <div id="suggestion-box" style="display: none;"></div>
+            <div id="suggestion-box" class="suggestion-box hidden">
+                </div>
 
             <footer class="chat-input-area">
                 <form id="chat-form">
@@ -56,9 +61,7 @@
                 </form>
             </footer>
         </main>
-
     </div>
-
     <script src="script.js"></script>
 </body>
-</html>
+</html>;">
