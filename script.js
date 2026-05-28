@@ -138,4 +138,186 @@ function nextRound(forcedQuestion = null) {
     
     if (userInput) {
         userInput.disabled = true;
-        userInput
+        userInput.value = "";
+        userInput.placeholder = "Elgoog está pensando...";
+    }
+    if (sendBtn) sendBtn.disabled = true;
+    if (elgoogStatus) elgoogStatus.innerText = "Escribiendo...";
+    
+    // Retraso de la simulación de escritura de Elgoog
+    setTimeout(() => {
+        gameState.currentQuestion = forcedQuestion ? forcedQuestion : getNextQuestion();
+        appendMessage('elgoog', gameState.currentQuestion);
+        
+        let timeLeft = 5;
+        if (userInput) userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
+        if (elgoogStatus) elgoogStatus.innerText = "Analizando petición humana...";
+
+        // Cuenta atrás real
+        const countdown = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) {
+                if (userInput) userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
+            } else {
+                clearInterval(countdown);
+                
+                // Desbloqueo del input al llegar a 0
+                gameState.roundStep = 2;
+                if (userInput) {
+                    userInput.disabled = false;
+                    userInput.placeholder = "Escribe tu respuesta como una IA profesional...";
+                    try {
+                        userInput.focus();
+                    } catch(e) {}
+                }
+                if (sendBtn) sendBtn.disabled = false;
+                if (elgoogStatus) elgoogStatus.innerText = "Esperando respuesta...";
+            }
+        }, 1000);
+
+    }, 1000);
+}
+
+function handleUserResponse(e) {
+    e.preventDefault();
+    if (!userInput) return;
+    const text = userInput.value.trim();
+    
+    if (!text || gameState.roundStep !== 2) return;
+
+    gameState.roundStep = 3;
+    userInput.disabled = true;
+    if (sendBtn) sendBtn.disabled = true;
+    userInput.value = "";
+
+    appendMessage('ai', text);
+    
+    const pointsEarned = evaluateResponse(text);
+    gameState.score += pointsEarned;
+    updateSatisfaction(pointsEarned);
+    
+    saveToHistory(gameState.currentQuestion, text, pointsEarned);
+
+    if (!gameState.inInfiniteMode && (!suggestionBox || !suggestionBox.dataset.activeSuggestion)) {
+        gameState.campaignIndex++;
+        localStorage.setItem('elgoog_campaign_index', gameState.campaignIndex);
+    }
+    if (suggestionBox) delete suggestionBox.dataset.activeSuggestion;
+
+    if (elgoogStatus) elgoogStatus.innerText = "Escribiendo...";
+
+    setTimeout(() => {
+        let pool = REACCIONES_ELGOOG.regular;
+        if (pointsEarned >= 7) pool = REACCIONES_ELGOOG.excelente;
+        if (pointsEarned <= 3) pool = REACCIONES_ELGOOG.malo;
+        
+        const reaccion = pool[Math.floor(Math.random() * pool.length)];
+        appendMessage('elgoog', reaccion);
+        
+        if (elgoogStatus) elgoogStatus.innerText = "Conectado";
+        
+        localStorage.setItem('elgoog_score', gameState.score);
+        localStorage.setItem('elgoog_satisfaction', gameState.satisfaction);
+        localStorage.setItem('elgoog_level', gameState.level);
+        
+        updateSidebarUI();
+
+        if (gameState.inInfiniteMode && Math.random() < 0.30) {
+            triggerSuggestion();
+        } else {
+            appendMessage('system', '--- FIN DE LA RONDA: GENERANDO NUEVA BÚSQUEDA ---');
+            setTimeout(nextRound, 1500);
+        }
+    }, 1500);
+}
+
+// --- EVALUACIÓN DE TEXTO ---
+function evaluateResponse(text) {
+    let score = 0;
+    const lower = text.toLowerCase();
+
+    if (text.length > 30) score += 2;
+    if (text.length > 80) score += 2;
+    if (lower.includes("estimado usuario") || lower.includes("siento") || lower.includes("procesando")) score += 2;
+    if (lower.includes("porque")) score += 1;
+    if (lower.includes("es")) score += 1;
+    if (lower.includes("significa")) score += 1;
+    if (text.length < 10 || lower.includes("jajaja") || lower.includes("xd")) score -= 2;
+
+    return Math.max(0, Math.min(10, score));
+}
+
+// --- RECOMENDACIONES ---
+function triggerSuggestion() {
+    if (!suggestionBox) return;
+    const sugerencias = ["porque internet se rompe", "como saber si una pagina es falsa", "mi ordenador hace ruido de cafetera ayuda"];
+    const elegida = sugerencias[Math.floor(Math.random() * sugerencias.length)];
+    
+    suggestionBox.innerHTML = `🎬 <strong>Recomendación para Elgoog:</strong> "${elegida}" (Clic para forzar en la red)`;
+    suggestionBox.style.display = "block";
+    suggestionBox.dataset.pendingQuestion = elegida;
+}
+
+// --- ACCIONES DE SUGERENCIA ---
+function acceptSuggestion() {
+    if (!suggestionBox) return;
+    const nextQ = suggestionBox.dataset.pendingQuestion;
+    suggestionBox.style.display = "none";
+    suggestionBox.dataset.activeSuggestion = "true";
+    appendMessage('system', '--- REDIRECCIONANDO AL HUMANO POR ENLACE ---');
+    nextRound(nextQ);
+}
+
+// --- PANEL LATERAL ---
+function updateSatisfaction(points) {
+    const diff = points - 5;
+    gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
+    if (gameState.score > 20 && gameState.score <= 50) gameState.level = 2;
+    if (gameState.score > 50) gameState.level = 3;
+}
+
+function updateSidebarUI() {
+    if (totalScoreEl) totalScoreEl.innerText = gameState.score;
+    if (satisfactionBar) satisfactionBar.innerText = `${gameState.satisfaction}%`;
+    
+    let opinion = "indiferente";
+    if (gameState.satisfaction > 75) opinion = "te ama / te reza";
+    else if (gameState.satisfaction > 55) opinion = "le sirves";
+    else if (gameState.satisfaction < 35) opinion = "quiere romper el router";
+    if (elgoogOpinion) elgoogOpinion.innerText = opinion;
+
+    const tier = gameState.level === 1 ? "1 (Iniciante)" : gameState.level === 2 ? "2 (Soporte Técnico)" : "3 (Skynet Consciente)";
+    if (playerLevelEl) playerLevelEl.innerText = tier;
+}
+
+function appendMessage(sender, text) {
+    if (!chatMessages) return;
+    const msg = document.createElement('div');
+    msg.classList.add('message', sender);
+    msg.innerText = text;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function saveToHistory(q, a, s) {
+    const item = { q, a, score: s };
+    gameState.history.unshift(item);
+    if (gameState.history.length > 8) gameState.history.pop();
+    localStorage.setItem('elgoog_history', JSON.stringify(gameState.history));
+    renderHistory();
+}
+
+function renderHistory() {
+    if (!historyLog) return;
+    historyLog.innerHTML = "";
+    if (gameState.history.length === 0) {
+        historyLog.innerHTML = "<p class='subtext'>No hay datos de registros.</p>";
+        return;
+    }
+    gameState.history.forEach(item => {
+        const div = document.createElement('div');
+        div.classList.add('history-item');
+        div.innerHTML = `<strong>Q:</strong> ${item.q}<br><strong>Score:</strong> ${item.score}/10`;
+        historyLog.appendChild(div);
+    });
+}
