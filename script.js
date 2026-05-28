@@ -18,11 +18,79 @@ const GENERADOR_TEMAS = {
     sintomas: ["fiebre en el dedo", "tos de perro", "dolor de pelo", "hinchazon oreja izquierda"]
 };
 
-const REACCIONES_ELGOOG = {
-    excelente: ["ok entendi grasias ia", "perfecto boy a intentar arreglarlo con un martillo", "vale ya me cuadra todo borro historial por si acaso"],
-    regular: ["mucho testo pero creo q entendi", "bueno provaremos a ber si funsiona", "ok pero sigo sin wifi"],
-    malo: ["no sirve no me as ayudado nada", "eso q dises es mentira mi primo dise otra cosa", "ia rota kiero hablar con un humano"]
+// --- RESPUESTAS DE LA IA AMPLIADAS Y DIVIDIDAS CON COHERENCIA ---
+const REACCIONES_POR_TIPO = {
+    porque: {
+        excelente: [
+            "vale ya me cuadra la explicacion gracias",
+            "perfecto ahora entiendo el por que de la duda",
+            "ok entendi el motivo perfectamente me dejas mas tranquilo"
+        ],
+        regular: [
+            "mucho testo pero creo q entendi la razon",
+            "bueno provaremos ese motivo a ver si es por eso",
+            "ok de momento me sirve la explicacion"
+        ],
+        malo: [
+            "eso que dices no explica nada de por que pasa",
+            "mentira mi primo dice que la razon es otra",
+            "ia rota no sabes dar explicaciones coherentes"
+        ]
+    },
+    como: {
+        excelente: [
+            "perfecto voy a intentar hacer esos pasos",
+            "ok anotado el proceso gracias ia",
+            "vale ya se como se hace paso a paso"
+        ],
+        regular: [
+            "parece un poco dificil de hacer de esa manera",
+            "bueno provaremos a ver si me sale el truco",
+            "mucho proceso no se si sabre hacerlo"
+        ],
+        malo: [
+            "no sirve no me as ayudado a hacerlo",
+            "asi no se hace ni de coña que lo mire en un video",
+            "ia rota no sabes dar instrucciones"
+        ]
+    },
+    que: {
+        excelente: [
+            "ok ya me queda claro que es gracias",
+            "gracias por la definicion ia de soporte",
+            "perfecto aclarada la duda de lo que significa"
+        ],
+        regular: [
+            "un poco raro eso que dices que es pero ok",
+            "bueno provaremos a ver si es verdad lo que dices",
+            "ok no sabia que era eso exactamente"
+        ],
+        malo: [
+            "eso es mentira lo buscare en wikipedia",
+            "ia rota de mielda vaya definicion me acabas de dar",
+            "pero que dices si eso no significa eso"
+        ]
+    },
+    general: {
+        excelente: [
+            "ok entendi todo genial gracias ia",
+            "perfecto me sirve un monton la respuesta",
+            "vale ya me cuadra todo lo que dices"
+        ],
+        regular: [
+            "mucho testo pero creo q entendi",
+            "bueno provaremos a ber si funsiona",
+            "ok me sirve de momento"
+        ],
+        malo: [
+            "no sirve no me as ayudado nada",
+            "eso q dises es mentira mi primo dise otra cosa",
+            "ia rota kiero hablar con un humano"
+        ]
+    }
 };
+
+let REACCIONES_ELGOOG = { excelente: [], regular: [], malo: [] };
 
 // --- ESTADO ---
 let gameState = {
@@ -77,7 +145,6 @@ window.addEventListener('DOMContentLoaded', () => {
     if (savedUser) {
         loginUser(savedUser);
     } else {
-        // Tu lógica original de visibilidad exacta
         if (authScreen) authScreen.style.display = "flex";
         if (mainApp) mainApp.style.display = "none";
     }
@@ -87,7 +154,6 @@ function loginUser(username) {
     gameState.currentUser = username;
     if (loggedUserName) loggedUserName.innerText = username;
     
-    // Tu lógica original de intercambio de pantallas que SÍ funcionaba
     if (authScreen) authScreen.style.display = "none";
     if (mainApp) mainApp.style.display = "flex"; 
     
@@ -98,10 +164,7 @@ function loginUser(username) {
         chatForm.onsubmit = handleUserResponse;
     }
     
-    // Lanzar ronda con una pausa de seguridad
-    setTimeout(() => {
-        nextRound();
-    }, 500);
+    setTimeout(() => { nextRound(); }, 500);
 }
 
 function getNextQuestion() {
@@ -122,7 +185,6 @@ function getNextQuestion() {
     }
 }
 
-// --- NUEVA CUENTA ATRÁS COMPLETAMENTE INTEGRADA SIN PARAR EL SCRIPT ---
 function nextRound(forcedQuestion = null) {
     gameState.roundStep = 1;
     
@@ -138,11 +200,22 @@ function nextRound(forcedQuestion = null) {
         gameState.currentQuestion = forcedQuestion ? forcedQuestion : getNextQuestion();
         appendMessage('elgoog', gameState.currentQuestion);
         
+        // Asignar el tipo de respuesta según empiece la pregunta
+        const qLower = gameState.currentQuestion.toLowerCase();
+        if (qLower.startsWith("porque") || qLower.startsWith("xq")) {
+            REACCIONES_ELGOOG = REACCIONES_POR_TIPO.porque;
+        } else if (qLower.startsWith("como")) {
+            REACCIONES_ELGOOG = REACCIONES_POR_TIPO.como;
+        } else if (qLower.startsWith("que")) {
+            REACCIONES_ELGOOG = REACCIONES_POR_TIPO.que;
+        } else {
+            REACCIONES_ELGOOG = REACCIONES_POR_TIPO.general;
+        }
+        
         let timeLeft = 5;
         if (userInput) userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
         if (elgoogStatus) elgoogStatus.innerText = "Analizando petición humana...";
 
-        // El bucle de 5 segundos que actualiza el placeholder
         const countdown = setInterval(() => {
             timeLeft--;
             if (timeLeft > 0) {
@@ -150,7 +223,6 @@ function nextRound(forcedQuestion = null) {
             } else {
                 clearInterval(countdown);
                 
-                // Activar entrada cuando el tiempo llega a cero
                 gameState.roundStep = 2;
                 if (userInput) {
                     userInput.disabled = false;
@@ -221,13 +293,14 @@ function handleUserResponse(e) {
 function evaluateResponse(text) {
     let score = 0;
     const lower = text.toLowerCase();
+
     if (text.length > 30) score += 2;
     if (text.length > 80) score += 2;
     if (lower.includes("estimado usuario") || lower.includes("siento") || lower.includes("procesando")) score += 2;
-    if (lower.includes("porque")) score += 1;
-    if (lower.includes("es")) score += 1;
-    if (lower.includes("significa")) score += 1;
-    if (text.length < 10 || lower.includes("jajaja") || lower.includes("xd")) score -= 2;
+    if (lower.includes("porque") || lower.includes("debido") || lower.includes("consiste")) score += 2;
+
+    if (text.length < 12 || lower.includes("jajaja") || lower.includes("xd")) score -= 3;
+
     return Math.max(0, Math.min(10, score));
 }
 
