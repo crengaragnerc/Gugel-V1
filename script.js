@@ -1,4 +1,4 @@
-// --- LISTA DE PREGUNTAS CAMPAÑA OBLIGATORIA (FASE 1) ---
+// --- PREGUNTAS CAMPAÑA ---
 const PREGUNTAS_CAMPAÑA = [
     "cagar verde normal",
     "como hacer cubo rubik",
@@ -12,7 +12,6 @@ const PREGUNTAS_CAMPAÑA = [
     "porque no carga una pagina web"
 ];
 
-// --- GENERADOR INFINITO (FASE 2) ---
 const GENERADOR_TEMAS = {
     problemas: ["internet", "wifi", "google", "movil", "wasap", "teclado", "pantalla", "netflix"],
     conceptos: ["el bitcoing", "la clau", "un troyano", "el html", "la ia inteligente", "un gigabai"],
@@ -25,7 +24,7 @@ const REACCIONES_ELGOOG = {
     malo: ["no sirve no me as ayudado nada", "eso q dises es mentira mi primo dise otra cosa", "ia rota kiero hablar con un humano"]
 };
 
-// --- ESTADO DEL JUEGO (PERSISTENTE) ---
+// --- ESTADO ---
 let gameState = {
     score: parseInt(localStorage.getItem('elgoog_score')) || 0,
     roundStep: 1,
@@ -34,15 +33,19 @@ let gameState = {
     inInfiniteMode: localStorage.getItem('elgoog_infinite_mode') === 'true', 
     satisfaction: parseInt(localStorage.getItem('elgoog_satisfaction')) || 50,
     level: parseInt(localStorage.getItem('elgoog_level')) || 1,
+    currentUser: null,
     history: JSON.parse(localStorage.getItem('elgoog_history')) || []
 };
 
 // --- ELEMENTOS DEL DOM ---
-let chatMessages, userInput, chatForm, sendBtn;
+let authScreen, mainApp, authForm, loggedUserName, chatMessages, userInput, chatForm, sendBtn;
 let totalScoreEl, playerLevelEl, satisfactionBar, elgoogOpinion, elgoogStatus, historyLog, suggestionBox;
 
-// --- ARRANQUE AUTOMÁTICO ---
 window.addEventListener('DOMContentLoaded', () => {
+    authScreen = document.getElementById('auth-screen');
+    mainApp = document.getElementById('main-app');
+    authForm = document.getElementById('auth-form');
+    loggedUserName = document.getElementById('logged-user-name');
     chatMessages = document.getElementById('chat-messages');
     userInput = document.getElementById('user-input');
     chatForm = document.getElementById('chat-form');
@@ -55,58 +58,78 @@ window.addEventListener('DOMContentLoaded', () => {
     historyLog = document.getElementById('history-log');
     suggestionBox = document.getElementById('suggestion-box');
 
+    if (authForm) {
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('auth-username').value.trim();
+            if (username) {
+                localStorage.setItem('elgoog_user', username);
+                loginUser(username);
+            }
+        });
+    }
+
     if (suggestionBox) {
         suggestionBox.addEventListener('click', acceptSuggestion);
     }
 
+    const savedUser = localStorage.getItem('elgoog_user');
+    if (savedUser) {
+        loginUser(savedUser);
+    } else {
+        // Tu lógica original de visibilidad exacta
+        if (authScreen) authScreen.style.display = "flex";
+        if (mainApp) mainApp.style.display = "none";
+    }
+});
+
+function loginUser(username) {
+    gameState.currentUser = username;
+    if (loggedUserName) loggedUserName.innerText = username;
+    
+    // Tu lógica original de intercambio de pantallas que SÍ funcionaba
+    if (authScreen) authScreen.style.display = "none";
+    if (mainApp) mainApp.style.display = "flex"; 
+    
+    renderHistory();
+    updateSidebarUI();
+    
     if (chatForm) {
         chatForm.onsubmit = handleUserResponse;
     }
-
-    renderHistory();
-    updateSidebarUI();
-
-    appendMessage('system', 'SISTEMA CONECTADO AUTOMÁTICAMENTE: DISPOSITIVO EN MODO IA_CORE');
-
-    // Lanzar primera ronda directamente
+    
+    // Lanzar ronda con una pausa de seguridad
     setTimeout(() => {
         nextRound();
-    }, 600);
-});
+    }, 500);
+}
 
-// --- SELECTOR DE PREGUNTAS ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
     }
-    
     if (!gameState.inInfiniteMode) {
         gameState.inInfiniteMode = true;
         localStorage.setItem('elgoog_infinite_mode', 'true');
         appendMessage('system', '⚠️ MODO INICIAL COMPLETADO: INCORPORANDO GENERADOR INFINITO DE CONSULTAS...');
     }
-
     const tipos = ['problema', 'concepto', 'sintoma'];
     const tipoElegido = tipos[Math.floor(Math.random() * tipos.length)];
-    
     switch (tipoElegido) {
-        case 'problema':
-            return `porque no funciona ${GENERADOR_TEMAS.problemas[Math.floor(Math.random() * GENERADOR_TEMAS.problemas.length)]}`;
-        case 'concepto':
-            return `que es ${GENERADOR_TEMAS.conceptos[Math.floor(Math.random() * GENERADOR_TEMAS.conceptos.length)]}`;
-        case 'sintoma':
-            return `como curar ${GENERADOR_TEMAS.sintomas[Math.floor(Math.random() * GENERADOR_TEMAS.sintomas.length)]}`;
+        case 'problema': return `porque no funciona ${GENERADOR_TEMAS.problemas[Math.floor(Math.random() * GENERADOR_TEMAS.problemas.length)]}`;
+        case 'concepto': return `que es ${GENERADOR_TEMAS.conceptos[Math.floor(Math.random() * GENERADOR_TEMAS.conceptos.length)]}`;
+        case 'sintoma': return `como curar ${GENERADOR_TEMAS.sintomas[Math.floor(Math.random() * GENERADOR_TEMAS.sintomas.length)]}`;
     }
 }
 
-// --- CUENTA ATRÁS DE 5 SEGUNDOS ---
+// --- NUEVA CUENTA ATRÁS COMPLETAMENTE INTEGRADA SIN PARAR EL SCRIPT ---
 function nextRound(forcedQuestion = null) {
     gameState.roundStep = 1;
     
     if (userInput) {
         userInput.disabled = true;
         userInput.value = "";
-        userInput.placeholder = "Elgoog está buscando...";
+        userInput.placeholder = "Elgoog está escribiendo...";
     }
     if (sendBtn) sendBtn.disabled = true;
     if (elgoogStatus) elgoogStatus.innerText = "Escribiendo...";
@@ -119,6 +142,7 @@ function nextRound(forcedQuestion = null) {
         if (userInput) userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
         if (elgoogStatus) elgoogStatus.innerText = "Analizando petición humana...";
 
+        // El bucle de 5 segundos que actualiza el placeholder
         const countdown = setInterval(() => {
             timeLeft--;
             if (timeLeft > 0) {
@@ -126,20 +150,19 @@ function nextRound(forcedQuestion = null) {
             } else {
                 clearInterval(countdown);
                 
+                // Activar entrada cuando el tiempo llega a cero
                 gameState.roundStep = 2;
                 if (userInput) {
                     userInput.disabled = false;
                     userInput.placeholder = "Escribe tu respuesta como una IA profesional...";
-                    try {
-                        userInput.focus();
-                    } catch(e) {}
+                    try { userInput.focus(); } catch(e) {}
                 }
                 if (sendBtn) sendBtn.disabled = false;
                 if (elgoogStatus) elgoogStatus.innerText = "Esperando respuesta...";
             }
         }, 1000);
 
-    }, 800);
+    }, 1000);
 }
 
 function handleUserResponse(e) {
@@ -195,11 +218,9 @@ function handleUserResponse(e) {
     }, 1500);
 }
 
-// --- EVALUACIÓN DE TEXTO ---
 function evaluateResponse(text) {
     let score = 0;
     const lower = text.toLowerCase();
-
     if (text.length > 30) score += 2;
     if (text.length > 80) score += 2;
     if (lower.includes("estimado usuario") || lower.includes("siento") || lower.includes("procesando")) score += 2;
@@ -207,16 +228,13 @@ function evaluateResponse(text) {
     if (lower.includes("es")) score += 1;
     if (lower.includes("significa")) score += 1;
     if (text.length < 10 || lower.includes("jajaja") || lower.includes("xd")) score -= 2;
-
     return Math.max(0, Math.min(10, score));
 }
 
-// --- SUGERENCIAS ---
 function triggerSuggestion() {
     if (!suggestionBox) return;
     const sugerencias = ["porque internet se rompe", "como saber si una pagina es falsa", "mi ordenador hace ruido de cafetera ayuda"];
     const elegida = sugerencias[Math.floor(Math.random() * sugerencias.length)];
-    
     suggestionBox.innerHTML = `🎬 <strong>Recomendación para Elgoog:</strong> "${elegida}" (Clic para forzar en la red)`;
     suggestionBox.style.display = "block";
     suggestionBox.dataset.pendingQuestion = elegida;
@@ -231,7 +249,6 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- PANEL LATERAL ---
 function updateSatisfaction(points) {
     const diff = points - 5;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
@@ -242,13 +259,11 @@ function updateSatisfaction(points) {
 function updateSidebarUI() {
     if (totalScoreEl) totalScoreEl.innerText = gameState.score;
     if (satisfactionBar) satisfactionBar.innerText = `${gameState.satisfaction}%`;
-    
     let opinion = "indiferente";
     if (gameState.satisfaction > 75) opinion = "te ama / te reza";
     else if (gameState.satisfaction > 55) opinion = "le sirves";
     else if (gameState.satisfaction < 35) opinion = "quiere romper el router";
     if (elgoogOpinion) elgoogOpinion.innerText = opinion;
-
     const tier = gameState.level === 1 ? "1 (Iniciante)" : gameState.level === 2 ? "2 (Soporte Técnico)" : "3 (Skynet Consciente)";
     if (playerLevelEl) playerLevelEl.innerText = tier;
 }
@@ -273,10 +288,7 @@ function saveToHistory(q, a, s) {
 function renderHistory() {
     if (!historyLog) return;
     historyLog.innerHTML = "";
-    if (gameState.history.length === 0) {
-        historyLog.innerHTML = "<p class='subtext'>No hay datos de registros.</p>";
-        return;
-    }
+    if (gameState.history.length === 0) return;
     gameState.history.forEach(item => {
         const div = document.createElement('div');
         div.classList.add('history-item');
