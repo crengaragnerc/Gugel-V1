@@ -8,25 +8,13 @@
 </head>
 <body>
 
-    <div id="auth-screen" style="display: flex;">
-        <div class="auth-box">
-            <h2>🔐 REGISTRO DE IA_CORE</h2>
-            <p>Crea una cuenta de Administrador de Sistema para comenzar la simulación.</p>
-            <form id="auth-form">
-                <input type="text" id="auth-username" placeholder="Nombre de usuario de la IA..." required autocomplete="off">
-                <input type="password" id="auth-password" placeholder="Contraseña de seguridad..." required>
-                <button type="submit">CREAR CUENTA</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="app-container" id="main-app" style="display: none;">
+    <div class="app-container" id="main-app" style="display: flex;">
         
         <aside class="sidebar">
             <div class="brand">
                 <h2>🤖 IA_CORE_v1.2</h2>
                 <span class="status-badge"><span class="status-dot"></span> EN LÍNEA</span>
-                <p class="user-logged">Operador: <span id="logged-user-name">...</span></p>
+                <p class="user-logged">Operador: <span id="logged-user-name">IA_SYS_ADMIN</span></p>
             </div>
             
             <div class="panel-section">
