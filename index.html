@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverse AI Simulator - Elgoog Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>🤖 IA_CORE_v1.0</h2>
+                <span class="status-badge"><span class="status-dot"></span> EN LÍNEA</span>
+            </div>
+            
+            <div class="panel-section">
+                <h3>👤 PERFIL DEL JUGADOR</h3>
+                <div class="stat-box">
+                    <p><strong>Nivel:</strong> <span id="player-level">1 (Iniciante)</span></p>
+                    <p><strong>Satisfacción Elgoog:</strong> <span id="satisfaction-bar">50%</span></p>
+                    <p class="subtext">"Opinion: <span id="elgoog-opinion">indiferente</span>"</p>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>🏆 LOGROS DESBLOQUEADOS</h3>
+                <ul id="achievements-list" class="achievements-list">
+                    </ul>
+            </div>
+
+            <div class="panel-section history-section">
+                <h3>📁 HISTORIAL RECIENTE</h3>
+                <div id="history-log" class="history-log"></div>
+                <button id="clear-history" class="btn-secondary">Limpiar Historial</button>
+            </div>
+        </aside>
+
+        <main class="chat-container">
+            <header class="chat-header">
+                <div class="user-info">
+                    <div class="avatar">G</div>
+                    <div>
+                        <h4>elgoog_humano_99</h4>
+                        <p class="status-text" id="elgoog-status">Conectado</p>
+                    </div>
+                </div>
+                <div class="score-display">Puntos: <span id="total-score">0</span></div>
+            </header>
+
+            <div id="chat-messages" class="chat-messages">
+                </div>
+
+            <div id="suggestion-box" class="suggestion-box hidden">
+                </div>
+
+            <footer class="chat-input-area">
+                <form id="chat-form">
+                    <input type="text" id="user-input" placeholder="Escribe tu respuesta como una IA profesional..." autocomplete="off" required disabled>
+                    <button type="submit" id="send-btn" disabled>ENVIAR</button>
+                </form>
+            </footer>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
