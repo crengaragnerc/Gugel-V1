@@ -44,30 +44,30 @@ let gameState = {
     history: JSON.parse(localStorage.getItem('elgoog_history')) || []
 };
 
-// --- ELEMENTOS DEL DOM ---
-const authScreen = document.getElementById('auth-screen');
-const mainApp = document.getElementById('main-app');
-const authForm = document.getElementById('auth-form');
-const loggedUserName = document.getElementById('logged-user-name');
-const chatMessages = document.getElementById('chat-messages');
-const userInput = document.getElementById('user-input');
-const chatForm = document.getElementById('chat-form');
-const sendBtn = document.getElementById('send-btn');
-const totalScoreEl = document.getElementById('total-score');
-const playerLevelEl = document.getElementById('player-level');
-const satisfactionBar = document.getElementById('satisfaction-bar');
-const elgoogOpinion = document.getElementById('elgoog-opinion');
-const elgoogStatus = document.getElementById('elgoog-status');
-const historyLog = document.getElementById('history-log');
-const suggestionBox = document.getElementById('suggestion-box');
+// --- DECLARACIÓN DE VARIABLES DEL DOM ---
+let authScreen, mainApp, authForm, loggedUserName, chatMessages, userInput, chatForm, sendBtn;
+let totalScoreEl, playerLevelEl, satisfactionBar, elgoogOpinion, elgoogStatus, historyLog, suggestionBox;
 
-// --- INICIALIZACIÓN Y LOGIN ---
+// --- INICIALIZACIÓN GENERAL ---
 document.addEventListener('DOMContentLoaded', () => {
-    const savedUser = localStorage.getItem('elgoog_user');
-    if (savedUser) {
-        loginUser(savedUser);
-    }
+    // Mapear elementos del DOM con seguridad
+    authScreen = document.getElementById('auth-screen');
+    mainApp = document.getElementById('main-app');
+    authForm = document.getElementById('auth-form');
+    loggedUserName = document.getElementById('logged-user-name');
+    chatMessages = document.getElementById('chat-messages');
+    userInput = document.getElementById('user-input');
+    chatForm = document.getElementById('chat-form');
+    sendBtn = document.getElementById('send-btn');
+    totalScoreEl = document.getElementById('total-score');
+    playerLevelEl = document.getElementById('player-level');
+    satisfactionBar = document.getElementById('satisfaction-bar');
+    elgoogOpinion = document.getElementById('elgoog-opinion');
+    elgoogStatus = document.getElementById('elgoog-status');
+    historyLog = document.getElementById('history-log');
+    suggestionBox = document.getElementById('suggestion-box');
 
+    // Escuchar eventos de la cuenta
     authForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const username = document.getElementById('auth-username').value.trim();
@@ -77,19 +77,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    chatForm.addEventListener('submit', handleUserResponse);
-    suggestionBox.addEventListener('click', acceptSuggestion);
+    if (suggestionBox) {
+        suggestionBox.addEventListener('click', acceptSuggestion);
+    }
+
+    // Comprobar sesión existente
+    const savedUser = localStorage.getItem('elgoog_user');
+    if (savedUser) {
+        loginUser(savedUser);
+    }
 });
 
 function loginUser(username) {
     gameState.currentUser = username;
-    loggedUserName.innerText = username;
-    authScreen.classList.add('hidden');
-    mainApp.classList.remove('hidden');
+    if (loggedUserName) loggedUserName.innerText = username;
+    
+    // Intercambiar pantallas visuales
+    if (authScreen) authScreen.classList.add('hidden');
+    if (mainApp) mainApp.classList.remove('hidden');
     
     renderHistory();
     updateSidebarUI();
-    nextRound(); 
+    
+    // Forzar limpieza de inputs antes de arrancar la primera ronda
+    if (userInput && chatForm) {
+        userInput.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+        chatForm.removeEventListener('submit', handleUserResponse); // Evitar duplicados
+        chatForm.addEventListener('submit', handleUserResponse);
+        
+        // Arrancar el juego de forma segura
+        nextRound(); 
+    }
 }
 
 // --- SELECTOR DE PREGUNTAS ---
@@ -117,39 +136,39 @@ function getNextQuestion() {
     }
 }
 
-// --- FLUJO GENERAL CON VENTANA DE PENSAMIENTO (5 SEGUNDOS) ---
+// --- FLUJO CON TEMPORIZADOR REPARADO ---
 function nextRound(forcedQuestion = null) {
     gameState.roundStep = 1;
     userInput.disabled = true;
-    sendBtn.disabled = true;
+    if (sendBtn) sendBtn.disabled = true;
     elgoogStatus.innerText = "Escribiendo...";
     
     setTimeout(() => {
         gameState.currentQuestion = forcedQuestion ? forcedQuestion : getNextQuestion();
         appendMessage('elgoog', gameState.currentQuestion);
         
-        // --- INICIO DE LA VENTANA DE PENSAMIENTO DE 5 SEGUNDOS ---
         let timeLeft = 5;
-        userInput.placeholder = `🧠 VENTANA DE REFLEXIÓN: Analizando absurdo... (${timeLeft}s)`;
+        userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
         elgoogStatus.innerText = "Esperando respuesta de IA...";
 
+        // Ejecutar intervalo de la cuenta atrás
         const countdown = setInterval(() => {
             timeLeft--;
             if (timeLeft > 0) {
-                userInput.placeholder = `🧠 VENTANA DE REFLEXIÓN: Analizando absurdo... (${timeLeft}s)`;
+                userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
             } else {
                 clearInterval(countdown);
                 
-                // Desbloqueo tras los 5 segundos de rigor
+                // Activar controles tras los 5 segundos exactos
                 gameState.roundStep = 2;
                 userInput.disabled = false;
-                sendBtn.disabled = false;
+                if (sendBtn) sendBtn.disabled = false;
                 userInput.placeholder = "Escribe tu respuesta como una IA profesional...";
                 userInput.focus();
             }
         }, 1000);
 
-    }, 1200);
+    }, 1000);
 }
 
 function handleUserResponse(e) {
@@ -159,7 +178,7 @@ function handleUserResponse(e) {
     if (!text || gameState.roundStep !== 2) return;
 
     userInput.disabled = true;
-    sendBtn.disabled = true;
+    if (sendBtn) sendBtn.disabled = true;
     userInput.value = "";
 
     appendMessage('ai', text);
@@ -171,7 +190,6 @@ function handleUserResponse(e) {
     
     saveToHistory(gameState.currentQuestion, text, pointsEarned);
 
-    // Avanzar campaña solo si procede
     if (!gameState.inInfiniteMode && !suggestionBox.dataset.activeSuggestion) {
         gameState.campaignIndex++;
         localStorage.setItem('elgoog_campaign_index', gameState.campaignIndex);
@@ -256,20 +274,21 @@ function updateSatisfaction(points) {
 }
 
 function updateSidebarUI() {
-    totalScoreEl.innerText = gameState.score;
-    satisfactionBar.innerText = `${gameState.satisfaction}%`;
+    if (totalScoreEl) totalScoreEl.innerText = gameState.score;
+    if (satisfactionBar) satisfactionBar.innerText = `${gameState.satisfaction}%`;
     
     let opinion = "indiferente";
     if (gameState.satisfaction > 75) opinion = "te ama / te reza";
     else if (gameState.satisfaction > 55) opinion = "le sirves";
-    else if (gameState.satisfaction < 35) opinion = "quiere romper el router";
-    elgoogOpinion.innerText = opinion;
+    else if (gameState.satisfaction < 35) opinion = "quiele romper el router";
+    if (elgoogOpinion) elgoogOpinion.innerText = opinion;
 
     const tier = gameState.level === 1 ? "1 (Iniciante)" : gameState.level === 2 ? "2 (Soporte Técnico)" : "3 (Skynet Consciente)";
-    playerLevelEl.innerText = tier;
+    if (playerLevelEl) playerLevelEl.innerText = tier;
 }
 
 function appendMessage(sender, text) {
+    if (!chatMessages) return;
     const msg = document.createElement('div');
     msg.classList.add('message', sender);
     msg.innerText = text;
@@ -286,6 +305,7 @@ function saveToHistory(q, a, s) {
 }
 
 function renderHistory() {
+    if (!historyLog) return;
     historyLog.innerHTML = "";
     if (gameState.history.length === 0) {
         historyLog.innerHTML = "<p class='subtext'>No hay datos de registros.</p>";
