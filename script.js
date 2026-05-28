@@ -18,7 +18,7 @@ const GENERADOR_TEMAS = {
     sintomas: ["fiebre en el dedo", "tos de perro", "dolor de pelo", "hinchazon oreja izquierda"]
 };
 
-// --- RESPUESTAS DE LA IA AMPLIADAS Y DIVIDIDAS CON COHERENCIA ---
+// --- RESPUESTAS DE LA IA AJUSTADAS PARA QUE SIEMPRE TENGAN SENTIDO ---
 const REACCIONES_POR_TIPO = {
     porque: {
         excelente: [
@@ -27,13 +27,13 @@ const REACCIONES_POR_TIPO = {
             "ok entendi el motivo perfectamente me dejas mas tranquilo"
         ],
         regular: [
-            "mucho testo pero creo q entendi la razon",
+            "mucho testo pero creo q algo entendi de la razon",
             "bueno provaremos ese motivo a ver si es por eso",
-            "ok de momento me sirve la explicacion"
+            "ok de momento me sirve esa respuesta"
         ],
         malo: [
-            "eso que dices no explica nada de por que pasa",
-            "mentira mi primo dice que la razon es otra",
+            "vaya respuesta... eso no aclara nada de por que pasa",
+            "no me convence lo que dices, seguro que la razon es otra",
             "ia rota no sabes dar explicaciones coherentes"
         ]
     },
@@ -44,14 +44,14 @@ const REACCIONES_POR_TIPO = {
             "vale ya se como se hace paso a paso"
         ],
         regular: [
-            "parece un poco dificil de hacer de esa manera",
-            "bueno provaremos a ver si me sale el truco",
-            "mucho proceso no se si sabre hacerlo"
+            "bueno provaremos a ver si me sale con eso",
+            "mucho proceso no se si sabre hacerlo",
+            "ok me lo apunto aunque lo veo dificil"
         ],
         malo: [
-            "no sirve no me as ayudado a hacerlo",
-            "asi no se hace ni de coña que lo mire en un video",
-            "ia rota no sabes dar instrucciones"
+            "no sirve no me as ayudado a solucionarlo",
+            "menuda respuesta, asi no se hace ni de coña",
+            "ia rota no sabes dar instrucciones de como hacerlo"
         ]
     },
     que: {
@@ -61,14 +61,14 @@ const REACCIONES_POR_TIPO = {
             "perfecto aclarada la duda de lo que significa"
         ],
         regular: [
-            "un poco raro eso que dices que es pero ok",
+            "un poco raro eso que dices pero ok",
             "bueno provaremos a ver si es verdad lo que dices",
-            "ok no sabia que era eso exactamente"
+            "ok no sabia que contestabas eso"
         ],
         malo: [
-            "eso es mentira lo buscare en wikipedia",
+            "menuda troleada, eso no significa eso ni de coña",
             "ia rota de mielda vaya definicion me acabas de dar",
-            "pero que dices si eso no significa eso"
+            "pero que dices si eso no tiene sentido con lo que es"
         ]
     },
     general: {
@@ -78,17 +78,18 @@ const REACCIONES_POR_TIPO = {
             "vale ya me cuadra todo lo que dices"
         ],
         regular: [
-            "mucho testo pero creo q entendi",
             "bueno provaremos a ber si funsiona",
-            "ok me sirve de momento"
+            "ok me sirve de momento",
+            "un poco raro pero se intenta"
         ],
         malo: [
-            "no sirve no me as ayudado nada",
-            "eso q dises es mentira mi primo dise otra cosa",
+            "no sirve para nada, no me as ayudado con la duda",
+            "vaya respuesta de mielda, te has quedado a gusto",
             "ia rota kiero hablar con un humano"
         ]
     }
 };
+
 
 let REACCIONES_ELGOOG = { excelente: [], regular: [], malo: [] };
 
