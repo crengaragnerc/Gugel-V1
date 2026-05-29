@@ -328,43 +328,34 @@
         const GEN_PREFIJOS = ["porque los", "como saber si mi", "es normal que el", "que pasa si como", "por que el", "que significa soñar con", "se puede vivir con un"];
         const GEN_SUFIJOS = ["gato me mira fijamente", "teclado escribe solo", "agua tiene sabor a metal", "plastilina se puede comer", "brazo me tiembla un poco", "universo es infinito", "espejo se mueve", "perro duerme boca arriba"];
 
-        const REACCIONES_OK = [
-            "ah vale me quedo mas tranquilo entonces cerrare la pestaña",
-            "me cuadra bastante la explicacion tiene sentido",
-            "vale entonces no me preocupo pensaba que era algo peor",
-            "entendido menos mal que lo he buscado aqui ya me estaba rayando",
-            "ok me sirve bastante esa respuesta",
-            "perfecto ya entendi el problema de raiz",
-            "bueno con eso me basta para no ir a urgencias",
-            "tiene logica gracias por la info",
-            "menos mal crei que me iba a morir o algo",
-            "vale lo anoto para tenerlo en cuenta"
-        ];
+        // Bloques modulares para armar más de 1000 combinaciones con faltas, palabras cortadas y omisiones
+        const COMPONENTES_OK = {
+            inicios: ["a vale", "ok", "bale", "grax", "aa bue", "sirve", "perfect", "meno mal", "ntndido", "weno"],
+            nexos: ["me cirve", "ta cn sntido", "me cuadra", "ya no me rayo", "ta bien expicao", "no m muero", "pense era peor"],
+            finales: ["cierro pestana", "grasias info", "no voa urgensias", "antotado queda", "ya m aclaro", "pestaña guardada", "me rersirve"]
+        };
 
-        const REACCIONES_RECHAZO = [
-            "no me convence nada esa respuesta buscare en otro sitio",
-            "vaya porqueria de buscador no me aclara nada",
-            "eso no responde a mi pregunta que respuesta mas inutil",
-            "para poner eso mejor no pongas nada sigo igual de rayado",
-            "no me sirve para nada abrire otra pestaña",
-            "que respuesta mas absurda que flojera",
-            "eso es una tonteria no tiene ningun sentido",
-            "vaya pérdida de tiempo me voy a otra pagina",
-            "no te entiendo nada hablas raro",
-            "que estafa de pagina sigo con la misma duda"
-        ];
+        const COMPONENTES_RECHAZO = {
+            inicios: ["q fiera", "vaya rerspuesta", "k basuro", "q dise", "ni sirve", "eso q e", "na q ver", "q estafa", "perdida tpo"],
+            nexos: ["abro otra pestaña", "sigo iwal", "habla bien", "no respondes na", "alto inutil", "que flashea", "alto bardo"],
+            finales: ["m voi otra pag", "fua q flojera", "alto mareo", "tonteria pura", "no t entendi nada", "hablas rrarisimo", "inutil total"]
+        };
 
         const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja"];
 
         let gameState = { 
-            index: 0, 
-            satisfaction: 50,
-            cycles: 0,
-            totalChars: 0,
-            lastOpinion: "no hay consultas en la sesión actual",
-            currentPregunta: "",
-            history: [],
-            logrosDesbloqueados: []
+            index: 3, 
+            satisfaction: 25,
+            cycles: 3,
+            totalChars: 6,
+            lastOpinion: "Usuario evasivo. El sistema detecta respuestas basura o redundantes.",
+            currentPregunta: "como saber si soy un robot test gratis",
+            history: [
+                { pregunta: "cagar verde normal", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
+                { pregunta: "agua porque moja", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
+                { pregunta: "duele la cabeza al pensar", respuesta: "sí", reaccion: "no me convence nada esa respuesta buscare en otro sitio", fav: false }
+            ],
+            logrosDesbloqueados: ["breve", "primero"]
         };
 
         const LOGROS_DEFINICIONES = {
@@ -373,6 +364,23 @@
             "visual": "<strong>[logro revelado] cambio de entorno:</strong> modificar los parámetros visuales del terminal central",
             "cuber": "<strong>[logro revelado] concepto avanzado:</strong> resolver un hilo de gugel inyectando términos algorítmicos o mecánicos"
         };
+
+        function generarReaccionAleatoria(esCorrecto) {
+            const pool = esCorrecto ? COMPONENTES_OK : COMPONENTES_RECHAZO;
+            const ini = pool.inicios[Math.floor(Math.random() * pool.inicios.length)];
+            const nex = pool.nexos[Math.floor(Math.random() * pool.nexos.length)];
+            const fin = pool.finales[Math.floor(Math.random() * pool.finales.length)];
+            
+            // Variabilidad estructural (omisión voluntaria de palabras aleatorias)
+            const estructuras = [
+                `${ini} ${nex}`,
+                `${nex} ${fin}`,
+                `${ini} ${fin}`,
+                `${ini} ${nex} ${fin}`
+            ];
+            
+            return estructuras[Math.floor(Math.random() * estructuras.length)];
+        }
 
         function switchView(viewId) {
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -454,16 +462,8 @@
             
             let esRespuestaValidaCorta = (userText === "no" || userText === "si" || userText === "ci" || userText === "depende");
             let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || (userText.length <= 3 && !esRespuestaValidaCorta);
-            let reaccion = "";
-            let cambioSatisfacion = 0;
-
-            if (esEvasiva) {
-                reaccion = REACCIONES_RECHAZO[Math.floor(Math.random() * REACCIONES_RECHAZO.length)];
-                cambioSatisfacion = -20;
-            } else {
-                reaccion = REACCIONES_OK[Math.floor(Math.random() * REACCIONES_OK.length)];
-                cambioSatisfacion = 15;
-            }
+            let reaccion = generarReaccionAleatoria(!esEvasiva);
+            let cambioSatisfacion = esEvasiva ? -20 : 15;
             
             setTimeout(() => {
                 const box = document.getElementById('chat-messages');
@@ -585,7 +585,7 @@
             if (favs.length > 0) {
                 favStatus.innerHTML = `Tienes ${favs.length} transmisión(es) prioritarias en el búfer.`;
             } else {
-                favStatus.innerText = "Ninguna transmisión marcada como prioritaria actualmente.";
+                favStatus.innerText = "Ninguna transmisión marcada como prioritaria ultravioleta.";
             }
         }
 
@@ -619,6 +619,9 @@
         }
 
         window.onload = function() {
+            renderProfileData();
+            renderHistoryData();
+            renderLogros();
             nextRound();
         };
     </script>
