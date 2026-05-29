@@ -135,7 +135,7 @@
         .fav-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
         .fav-btn.active { color: #00ff00; }
 
-        /* Modos visuales alternativos */
+        /* Modos visuales */
         body.modo-oscuro { background: #080808; }
         body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #111; border-color: #222; }
         body.modo-oscuro .header h2 { color: #fff; }
@@ -256,16 +256,14 @@
             "por que los patos no se hunden"
         ];
 
-        // Respuestas si el usuario escribe algo razonable
         const REACCIONES_OK = [
-            "ah vale me quedo mas tranquilo entonces cerrare la pestaña",
+            "ah vale me quedo mas tranquilo entonces cerrare the pestaña",
             "me cuadra bastante la explicacion tiene sentido",
             "vale entonces no me preocupo pensaba que era algo peor",
             "entendido menos mal que lo he buscado aqui ya me estaba rayando",
             "ok me sirve"
         ];
 
-        // Respuestas si el usuario responde con evasivas, monosílabos o troleos descarados
         const REACCIONES_RECHAZO = [
             "no me convence nada esa respuesta buscare en otro sitio",
             "vaya porqueria de buscador no me aclara nada",
@@ -274,8 +272,8 @@
             "no me sirve para nada abrire otra pestaña"
         ];
 
-        // Lista de palabras o patrones que se consideran respuestas basura o evasivas
-        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea"];
+        // Filtros mejorados para detectar troleos/insultos/evasivas
+        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "nunca piensas", "jaja", "lol"];
 
         let gameState = { 
             index: 0, 
@@ -360,17 +358,19 @@
             
             appendMessage('ai', userText);
             
-            // Lógica de evaluación: ¿Acepta o rechaza?
-            let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || userText.length <= 3;
+            // Si responde "no" o "si" de forma directa a "cagar verde normal" no debería considerarse basura automáticamente
+            let esRespuestaValidaCorta = (userText === "no" || userText === "si" || userText === "ci") && (PREGUNTAS[gameState.index % PREGUNTAS.length] === "cagar verde normal");
+            
+            let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || (userText.length <= 3 && !esRespuestaValidaCorta);
             let reaccion = "";
             let cambioSatisfacion = 0;
 
             if (esEvasiva) {
                 reaccion = REACCIONES_RECHAZO[Math.floor(Math.random() * REACCIONES_RECHAZO.length)];
-                cambioSatisfacion = -20; // baja la satisfacción si pasas de él
+                cambioSatisfacion = -20;
             } else {
                 reaccion = REACCIONES_OK[Math.floor(Math.random() * REACCIONES_OK.length)];
-                cambioSatisfacion = 15; // sube si hay un mínimo de contenido
+                cambioSatisfacion = 15;
             }
             
             setTimeout(() => {
@@ -388,6 +388,7 @@
                 gameState.history.push({
                     pregunta: PREGUNTAS[gameState.index % PREGUNTAS.length],
                     respuesta: userText,
+                    reaccion: reaccion, // Guardamos la reacción aquí
                     fav: false
                 });
 
@@ -469,7 +470,8 @@
                 div.innerHTML = `
                     <div>
                         <strong>consulta:</strong> ${item.pregunta} <br>
-                        <strong style="color:#00ff00;">respuesta:</strong> ${item.respuesta}
+                        <strong style="color:#00ff00;">respuesta:</strong> ${item.respuesta} <br>
+                        <strong style="color:#888;">reacción:</strong> ${item.reaccion}
                     </div>
                     <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
                 `;
@@ -489,7 +491,7 @@
             }
             let textoVolcado = "=== registro de trafico ===\n";
             gameState.history.forEach((h, i) => {
-                textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n-------------------\n`;
+                textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n reaccion: ${h.reaccion}\n-------------------\n`;
             });
             navigator.clipboard.writeText(textoVolcado.toLowerCase()).then(() => {
                 alert("registro copiado al portapapeles");
