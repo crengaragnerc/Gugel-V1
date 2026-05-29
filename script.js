@@ -62,12 +62,11 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// --- INICIO DIRECTO CON PANEL OPCIONAL ---
+// --- INICIO Y CONFIGURACIÓN ---
 window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
 
-    // Enlace del formulario secundario de cambio de cuenta
     const authForm = document.getElementById('auth-form');
     if (authForm) {
         authForm.addEventListener('submit', (e) => {
@@ -82,14 +81,12 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handlers del chat principal
     const chatForm = document.getElementById('chat-form');
     if (chatForm) chatForm.onsubmit = handleUserResponse;
 
     const suggestionBox = document.getElementById('suggestion-box');
     if (suggestionBox) suggestionBox.onclick = acceptSuggestion;
 
-    // Pintar elementos en el panel izquierdo y arrancar juego
     document.getElementById('logged-user-name').innerText = gameState.currentUser;
     updateSidebarUI();
     renderArchive();
@@ -112,24 +109,21 @@ function setTheme(theme) {
     localStorage.setItem('gugel_theme', theme);
 }
 
+// CAMBIO DE PESTAÑAS EFECTIVO
 function switchTab(tabId) {
-    // Forzar ocultación estricta de todos los bloques
     document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.style.setProperty('display', 'none', 'important');
+        tab.style.display = 'none';
     });
     
-    // Desactivar estado visual de los botones
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // Activar pestaña solicitada
     const targetTab = document.getElementById(tabId);
     if (targetTab) {
-        targetTab.style.setProperty('display', 'flex', 'important');
+        targetTab.style.display = 'flex';
     }
     
-    // Enlazar la clase activa al botón correspondiente de la barra lateral
     const btns = document.querySelectorAll('.nav-btn');
     if (btns.length >= 3) {
         if (tabId === 'chat-tab') btns[0].classList.add('active');
@@ -138,7 +132,7 @@ function switchTab(tabId) {
     }
 }
 
-// --- CORE DEL JUEGO ---
+// --- LÓGICA DEL JUEGO ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
@@ -277,7 +271,7 @@ function obtenerRespuestaLocal(puntuacion) {
     return fraseElegida;
 }
 
-// --- SUGERENCIAS ---
+// --- RECOMENDACIONES ---
 function triggerSuggestion() {
     const suggestionBox = document.getElementById('suggestion-box');
     if (!suggestionBox) return;
@@ -298,7 +292,7 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- MODAL DE RESULTADOS ---
+// --- VENTANAS MODALES ---
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
     const modalQ = document.getElementById('modal-question');
@@ -331,7 +325,7 @@ function closeResultModal() {
     finishRoundAfterModal(score, q, a);
 }
 
-// --- SISTEMAS AUXILIARES ---
+// --- HISTORIAL Y LOGROS ---
 function saveToArchive(q, a, score, reaccion) {
     const id = Date.now();
     gameState.history.unshift({ id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() });
