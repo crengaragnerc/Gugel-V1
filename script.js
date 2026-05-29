@@ -1,6 +1,3 @@
-// --- CONFIGURACIÓN DE LA IA REAL (PON AQUÍ TU CLAVE) ---
-const GEMINI_API_KEY = "AQ.Ab8RN6IFyGLFIlyerJrB_pWPaa-fNIVxEuEMsW4gAHFjDp6ygw";
-
 // --- PREGUNTAS CAMPAÑA ---
 const PREGUNTAS_CAMPAÑA = [
     "cagar verde normal",
@@ -21,6 +18,36 @@ const GENERADOR_TEMAS = {
     sintomas: ["fiebre en el dedo", "tos de perro", "dolor de pelo", "hinchazon oreja izquierda"]
 };
 
+// --- SACOS DE RESPUESTAS LOCALES DE GUGEL ---
+const RESPUESTAS_GUGEL = {
+    malas: [
+        "ia rota de mielda",
+        "vaya respuesta de mielda no funsiona",
+        "eso no tiene sentido mi primo dice otra cosa",
+        "no rimes q te pego",
+        "q dices loco lo busco en la wikipedia mejor",
+        "ia de hacendado arreglame el internet",
+        "para eso prefiero preguntar en un foro de coches",
+        "no funsiona menudo timo"
+    ],
+    regulares: [
+        "mucho testo no lo leere",
+        "ya provare a ver si funsiona",
+        "suena raro pero me sirve de momento",
+        "bueno... algo es algo supongo",
+        "un poco largo pero lo intentare",
+        "ok provaremos aver"
+    ],
+    buenas: [
+        "ia de locos me as ayudado",
+        "me cuadra perfectamente grasias",
+        "funsiona a la primera eres dios",
+        "oleeee solucionado q grande",
+        "lo has clavao de locos",
+        "asi si da gusto usar una ia"
+    ]
+};
+
 // --- ESTADO ---
 let gameState = {
     score: parseInt(localStorage.getItem('gugel_score')) || 0,
@@ -36,7 +63,7 @@ let gameState = {
 
 // --- ELEMENTOS DEL DOM ---
 let authScreen, mainApp, authForm, loggedUserName, chatMessages, userInput, chatForm, sendBtn;
-let totalScoreEl, playerLevelEl, satisfactionBar, elgoogOpinion, elgoogStatus, historyLog, suggestionBox;
+let totalScoreEl, playerLevelEl, satisfactionBar, gugelOpinion, gugelStatus, historyLog, suggestionBox;
 
 window.addEventListener('DOMContentLoaded', () => {
     authScreen = document.getElementById('auth-screen');
@@ -50,8 +77,8 @@ window.addEventListener('DOMContentLoaded', () => {
     totalScoreEl = document.getElementById('total-score');
     playerLevelEl = document.getElementById('player-level');
     satisfactionBar = document.getElementById('satisfaction-bar');
-    elgoogOpinion = document.getElementById('elgoog-opinion');
-    elgoogStatus = document.getElementById('elgoog-status');
+    gugelOpinion = document.getElementById('gugel-opinion');
+    gugelStatus = document.getElementById('gugel-status');
     historyLog = document.getElementById('history-log');
     suggestionBox = document.getElementById('suggestion-box');
 
@@ -123,15 +150,15 @@ function nextRound(forcedQuestion = null) {
         userInput.placeholder = "GUGEL está escribiendo...";
     }
     if (sendBtn) sendBtn.disabled = true;
-    if (elgoogStatus) elgoogStatus.innerText = "GUGEL está pensando...";
+    if (gugelStatus) gugelStatus.innerText = "GUGEL está pensando...";
     
     setTimeout(() => {
         gameState.currentQuestion = forcedQuestion ? forcedQuestion : getNextQuestion();
-        appendMessage('elgoog', gameState.currentQuestion);
+        appendMessage('gugel', gameState.currentQuestion);
         
         let timeLeft = 5;
         if (userInput) userInput.placeholder = `🧠 REFLEXIÓN OBLIGATORIA... (${timeLeft}s)`;
-        if (elgoogStatus) elgoogStatus.innerText = "Analizando petición humana...";
+        if (gugelStatus) gugelStatus.innerText = "Analizando petición humana...";
 
         const countdown = setInterval(() => {
             timeLeft--;
@@ -147,55 +174,26 @@ function nextRound(forcedQuestion = null) {
                     try { userInput.focus(); } catch(e) {}
                 }
                 if (sendBtn) sendBtn.disabled = false;
-                if (elgoogStatus) elgoogStatus.innerText = "Esperando respuesta...";
+                if (gugelStatus) gugelStatus.innerText = "Esperando respuesta...";
             }
         }, 1000);
 
     }, 1000);
 }
 
-// --- FUNCIÓN CRUCIAL: LLAMADA REAL A LA IA DE GEMINI ---
-async function generarRespuestaGugel(preguntaUsuario, respuestaIA, puntuacion) {
-    if (GEMINI_API_KEY === "TU_API_KEY_AQUI" || !GEMINI_API_KEY) {
-        return "¡Pon tu API KEY en el código o GUGEL no podrá hablar de verdad! 🔧";
+function obtenerRespuestaLocal(puntuacion) {
+    let saco;
+    if (puntuacion < 4) {
+        saco = RESPUESTAS_GUGEL.malas;
+    } else if (puntuacion >= 4 && ...puntuacion <= 6) {
+        saco = RESPUESTAS_GUGEL.regulares;
+    } else {
+        saco = RESPUESTAS_GUGEL.buenas;
     }
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    
-    // El "Prompt del Sistema" que moldea la personalidad gamberra de GUGEL
-    const promptSistema = `Eres GUGEL, un usuario de internet real, un chaval gracioso, un poco ignorante, directo y escéptico. Estás chateando con una Inteligencia Artificial de soporte técnico (el jugador).
-Tu pregunta original fue: "${preguntaUsuario}".
-La IA te ha respondido esto textualmente: "${respuestaIA}".
-El sistema del juego ha puntuado la respuesta de la IA con un ${puntuacion} sobre 10 (donde menos de 4 es un troleo/mala respuesta, entre 4 y 6 es regular/pasable, y más de 7 es excelente).
-
-Tu misión es responder a lo que te ha dicho la IA basándote en la puntuación y el contexto:
-- Si la puntuación es baja, reacciona ofendido, quejándote de que la IA está rota, diciendo expresiones como 'ia rota de mielda', 'vaya respuesta de mielda', o que tu primo dice otra cosa. Léelo bien, si te troleó o te rimó, quéjate con gracia del troleo.
-- Si la puntuación es regular, muéstrate dudoso, di que tiene mucho texto, o que probarás a ver si funciona aunque suena raro.
-- Si la puntuación es alta, agradécelo con estilo informal, di que te cuadra perfectamente o que es una IA de locos.
-
-REGLAS ESTRICTAS DE ESCRITURA:
-1. Escribe SIEMPRE en minúsculas.
-2. No uses emojis ni exclamaciones formales.
-3. Comete alguna falta de ortografía leve a propósito (como 'provaremos', 'mielda', 'funsiona', 'as ayudado', 'q' en vez de 'que').
-4. Genera solo una frase corta (máximo 15-20 palabras). Sé muy natural, como un mensaje rápido de chat.`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptSistema }] }]
-            })
-        });
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text.trim();
-    } catch (error) {
-        console.error("Error llamando a Gemini:", error);
-        return "ia rota de mielda da error el internet (error de conexion)";
-    }
+    return saco[Math.floor(Math.random() * saco.length)];
 }
 
-async function handleUserResponse(e) {
+function handleUserResponse(e) {
     e.preventDefault();
     if (!userInput) return;
     const text = userInput.value.trim();
@@ -215,33 +213,35 @@ async function handleUserResponse(e) {
     
     saveToHistory(gameState.currentQuestion, text, pointsEarned);
 
-    if (elgoogStatus) elgoogStatus.innerText = "GUGEL está procesando tu respuesta...";
+    if (gugelStatus) gugelStatus.innerText = "GUGEL está procesando tu respuesta...";
 
-    // Llamamos a la IA real pasando los datos
-    const reaccionReal = await generarRespuestaGugel(gameState.currentQuestion, text, pointsEarned);
-    
-    appendMessage('elgoog', reaccionReal);
-    
-    if (elgoogStatus) elgoogStatus.innerText = "Conectado";
-    
-    localStorage.setItem('gugel_score', gameState.score);
-    localStorage.setItem('gugel_satisfaction', gameState.satisfaction);
-    localStorage.setItem('gugel_level', gameState.level);
-    
-    updateSidebarUI();
+    setTimeout(() => {
+        // Respuesta instantánea y mítica de los sacos locales
+        const reaccionLocal = obtenerRespuestaLocal(pointsEarned);
+        
+        appendMessage('gugel', reaccionLocal);
+        
+        if (gugelStatus) gugelStatus.innerText = "Conectado";
+        
+        localStorage.setItem('gugel_score', gameState.score);
+        localStorage.setItem('gugel_satisfaction', gameState.satisfaction);
+        localStorage.setItem('gugel_level', gameState.level);
+        
+        updateSidebarUI();
 
-    if (!gameState.inInfiniteMode && (!suggestionBox || !suggestionBox.dataset.activeSuggestion)) {
-        gameState.campaignIndex++;
-        localStorage.setItem('gugel_campaign_index', gameState.campaignIndex);
-    }
-    if (suggestionBox) delete suggestionBox.dataset.activeSuggestion;
+        if (!gameState.inInfiniteMode && (!suggestionBox || !suggestionBox.dataset.activeSuggestion)) {
+            gameState.campaignIndex++;
+            localStorage.setItem('gugel_campaign_index', gameState.campaignIndex);
+        }
+        if (suggestionBox) delete suggestionBox.dataset.activeSuggestion;
 
-    if (gameState.inInfiniteMode && Math.random() < 0.30) {
-        triggerSuggestion();
-    } else {
-        appendMessage('system', '--- FIN DE LA RONDA: GENERANDO NUEVA BÚSQUEDA ---');
-        setTimeout(nextRound, 1500);
-    }
+        if (gameState.inInfiniteMode && Math.random() < 0.30) {
+            triggerSuggestion();
+        } else {
+            appendMessage('system', '--- FIN DE LA RONDA: GENERANDO NUEVA BÚSQUEDA ---');
+            setTimeout(nextRound, 1500);
+        }
+    }, 1000);
 }
 
 function evaluateResponse(text) {
@@ -290,7 +290,7 @@ function updateSidebarUI() {
     if (gameState.satisfaction > 75) opinion = "te ama / te reza";
     else if (gameState.satisfaction > 55) opinion = "le sirves";
     else if (gameState.satisfaction < 35) opinion = "quiere romper el router";
-    if (elgoogOpinion) elgoogOpinion.innerText = opinion;
+    if (gugelOpinion) gugelOpinion.innerText = opinion;
     const tier = gameState.level === 1 ? "1 (Iniciante)" : gameState.level === 2 ? "2 (Soporte Técnico)" : "3 (Skynet Consciente)";
     if (playerLevelEl) playerLevelEl.innerText = tier;
 }
@@ -300,8 +300,7 @@ function appendMessage(sender, text) {
     const msg = document.createElement('div');
     msg.classList.add('message', sender);
     
-    // Cambiamos visualmente el nombre de la clase o diseño de la burbuja si es de GUGEL
-    if (sender === 'elgoog') {
+    if (sender === 'gugel') {
         msg.innerHTML = `<span style="color: #4285F4; font-weight: bold;">GUGEL:</span> ${text}`;
     } else {
         msg.innerText = text;
