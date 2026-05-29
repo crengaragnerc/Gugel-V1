@@ -49,10 +49,9 @@ const FRASES_MUCHO_TEXTO = [
 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
 
-// Logros legibles y divertidos
 const TITULOS_LOGROS = [
     { titulo: "búfer domado", desc: "has conseguido mantener una conversación sin que explote el sistema." },
-    { titulo: "filósofo de internet", desc: "has respondido con un texto argumentado y connectors de lógica." },
+    { titulo: "filósofo de internet", desc: "has respondido con un texto argumentado y conectores de lógica." },
     { titulo: "antivirus humano", desc: "has salvado a gugel de un colapso por respuestas basura." },
     { titulo: "velocista del teclado", desc: "has introducido suficientes caracteres para llenar un registro." },
     { titulo: "paciente cero", desc: "has aguantado los peores cambios de humor del motor." },
@@ -62,17 +61,16 @@ const TITULOS_LOGROS = [
 
 let gameState = { 
     index: 0, 
-    satisfaction: 10,
+    satisfaction: 50, // Empezamos en un 50% neutral y justo
     cycles: 0,
     totalChars: 0,
-    lastOpinion: "no hay consultas",
+    lastOpinion: "analizando al bot...",
     currentPregunta: "",
     history: [],
     logrosDesbloqueados: [] 
 };
 
 function generarPreguntaAleatoria() {
-    // Selecciona una categoría lógica y monta una frase coherente
     let cat = CATEGORIAS_PREGUNTAS[Math.floor(Math.random() * CATEGORIAS_PREGUNTAS.length)];
     let s = cat.sujetos[Math.floor(Math.random() * cat.sujetos.length)];
     let p = cat.predicados[Math.floor(Math.random() * cat.predicados.length)];
@@ -80,9 +78,7 @@ function generarPreguntaAleatoria() {
 }
 
 function generarReaccionCoherente(esCorrecto, esMuchoTexto) {
-    if (esMuchoTexto) {
-        return FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
-    }
+    if (esMuchoTexto) return FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
     return esCorrecto ? FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)] : FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
 }
 
@@ -95,11 +91,7 @@ function switchView(viewId) {
     const activePanel = document.getElementById(viewId);
     if (activePanel) activePanel.classList.add('active');
 
-    if (viewId === 'view-consultas') {
-        document.getElementById('panel-title-text').innerText = "GUGEL Core";
-    } else {
-        document.getElementById('panel-title-text').innerText = "GUGEL Core - Sistema de Módulos";
-    }
+    document.getElementById('panel-title-text').innerText = (viewId === 'view-consultas') ? "GUGEL Core" : "GUGEL Core - Sistema de Módulos";
 }
 
 function appendMessage(sender, text) {
@@ -109,9 +101,9 @@ function appendMessage(sender, text) {
     const cleanText = text.toLowerCase();
     
     if (sender === 'gugel') {
-        msg.innerHTML = `<strong>gugel:</strong> ${cleanText}`;
+        msg.innerHTML = `<strong>gugel (humano):</strong> ${cleanText}`;
     } else {
-        msg.innerHTML = `<strong>tú:</strong> ${cleanText}`;
+        msg.innerHTML = `<strong>tú (ia):</strong> ${cleanText}`;
     }
     
     box.appendChild(msg);
@@ -134,16 +126,16 @@ function nextRound() {
     transmitBtn.disabled = true;
     
     let timeLeft = 3;
-    input.placeholder = `pensando... (${timeLeft}s)`;
+    input.placeholder = `gugel escribiendo... (${timeLeft}s)`;
     
     const timer = setInterval(() => {
         timeLeft--;
-        input.placeholder = `pensando... (${timeLeft}s)`;
+        input.placeholder = `gugel escribiendo... (${timeLeft}s)`;
         if (timeLeft <= 0) {
             clearInterval(timer);
             input.disabled = false; 
             transmitBtn.disabled = false;
-            input.placeholder = "escribe algo...";
+            input.placeholder = "introduce tu respuesta de ia...";
             input.focus();
         }
     }, 1000);
@@ -152,7 +144,6 @@ function nextRound() {
 function analizarCoherenciaEstructural(respuesta) {
     let respuestasCortasLegitimas = ["depende", "quizas", "tal vez", "posiblemente"];
     if (respuestasCortasLegitimas.includes(respuesta)) return true;
-
     if (EVASIVAS.includes(respuesta)) return false;
 
     const palabras = respuesta.split(/\s+/);
@@ -161,26 +152,20 @@ function analizarCoherenciaEstructural(respuesta) {
         if (p === 'a' || p === 'ñ' || p === 'e' || p === 'o') repeticionesLetrasOClp++;
     });
     if (repeticionesLetrasOClp >= 3) return false;
-
     if (/(.)\1{3,}/.test(respuesta)) return false;
 
     let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
     if (contieneConector) return true;
-
     if (respuesta.length > 22) return true;
 
     return false;
 }
 
 function desbloquearLogroProcedural() {
-    // Desbloqueo basado en ciclos de forma secuencial y limpia
     let idx = gameState.cycles % TITULOS_LOGROS.length;
     let logroData = TITULOS_LOGROS[idx];
-
     let existe = gameState.logrosDesbloqueados.some(l => l.titulo === logroData.titulo);
-    if (!existe) {
-        gameState.logrosDesbloqueados.push(logroData);
-    }
+    if (!existe) gameState.logrosDesbloqueados.push(logroData);
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
@@ -197,7 +182,9 @@ document.getElementById('chat-form').onsubmit = (e) => {
     let esCoherente = esMuchoTexto ? false : analizarCoherenciaEstructural(userText);
     
     let reaccion = generarReaccionCoherente(esCoherente, esMuchoTexto);
-    let cambioSatisfacion = esCoherente ? 10 : -25; 
+    
+    // BALANCEO MEJORADO: +20 por acierto, -15 por fallo. ¡Mucho más justo!
+    let cambioSatisfacion = esCoherente ? 20 : -15; 
     
     setTimeout(() => {
         appendMessage('gugel', reaccion);
@@ -209,11 +196,14 @@ document.getElementById('chat-form').onsubmit = (e) => {
             pregunta: gameState.currentPregunta,
             respuesta: userText,
             reaccion: reaccion,
+            esMuchoTexto: esMuchoTexto,
+            esCoherente: esCoherente,
             fav: false
         });
 
         desbloquearLogroProcedural();
         updateSatisfaction(cambioSatisfacion);
+        calcularOpinionDinamica(); // Lógica de personalidad avanzada
         renderProfileData();
         renderHistoryData();
         renderLogros();
@@ -231,27 +221,51 @@ function updateSatisfaction(cambio) {
     if (gameState.satisfaction < 0) gameState.satisfaction = 0;
 }
 
+// Nueva lógica que analiza las últimas interacciones para dar opiniones brutales
+function calcularOpinionDinamica() {
+    let ultimosLogs = gameState.history.slice(-3); // Miramos los últimos 3 chats
+    
+    if (ultimosLogs.length === 0) {
+        gameState.lastOpinion = "(está mirando la pantalla de carga)";
+        return;
+    }
+
+    let fallosSeguidos = ultimosLogs.filter(l => !l.esCoherente).length;
+    let aciertosSeguidos = ultimosLogs.filter(l => l.esCoherente && !l.esMuchoTexto).length;
+    let muchoTextoSeguido = ultimosLogs.filter(l => l.esMuchoTexto).length;
+
+    // Prioridad por comportamientos del jugador
+    if (muchoTextoSeguido >= 2) {
+        gameState.lastOpinion = "(cree que eres un virus de spam o un pesado)";
+        return;
+    }
+    if (fallosSeguidos === 3) {
+        gameState.lastOpinion = "(quiere quemar el router y darse de baja de internet)";
+        return;
+    }
+    if (aciertosSeguidos === 3) {
+        gameState.lastOpinion = "(cree que eres un dios de la red y te recomendará en un foro)";
+        return;
+    }
+
+    // Si es mixto, decide según rangos de satisfacción con más variedad
+    if (gameState.satisfaction <= 25) {
+        gameState.lastOpinion = "(piensa que esta IA la ha programado un gato ebrio)";
+    } else if (gameState.satisfaction > 25 && gameState.satisfaction <= 50) {
+        gameState.lastOpinion = "(te juzga en silencio mientras limpia el polvo de la pantalla)";
+    } else if (gameState.satisfaction > 50 && gameState.satisfaction <= 75) {
+        gameState.lastOpinion = "(sospecha que eres útil pero te cambiaría por un cubo de Rubik)";
+    } else {
+        gameState.lastOpinion = "(piensa que eres su mejor amigo cibernético)";
+    }
+}
+
 function renderProfileData() {
-    let opiniones = [
-        "(quiere quemar el router)", 
-        "(cree que eres un virus)", 
-        "(te juzga en silencio desde el búfer)", 
-        "(piensa que eres su mejor amigo, o sea, un gato)", 
-        "(cree que eres un dios de la plastilina azul)",
-        "(te cambiaría por un cubo de Rubik sin dudarlo)",
-        "(sospecha que intentas hackearlo con la mente)",
-        "(te tiene miedo, mucho miedo)"
-    ];
-
-    let opinionIndex = Math.floor((gameState.satisfaction / 100) * (opiniones.length - 1));
-    if (opinionIndex < 0) opinionIndex = 0;
-    gameState.lastOpinion = opiniones[opinionIndex];
-
     document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
     document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
     document.getElementById('prof-cycles').innerText = gameState.cycles;
     document.getElementById('prof-chars').innerText = gameState.totalChars;
-    document.getElementById('prof-summary').innerText = `procesadas con éxito ${gameState.cycles} hilos de datos`;
+    document.getElementById('prof-summary').innerText = `procesadas con éxito ${gameState.cycles} consultas`;
 }
 
 function renderLogros() {
@@ -287,8 +301,8 @@ function renderHistoryData() {
         div.innerHTML = `
             <div>
                 <strong>log #${idx + 1}:</strong> ${item.pregunta} <br>
-                <strong>tú:</strong> ${item.respuesta} <br>
-                <strong style="color:#00ff00;">gugel:</strong> ${item.reaccion}
+                <strong>tú (ia):</strong> ${item.respuesta} <br>
+                <strong style="color:#00ff00;">gugel (humano):</strong> ${item.reaccion}
             </div>
             <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
         `;
@@ -339,6 +353,7 @@ window.confirmContinue = function() {
 };
 
 window.onload = function() {
+    calcularOpinionDinamica();
     renderProfileData();
     renderHistoryData();
     renderLogros();
