@@ -1,4 +1,3 @@
-// --- BASE DE DATOS DEL JUEGO ---
 const PREGUNTAS_CAMPAÑA = [
     "cagar verde normal",
     "como hacer cubo rubik",
@@ -42,7 +41,6 @@ const LOGROS_DEFINICION = [
     { id: "infinito", icon: "🌌", title: "Más allá del Deber", desc: "Supera la campaña base y entra al Modo Infinito." }
 ];
 
-// --- ESTADO LOCAL ---
 let gameState = {
     score: parseInt(localStorage.getItem('gugel_score')) || 0,
     roundStep: 1,
@@ -51,7 +49,6 @@ let gameState = {
     inInfiniteMode: localStorage.getItem('gugel_infinite_mode') === 'true', 
     satisfaction: parseInt(localStorage.getItem('gugel_satisfaction')) || 50,
     level: parseInt(localStorage.getItem('gugel_level')) || 1,
-    currentUser: localStorage.getItem('gugel_user') || "Unai",
     history: JSON.parse(localStorage.getItem('gugel_history')) || [],
     favorites: JSON.parse(localStorage.getItem('gugel_favorites')) || [],
     unlockedAchievements: JSON.parse(localStorage.getItem('gugel_achievements')) || []
@@ -59,24 +56,9 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// --- INICIALIZACIÓN ---
 window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
-
-    const authForm = document.getElementById('auth-form');
-    if (authForm) {
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const inputName = document.getElementById('auth-username');
-            if (inputName && inputName.value.trim()) {
-                gameState.currentUser = inputName.value.trim();
-                localStorage.setItem('gugel_user', gameState.currentUser);
-                document.getElementById('logged-user-name').innerText = gameState.currentUser;
-            }
-            closeAuthModal();
-        });
-    }
 
     const chatForm = document.getElementById('chat-form');
     if (chatForm) chatForm.onsubmit = handleUserResponse;
@@ -84,7 +66,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const suggestionBox = document.getElementById('suggestion-box');
     if (suggestionBox) suggestionBox.onclick = acceptSuggestion;
 
-    document.getElementById('logged-user-name').innerText = gameState.currentUser;
     updateSidebarUI();
     renderArchive();
     renderAchievements();
@@ -92,21 +73,11 @@ window.addEventListener('DOMContentLoaded', () => {
     nextRound();
 });
 
-function openAuthModal() {
-    const modal = document.getElementById('auth-screen');
-    if (modal) modal.style.display = "flex";
-}
-function closeAuthModal() {
-    const modal = document.getElementById('auth-screen');
-    if (modal) modal.style.display = "none";
-}
-
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('gugel_theme', theme);
 }
 
-// CONTROLADOR DE PESTAÑAS VINCULADO CORRECTAMENTE
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.style.display = 'none';
@@ -128,7 +99,6 @@ function switchTab(tabId) {
     }
 }
 
-// --- CORE DEL JUEGO ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
@@ -267,7 +237,6 @@ function obtenerRespuestaLocal(puntuacion) {
     return fraseElegida;
 }
 
-// --- SUGERENCIAS EXTRA ---
 function triggerSuggestion() {
     const suggestionBox = document.getElementById('suggestion-box');
     if (!suggestionBox) return;
@@ -278,7 +247,6 @@ function triggerSuggestion() {
     suggestionBox.dataset.pendingQuestion = elegida;
 }
 
-// --- CAPTURA DE SUGERENCIA ---
 function acceptSuggestion() {
     const suggestionBox = document.getElementById('suggestion-box');
     if (!suggestionBox) return;
@@ -289,7 +257,6 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- COMPORTAMIENTO DE LOS MODALES ---
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
     const modalQ = document.getElementById('modal-question');
@@ -322,7 +289,6 @@ function closeResultModal() {
     finishRoundAfterModal(score, q, a);
 }
 
-// --- SISTEMAS AUXILIARES ---
 function saveToArchive(q, a, score, reaccion) {
     const id = Date.now();
     gameState.history.unshift({ id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() });
@@ -369,6 +335,7 @@ function renderArchive() {
     });
 }
 
+// --- LOGROS Y SATISFACCIÓN ---
 function unlockAchievement(id) {
     if (!gameState.unlockedAchievements.includes(id)) {
         gameState.unlockedAchievements.push(id);
