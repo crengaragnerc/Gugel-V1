@@ -25,7 +25,7 @@ body { margin: 0; background: #0c0c0c; height: 100vh; display: flex; justify-con
     font-weight: bold;
     margin-top: 10px;
     margin-bottom: 4px;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .nav-btn {
@@ -168,49 +168,13 @@ body.modo-claro #prof-satisfaction, body.modo-claro #prof-cycles, body.modo-clar
 body.modo-claro .badge-unlocked { color: #222; }
 body.modo-claro .fav-btn.active { color: #222; }
 
-/* --- ADAPTACIÓN MÓVIL --- */
 @media screen and (max-width: 768px) {
-    .system-container {
-        width: 95vw;
-        height: 95vh;
-        flex-direction: column;
-        gap: 10px;
-        margin: 0 auto;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        padding: 8px;
-        flex-direction: row;
-        overflow-x: auto;
-        white-space: nowrap;
-        border-radius: 6px;
-    }
-
+    .system-container { width: 95vw; height: 95vh; flex-direction: column; gap: 10px; margin: 0 auto; }
+    .sidebar { width: 100%; height: auto; padding: 8px; flex-direction: row; overflow-x: auto; white-space: nowrap; border-radius: 6px; }
     .sidebar-title { display: none; }
-
-    .nav-btn {
-        padding: 8px 12px;
-        font-size: 11px;
-        margin-right: 5px;
-    }
-
-    .chat-card {
-        width: 100%;
-        height: 100%;
-        border-radius: 6px;
-    }
-
-    .message { 
-        max-width: 90%;
-        font-size: 13px;
-    }
-    
-    input { 
-        padding: 12px;
-        font-size: 13px;
-    }
-
+    .nav-btn { padding: 8px 12px; font-size: 11px; margin-right: 5px; }
+    .chat-card { width: 100%; height: 100%; border-radius: 6px; }
+    .message { max-width: 90%; font-size: 13px; }
+    input { padding: 12px; font-size: 13px; }
     .header { padding: 10px; }
 }
