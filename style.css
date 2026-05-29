@@ -33,18 +33,18 @@ html[data-theme="hacker"] {
     font-family: 'Courier New', Courier, monospace !important;
 }
 
-/* --- ESTILOS GENERALES --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body, html {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    background: var(--bg-main);
 }
 
 .screen {
@@ -53,11 +53,7 @@ body, html {
     display: flex;
 }
 
-/* --- INTERFAZ PRINCIPAL --- */
-#main-app {
-    background: var(--bg-main);
-}
-
+/* --- BARRA IZQUIERDA (FUNCIONES NUEVAS) --- */
 .sidebar {
     width: 280px;
     background: var(--bg-sidebar);
@@ -65,6 +61,7 @@ body, html {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -80,7 +77,6 @@ body, html {
     background: none; border: none; cursor: pointer; font-size: 16px; margin-left: 4px;
 }
 
-/* CARDS LATERALES */
 .profile-card, .stats-section {
     background: var(--bg-main);
     border: 1px solid var(--border-color);
@@ -95,7 +91,6 @@ body, html {
 .profile-info .label { font-size: 11px; color: var(--text-muted); }
 .profile-info strong { color: var(--text-main); font-size: 14px; }
 
-/* Botón opcional de la barra lateral */
 .sidebar-action-btn {
     background: none; border: none; color: var(--accent); font-size: 11px;
     text-align: left; cursor: pointer; padding: 0; margin-top: 4px; text-decoration: underline;
@@ -110,14 +105,12 @@ html[data-theme="hacker"] .level-badge { color: #000; background: var(--accent);
 
 .stat-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); }
 
-/* BARRAS DE PROGRESO */
 .progress-bar-container {
     width: 100%; height: 8px; background: var(--border-color);
     border-radius: 4px; overflow: hidden; margin-top: 6px;
 }
 .progress-bar { height: 100%; background: var(--accent); transition: width 0.4s ease; }
 
-/* MENÚ DE NAVEGACIÓN */
 .sidebar-nav { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
 .nav-btn {
     width: 100%; padding: 12px; text-align: left; background: none;
@@ -128,13 +121,13 @@ html[data-theme="hacker"] .level-badge { color: #000; background: var(--accent);
     background: var(--bg-main); border-color: var(--border-color); font-weight: bold;
 }
 
-/* ÁREA DE CONTENIDO CENTRAL */
+/* --- PANEL CENTRAL (ESTILO ANTIGUO LIMPIO) --- */
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
-    position: relative;
+    background: var(--bg-main);
 }
 
 .tab-content {
@@ -148,7 +141,6 @@ html[data-theme="hacker"] .level-badge { color: #000; background: var(--accent);
 
 .section-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
 
-/* PESTAÑA: CHAT TERMINAL */
 .chat-header {
     display: flex; align-items: center; gap: 8px;
     padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
@@ -161,6 +153,7 @@ html[data-theme="hacker"] .level-badge { color: #000; background: var(--accent);
     padding: 16px 0; display: flex; flex-direction: column; gap: 12px;
 }
 
+/* Formato de globos clásico */
 .message {
     max-width: 75%; padding: 12px 16px; border-radius: 8px;
     font-size: 14px; line-height: 1.5; word-wrap: break-word;
@@ -187,13 +180,28 @@ html[data-theme="hacker"] .level-badge { color: #000; background: var(--accent);
 }
 .chat-input-area button:disabled, .chat-input-area input:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* MODAL / OVERLAY GENERAL */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000;
-}
-.modal-card {
-    background: var(--bg-sidebar); border: 1px solid var(--border-color);
-    padding: 30px; border-radius: 8px; width: 90%; max-width: 460px;
-}
-.modal-card h3 { color: var(--text-main); margin-bottom: 16px; }
+/* --- ARCHIVOS CARD Y LOGROS GRID --- */
+.archive-container { display: flex; flex-direction: column; gap: 16px; }
+.archive-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; }
+.archive-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.archive-body p { font-size: 14px; color: var(--text-main); margin-bottom: 6px; }
+.archive-actions { display: flex; gap: 10px; margin-top: 12px; }
+.archive-btn { background: none; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+.archive-btn:hover { background: var(--bg-main); }
+
+.achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.achievement-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; display: flex; gap: 12px; align-items: center; opacity: 0.5; }
+.achievement-card.unlocked { opacity: 1; border-color: var(--accent); }
+.achievement-icon { font-size: 24px; }
+.achievement-info h4 { font-size: 14px; color: var(--text-main); }
+.achievement-info p { font-size: 11px; color: var(--text-muted); }
+
+/* --- MODAL --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); padding: 30px; border-radius: 8px; width: 90%; max-width: 460px; color: var(--text-main); }
+.modal-card h3 { margin-bottom: 16px; }
+.modal-field { margin-bottom: 12px; font-size: 14px; }
+.modal-field span { color: var(--text-muted); display: block; font-size: 12px; }
+.modal-score-box { background: var(--bg-main); border: 1px solid var(--border-color); padding: 12px; border-radius: 4px; text-align: center; margin: 20px 0; }
+.modal-score-box div { font-size: 24px; font-weight: bold; color: var(--accent); }
+.modal-card button { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
