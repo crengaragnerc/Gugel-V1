@@ -19,14 +19,6 @@
                 </div>
             </div>
 
-            <div class="profile-card">
-                <div class="avatar">💻</div>
-                <div class="profile-info">
-                    <span>Operador activo: <strong id="logged-user-name">Unai</strong></span>
-                    <button class="sidebar-action-btn" onclick="openAuthModal()">👤 Cambiar cuenta</button>
-                </div>
-            </div>
-
             <div class="stats-section">
                 <h3>Rango de Sistema</h3>
                 <div class="level-badge" id="player-level">Nivel 1 (Iniciante)</div>
@@ -84,19 +76,6 @@
             </div>
 
         </main>
-    </div>
-
-    <div class="modal-overlay" id="auth-screen" style="display: none;">
-        <div class="modal-box">
-            <h3>Acceso Operador</h3>
-            <form id="auth-form">
-                <input type="text" id="auth-username" placeholder="Nuevo Operador..." required>
-                <div class="modal-buttons">
-                    <button type="button" class="btn-secondary" onclick="closeAuthModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Conectar</button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <div class="modal-overlay" id="result-modal" style="display: none;">
