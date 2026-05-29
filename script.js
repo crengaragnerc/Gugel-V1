@@ -1,31 +1,48 @@
-const PREGUNTAS = ["cagar verde", "rubik", "15 agosto", "dormir", "agua"];
+const PREGUNTAS = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto", "no dormir una noche"];
+let gameState = { index: 0 };
 
-function changeTheme() {
-    document.documentElement.setAttribute('data-theme', document.getElementById('theme-selector').value);
+function appendMessage(sender, text) {
+    const box = document.getElementById('chat-messages');
+    const msg = document.createElement('div');
+    msg.className = `message ${sender}`;
+    msg.innerHTML = sender === 'gugel' ? `<strong>GUGEL:</strong> ${text}` : text;
+    box.appendChild(msg);
+    box.scrollTop = box.scrollHeight;
 }
 
-function appendMsg(sender, text) {
-    const box = document.getElementById('chat-messages');
-    const div = document.createElement('div');
-    div.className = `message ${sender}`;
-    div.innerText = text;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
+function nextRound() {
+    const input = document.getElementById('user-input');
+    const btn = document.getElementById('send-btn');
+    input.disabled = true; btn.disabled = true;
+    let timeLeft = 4;
+    input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+    const timer = setInterval(() => {
+        timeLeft--;
+        input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            input.disabled = false; btn.disabled = false;
+            input.placeholder = "Escribe tu respuesta...";
+            input.focus();
+        }
+    }, 1000);
+    appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
-    appendMsg('ai', input.value);
-    document.getElementById('score-text').innerText = (input.value.length > 10 ? "10/10" : "5/10");
-    document.getElementById('modal').style.display = "flex";
+    if (!input.value.trim()) return;
+    appendMessage('ai', input.value);
+    document.getElementById('modal-score-number').innerText = "10/10";
+    document.getElementById('result-modal').style.display = "flex";
     input.value = "";
 };
 
-function closeModal() {
-    document.getElementById('modal').style.display = "none";
-    appendMsg('gugel', PREGUNTAS[Math.floor(Math.random() * PREGUNTAS.length)]);
+function closeResultModal() {
+    document.getElementById('result-modal').style.display = "none";
+    gameState.index++;
+    nextRound();
 }
 
-// Iniciar con la primera pregunta
-appendMsg('gugel', PREGUNTAS[0]);
+nextRound();
