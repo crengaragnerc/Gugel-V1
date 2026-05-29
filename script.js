@@ -113,20 +113,29 @@ function setTheme(theme) {
 }
 
 function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    // Forzar ocultación estricta de todos los bloques
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.setProperty('display', 'none', 'important');
+    });
     
+    // Desactivar estado visual de los botones
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Activar pestaña solicitada
     const targetTab = document.getElementById(tabId);
-    if (targetTab) targetTab.style.display = 'flex';
+    if (targetTab) {
+        targetTab.style.setProperty('display', 'flex', 'important');
+    }
     
+    // Enlazar la clase activa al botón correspondiente de la barra lateral
     const btns = document.querySelectorAll('.nav-btn');
     if (btns.length >= 3) {
-        const idx = tabId === 'chat-tab' ? 0 : tabId === 'archive-tab' ? 1 : 2;
-        btns[idx].classList.add('active');
+        if (tabId === 'chat-tab') btns[0].classList.add('active');
+        if (tabId === 'archive-tab') { btns[1].classList.add('active'); renderArchive(); }
+        if (tabId === 'achievements-tab') { btns[2].classList.add('active'); renderAchievements(); }
     }
-
-    if (tabId === 'archive-tab') renderArchive();
-    if (tabId === 'achievements-tab') renderAchievements();
 }
 
 // --- CORE DEL JUEGO ---
@@ -289,7 +298,7 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- MODAL DE RESULTADOS BLINDADO ---
+// --- MODAL DE RESULTADOS ---
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
     const modalQ = document.getElementById('modal-question');
