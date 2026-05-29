@@ -5,188 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL Core</title>
     <style>
-        /* Estilos Base y Centrado Absoluto de la Tarjeta */
-        * {
-            box-sizing: border-box;
-            font-family: monospace; /* Estilo técnico/hacker por defecto */
-        }
-
-        body { 
-            margin: 0; 
-            background: #121212; 
-            height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            transition: background 0.3s;
-        }
-
+        * { box-sizing: border-box; font-family: monospace; }
+        body { margin: 0; background: #121212; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        
         .chat-card { 
             width: 650px; 
             height: 85vh; 
             background: #1e1e1e; 
             border-radius: 16px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             display: flex; 
             flex-direction: column; 
-            overflow: hidden;
-            border: 1px solid #333;
-            transition: all 0.3s;
+            overflow: hidden; 
+            border: 1px solid #333; 
         }
-
-        /* Cabecera con Selector de Modos Reales */
-        .header { 
-            background: #1a1a1a; 
-            padding: 15px 20px; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333; 
-        }
-
-        .header h2 {
-            margin: 0;
-            font-size: 1.1rem;
-            color: #00ff00;
-        }
-
-        .mode-selector {
-            background: #2a2a2a;
-            color: #fff;
-            border: 1px solid #444;
-            padding: 5px 10px;
-            border-radius: 6px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        /* Panel de Estado: Nivel y Satisfacción */
-        .status-panel {
-            background: #161616;
-            padding: 12px 20px;
-            border-bottom: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        .level-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .progress-bar-bg {
-            width: 150px;
-            height: 8px;
-            background: #333;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            width: 10%;
-            height: 100%;
-            background: #00ff00;
-            transition: width 0.3s;
-        }
-
-        /* Zona de Mensajes (Ciclo Estricto de 3 Mensajes) */
-        .chat-messages { 
-            flex: 1; 
-            padding: 25px; 
-            overflow-y: auto; 
-            background: #141414; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-        }
-
-        .message { 
-            padding: 12px 18px; 
-            border-radius: 12px; 
-            max-width: 75%; 
-            font-size: 14px; 
-            line-height: 1.5;
-        }
-
-        .message.gugel { 
-            background: #222; 
-            align-self: flex-start; 
-            color: #00ff00; 
-            border: 1px solid #333;
-        }
-
-        .message.ai { 
-            background: #00ff00; 
-            color: #000; 
-            align-self: flex-end; 
-            font-weight: bold;
-        }
-
-        /* Formulario Inferior con Botón TRANSMITIR */
-        #chat-form { 
-            padding: 20px; 
-            border-top: 1px solid #333; 
-            display: flex; 
-            gap: 10px; 
-            background: #1a1a1a;
-        }
-
-        input { 
-            flex: 1; 
-            padding: 14px; 
-            background: #222;
-            border: 1px solid #444; 
-            color: #fff;
-            border-radius: 8px; 
-            outline: none;
-            font-size: 14px;
-        }
-
-        input:focus {
-            border-color: #00ff00;
-        }
-
-        button#transmit-btn { 
-            padding: 14px 24px; 
-            background: #00ff00; 
-            color: #000; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-        }
-
-        button#transmit-btn:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-        }
-
-        /* --- PALETAS DE COLOR PARA LOS MODOS --- */
         
-        /* Modo Oscuro */
+        .header { background: #1a1a1a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .header h2 { margin: 0; font-size: 1.1rem; color: #00ff00; }
+        .mode-selector { background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 5px 10px; border-radius: 6px; outline: none; cursor: pointer; }
+        
+        .status-panel { 
+            background: #161616; 
+            padding: 12px 20px; 
+            border-bottom: 1px solid #333; 
+            display: flex; 
+            justify-content: flex-end; 
+            font-size: 12px; 
+            color: #aaa; 
+        }
+        
+        .chat-messages { flex: 1; padding: 25px; overflow-y: auto; background: #141414; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 12px 18px; border-radius: 12px; max-width: 75%; font-size: 14px; line-height: 1.5; }
+        .message.gugel { background: #222; align-self: flex-start; color: #00ff00; border: 1px solid #333; }
+        .message.ai { background: #00ff00; color: #000; align-self: flex-end; font-weight: bold; }
+        
+        #chat-form { padding: 20px; border-top: 1px solid #333; display: flex; gap: 10px; background: #1a1a1a; }
+        input { flex: 1; padding: 14px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; outline: none; font-size: 14px; }
+        input:focus { border-color: #00ff00; }
+        
+        button { padding: 14px 24px; background: #00ff00; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
+        
+        #continue-btn { background: #fff; color: #000; display: none; width: 100%; }
+
+        /* Modos visuales */
         body.modo-oscuro { background: #121212; }
         body.modo-oscuro .chat-card { background: #1e1e1e; border-color: #333; }
-        body.modo-oscuro .header { background: #1a1a1a; border-color: #333; }
         body.modo-oscuro .header h2 { color: #fff; }
-        body.modo-oscuro .chat-messages { background: #141414; }
         body.modo-oscuro .message.gugel { color: #fff; background: #2a2a2a; border-color: #444; }
         body.modo-oscuro .message.ai { background: #fff; color: #000; }
-        body.modo-oscuro #chat-form { background: #1a1a1a; border-color: #333; }
-        body.modo-oscuro input { background: #252525; border-color: #444; color: #fff; }
         body.modo-oscuro button#transmit-btn { background: #fff; color: #000; }
-        body.modo-oscuro .progress-bar-fill { background: #fff; }
-
-        /* Modo Claro */
+        
         body.modo-claro { background: #f0f2f5; }
-        body.modo-claro .chat-card { background: #ffffff; border-color: #ddd; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        body.modo-claro .chat-card { background: #ffffff; border-color: #ddd; }
         body.modo-claro .header { background: #f8f9fa; border-color: #ddd; }
         body.modo-claro .header h2 { color: #333; }
         body.modo-claro .chat-messages { background: #fafafa; }
@@ -195,11 +65,12 @@
         body.modo-claro #chat-form { background: #ffffff; border-color: #ddd; }
         body.modo-claro input { background: #fff; border-color: #ccc; color: #222; }
         body.modo-claro button#transmit-btn { background: #333; color: #fff; }
-        body.modo-claro .progress-bar-fill { background: #333; }
         body.modo-claro .status-panel { background: #f1f1f1; border-color: #ddd; color: #555; }
     </style>
 </head>
-<body class="modo-hacker"> <div class="chat-card">
+<body class="modo-hacker">
+
+    <div class="chat-card">
         <header class="header">
             <h2>GUGEL Core</h2>
             <select class="mode-selector" id="mode-select" onchange="changeSystemMode()">
@@ -210,14 +81,8 @@
         </header>
 
         <div class="status-panel">
-            <div class="level-container">
-                <span id="system-level-text">NIVEL: 1</span>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="system-progress-fill"></div>
-                </div>
-            </div>
             <div>
-                <span>SATISFACCIÓN: <span id="satisfaction-percentage">100%</span></span>
+                <span>SATISFACCIÓN: <span id="satisfaction-percentage">50%</span></span>
             </div>
         </div>
 
@@ -226,6 +91,7 @@
         <form id="chat-form">
             <input type="text" id="user-input" placeholder="Escribe tu respuesta..." autocomplete="off">
             <button type="submit" id="transmit-btn">TRANSMITIR</button>
+            <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
         </form>
     </div>
 
@@ -237,18 +103,12 @@
         ];
 
         const REACCIONES_BOT = [
-            "PROCESANDO DATOS ENVIADOS...",
-            "TRANSMISIÓN CORRECTA. ANALIZANDO CONTENIDO...",
-            "DATOS ENTRANTES VALIDADOS POR EL CORE.",
-            "CAMBIO DE CICLO DETECTADO."
+            "TRANSMISIÓN COMPLETADA: Datos integrados en el Core de forma óptima.",
+            "PROCESANDO ENTRADA: Parámetros validados correctamente.",
+            "ESTADO DEL CORE: Sincronización de variables finalizada con éxito."
         ];
 
-        let gameState = { 
-            index: 0,
-            level: 1,
-            progress: 10,
-            satisfaction: 100
-        };
+        let gameState = { index: 0, satisfaction: 50 };
 
         function appendMessage(sender, text) {
             const box = document.getElementById('chat-messages');
@@ -261,80 +121,5 @@
 
         function nextRound() {
             const input = document.getElementById('user-input');
-            const btn = document.getElementById('transmit-btn');
-            input.disabled = true; 
-            btn.disabled = true;
-            
-            let timeLeft = 5; // Cuenta atrás estricta de 5 segundos
-            input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
-            
-            const timer = setInterval(() => {
-                timeLeft--;
-                input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    input.disabled = false; 
-                    btn.disabled = false;
-                    input.placeholder = "Escribe tu respuesta...";
-                    input.focus();
-                }
-            }, 1000);
-            
-            // Mensaje 1 del ciclo: Pregunta de GUGEL
-            appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
-        }
-
-        document.getElementById('chat-form').onsubmit = (e) => {
-            e.preventDefault();
-            const input = document.getElementById('user-input');
-            if (!input.value.trim()) return;
-            
-            // Mensaje 2 del ciclo: Tu respuesta
-            appendMessage('ai', input.value);
-            
-            // Mensaje 3 del ciclo: Reacción automática inmediata
-            const reaccion = REACCIONES_BOT[Math.floor(Math.random() * REACCIONES_BOT.length)];
-            appendMessage('gugel', reaccion);
-            
-            input.value = "";
-
-            // Actualización de los indicadores del sistema tras transmitir
-            updateSystemMetrics();
-
-            // Espera de cortesía de 3 segundos para leer la reacción antes de limpiar pantalla y cambiar de ronda
-            setTimeout(() => {
-                document.getElementById('chat-messages').innerHTML = "";
-                gameState.index++;
-                nextRound();
-            }, 3000);
-        };
-
-        function updateSystemMetrics() {
-            // Aumentar el progreso de la barra
-            gameState.progress += 15;
-            if (gameState.progress >= 100) {
-                gameState.progress = 10;
-                gameState.level += 1;
-                document.getElementById('system-level-text').innerText = `NIVEL: ${gameState.level}`;
-            }
-            document.getElementById('system-progress-fill').style.width = `${gameState.progress}%`;
-
-            // Fluctuación del porcentaje de satisfacción
-            gameState.satisfaction = Math.floor(Math.random() * (100 - 85 + 1)) + 85;
-            document.getElementById('satisfaction-percentage').innerText = `${gameState.satisfaction}%`;
-        }
-
-        // Control de los Modos Visuales Reales
-        function changeSystemMode() {
-            const select = document.getElementById('mode-select');
-            document.body.className = ''; // Limpiar modos anteriores
-            if (select.value !== 'modo-hacker') {
-                document.body.classList.add(select.value);
-            }
-        }
-
-        // Inicio automático del flujo
-        nextRound();
-    </script>
-</body>
-</html>
+            const transmitBtn = document.getElementById('transmit-btn');
+            const continueBtn = document.getElementById('
