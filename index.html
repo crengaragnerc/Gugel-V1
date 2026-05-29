@@ -8,15 +8,13 @@
         * { box-sizing: border-box; font-family: monospace; }
         body { margin: 0; background: #121212; height: 100vh; display: flex; justify-content: center; align-items: center; }
         
-        /* Contenedor Principal con Diseño de Módulos */
         .system-container {
-            width: 950px;
+            width: 1000px;
             height: 85vh;
             display: flex;
             gap: 20px;
         }
 
-        /* Barra Lateral Izquierda (Secciones Solicitadas) */
         .sidebar {
             width: 280px;
             background: #1a1a1a;
@@ -56,7 +54,6 @@
             border-color: #00ff00;
         }
 
-        /* Bloque de la Tarjeta del Sistema (Derecha) */
         .chat-card { 
             flex: 1;
             background: #1e1e1e; 
@@ -71,7 +68,6 @@
         .header h2 { margin: 0; font-size: 1.1rem; color: #00ff00; }
         .mode-selector { background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 5px 10px; border-radius: 6px; outline: none; cursor: pointer; }
         
-        /* Paneles de Contenido Dinámico */
         .content-panel {
             flex: 1;
             padding: 30px;
@@ -108,7 +104,9 @@
             margin-bottom: 4px;
         }
 
-        /* Estilos del Chat */
+        .badge-locked { color: #ff3333; font-weight: bold; }
+        .badge-unlocked { color: #00ff00; font-weight: bold; }
+
         .chat-messages { flex: 1; padding: 25px; overflow-y: auto; background: #141414; display: flex; flex-direction: column; gap: 15px; }
         .message { padding: 12px 18px; border-radius: 12px; max-width: 75%; font-size: 14px; line-height: 1.5; }
         .message.gugel { background: #222; align-self: flex-start; color: #00ff00; border: 1px solid #333; }
@@ -123,7 +121,12 @@
         
         #continue-btn { background: #fff; color: #000; display: none; width: 100%; }
 
-        /* Modos visuales alternativos */
+        .historial-lista { display: flex; flex-direction: column; gap: 10px; }
+        .historial-item { background: #1a1a1a; border: 1px solid #333; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .fav-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 16px; }
+        .fav-btn.active { color: #ffcc00; }
+
+        /* Modos visuales */
         body.modo-oscuro { background: #121212; }
         body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #1e1e1e; border-color: #333; }
         body.modo-oscuro .header h2 { color: #fff; }
@@ -151,19 +154,19 @@
     <div class="system-container">
         
         <div class="sidebar">
-            <button class="nav-btn active" onclick="switchView('view-chat')">💬 INTERFAZ CORE</button>
+            <button class="nav-btn active" id="btn-view-chat" onclick="switchView('view-chat')">💬 INTERFAZ CORE</button>
             
             <div class="sidebar-title">👤 PERFIL</div>
-            <button class="nav-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
+            <button class="nav-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">DATOS PERFIL</button>
             
             <div class="sidebar-title">🏆 LOGROS</div>
-            <button class="nav-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
+            <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
             
             <div class="sidebar-title">📁 HISTORIAL</div>
-            <button class="nav-btn" onclick="switchView('view-historial')">CONVERSACIONES</button>
+            <button class="nav-btn" id="btn-view-historial" onclick="switchView('view-historial')">CONVERSACIONES</button>
             
             <div class="sidebar-title">🎯 RECOMENDACIONES</div>
-            <button class="nav-btn" onclick="switchView('view-recomendaciones')">SUGERENCIAS IA</button>
+            <button class="nav-btn" id="btn-view-recomendaciones" onclick="switchView('view-recomendaciones')">SUGERENCIAS IA</button>
         </div>
 
         <div class="chat-card">
@@ -189,28 +192,28 @@
                 <h3>Módulo de Perfil del Usuario</h3>
                 <div class="data-item">
                     <div class="data-label">Opinión de Gugel sobre ti:</div>
-                    <div id="prof-opinion">Sin datos suficientes. Transmite una respuesta primero.</div>
+                    <div id="prof-opinion" style="font-style: italic; color: #aaa;">Sin datos suficientes. Transmite una respuesta primero.</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Porcentaje de Satisfacción:</div>
-                    <div style="font-weight: bold; font-size: 16px;" id="prof-satisfaction">50%</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #00ff00;" id="prof-satisfaction">50%</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Estadísticas Personales:</div>
-                    <div>Ciclos completados: <span id="prof-cycles">0</span></div>
-                    <div>Caracteres transmitidos: <span id="prof-chars">0</span></div>
+                    <div>Ciclos completados: <span id="prof-cycles" style="color:#00ff00; font-weight:bold;">0</span></div>
+                    <div>Caracteres transmitidos: <span id="prof-chars" style="color:#00ff00; font-weight:bold;">0</span></div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Historial de Comportamiento:</div>
-                    <div id="prof-behavior">Patrón técnico estable. Cumplimiento estricto del protocolo.</div>
+                    <div id="prof-behavior">Patrón inicializado. Esperando registros de flujo...</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Resumen de Chats:</div>
-                    <div>Sesiones activas: 1. Enfoque prioritario en optimización de scripts locales.</div>
+                    <div id="prof-summary">No se han cerrado transmisiones en la sesión actual.</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Títulos / Logros Personales:</div>
-                    <div id="prof-titles">Operador de Núcleo Novato</div>
+                    <div id="prof-titles" style="font-weight: bold; color: #00ff00;">Operador de Núcleo Novato</div>
                 </div>
             </div>
 
@@ -218,44 +221,42 @@
                 <h3>Registro de Logros</h3>
                 <div class="data-item">
                     <div class="data-label">🏆 Logros Raros</div>
-                    <div>• [BLOQUEADO] - Silencio Absoluto: Pasar una ronda sin escribir caracteres válidos.</div>
+                    <div id="logro-raro"><span class="badge-locked">[BLOQUEADO]</span> Silencio Corto: Responder con menos de 3 caracteres.</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">👤 Logros Personales</div>
-                    <div>• Primera Transmisión: Enviar con éxito el primer paquete de datos al Core.</div>
+                    <div id="logro-personal"><span class="badge-locked">[BLOQUEADO]</span> Primera Transmisión: Enviar con éxito el primer paquete de datos al Core.</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">🔒 Exclusivos (No todo el mundo los tiene)</div>
-                    <div>• Sincronización Perfecta: Responder exactamente en el segundo de desbloqueo.</div>
+                    <div id="logro-exclusivo"><span class="badge-locked">[BLOQUEADO]</span> Mente de Cuber: Responder a la pregunta sobre el cubo Rubik.</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">⚙️ Acciones Específicas</div>
-                    <div>• Alternador: Cambiar entre los tres modos de interfaz durante el procesamiento de un ciclo.</div>
+                    <div id="logro-accion"><span class="badge-locked">[BLOQUEADO]</span> Alternador: Cambiar el modo visual del sistema desde el selector superior.</div>
                 </div>
             </div>
 
             <div id="view-historial" class="content-panel">
                 <h3>Gestión de Almacenamiento</h3>
                 <div class="data-item">
-                    <div class="data-label">Guardar Chats / Historial de Conversaciones</div>
-                    <div style="color: #888; font-style: italic;">Los datos de las transmisiones cerradas se archivan localmente de forma automática.</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">⭐ Favoritos</div>
-                    <div>Ninguna transmisión marcada como prioritaria actualmente.</div>
+                    <div class="data-label">Historial de Conversaciones</div>
+                    <div class="historial-lista" id="history-list-container">
+                        <div style="color: #666; font-style: italic;">No hay registros guardados en el búfer.</div>
+                    </div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">🔗 Compartir Conversaciones</div>
-                    <button class="action-btn" style="padding: 6px 12px; font-size: 11px;" onclick="alert('Enlace de volcado generado en el portapapeles local.')">Exportar Datos del Core</button>
+                    <button class="action-btn" style="padding: 8px 16px; font-size: 11px;" onclick="exportCoreData()">Exportar Datos del Core</button>
                 </div>
             </div>
 
             <div id="view-recomendaciones" class="content-panel">
                 <h3>Sistema de Sugerencias de Entrada</h3>
                 <div class="data-item" style="border-left: 3px solid #00ff00;">
-                    <div style="font-style: italic; margin-bottom: 8px;" id="rec-trigger">“Esperando primera transmisión de datos...”</div>
+                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #00ff00;" id="rec-trigger">“Esperando primera transmisión de datos...”</div>
                     <div class="data-label">Recomendaciones Automáticas / Temas Conectados:</div>
-                    <div id="rec-links" style="color: #aaa;">El algoritmo requiere un envío de datos previo para trazar conexiones.</div>
+                    <div id="rec-links" style="color: #aaa; line-height: 1.6;">El algoritmo requiere un envío de datos previo para trazar conexiones de temas relacionados.</div>
                 </div>
             </div>
 
@@ -276,19 +277,18 @@
             "Datos recibidos. La base de datos se siente profundamente insultada por tu respuesta."
         ];
 
-        // Mapeo para el sistema de recomendaciones estilo Netflix
         const RECOMENDACIONES_MAP = {
             "cagar verde normal": {
-                trigger: "ya que has respondido sobre cambios biológicos...",
-                links: "• Preguntas relacionadas: 'duración digestión estándar', 'componentes de la bilis', 'efectos de la clorofila'."
+                trigger: "ya que has respondido sobre cambios biológicos y digestivos...",
+                links: "• Preguntas automáticas sugeridas:<br>-> 'duración estándar de la digestión humana'<br>-> 'componentes de la bilis y pigmentación'<br>-> 'efectos secundarios del exceso de clorofila'"
             },
             "como hacer cubo rubik": {
-                trigger: "ya que has respondido sobre algoritmos de permutación...",
-                links: "• Preguntas relacionadas: 'notación oficial WCA', 'lubricantes de núcleo', 'récord speedcubing 2026'."
+                trigger: "ya que has respondido sobre algoritmos de permutación espacial...",
+                links: "• Preguntas automáticas sugeridas:<br>-> 'notación oficial de la WCA (World Cube Association)'<br>-> 'tipos de lubricantes para el núcleo del cubo'<br>-> 'evolución cronológica del récord mundial de speedcubing'"
             },
             "que se celebra 15 de agosto": {
-                trigger: "ya que has respondido sobre efemérides del calendario...",
-                links: "• Preguntas relacionadas: 'días no laborables España', 'origen de las fiestas de agosto', 'santo del día'."
+                trigger: "ya que has respondido sobre efemérides e hitos del calendario...",
+                links: "• Preguntas automáticas sugeridas:<br>-> 'días no laborables y festivos estatales'<br>-> 'origen histórico de las celebraciones de mediados de agosto'<br>-> 'santoral completo del mes correspondiente'"
             }
         };
 
@@ -297,27 +297,25 @@
             satisfaction: 50,
             cycles: 0,
             totalChars: 0,
-            lastOpinion: "Sin datos."
+            lastOpinion: "Sin datos.",
+            history: [],
+            logros: { raro: false, personal: false, exclusivo: false, accion: false }
         };
 
         function switchView(viewId) {
-            // Cambiar pestañas activas en el menú lateral
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            // Encontrar el botón correspondiente
-            const eventBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(viewId));
-            if(eventBtn) eventBtn.classList.add('active');
+            const activeBtn = document.getElementById(`btn-${viewId}`);
+            if (activeBtn) activeBtn.classList.add('active');
 
-            // Cambiar paneles visibles
             document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+            const activePanel = document.getElementById(viewId);
+            activePanel.classList.add('active');
 
-            // Ajustar comportamiento de visualización para el contenedor flex del chat
-            const chatView = document.getElementById('view-chat');
             if (viewId === 'view-chat') {
-                chatView.style.display = 'flex';
+                activePanel.style.display = 'flex';
                 document.getElementById('panel-title-text').innerText = "GUGEL Core";
             } else {
-                chatView.style.display = 'none';
+                activePanel.style.display = 'block';
                 document.getElementById('panel-title-text').innerText = "GUGEL Core - Sistema de Módulos";
             }
         }
@@ -366,20 +364,39 @@
             const input = document.getElementById('user-input');
             const transmitBtn = document.getElementById('transmit-btn');
             const continueBtn = document.getElementById('continue-btn');
-            if (!input.value.trim()) return;
+            const userText = input.value.trim();
+            if (!userText) return;
             
-            // 1. Mensaje tuyo
-            const userText = input.value;
             appendMessage('ai', userText);
             
-            // 2. Opinión de GUGEL
             const opinion = OPINIONES_GUGEL[Math.floor(Math.random() * OPINIONES_GUGEL.length)];
             appendMessage('gugel', opinion);
             
-            // Actualizar datos de sesión
+            // Procesamiento real de variables globales
             gameState.cycles++;
             gameState.totalChars += userText.length;
             gameState.lastOpinion = opinion;
+
+            // Guardado real en estructura de historial
+            gameState.history.push({
+                pregunta: PREGUNTAS[gameState.index % PREGUNTAS.length],
+                respuesta: userText,
+                fav: false
+            });
+
+            // Lógica de comprobación de logros
+            if (!gameState.logros.personal) {
+                gameState.logros.personal = true;
+                document.getElementById('logro-personal').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Primera Transmisión: Paquete inicial integrado en el Core.`;
+            }
+            if (userText.length < 3 && !gameState.logros.raro) {
+                gameState.logros.raro = true;
+                document.getElementById('logro-raro').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Silencio Corto: Transmisión procesada con volumen mínimo de caracteres.`;
+            }
+            if (PREGUNTAS[gameState.index % PREGUNTAS.length].includes("rubik") && !gameState.logros.exclusivo) {
+                gameState.logros.exclusivo = true;
+                document.getElementById('logro-exclusivo').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Mente de Cuber: Modificación algorítmica espacial detectada en base de datos.`;
+            }
 
             input.value = "";
             input.style.display = "none";
@@ -387,7 +404,9 @@
             continueBtn.style.display = "block";
 
             updateSatisfaction();
-            updateProfileAndRecommendations();
+            renderProfileData();
+            renderHistoryData();
+            renderRecommendations();
         };
 
         window.confirmContinue = function() {
@@ -401,24 +420,72 @@
             gameState.satisfaction += cambio;
             if (gameState.satisfaction > 100) gameState.satisfaction = 100;
             if (gameState.satisfaction < 0) gameState.satisfaction = 0;
-            
-            document.getElementById('satisfaction-percentage').innerText = `${gameState.satisfaction}%`;
         }
 
-        function updateProfileAndRecommendations() {
-            // Actualizar elementos visuales del Perfil
+        function renderProfileData() {
             document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
             document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
             document.getElementById('prof-cycles').innerText = gameState.cycles;
             document.getElementById('prof-chars').innerText = gameState.totalChars;
 
-            // Cambiar título honorífico según ciclos
-            if (gameState.cycles >= 3) {
-                document.getElementById('prof-titles').innerText = "Analista de Datos Avanzado";
+            // Cambios automáticos de comportamiento e historial analítico
+            if(gameState.satisfaction >= 70) {
+                document.getElementById('prof-behavior').innerText = "Flujo optimizado. Alta tasa de asimilación de variables.";
+            } else if(gameState.satisfaction <= 30) {
+                document.getElementById('prof-behavior').innerText = "Inestabilidad crítica en búfer. Datos inconsistentes.";
+            } else {
+                document.getElementById('prof-behavior').innerText = "Operación estándar. Sincronización continua.";
             }
 
-            // Actualizar recomendaciones estilo Netflix basadas en la pregunta actual
-            const preguntaActual = PREGUNTAS[gameState.index % PREGUNTAS.length];
+            document.getElementById('prof-summary').innerText = `Procesados un total de ${gameState.cycles} ciclos con coherencia estructural verificada.`;
+
+            if (gameState.logros.exclusivo) {
+                document.getElementById('prof-titles').innerText = "Especialista en Permutaciones Core";
+            } else if (gameState.cycles >= 2) {
+                document.getElementById('prof-titles').innerText = "Analista de Datos Verificado";
+            }
+        }
+
+        function renderHistoryData() {
+            const container = document.getElementById('history-list-container');
+            if (gameState.history.length === 0) return;
+
+            container.innerHTML = "";
+            gameState.history.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'historial-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>Q:</strong> ${item.pregunta} <br>
+                        <strong style="color:#00ff00;">A:</strong> ${item.respuesta}
+                    </div>
+                    <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.toggleFavorite = function(idx) {
+            gameState.history[idx].fav = !gameState.history[idx].fav;
+            renderHistoryData();
+        };
+
+        function exportCoreData() {
+            if(gameState.history.length === 0) {
+                alert("El historial está vacío. No hay datos que exportar.");
+                return;
+            }
+            let textoVolcado = "=== VOLCADO DE LOGS DE GUGEL CORE ===\n";
+            gameState.history.forEach((h, i) => {
+                textoVolcado += `Ciclo ${i+1} |\n Pregunta: ${h.pregunta}\n Respuesta: ${h.respuesta}\n Favorito: ${h.fav ? 'SÍ' : 'NO'}\n-------------------\n`;
+            });
+            navigator.clipboard.writeText(textoVolcado).then(() => {
+                alert("Volcado completo del historial copiado al portapapeles local del sistema.");
+            });
+        }
+
+        function renderRecommendations() {
+            const preguntaActual = PREGUNTAS[(gameState.index) % PREGUNTAS.length];
             const dataRec = RECOMENDACIONES_MAP[preguntaActual];
             if (dataRec) {
                 document.getElementById('rec-trigger').innerText = `“Ya que has respondido a '${preguntaActual}'...”`;
@@ -431,6 +498,12 @@
             document.body.className = ''; 
             if (select.value !== 'modo-hacker') {
                 document.body.classList.add(select.value);
+            }
+
+            if (!gameState.logros.accion) {
+                gameState.logros.accion = true;
+                document.getElementById('logro-accion').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Alternador: Módulo visual reconfigurado dinámicamente.`;
+                renderProfileData();
             }
         }
 
