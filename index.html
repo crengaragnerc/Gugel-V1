@@ -12,10 +12,13 @@
         
         <div class="sidebar">
             <button class="nav-btn active" id="btn-view-consultas" onclick="switchView('view-consultas')">💬 PANEL DE CONSULTAS</button>
+            
             <div class="sidebar-title">👤 MONITOR DE SESIÓN</div>
             <button class="nav-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
+            
             <div class="sidebar-title">🏆 REGISTRO INTERNO</div>
             <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS DEL SISTEMA (<span id="logros-count">0</span>)</button>
+            
             <div class="sidebar-title">📁 REGISTRO CENTRAL</div>
             <button class="nav-btn" id="btn-view-historial" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
         </div>
@@ -43,7 +46,7 @@
                 <h3>Módulo de Perfil del Usuario</h3>
                 <div class="data-item">
                     <div class="data-label">Opinión de Gugel sobre ti:</div>
-                    <div id="prof-opinion" style="font-style: italic; color: #ffffff; font-weight: bold;">(esperando datos)</div>
+                    <div id="prof-opinion" style="font-style: italic; color: #ffffff;">no hay consultas en la sesión actual</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Porcentaje de Satisfacción:</div>
