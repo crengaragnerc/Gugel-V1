@@ -4,12 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL Core</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* CSS Integrado para asegurar el estilo IA y evitar errores de carga */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body { 
+            margin: 0; 
+            background: #1a1a1a; 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+
+        .chat-card { 
+            width: 650px; 
+            height: 85vh; 
+            background: #ffffff; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+        }
+
+        .header { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee; 
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #222;
+            letter-spacing: 0.5px;
+        }
+
+        /* Botones de funciones del sistema en el Header */
+        .system-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .sys-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #495057;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sys-btn:hover {
+            background: #dee2e6;
+        }
+
+        .chat-messages { 
+            flex: 1; 
+            padding: 25px; 
+            overflow-y: auto; 
+            background: #fafafa; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+
+        .message { 
+            padding: 12px 18px; 
+            border-radius: 16px; 
+            max-width: 75%; 
+            font-size: 14px; 
+            line-height: 1.5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .message.gugel { 
+            background: #f0f0f0; 
+            align-self: flex-start; 
+            color: #222; 
+            border-top-left-radius: 4px;
+        }
+
+        .message.ai { 
+            background: #222; 
+            color: #fff; 
+            align-self: flex-end; 
+            border-top-right-radius: 4px;
+        }
+
+        #chat-form { 
+            padding: 20px; 
+            border-top: 1px solid #eee; 
+            display: flex; 
+            gap: 10px; 
+            background: #fff;
+        }
+
+        input { 
+            flex: 1; 
+            padding: 14px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 12px; 
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #222;
+        }
+
+        button#send-btn { 
+            padding: 14px 24px; 
+            background: #222; 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        button#send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Modal con estilo IA limpio */
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(4px);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 999;
+        }
+
+        .modal-box { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 24px; 
+            text-align: center; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 320px;
+        }
+
+        .modal-box h1 {
+            margin: 0 0 10px 0;
+            font-size: 3rem;
+            color: #222;
+        }
+
+        .modal-box p {
+            margin: 0 0 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .modal-box button {
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+
     <div class="chat-card">
         <header class="header">
             <h2>GUGEL Core</h2>
+            <div class="system-controls">
+                <button class="sys-btn" onclick="triggerSystemCheck()">DIAGNOSTICO</button>
+                <button class="sys-btn" onclick="resetSystemMemory()">RESET CORE</button>
+            </div>
         </header>
         <div class="chat-messages" id="chat-messages"></div>
         <form id="chat-form">
@@ -20,10 +207,111 @@
 
     <div class="modal-overlay" id="result-modal" style="display: none;">
         <div class="modal-box">
-            <h1 id="modal-score-number">0/10</h1>
+            <h1 id="modal-score-number">10/10</h1>
+            <p id="modal-reaction-text">Procesamiento completado.</p>
             <button onclick="closeResultModal()">CONTINUAR</button>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Lógica de juego con el ciclo estricto de 3 mensajes incluyendo la reacción
+        const PREGUNTAS = [
+            "cagar verde normal", 
+            "como hacer cubo rubik", 
+            "que se celebra 15 de agosto"
+        ];
+
+        // Respuestas automáticas del bot simulando análisis IA basado en palabras clave
+        const REACCIONES_BOT = [
+            "Análisis completado. Estructura de respuesta óptima.",
+            "Detectada consistencia técnica alta en los parámetros.",
+            "Entrada válida. Sincronización de datos al 98.4%.",
+            "Respuesta registrada en el núcleo del sistema."
+        ];
+
+        let gameState = { index: 0 };
+
+        function appendMessage(sender, text) {
+            const box = document.getElementById('chat-messages');
+            const msg = document.createElement('div');
+            msg.className = `message ${sender}`;
+            msg.innerHTML = sender === 'gugel' ? `<strong>GUGEL:</strong> ${text}` : text;
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function nextRound() {
+            const input = document.getElementById('user-input');
+            const btn = document.getElementById('send-btn');
+            input.disabled = true; 
+            btn.disabled = true;
+            
+            let timeLeft = 5; // Temporizador estricto de 5 segundos
+            input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    input.disabled = false; 
+                    btn.disabled = false;
+                    input.placeholder = "Escribe tu respuesta...";
+                    input.focus();
+                }
+            }, 1000);
+            
+            // Mensaje 1 del ciclo: Pregunta de GUGEL
+            appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
+        }
+
+        document.getElementById('chat-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('user-input');
+            if (!input.value.trim()) return;
+            
+            // Mensaje 2 del ciclo: Respuesta tuya (AI)
+            appendMessage('ai', input.value);
+            
+            // Mensaje 3 del ciclo: Reacción inmediata de GUGEL en el chat antes del modal
+            const reaccionAleatoria = REACCIONES_BOT[Math.floor(Math.random() * REACCIONES_BOT.length)];
+            appendMessage('gugel', reaccionAleatoria);
+            
+            // Configurar y mostrar el modal de evaluación
+            document.getElementById('modal-score-number').innerText = "10/10";
+            document.getElementById('modal-reaction-text').innerText = "Ciclo finalizado con éxito.";
+            
+            // Retardo mínimo para que veas la reacción en el chat antes de que cubra el modal
+            setTimeout(() => {
+                document.getElementById('result-modal').style.display = "flex";
+            }, 600);
+            
+            input.value = "";
+        };
+
+        window.closeResultModal = function() {
+            document.getElementById('result-modal').style.display = "none";
+            // Limpiar la pantalla para mantener el flujo de 3 mensajes limpio por ronda
+            document.getElementById('chat-messages').innerHTML = "";
+            gameState.index++;
+            nextRound();
+        };
+
+        // Funciones de los nuevos botones de control del sistema
+        window.triggerSystemCheck = function() {
+            alert("DIAGNÓSTICO CORE:\n- Conexión: Estable\n- Ciclo de 3 mensajes: Operativo\n- Temporizador: 5s");
+        };
+
+        window.resetSystemMemory = function() {
+            if(confirm("¿Reiniciar el índice de preguntas al inicio?")) {
+                gameState.index = 0;
+                document.getElementById('chat-messages').innerHTML = "";
+                nextRound();
+            }
+        };
+
+        // Inicio automático del sistema
+        nextRound();
+    </script>
 </body>
 </html>
