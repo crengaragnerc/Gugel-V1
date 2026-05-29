@@ -248,7 +248,7 @@
     </div>
 
     <script>
-        const PREGUNTAS = [
+        const PREGUNTAS_BASE = [
             "cagar verde normal", 
             "agua porque moja",
             "duele la cabeza al pensar",
@@ -256,12 +256,20 @@
             "por que los patos no se hunden"
         ];
 
+        const GEN_PREFIJOS = ["porque los", "como saber si mi", "es normal que el", "que pasa si como", "por que el", "que significa soñar con", "se puede vivir con un"];
+        const GEN_SUFIJOS = ["gato me mira fijamente", "teclado escribe solo", "agua tiene sabor a metal", "plastilina se puede comer", "brazo me tiembla un poco", "universo es infinito", "espejo se mueve", "perro duerme boca arriba"];
+
         const REACCIONES_OK = [
-            "ah vale me quedo mas tranquilo entonces cerrare the pestaña",
+            "ah vale me quedo mas tranquilo entonces cerrare la pestaña",
             "me cuadra bastante la explicacion tiene sentido",
             "vale entonces no me preocupo pensaba que era algo peor",
             "entendido menos mal que lo he buscado aqui ya me estaba rayando",
-            "ok me sirve"
+            "ok me sirve bastante esa respuesta",
+            "perfecto ya entendi el problema de raiz",
+            "bueno con eso me basta para no ir a urgencias",
+            "tiene logica gracias por la info",
+            "menos mal crei que me iba a morir o algo",
+            "vale lo anoto para tenerlo en cuenta"
         ];
 
         const REACCIONES_RECHAZO = [
@@ -269,11 +277,16 @@
             "vaya porqueria de buscador no me aclara nada",
             "eso no responde a mi pregunta que respuesta mas inutil",
             "para poner eso mejor no pongas nada sigo igual de rayado",
-            "no me sirve para nada abrire otra pestaña"
+            "no me sirve para nada abrire otra pestaña",
+            "que respuesta mas absurda que flojera",
+            "eso es una tonteria no tiene ningun sentido",
+            "vaya pérdida de tiempo me voy a otra pagina",
+            "no te entiendo nada hablas raro",
+            "que estafa de pagina sigo con la misma duda"
         ];
 
-        // Filtros mejorados para detectar troleos/insultos/evasivas
-        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "nunca piensas", "jaja", "lol"];
+        // Eliminados los insultos. Solo quedan evasivas genéricas de texto vacío
+        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea"];
 
         let gameState = { 
             index: 0, 
@@ -281,6 +294,7 @@
             cycles: 0,
             totalChars: 0,
             lastOpinion: "sin datos",
+            currentPregunta: "",
             history: [],
             logrosDesbloqueados: []
         };
@@ -318,6 +332,12 @@
             box.scrollTop = box.scrollHeight;
         }
 
+        function generarPreguntaInfinita() {
+            const pref = GEN_PREFIJOS[Math.floor(Math.random() * GEN_PREFIJOS.length)];
+            const suf = GEN_SUFIJOS[Math.floor(Math.random() * GEN_SUFIJOS.length)];
+            return `${pref} ${suf}`;
+        }
+
         function nextRound() {
             const input = document.getElementById('user-input');
             const transmitBtn = document.getElementById('transmit-btn');
@@ -326,8 +346,14 @@
             continueBtn.style.display = "none";
             transmitBtn.style.display = "block";
             input.style.display = "block";
+
+            if (gameState.index < PREGUNTAS_BASE.length) {
+                gameState.currentPregunta = PREGUNTAS_BASE[gameState.index];
+            } else {
+                gameState.currentPregunta = generarPreguntaInfinita();
+            }
             
-            appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
+            appendMessage('gugel', gameState.currentPregunta);
             
             input.disabled = true; 
             transmitBtn.disabled = true;
@@ -358,9 +384,10 @@
             
             appendMessage('ai', userText);
             
-            // Si responde "no" o "si" de forma directa a "cagar verde normal" no debería considerarse basura automáticamente
-            let esRespuestaValidaCorta = (userText === "no" || userText === "si" || userText === "ci") && (PREGUNTAS[gameState.index % PREGUNTAS.length] === "cagar verde normal");
+            // Se recupera la excepción controlada para respuestas analíticas cortas legítimas
+            let esRespuestaValidaCorta = (userText === "no" || userText === "si" || userText === "ci" || userText === "depende");
             
+            // Vuelve la restricción de longitud de 3 caracteres como evasiva genérica
             let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || (userText.length <= 3 && !esRespuestaValidaCorta);
             let reaccion = "";
             let cambioSatisfacion = 0;
@@ -386,9 +413,9 @@
                 gameState.lastOpinion = reaccion;
 
                 gameState.history.push({
-                    pregunta: PREGUNTAS[gameState.index % PREGUNTAS.length],
+                    pregunta: gameState.currentPregunta,
                     respuesta: userText,
-                    reaccion: reaccion, // Guardamos la reacción aquí
+                    reaccion: reaccion,
                     fav: false
                 });
 
@@ -409,7 +436,7 @@
         };
 
         function verifLogro(id) {
-            if (!gameState.logrosDesbloqueados.includes(id)) {
+            if (LOGROS_DEFINICIONES[id] && !gameState.logrosDesbloqueados.includes(id)) {
                 gameState.logrosDesbloqueados.push(id);
             }
         }
