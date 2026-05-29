@@ -12,15 +12,26 @@ const PREGUNTAS_BASE = [
 let gameState = JSON.parse(localStorage.getItem('gugelState')) || { 
     index: 0, satisfaction: 50, cycles: 0, totalChars: 0, history: [] 
 };
-
 function generarReaccion(texto) {
     const t = texto.toLowerCase();
     const evasivas = ["porque si", "no se", "jaja", "ño", "nose"];
     
-    if (evasivas.some(e => t.includes(e))) return "otra vez con evasivas... ¿te cuesta tanto pensar?";
-    if (t.includes("ia") || t.includes("sistema")) return "suenas como una máquina barata. prueba a ser humano.";
-    if (t.includes("jaja") || t.includes("trola")) return "jaja, muy gracioso. sigamos.";
+    // Si detecta evasivas o intentos de ser gracioso, GUGEL corta el rollo
+    if (evasivas.some(e => t.includes(e))) return "qué aburrido eres.";
+    if (t.includes("ia") || t.includes("sistema")) return "no intentes analizarme, humano.";
+    if (t.includes("jaja") || t.includes("trola")) return "no tiene ninguna gracia.";
     
+    // Aquí está la esencia pura de GUGEL (sin registros, sin secretarios)
+    const respuestas = [
+        "¿y eso es todo lo que tienes que decir?",
+        "qué decepción de respuesta.",
+        "ni fu ni fa. siguiente.",
+        "podrías haberte esforzado un poco más.",
+        "paso de tu cara.",
+        "bueno... al menos has respondido."
+    ];
+    return respuestas[Math.floor(Math.random() * respuestas.length)];
+}
     const reaccionesNeutras = [
         "interesante. anótalo en el registro.",
         "bueno, alguien tenía que decirlo.",
