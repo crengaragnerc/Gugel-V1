@@ -1,33 +1,103 @@
-* { box-sizing: border-box; font-family: monospace; }
-body { margin: 0; background: #0c0c0c; height: 100vh; display: flex; justify-content: center; align-items: center; }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUGEL Core</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body class="modo-hacker">
 
-.system-container { width: 1050px; height: 85vh; display: flex; gap: 20px; }
-.sidebar { width: 280px; background: #141414; border-radius: 12px; border: 1px solid #222; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-.sidebar-title { color: #444; font-size: 11px; font-weight: bold; margin-top: 10px; margin-bottom: 4px; letter-spacing: 1px; }
-.nav-btn { background: #1a1a1a; color: #888; border: 1px solid #222; padding: 12px; text-align: left; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: all 0.1s; }
-.nav-btn:hover, .nav-btn.active { background: #00ff00; color: #000; border-color: #00ff00; }
-.chat-card { flex: 1; background: #141414; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #222; }
-.header { background: #1a1a1a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-.header h2 { margin: 0; font-size: 1.1rem; color: #00ff00; }
-.mode-selector { background: #222; color: #fff; border: 1px solid #333; padding: 5px 10px; border-radius: 4px; outline: none; cursor: pointer; }
-.content-panel { flex: 1; padding: 30px; background: #0f0f0f; display: none; overflow-y: auto; color: #ccc; }
-#view-consultas.content-panel.active { display: flex; flex-direction: column; padding: 0; }
-.content-panel.active { display: block; }
-.content-panel h3 { margin-top: 0; color: #00ff00; border-bottom: 1px solid #222; padding-bottom: 10px; font-size: 15px; }
-.data-item { background: #141414; border: 1px solid #222; padding: 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; line-height: 1.5; }
-.data-label { color: #555; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-.badge-unlocked { color: #00ff00; font-weight: bold; }
-.chat-messages { flex: 1; padding: 25px; overflow-y: auto; background: #0b0b0b; display: flex; flex-direction: column; gap: 15px; }
-.message { padding: 12px 16px; border-radius: 8px; max-width: 80%; font-size: 14px; line-height: 1.5; }
-.message.gugel { background: #141414; align-self: flex-start; color: #fff; border: 1px solid #222; }
-.message.ai { background: #222; color: #00ff00; align-self: flex-end; border: 1px solid #333; }
-#chat-form { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; background: #141414; }
-input { flex: 1; padding: 14px; background: #0f0f0f; border: 1px solid #222; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
-input:focus { border-color: #00ff00; }
-button.action-btn { padding: 14px 24px; background: #00ff00; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
-button.action-btn:disabled { background: #222; color: #444; cursor: not-allowed; }
-#continue-btn { background: #fff; color: #000; display: none; width: 100%; }
-.historial-lista { display: flex; flex-direction: column; gap: 10px; }
-.historial-item { background: #141414; border: 1px solid #222; padding: 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-.fav-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
-.fav-btn.active { color: #00ff00; }
+    <div class="system-container">
+        
+        <div class="sidebar">
+            <button class="nav-btn active" id="btn-view-consultas" onclick="switchView('view-consultas')">💬 PANEL DE CONSULTAS</button>
+            
+            <div class="sidebar-title">👤 MONITOR DE SESIÓN</div>
+            <button class="nav-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
+            
+            <div class="sidebar-title">🏆 REGISTRO INTERNO</div>
+            <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
+            
+            <div class="sidebar-title">📁 REGISTRO CENTRAL</div>
+            <button class="nav-btn" id="btn-view-historial" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
+        </div>
+
+        <div class="chat-card">
+            <header class="header">
+                <h2 id="panel-title-text">GUGEL Core</h2>
+                <select class="mode-selector" id="mode-select" onchange="changeSystemMode()">
+                    <option value="modo-hacker">Modo Hacker</option>
+                    <option value="modo-oscuro">Modo Oscuro</option>
+                    <option value="modo-claro">Modo Claro</option>
+                </select>
+            </header>
+
+            <div id="view-consultas" class="content-panel active">
+                <div class="chat-messages" id="chat-messages"></div>
+                <form id="chat-form">
+                    <input type="text" id="user-input" placeholder="introduce la respuesta del motor..." autocomplete="off">
+                    <button type="submit" id="transmit-btn" class="action-btn">TRANSMITIR</button>
+                    <button type="button" id="continue-btn" class="action-btn" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
+                </form>
+            </div>
+
+            <div id="view-perfil" class="content-panel">
+                <h3>Módulo de Perfil del Usuario</h3>
+                <div class="data-item">
+                    <div class="data-label">Opinión de Gugel sobre ti:</div>
+                    <div id="prof-opinion" style="font-style: italic; color: #888;">no hay consultas en la sesión actual</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Porcentaje de Satisfacción:</div>
+                    <div style="font-weight: bold; font-size: 18px; color: #00ff00;" id="prof-satisfaction">50%</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Estadísticas Personales:</div>
+                    <div>Ciclos completados: <span id="prof-cycles" style="color:#00ff00;">0</span></div>
+                    <div>Caracteres transmitidos: <span id="prof-chars" style="color:#00ff00;">0</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Historial de Comportamiento:</div>
+                    <div id="prof-behavior">Patrón técnico estable. Cumplimiento estricto del protocolo.</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Resumen de Chats:</div>
+                    <div id="prof-summary">monitoreando flujos de datos entrantes desde el buscador</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Rango Jerárquico:</div>
+                    <div id="prof-titles" style="font-weight: bold; color: #00ff00;">operador del sistema novato</div>
+                </div>
+            </div>
+
+            <div id="view-logros" class="content-panel">
+                <h3>Registro de Logros</h3>
+                <div id="logros-container">
+                    <div style="color: #444; font-style: italic;">[sistema oculto] las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida</div>
+                </div>
+            </div>
+
+            <div id="view-historial" class="content-panel">
+                <h3>Gestión de Almacenamiento</h3>
+                <div class="data-item">
+                    <div class="data-label">Guardar Chats / Historial de Conversaciones</div>
+                    <div style="font-style: italic; color:#777; margin-bottom: 10px;">Los datos de las transmisiones cerradas se archivan localmente de forma automática.</div>
+                    <div class="historial-lista" id="history-list-container">
+                        <div style="color: #444; font-style: italic;">el archivo temporal está vacío</div>
+                    </div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Favoritos</div>
+                    <div id="fav-status">Ninguna transmisión marcada como prioritaria actualmente.</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Compartir Conversaciones</div>
+                    <button class="action-btn" id="export-btn" style="padding: 10px 20px; font-size: 12px;" onclick="exportCoreData()">Exportar Datos del Core</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="logica.js"></script>
+</body>
+</html>
