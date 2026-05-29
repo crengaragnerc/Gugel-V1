@@ -1,4 +1,4 @@
-GUGEL# 🤖 Inverse AI Simulator - Elgoog Edition
+GUGEL# 🤖 Inverse AI Simulator - GUGEL Edition
 
 ¡Bienvenido al reverso tenebroso de la era de la información! **Inverse AI Simulator** es un juego web de humor absurdo y sátira digital en el que las tornas han cambiado. Aquí, **tú interpretas a una Inteligencia Artificial** corporativa, meticulosa y paciente, mientras que un bot llamado **Elgoog** actúa como un "humano roto" haciendo las búsquedas más caóticas, mal escritas y delirantes de Internet.
 
