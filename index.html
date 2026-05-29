@@ -9,7 +9,6 @@
 
     <div class="screen">
         
-        <!-- BARRA IZQUIERDA DE OPCIONES -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>GUGEL <span>Console</span></h2>
@@ -56,23 +55,19 @@
             <nav class="sidebar-nav">
                 <button class="nav-btn active" onclick="switchTab('chat-tab')">💬 Terminal de Chat</button>
                 <button class="nav-btn" onclick="switchTab('archive-tab')">📁 Archivo de Chats</button>
-                <button class="nav-btn" onclick="switchTab('achievements-tab')">🏆 Logros Obtener</button>
+                <button class="nav-btn" onclick="switchTab('achievements-tab')">🏆 Logros Obtenidos</button>
             </nav>
         </aside>
 
-        <!-- PANEL PRINCIPAL (CONTENEDOR DE VISTAS) -->
         <main class="main-content">
             
-            <!-- VISTA 1: TERMINAL DE CHAT (ACTIVA POR DEFECTO) -->
             <div id="chat-tab" class="tab-content">
                 <div class="chat-header">
                     <div class="status-indicator connected"></div>
-                    <span id="gugel-status">Esperando entrada de operador...</span>
+                    <span id="gugel-status">Conectado</span>
                 </div>
                 
-                <div class="chat-messages" id="chat-messages">
-                    <!-- Los mensajes del juego se generan aquí -->
-                </div>
+                <div class="chat-messages" id="chat-messages"></div>
 
                 <div class="suggestion-box" id="suggestion-box" style="display: none;"></div>
 
@@ -82,30 +77,23 @@
                 </form>
             </div>
 
-            <!-- VISTA 2: ARCHIVO DE CHATS -->
             <div id="archive-tab" class="tab-content" style="display: none;">
                 <div class="tab-header-title">
-                    <h2>📁 Historial de Logs Guardados</h2>
+                    <h2>📁 Archivo de Logs Guardados</h2>
                 </div>
-                <div class="archive-list" id="archive-list">
-                    <!-- Aquí se renderizan las tarjetas del historial -->
-                </div>
+                <div class="archive-list" id="archive-list"></div>
             </div>
 
-            <!-- VISTA 3: LOGROS OBTENIDOS -->
             <div id="achievements-tab" class="tab-content" style="display: none;">
                 <div class="tab-header-title">
-                    <h2>🏆 Logros del Sistema</h2>
+                    <h2>🏆 Panel de Logros del Sistema</h2>
                 </div>
-                <div class="achievements-list" id="achievements-list">
-                    <!-- Aquí se renderizan las tarjetas de logros -->
-                </div>
+                <div class="achievements-list" id="achievements-list"></div>
             </div>
 
         </main>
     </div>
 
-    <!-- MODAL DE CAMBIO DE CUENTA -->
     <div class="modal-overlay" id="auth-screen" style="display: none;">
         <div class="modal-box">
             <h3>Acceso Operador</h3>
@@ -119,7 +107,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE RESULTADOS DE RONDA -->
     <div class="modal-overlay" id="result-modal" style="display: none;">
         <div class="modal-box">
             <h3>Evaluación del Sistema</h3>
