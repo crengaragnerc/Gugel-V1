@@ -243,17 +243,26 @@ function handleUserResponse(e) {
     }, 1000);
 }
 
+// --- EVALUACIÓN EQUILIBRADA (PUNTO MEDIO) ---
 function evaluateResponse(text) {
-    let score = 0;
+    // Nota inicial intermedia
+    let score = 5;
     const lower = text.toLowerCase();
 
-    if (text.length > 30) score += 2;
-    if (text.length > 80) score += 2;
-    if (lower.includes("estimado usuario") || lower.includes("siento") || lower.includes("procesando")) score += 2;
-    if (lower.includes("porque") || lower.includes("debido") || lower.includes("consiste")) score += 2;
+    // Suma puntos si te extiendes un poquito
+    if (text.length > 25) score += 2;
+    if (text.length > 60) score += 2;
+    
+    // Conectores lógicos que le dan credibilidad automática
+    if (lower.includes("porque") || lower.includes("debido") || lower.includes("consiste") || lower.includes("solucion")) {
+        score += 1;
+    }
 
-    if (text.length < 12 || lower.includes("jajaja") || lower.includes("xd")) score -= 3;
+    // Penaliza si la respuesta da vibes de pasotismo extremo o troleo
+    if (text.length < 12) score -= 3;
+    if (lower.includes("jajaja") || lower.includes("xd")) score -= 3;
 
+    // Límite estricto entre 0 y 10
     return Math.max(0, Math.min(10, score));
 }
 
