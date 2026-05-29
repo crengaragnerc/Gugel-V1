@@ -135,7 +135,7 @@
         .fav-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
         .fav-btn.active { color: #00ff00; }
 
-        /* Modos visuales alternativos */
+        /* Modos */
         body.modo-oscuro { background: #080808; }
         body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #111; border-color: #222; }
         body.modo-oscuro .header h2 { color: #fff; }
@@ -188,7 +188,7 @@
             <div id="view-chat" class="content-panel active">
                 <div class="chat-messages" id="chat-messages"></div>
                 <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="Introduce la respuesta del motor..." autocomplete="off">
+                    <input type="text" id="user-input" placeholder="introduce la respuesta del motor..." autocomplete="off">
                     <button type="submit" id="transmit-btn" class="action-btn">TRANSMITIR</button>
                     <button type="button" id="continue-btn" class="action-btn" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
                 </form>
@@ -197,11 +197,11 @@
             <div id="view-perfil" class="content-panel">
                 <h3>Estado Analítico de Operación</h3>
                 <div class="data-item">
-                    <div class="data-label">Último retorno recibido de Gugel:</div>
-                    <div id="prof-opinion" style="font-style: italic; color: #888;">No hay consultas en la sesión actual.</div>
+                    <div class="data-label">Último retorno recibido de gugel:</div>
+                    <div id="prof-opinion" style="font-style: italic; color: #888;">no hay consultas en la sesión actual</div>
                 </div>
                 <div class="data-item">
-                    <div class="data-label">Índice de Aceptación de Gugel:</div>
+                    <div class="data-label">Índice de Aceptación de gugel:</div>
                     <div style="font-weight: bold; font-size: 18px; color: #00ff00;" id="prof-satisfaction">50%</div>
                 </div>
                 <div class="data-item">
@@ -211,22 +211,22 @@
                 </div>
                 <div class="data-item">
                     <div class="data-label">Estado del Búfer:</div>
-                    <div id="prof-behavior">Conexión establecida con la terminal de Gugel.</div>
+                    <div id="prof-behavior">conexión establecida con la terminal de gugel</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Diagnóstico automático:</div>
-                    <div id="prof-summary">Monitoreando flujos de datos entrantes desde el buscador.</div>
+                    <div id="prof-summary">monitoreando flujos de datos entrantes desde el buscador</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Rango Jerárquico:</div>
-                    <div id="prof-titles" style="font-weight: bold; color: #00ff00;">Operador del Sistema Novato</div>
+                    <div id="prof-titles" style="font-weight: bold; color: #00ff00;">operador del sistema novato</div>
                 </div>
             </div>
 
             <div id="view-logros" class="content-panel">
                 <h3>Logros Desbloqueados</h3>
                 <div id="logros-container">
-                    <div style="color: #444; font-style: italic;">[SISTEMA OCULTO] Las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida.</div>
+                    <div style="color: #444; font-style: italic;">[sistema oculto] las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida</div>
                 </div>
             </div>
 
@@ -235,7 +235,7 @@
                 <div class="data-item">
                     <div class="data-label">Archivo de Búfer Local</div>
                     <div class="historial-lista" id="history-list-container">
-                        <div style="color: #444; font-style: italic;">El archivo temporal está vacío.</div>
+                        <div style="color: #444; font-style: italic;">el archivo temporal está vacío</div>
                     </div>
                 </div>
                 <div class="data-item">
@@ -256,11 +256,13 @@
             "por que los patos no se hunden"
         ];
 
+        // Reacciones de Gugel cortas, sin mayúsculas, comillas ni puntuación
         const REACCIONES_GUGEL = [
-            "Ah, vale. Me quedo mucho más tranquilo entonces. Voy a cerrar la pestaña.",
-            "Me cuadra bastante la explicación. Tiene todo el sentido del mundo si lo piensas.",
-            "Vale, entonces no me preocupo. Pensaba que era algo mucho peor.",
-            "Entendido. Menos mal que lo he buscado aquí, ya me estaba rayando."
+            "ah vale me quedo mas tranquilo entonces cerrare la pestaña",
+            "me cuadra bastante la explicacion tiene sentido",
+            "vale entonces no me preocupo pensaba que era algo peor",
+            "entendido menos mal que lo he buscado aqui ya me estaba rayando",
+            "ok me sirve"
         ];
 
         let gameState = { 
@@ -268,16 +270,16 @@
             satisfaction: 50,
             cycles: 0,
             totalChars: 0,
-            lastOpinion: "Sin datos.",
+            lastOpinion: "sin datos",
             history: [],
             logrosDesbloqueados: []
         };
 
         const LOGROS_DEFINICIONES = {
-            "breve": "<strong>[LOGRO REVELADO] Respuestita:</strong> Responder a Gugel usando 3 caracteres o menos.",
-            "primero": "<strong>[LOGRO REVELADO] Primera Consulta:</strong> Resolver el primer hilo de datos de Gugel.",
-            "visual": "<strong>[LOGRO REVELADO] Cambio de Entorno:</strong> Modificar los parámetros visuales del terminal central.",
-            "cuber": "<strong>[LOGRO REVELADO] Concepto Avanzado:</strong> Resolver un hilo de Gugel inyectando términos algorítmicos o mecánicos."
+            "breve": "<strong>[logro revelado] respuestita:</strong> responder a gugel usando 3 caracteres o menos",
+            "primero": "<strong>[logro revelado] primera consulta:</strong> resolver el primer hilo de datos de gugel",
+            "visual": "<strong>[logro revelado] cambio de entorno:</strong> modificar los parámetros visuales del terminal central",
+            "cuber": "<strong>[logro revelado] concepto avanzado:</strong> resolver un hilo de gugel inyectando términos algorítmicos o mecánicos"
         };
 
         function switchView(viewId) {
@@ -290,9 +292,9 @@
             activePanel.classList.add('active');
 
             if (viewId === 'view-chat') {
-                document.getElementById('panel-title-text').innerText = "GUGEL Core";
+                document.getElementById('panel-title-text').innerText = "gugel core";
             } else {
-                document.getElementById('panel-title-text').innerText = "GUGEL Core - Estado del Sistema";
+                document.getElementById('panel-title-text').innerText = "gugel core - estado del sistema";
             }
         }
 
@@ -300,7 +302,11 @@
             const box = document.getElementById('chat-messages');
             const msg = document.createElement('div');
             msg.className = `message ${sender}`;
-            msg.innerHTML = sender === 'gugel' ? `<strong>GUGEL:</strong> "${text}"` : `<strong>TÚ:</strong> ${text}`;
+            
+            // Convertimos todo a minúsculas estrictas para evitar sorpresas de inputs del usuario
+            const cleanText = text.toLowerCase();
+            msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${cleanText}` : `<strong>tú:</strong> ${cleanText}`;
+            
             box.appendChild(msg);
             box.scrollTop = box.scrollHeight;
         }
@@ -320,16 +326,16 @@
             transmitBtn.disabled = true;
             
             let timeLeft = 5;
-            input.placeholder = `GUGEL BUSCANDO... (${timeLeft}s)`;
+            input.placeholder = `gugel buscando... (${timeLeft}s)`;
             
             const timer = setInterval(() => {
                 timeLeft--;
-                input.placeholder = `GUGEL BUSCANDO... (${timeLeft}s)`;
+                input.placeholder = `gugel buscando... (${timeLeft}s)`;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     input.disabled = false; 
                     transmitBtn.disabled = false;
-                    input.placeholder = "Introduce la respuesta del motor...";
+                    input.placeholder = "introduce la respuesta del motor...";
                     input.focus();
                 }
             }, 1000);
@@ -340,7 +346,7 @@
             const input = document.getElementById('user-input');
             const transmitBtn = document.getElementById('transmit-btn');
             const continueBtn = document.getElementById('continue-btn');
-            const userText = input.value.trim();
+            const userText = input.value.trim().toLowerCase();
             if (!userText) return;
             
             appendMessage('ai', userText);
@@ -351,7 +357,7 @@
                 const box = document.getElementById('chat-messages');
                 const msg = document.createElement('div');
                 msg.className = `message gugel`;
-                msg.innerHTML = `<strong>GUGEL:</strong> ${reaccion}`;
+                msg.innerHTML = `<strong>gugel:</strong> ${reaccion}`;
                 box.appendChild(msg);
                 box.scrollTop = box.scrollHeight;
 
@@ -367,7 +373,7 @@
 
                 if (userText.length <= 3) verifLogro("breve");
                 if (gameState.cycles === 1) verifLogro("primero");
-                if (userText.toLowerCase().includes("algoritmo") || userText.toLowerCase().includes("cubo") || userText.toLowerCase().includes("rubik")) verifLogro("cuber");
+                if (userText.includes("algoritmo") || userText.includes("cubo") || userText.includes("rubik")) verifLogro("cuber");
 
                 updateSatisfaction();
                 renderProfileData();
@@ -401,22 +407,22 @@
         }
 
         function renderProfileData() {
-            document.getElementById('prof-opinion').innerText = `"${gameState.lastOpinion}"`;
+            document.getElementById('prof-opinion').innerText = `${gameState.lastOpinion}`;
             document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
             document.getElementById('prof-cycles').innerText = gameState.cycles;
             document.getElementById('prof-chars').innerText = gameState.totalChars;
 
             if(gameState.satisfaction >= 70) {
-                document.getElementById('prof-behavior').innerText = "Gugel muestra conformidad absoluta con los datos de pantalla.";
-                document.getElementById('prof-titles').innerText = "Operador de Confianza";
+                document.getElementById('prof-behavior').innerText = "gugel muestra conformidad absoluta con los datos de pantalla";
+                document.getElementById('prof-titles').innerText = "operador de confianza";
             } else if(gameState.satisfaction <= 30) {
-                document.getElementById('prof-behavior').innerText = "Gugel muestra dudas leves sobre la respuesta generada.";
-                document.getElementById('prof-titles').innerText = "Analista de Datos Cuestionado";
+                document.getElementById('prof-behavior').innerText = "gugel muestra dudas leves sobre la respuesta generada";
+                document.getElementById('prof-titles').innerText = "analista de datos cuestionado";
             } else {
-                document.getElementById('prof-behavior').innerText = "Flujo normalizado. Gugel acepta la información recibida.";
+                document.getElementById('prof-behavior').innerText = "flujo normalizado gugel acepta la informacion recibida";
             }
 
-            document.getElementById('prof-summary').innerText = `Procesadas con éxito ${gameState.cycles} hilos de datos.`;
+            document.getElementById('prof-summary').innerText = `procesadas con exito ${gameState.cycles} hilos de datos`;
         }
 
         function renderLogros() {
@@ -428,7 +434,7 @@
                 const div = document.createElement('div');
                 div.className = 'data-item';
                 div.style.borderColor = '#00ff00';
-                div.innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> ${LOGROS_DEFINICIONES[id]}`;
+                div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> ${LOGROS_DEFINICIONES[id]}`;
                 container.appendChild(div);
             });
         }
@@ -443,8 +449,8 @@
                 div.className = 'historial-item';
                 div.innerHTML = `
                     <div>
-                        <strong>Consulta:</strong> "${item.pregunta}" <br>
-                        <strong style="color:#00ff00;">Respuesta:</strong> ${item.respuesta}
+                        <strong>consulta:</strong> ${item.pregunta} <br>
+                        <strong style="color:#00ff00;">respuesta:</strong> ${item.respuesta}
                     </div>
                     <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
                 `;
@@ -459,15 +465,15 @@
 
         function exportCoreData() {
             if(gameState.history.length === 0) {
-                alert("Historial vacío.");
+                alert("historial vacio");
                 return;
             }
-            let textoVolcado = "=== REGISTRO DE TRÁFICO ===\n";
+            let textoVolcado = "=== registro de trafico ===\n";
             gameState.history.forEach((h, i) => {
-                textoVolcado += `LOG ${i+1} |\n Pregunta: '${h.pregunta}'\n Respuesta: ${h.respuesta}\n-------------------\n`;
+                textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n-------------------\n`;
             });
-            navigator.clipboard.writeText(textoVolcado).then(() => {
-                alert("Registro copiado al portapapeles.");
+            navigator.clipboard.writeText(textoVolcado.toLowerCase()).then(() => {
+                alert("registro copiado al portapapeles");
             });
         }
 
