@@ -68,6 +68,7 @@
         .header h2 { margin: 0; font-size: 1.1rem; color: #00ff00; }
         .mode-selector { background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 5px 10px; border-radius: 6px; outline: none; cursor: pointer; }
         
+        /* Control de paneles del sistema */
         .content-panel {
             flex: 1;
             padding: 30px;
@@ -77,6 +78,14 @@
             color: #fff;
         }
 
+        /* Regla de visualización específica para el panel del chat activo */
+        #view-chat.content-panel.active {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* Regla de visualización estándar para paneles de datos activos */
         .content-panel.active {
             display: block;
         }
@@ -179,7 +188,7 @@
                 </select>
             </header>
 
-            <div id="view-chat" class="content-panel active" style="padding: 0; display: flex; flex-direction: column;">
+            <div id="view-chat" class="content-panel active">
                 <div class="chat-messages" id="chat-messages"></div>
                 <form id="chat-form">
                     <input type="text" id="user-input" placeholder="Escribe tu respuesta..." autocomplete="off">
@@ -284,7 +293,7 @@
             },
             "como hacer cubo rubik": {
                 trigger: "ya que has respondido sobre algoritmos de permutación espacial...",
-                links: "• Preguntas automáticas sugeridas:<br>-> 'notación oficial de la WCA (World Cube Association)'<br>-> 'tipos de lubricantes para el núcleo del cubo'<br>-> 'evolución cronológica del récord mundial de speedcubing'"
+                links: "• Preguntas automáticas sugeridas:<br>-> 'notación oficial de la WCA (World Cube Association)'<br>-> 'tipos de lubricantes para el cubo'<br>-> 'evolución cronológica del récord mundial de speedcubing'"
             },
             "que se celebra 15 de agosto": {
                 trigger: "ya que has respondido sobre efemérides e hitos del calendario...",
@@ -303,19 +312,22 @@
         };
 
         function switchView(viewId) {
+            // Desactiva todos los botones de navegación
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            // Activa el botón clickeado
             const activeBtn = document.getElementById(`btn-${viewId}`);
             if (activeBtn) activeBtn.classList.add('active');
 
+            // Quita la clase activa de todos los contenedores principales
             document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
+            // Muestra el panel seleccionado mediante clases
             const activePanel = document.getElementById(viewId);
             activePanel.classList.add('active');
 
+            // Cambia el título de cabecera superior de la tarjeta de forma limpia
             if (viewId === 'view-chat') {
-                activePanel.style.display = 'flex';
                 document.getElementById('panel-title-text').innerText = "GUGEL Core";
             } else {
-                activePanel.style.display = 'block';
                 document.getElementById('panel-title-text').innerText = "GUGEL Core - Sistema de Módulos";
             }
         }
@@ -372,19 +384,16 @@
             const opinion = OPINIONES_GUGEL[Math.floor(Math.random() * OPINIONES_GUGEL.length)];
             appendMessage('gugel', opinion);
             
-            // Procesamiento real de variables globales
             gameState.cycles++;
             gameState.totalChars += userText.length;
             gameState.lastOpinion = opinion;
 
-            // Guardado real en estructura de historial
             gameState.history.push({
                 pregunta: PREGUNTAS[gameState.index % PREGUNTAS.length],
                 respuesta: userText,
                 fav: false
             });
 
-            // Lógica de comprobación de logros
             if (!gameState.logros.personal) {
                 gameState.logros.personal = true;
                 document.getElementById('logro-personal').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Primera Transmisión: Paquete inicial integrado en el Core.`;
@@ -428,7 +437,6 @@
             document.getElementById('prof-cycles').innerText = gameState.cycles;
             document.getElementById('prof-chars').innerText = gameState.totalChars;
 
-            // Cambios automáticos de comportamiento e historial analítico
             if(gameState.satisfaction >= 70) {
                 document.getElementById('prof-behavior').innerText = "Flujo optimizado. Alta tasa de asimilación de variables.";
             } else if(gameState.satisfaction <= 30) {
