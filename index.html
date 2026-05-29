@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>GUGEL Console</title>
@@ -9,14 +9,10 @@
 
     <div class="screen">
         
+        <!-- BARRA LATERAL CLÁSICA -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>GUGEL Console</h2>
-                <div class="theme-selector">
-                    <button onclick="setTheme('light')">☀️</button>
-                    <button onclick="setTheme('dark')">🌙</button>
-                    <button onclick="setTheme('hacker')">📟</button>
-                </div>
             </div>
 
             <div class="stats-section">
@@ -31,53 +27,39 @@
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="satisfaction-bar" style="width: 50%;"></div>
                 </div>
-                <p style="margin-top: 5px; font-size: 12px; color: var(--text-muted);">
+                <p style="margin-top: 8px; font-size: 12px; color: #9aa0a6;">
                     Opinión de GUGEL: <strong id="gugel-opinion">Indiferente</strong>
                 </p>
             </div>
 
-            <nav class="sidebar-nav">
-                <button class="nav-btn active" onclick="switchTab('chat-tab')">💬 Terminal de Chat</button>
-                <button class="nav-btn" onclick="switchTab('archive-tab')">📁 Archivo de Chats</button>
-                <button class="nav-btn" onclick="switchTab('achievements-tab')">🏆 Logros Obtenidos</button>
-            </nav>
+            <!-- SELECTOR DE TEMA INTEGRADO -->
+            <div class="theme-selector-section">
+                <h3>Interfaz Gráfica</h3>
+                <select id="theme-dropdown" onchange="changeSystemTheme(this.value)">
+                    <option value="dark">Modo Oscuro</option>
+                    <option value="light">Modo Claro</option>
+                    <option value="hacker">Terminal Hacker</option>
+                </select>
+            </div>
         </aside>
 
+        <!-- PANTALLA DE CHAT EN GRANDE -->
         <main class="main-content">
+            <div class="chat-header">
+                <div class="status-indicator connected" id="status-dot"></div>
+                <span id="gugel-status">Conectado</span>
+            </div>
             
-            <div id="chat-tab" class="tab-content">
-                <div class="chat-header">
-                    <div class="status-indicator connected"></div>
-                    <span id="gugel-status">Conectado</span>
-                </div>
-                
-                <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-messages" id="chat-messages"></div>
 
-                <div class="suggestion-box" id="suggestion-box" style="display: none;"></div>
-
-                <form class="chat-input-area" id="chat-form">
-                    <input type="text" id="user-input" placeholder="Escribe tu respuesta técnica avanzada..." autocomplete="off">
-                    <button type="submit" id="send-btn">Enviar</button>
-                </form>
-            </div>
-
-            <div id="archive-tab" class="tab-content" style="display: none;">
-                <div class="tab-header-title">
-                    <h2>📁 Archivo de Logs Guardados</h2>
-                </div>
-                <div class="archive-list" id="archive-list"></div>
-            </div>
-
-            <div id="achievements-tab" class="tab-content" style="display: none;">
-                <div class="tab-header-title">
-                    <h2>🏆 Logros Obtenidos</h2>
-                </div>
-                <div class="achievements-list" id="achievements-list"></div>
-            </div>
-
+            <form class="chat-input-area" id="chat-form">
+                <input type="text" id="user-input" placeholder="Escribe tu respuesta técnica avanzada..." autocomplete="off">
+                <button type="submit" id="send-btn">Enviar</button>
+            </form>
         </main>
     </div>
 
+    <!-- MODAL DE EVALUACIÓN INTERMEDIO -->
     <div class="modal-overlay" id="result-modal" style="display: none;">
         <div class="modal-box">
             <h3>Evaluación del Sistema</h3>
