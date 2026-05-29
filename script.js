@@ -38,6 +38,7 @@ function nextRound() {
     appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
 }
 
+// Vinculación directa del evento de envío
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
@@ -50,11 +51,12 @@ document.getElementById('chat-form').onsubmit = (e) => {
     input.value = "";
 };
 
-function closeResultModal() {
+// Forzar la ventana global para evitar fallos de lectura del HTML
+window.closeResultModal = function() {
     document.getElementById('result-modal').style.display = "none";
     gameState.index++;
     nextRound();
-}
+};
 
-// Inicialización automática
+// Inicio automático al cargar
 nextRound();
