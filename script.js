@@ -62,15 +62,22 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// --- ARRANQUE DIRECTO OBLIGATORIO (SIN LOG-IN) ---
+// --- SISTEMA DE INICIO DE SESIÓN OBLIGATORIO ---
 window.addEventListener('DOMContentLoaded', () => {
-    // Forzamos el tema oscuro por defecto al arrancar
+    // Aplicamos el tema visual guardado
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
 
-    // Entramos directamente como el operador principal sin esperar formularios
-    console.log("Acceso directo autorizado para el operador principal.");
-    loginUser("Unai");
+    // Escuchamos el envío del formulario obligatoriamente
+    const authForm = document.getElementById('auth-form');
+    if (authForm) {
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputName = document.getElementById('auth-username');
+            const name = inputName && inputName.value.trim() ? inputName.value.trim() : "Operador Anónimo";
+            loginUser(name);
+        });
+    }
 });
 
 function loginUser(username) {
@@ -81,20 +88,24 @@ function loginUser(username) {
     const mainApp = document.getElementById('main-app');
     const loggedUserName = document.getElementById('logged-user-name');
 
+    // Transición de pantallas
     if (authScreen) authScreen.style.display = "none";
     if (mainApp) mainApp.style.display = "flex"; 
     if (loggedUserName) loggedUserName.innerText = username;
     
+    // Activar manejadores de eventos de la app de chat
     const chatForm = document.getElementById('chat-form');
     if (chatForm) chatForm.onsubmit = handleUserResponse;
 
     const suggestionBox = document.getElementById('suggestion-box');
     if (suggestionBox) suggestionBox.onclick = acceptSuggestion;
     
+    // Inicializar la interfaz gráfica
     updateSidebarUI();
     renderArchive();
     renderAchievements();
     
+    // Arrancar primera ronda con un mini retardo para suavizar la entrada
     setTimeout(() => { nextRound(); }, 400);
 }
 
@@ -203,6 +214,7 @@ function handleUserResponse(e) {
     openResultModal(gameState.currentQuestion, text, pointsEarned);
 }
 
+// --- EVALUADOR ---
 function evaluateResponse(text) {
     let score = 5; 
     const lower = text.toLowerCase();
@@ -282,16 +294,16 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- MODAL DE RESULTADOS BLINDADO CONTRA ERRORES ---
+// --- MODAL DE RESULTADOS BLINDADO ---
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
     const modalQ = document.getElementById('modal-question');
     const modalA = document.getElementById('modal-answer');
     const modalS = document.getElementById('modal-score-number');
 
-    // Control de caídas: si falta algún elemento del modal, avanza sin congelarse
+    // Cortafuegos de seguridad: si el HTML no tiene los elementos listos, el juego no se cuelga
     if (!resultModal || !modalQ || !modalA || !modalS) {
-        console.warn("⚠️ Elementos del modal no detectados por el DOM. Saltando a la respuesta directa de GUGEL...");
+        console.warn("⚠️ Elementos del modal ausentes en el DOM. Saltando directo al procesamiento de ronda.");
         finishRoundAfterModal(score, q, a);
         return;
     }
@@ -317,7 +329,7 @@ function closeResultModal() {
     finishRoundAfterModal(score, q, a);
 }
 
-// --- ARCHIVO Y LOGROS ---
+// --- HISTORIAL DE ARCHIVO ---
 function saveToArchive(q, a, score, reaccion) {
     const id = Date.now();
     gameState.history.unshift({ id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() });
@@ -341,7 +353,7 @@ function shareChat(q, a, score) {
     });
 }
 
-// --- RENDERIZADO DE INTERFAZ ---
+// --- INTERFAZ ---
 function renderArchive() {
     const listEl = document.getElementById('archive-list');
     if (!listEl) return;
@@ -397,7 +409,6 @@ function renderAchievements() {
     });
 }
 
-// --- ACTUALIZACIONES DE SISTEMA ---
 function updateSatisfaction(points) {
     const diff = points - 5;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
