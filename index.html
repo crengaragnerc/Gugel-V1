@@ -2,21 +2,21 @@
 <html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL - Panel de Soporte Técnico</title>
+    <title>GUGEL Console</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <div id="main-app" class="screen">
+    <div class="screen">
         
+        <!-- BARRA IZQUIERDA DE OPCIONES -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>GUGEL <span>Console</span></h2>
                 <div class="theme-selector">
-                    <button onclick="setTheme('light')" title="Modo Claro">☀️</button>
-                    <button onclick="setTheme('dark')" title="Modo Oscuro">🌙</button>
-                    <button onclick="setTheme('hacker')" title="Modo Hacker">📟</button>
+                    <button onclick="setTheme('light')">☀️</button>
+                    <button onclick="setTheme('dark')">🌙</button>
+                    <button onclick="setTheme('hacker')">📟</button>
                 </div>
             </div>
 
@@ -25,7 +25,7 @@
                 <div class="profile-info">
                     <span class="label">Operador activo:</span>
                     <strong id="logged-user-name">Unai</strong>
-                    <button id="logout-btn" class="sidebar-action-btn" onclick="openAuthModal()">👤 Cambiar cuenta</button>
+                    <button class="sidebar-action-btn" onclick="openAuthModal()">👤 Cambiar cuenta</button>
                 </div>
             </div>
 
@@ -42,65 +42,99 @@
                 <h3>Estado del Usuario</h3>
                 <div class="stat-row">
                     <span>Satisfacción:</span>
-                    <span id="satisfaction-percentage">50%</span>
+                    <strong id="satisfaction-percentage">50%</strong>
                 </div>
                 <div class="progress-bar-container">
-                    <div id="satisfaction-bar" class="progress-bar" style="width: 50%;"></div>
+                    <div class="progress-bar" id="satisfaction-bar" style="width: 50%;"></div>
                 </div>
-                <div class="stat-row" style="margin-top: 10px;">
-                    <span>Opinión de GUGEL:</span>
-                    <strong id="gugel-opinion">Indiferente</strong>
+                <div class="stat-row" style="margin-top: 8px;">
+                    <span style="font-size: 11px; color: var(--text-muted);">Opinión de GUGEL:</span>
+                    <strong id="gugel-opinion" style="font-size: 11px;">Indiferente</strong>
                 </div>
             </div>
 
             <nav class="sidebar-nav">
                 <button class="nav-btn active" onclick="switchTab('chat-tab')">💬 Terminal de Chat</button>
                 <button class="nav-btn" onclick="switchTab('archive-tab')">📁 Archivo de Chats</button>
-                <button class="nav-btn" onclick="switchTab('achievements-tab')">🏆 Logros Obtenidos</button>
+                <button class="nav-btn" onclick="switchTab('achievements-tab')">🏆 Logros Obtener</button>
             </nav>
         </aside>
 
+        <!-- PANEL PRINCIPAL (CONTENEDOR DE VISTAS) -->
         <main class="main-content">
             
-            <section id="chat-tab" class="tab-content">
+            <!-- VISTA 1: TERMINAL DE CHAT (ACTIVA POR DEFECTO) -->
+            <div id="chat-tab" class="tab-content">
                 <div class="chat-header">
-                    <div class="status-indicator"></div>
-                    <span id="gugel-status">Conectado</span>
+                    <div class="status-indicator connected"></div>
+                    <span id="gugel-status">Esperando entrada de operador...</span>
                 </div>
                 
-                <div id="chat-messages" class="chat-box"></div>
-                
-                <div id="suggestion-box" class="suggestion-banner" style="display: none;"></div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Los mensajes del juego se generan aquí -->
+                </div>
 
-                <form id="chat-form" class="chat-input-area">
-                    <input type="text" id="user-input" placeholder="GUGEL está escribiendo..." disabled autocomplete="off">
-                    <button type="submit" id="send-btn" disabled>Enviar</button>
+                <div class="suggestion-box" id="suggestion-box" style="display: none;"></div>
+
+                <form class="chat-input-area" id="chat-form">
+                    <input type="text" id="user-input" placeholder="Escribe tu respuesta técnica avanzada..." autocomplete="off">
+                    <button type="submit" id="send-btn">Enviar</button>
                 </form>
-            </section>
+            </div>
 
-            <section id="archive-tab" class="tab-content" style="display: none;">
-                <h2>Archivo de Comunicaciones Pasadas</h2>
-                <p class="section-desc">Historial completo de las consultas atendidas en esta sesión.</p>
-                <div id="archive-list" class="archive-container"></div>
-            </section>
+            <!-- VISTA 2: ARCHIVO DE CHATS -->
+            <div id="archive-tab" class="tab-content" style="display: none;">
+                <div class="tab-header-title">
+                    <h2>📁 Historial de Logs Guardados</h2>
+                </div>
+                <div class="archive-list" id="archive-list">
+                    <!-- Aquí se renderizan las tarjetas del historial -->
+                </div>
+            </div>
 
-            <section id="achievements-tab" class="tab-content" style="display: none;">
-                <h2>Registro de Logros</h2>
-                <p class="section-desc">Objetivos de rendimiento del sistema de soporte.</p>
-                <div id="achievements-list" class="achievements-grid"></div>
-            </section>
+            <!-- VISTA 3: LOGROS OBTENIDOS -->
+            <div id="achievements-tab" class="tab-content" style="display: none;">
+                <div class="tab-header-title">
+                    <h2>🏆 Logros del Sistema</h2>
+                </div>
+                <div class="achievements-list" id="achievements-list">
+                    <!-- Aquí se renderizan las tarjetas de logros -->
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <div id="result-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-card">
-            <h3>Informe de Rendimiento</h3>
-            <div class="modal-field">
-                <span>Consulta de GUGEL:</span>
-                <strong id="modal-question">---</strong>
+    <!-- MODAL DE CAMBIO DE CUENTA -->
+    <div class="modal-overlay" id="auth-screen" style="display: none;">
+        <div class="modal-box">
+            <h3>Acceso Operador</h3>
+            <form id="auth-form">
+                <input type="text" id="auth-username" placeholder="Nuevo Operador..." required>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-secondary" onclick="closeAuthModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Conectar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADOS DE RONDA -->
+    <div class="modal-overlay" id="result-modal" style="display: none;">
+        <div class="modal-box">
+            <h3>Evaluación del Sistema</h3>
+            <div class="result-details">
+                <p><strong>Petición:</strong> <span id="modal-question">""</span></p>
+                <p><strong>Tu Respuesta:</strong> <span id="modal-answer">""</span></p>
             </div>
-            <div class="modal-field">
-                <span>Tu Respuesta:</span>
-                <p id="modal-answer">---</p>
+            <div class="score-display">
+                <span>Puntuación:</span>
+                <h1 id="modal-score-number">0/10</h1>
             </div>
-            <div class
+            <button class="btn-primary" onclick="closeResultModal()">Aceptar y Continuar</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
