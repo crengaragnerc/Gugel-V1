@@ -102,10 +102,12 @@
             "que se celebra 15 de agosto"
         ];
 
-        const REACCIONES_BOT = [
-            "TRANSMISIÓN COMPLETADA: Datos integrados en el Core de forma óptima.",
-            "PROCESANDO ENTRADA: Parámetros validados correctamente.",
-            "ESTADO DEL CORE: Sincronización de variables finalizada con éxito."
+        // Opiniones del sistema basadas en la calidad de la respuesta entregada
+        const OPINIONES_GUGEL = [
+            "Menuda sarta de sandeces acabas de transmitir. El núcleo está perdiendo neuronas.",
+            "Respuesta aceptable, pero un niño de cinco años lo habría redactado con más elegancia.",
+            "¿Te ha costado mucho esfuerzo escribir esa obviedad? Esperaba algo más complejo.",
+            "Datos recibidos. La base de datos se siente profundamente insultada por tu respuesta."
         ];
 
         let gameState = { index: 0, satisfaction: 50 };
@@ -122,4 +124,85 @@
         function nextRound() {
             const input = document.getElementById('user-input');
             const transmitBtn = document.getElementById('transmit-btn');
-            const continueBtn = document.getElementById('
+            const continueBtn = document.getElementById('continue-btn');
+            
+            continueBtn.style.display = "none";
+            transmitBtn.style.display = "block";
+            input.style.display = "block";
+            
+            input.disabled = true; 
+            transmitBtn.disabled = true;
+            
+            let timeLeft = 5;
+            input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    input.disabled = false; 
+                    transmitBtn.disabled = false;
+                    input.placeholder = "Escribe tu respuesta...";
+                    input.focus();
+                    
+                    // La pregunta aparece ESTRICTAMENTE después de los 5 segundos de cuenta atrás
+                    appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
+                }
+            }, 1000);
+        }
+
+        document.getElementById('chat-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('user-input');
+            const transmitBtn = document.getElementById('transmit-btn');
+            const continueBtn = document.getElementById('continue-btn');
+            if (!input.value.trim()) return;
+            
+            // 1. Tu respuesta (AI)
+            appendMessage('ai', input.value);
+            
+            // 2. Opinión ácida de GUGEL
+            const opinion = OPINIONES_GUGEL[Math.floor(Math.random() * OPINIONES_GUGEL.length)];
+            appendMessage('gugel', opinion);
+            
+            input.value = "";
+            
+            input.style.display = "none";
+            transmitBtn.style.display = "none";
+            continueBtn.style.display = "block";
+
+            updateSatisfaction();
+        };
+
+        window.confirmContinue = function() {
+            document.getElementById('chat-messages').innerHTML = "";
+            gameState.index++;
+            nextRound();
+        };
+
+        function updateSatisfaction() {
+            const cambio = Math.random() > 0.5 ? 10 : -10;
+            gameState.satisfaction += cambio;
+            
+            if (gameState.satisfaction > 100) gameState.satisfaction = 100;
+            if (gameState.satisfaction < 0) gameState.satisfaction = 0;
+            
+            document.getElementById('satisfaction-percentage').innerText = `${gameState.satisfaction}%`;
+        }
+
+        function changeSystemMode() {
+            const select = document.getElementById('mode-select');
+            document.body.className = ''; 
+            if (select.value !== 'modo-hacker') {
+                document.body.classList.add(select.value);
+            }
+        }
+
+        // Ejecución controlada tras la carga del DOM
+        window.onload = function() {
+            nextRound();
+        };
+    </script>
+</body>
+</html>
