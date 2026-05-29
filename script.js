@@ -62,12 +62,12 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// --- ENTRADA AL JUEGO INSTANTÁNEA ---
+// --- INICIO DIRECTO CON PANEL OPCIONAL ---
 window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
 
-    // Enlazar el formulario del modal secundario por si decide usarse
+    // Enlace del formulario secundario de cambio de cuenta
     const authForm = document.getElementById('auth-form');
     if (authForm) {
         authForm.addEventListener('submit', (e) => {
@@ -82,14 +82,14 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Configuración del motor del chat
+    // Handlers del chat principal
     const chatForm = document.getElementById('chat-form');
     if (chatForm) chatForm.onsubmit = handleUserResponse;
 
     const suggestionBox = document.getElementById('suggestion-box');
     if (suggestionBox) suggestionBox.onclick = acceptSuggestion;
 
-    // Pintar datos iniciales y saltar al juego sin esperas
+    // Pintar elementos en el panel izquierdo y arrancar juego
     document.getElementById('logged-user-name').innerText = gameState.currentUser;
     updateSidebarUI();
     renderArchive();
@@ -98,7 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
     nextRound();
 });
 
-// --- FUNCIONES DEL MODAL OPCIONAL DE INICIO DE SESIÓN ---
 function openAuthModal() {
     const modal = document.getElementById('auth-screen');
     if (modal) modal.style.display = "flex";
@@ -108,13 +107,11 @@ function closeAuthModal() {
     if (modal) modal.style.display = "none";
 }
 
-// --- TEMAS VIVIENTES ---
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('gugel_theme', theme);
 }
 
-// --- NAVEGACIÓN ---
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -127,9 +124,12 @@ function switchTab(tabId) {
         const idx = tabId === 'chat-tab' ? 0 : tabId === 'archive-tab' ? 1 : 2;
         btns[idx].classList.add('active');
     }
+
+    if (tabId === 'archive-tab') renderArchive();
+    if (tabId === 'achievements-tab') renderAchievements();
 }
 
-// --- MOTOR DE CONSULTAS DE GUGEL ---
+// --- CORE DEL JUEGO ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
