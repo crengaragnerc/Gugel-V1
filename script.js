@@ -285,6 +285,41 @@ function triggerSuggestion() {
     suggestionBox.dataset.pendingQuestion = elegida;
 }
 
+// --- MODAL DE RESULTADOS BLINDADO CONTRA ERRORES ---
+function openResultModal(q, a, score) {
+    const resultModal = document.getElementById('result-modal');
+    const modalQ = document.getElementById('modal-question');
+    const modalA = document.getElementById('modal-answer');
+    const modalS = document.getElementById('modal-score-number');
+
+    // Control de caídas: si falta algún elemento del modal, avanza sin congelarse
+    if (!resultModal || !modalQ || !modalA || !modalS) {
+        console.warn("⚠️ Elementos del modal no detectados por el DOM. Saltando a la respuesta directa de GUGEL...");
+        finishRoundAfterModal(score, q, a);
+        return;
+    }
+
+    modalQ.innerText = `"${q}"`;
+    modalA.innerText = `"${a}"`;
+    modalS.innerText = `${score}/10`;
+    resultModal.style.display = "flex";
+}
+
+function closeResultModal() {
+    const resultModal = document.getElementById('result-modal');
+    if (resultModal) resultModal.style.display = "none";
+    
+    const modalQ = document.getElementById('modal-question');
+    const modalA = document.getElementById('modal-answer');
+    const modalS = document.getElementById('modal-score-number');
+
+    const q = modalQ ? modalQ.innerText.replace(/"/g, "") : gameState.currentQuestion;
+    const a = modalA ? modalA.innerText.replace(/"/g, "") : "";
+    const score = modalS ? parseInt(modalS.innerText.split("/")[0]) : 5;
+
+    finishRoundAfterModal(score, q, a);
+}
+
 function acceptSuggestion() {
     const suggestionBox = document.getElementById('suggestion-box');
     if (!suggestionBox) return;
@@ -293,29 +328,6 @@ function acceptSuggestion() {
     suggestionBox.dataset.activeSuggestion = "true";
     appendMessage('system', '--- REDIRECCIONANDO AL HUMANO POR ENLACE ---');
     nextRound(nextQ);
-}
-
-// --- MODAL DE RESULTADOS ---
-function openResultModal(q, a, score) {
-    const resultModal = document.getElementById('result-modal');
-    if (!resultModal) {
-        finishRoundAfterModal(score, q, a);
-        return;
-    }
-    document.getElementById('modal-question').innerText = `"${q}"`;
-    document.getElementById('modal-answer').innerText = `"${a}"`;
-    document.getElementById('modal-score-number').innerText = `${score}/10`;
-    resultModal.style.display = "flex";
-}
-
-function closeResultModal() {
-    const resultModal = document.getElementById('result-modal');
-    if (resultModal) resultModal.style.display = "none";
-    
-    const q = document.getElementById('modal-question').innerText.replace(/"/g, "");
-    const a = document.getElementById('modal-answer').innerText.replace(/"/g, "");
-    const score = parseInt(document.getElementById('modal-score-number').innerText.split("/")[0]);
-    finishRoundAfterModal(score, q, a);
 }
 
 // --- ARCHIVO Y LOGROS ---
@@ -342,6 +354,7 @@ function shareChat(q, a, score) {
     });
 }
 
+// --- RENDERIZADO DE INTERFAZ ---
 function renderArchive() {
     const listEl = document.getElementById('archive-list');
     if (!listEl) return;
