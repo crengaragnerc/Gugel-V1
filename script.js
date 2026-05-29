@@ -10,19 +10,28 @@ const PREGUNTAS_BASE = [
     "porque el agua tiene sabor a metal"
 ];
 
-const PREGUNTAS_INFINITAS = [
-    "es normal que el gato duerma encima del router",
-    "que pasa si como plastilina de color azul por error",
-    "por que el cielo es azul pero de noche se vuelve negro",
-    "como saber si mi ordenador tiene un virus informatico",
-    "que significa soñar que caigo al vacio y no despierto",
-    "se puede vivir comiendo solo patatas fritas de bolsa",
-    "porque el brazo me tiembla un poco cuando uso el raton",
-    "es normal que el espejo de mi habitacion se mueva",
-    "como saber si un robot puede pasar un captcha de internet",
-    "por que los perros corren mientras estan durmiendo",
-    "que pasa si dejas el teclado conectado al reves",
-    "porque el agua del grifo a veces sale de color blanco"
+// Estructuras de datos conectadas de forma lógica para evitar frases absurdas
+const PLANTILLAS_COHERENTES = [
+    {
+        inicios: ["es normal que", "por que"],
+        sujetos: ["mi gato", "el gato del vecino", "un gato callejero"],
+        acciones: ["duerma encima del router", "me mire fijamente por las noches", "intente lamer los cables", "maulle sin parar al espejo", "esconda la comida debajo de la cama"]
+    },
+    {
+        inicios: ["como saber si", "que pasa si"],
+        sujetos: ["mi ordenador", "el portatil de la escuela", "el sistema operativo"],
+        acciones: ["tiene un virus informatico", "va muy lento de repente", "se apaga solo al abrir el navegador", "no detecta el teclado usb", "actualiza el software sin permiso"]
+    },
+    {
+        inicios: ["que significa soñar que", "por que noto que"],
+        sujetos: ["mi cabeza", "el cuerpo", "el brazo izquierdo"],
+        acciones: ["cae al vacio continuamente", "tiembla un poco al usar el raton", "duele bastante al pensar mucho", "se duerme por falta de descanso"]
+    },
+    {
+        inicios: ["porque el", "por que el"],
+        sujetos: ["agua del grifo", "agua embotellada", "liquido elemento"],
+        acciones: ["tiene un sabor raro a metal", "sale de color blanco turbio", "no consigue calmar la sed", "huele de forma extraña por las mañanas"]
+    }
 ];
 
 const INDICADORES_COHERENCIA = [
@@ -58,16 +67,19 @@ const FRASES_SOSPECHA = [
     "no sé si creerme eso. me da que te estás inventando la mitad para salir del paso.",
     "vaya película te has montado para responder a esto, suena a trola total.",
     "mmh... no me convence nada esa explicación, tiene pinta de ser mentira.",
-    "eso no te lo crees ni tú, huele a código sospechoso desde aquí."
+    "eso no te lo crees ni tú, huele a código sospecho desde aquí."
 ];
 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
 
-const LOGROS_POOL = {
-    prefijos: ["acceso", "protocolo", "búfer", "parámetro", "bloque", "código", "módulo", "algoritmo", "flujo", "enlace"],
-    acciones: ["optimizado", "interrumpido", "forzado", "depurado", "saturado", "verificado", "degradado", "inyectado", "ignorado", "desfasado"],
-    sufijos: ["global", "alfa", "núcleo", "crítico", "interno", "remoto", "máximo", "alternativo", "lineal", "seguro"]
-};
+const LOGROS_FACILES = [
+    { titulo: "Primeros Pasos", descripcion: "Has comenzado a responder las consultas del sistema." },
+    { titulo: "Transmisión Estable", descripcion: "Has logrado mantener el nivel de satisfacción bajo control." },
+    { titulo: "Hacker Novato", descripcion: "Has configurado y operado los primeros flujos de datos." },
+    { titulo: "Analista de Datos", descripcion: "Superaste con éxito los primeros ciclos de preguntas de Gugel." },
+    { titulo: "Conexión Segura", descripcion: "Has enviado respuestas sin activar las alertas críticas." },
+    { titulo: "Control de Búfer", descripcion: "El sistema registra un almacenamiento continuo de registros." }
+];
 
 let gameState = { 
     index: 9, 
@@ -76,6 +88,7 @@ let gameState = {
     totalChars: 124,
     lastOpinion: "",
     currentPregunta: "",
+    preguntasMostradas: new Set(),
     history: [
         { pregunta: "cagar verde normal", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
         { pregunta: "agua porque moja", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
@@ -89,6 +102,30 @@ let gameState = {
     ],
     logrosDesbloqueados: [] 
 };
+
+// Selecciona una plantilla temática coherente al azar y construye la frase
+function generarPreguntaInfinitaCoherente() {
+    let intentos = 0;
+    let preguntaGenerada = "";
+    
+    while (intentos < 150) {
+        // Seleccionar una categoría del pool (Gatos, Informática, Cuerpo o Agua)
+        const plantilla = PLANTILLAS_COHERENTES[Math.floor(Math.random() * PLANTILLAS_COHERENTES.length)];
+        
+        const inicio = plantilla.inicios[Math.floor(Math.random() * plantilla.inicios.length)];
+        const sujeto = plantilla.sujetos[Math.floor(Math.random() * plantilla.sujetos.length)];
+        const accion = plantilla.acciones[Math.floor(Math.random() * plantilla.acciones.length)];
+        
+        preguntaGenerada = `${inicio} ${sujeto} ${accion}`;
+        
+        if (!gameState.preguntasMostradas.has(preguntaGenerada)) {
+            gameState.preguntasMostradas.add(preguntaGenerada);
+            return preguntaGenerada;
+        }
+        intentos++;
+    }
+    return preguntaGenerada;
+}
 
 function generarReaccionFiltros(esCorrecto, esMuchoTexto) {
     if (esMuchoTexto) {
@@ -154,7 +191,7 @@ function nextRound() {
     if (gameState.index < PREGUNTAS_BASE.length) {
         gameState.currentPregunta = PREGUNTAS_BASE[gameState.index];
     } else {
-        gameState.currentPregunta = PREGUNTAS_INFINITAS[(gameState.index - PREGUNTAS_BASE.length) % PREGUNTAS_INFINITAS.length];
+        gameState.currentPregunta = generarPreguntaInfinitaCoherente();
     }
     
     appendMessage('gugel', gameState.currentPregunta);
@@ -202,20 +239,14 @@ function analizarCoherenciaEstructural(respuesta) {
 }
 
 function desbloquearLogroProcedural() {
-    let baseId = (gameState.cycles * 13 + gameState.totalChars * 7 + gameState.satisfaction * 3) % 1000;
+    let idxLogro = (gameState.cycles - 9) % LOGROS_FACILES.length;
+    if (idxLogro < 0) idxLogro = 0;
     
-    let idxPref = Math.floor(baseId / 100) % 10;
-    let idxAcc = Math.floor(baseId / 10) % 10;
-    let idxSuf = baseId % 10;
-
-    let titulo = `${LOGROS_POOL.prefijos[idxPref]}_${LOGROS_POOL.acciones[idxAcc]}_${LOGROS_POOL.sufijos[idxSuf]}`;
-    let desc = `el sistema ha verificado un estado de tipo [${LOGROS_POOL.prefijos[idxPref]}] que ha sido [${LOGROS_POOL.acciones[idxAcc]}] bajo el entorno [${LOGROS_POOL.sufijos[idxSuf]}].`;
+    let logroSeleccionado = LOGROS_FACILES[idxLogro];
     
-    let objetoLogro = { titulo: titulo, descripcion: desc };
-
-    let existe = gameState.logrosDesbloqueados.some(l => l.titulo === titulo);
+    let existe = gameState.logrosDesbloqueados.some(l => l.titulo === logroSeleccionado.titulo);
     if (!existe) {
-        gameState.logrosDesbloqueados.push(objetoLogro);
+        gameState.logrosDesbloqueados.push(logroSeleccionado);
     }
 }
 
@@ -291,16 +322,18 @@ function renderProfileData() {
     document.getElementById('prof-cycles').innerText = gameState.cycles;
     document.getElementById('prof-chars').innerText = gameState.totalChars;
 
+    const behaviorBox = document.getElementById('prof-behavior');
+    if (behaviorBox) {
+        behaviorBox.innerText = "Registro desactivado.";
+    }
+
     if(gameState.satisfaction >= 75) {
-        document.getElementById('prof-behavior').innerText = "[OK] Transmisión limpia. El cortafuegos no salta.";
         document.getElementById('prof-titles').innerText = "operador_de_confianza";
         document.getElementById('prof-titles').style.color = "#00ff00";
     } else if(gameState.satisfaction <= 35) {
-        document.getElementById('prof-behavior').innerText = "[CRÍTICO] Fallos continuos. Patrón de entrada sospechoso detectado.";
         document.getElementById('prof-titles').innerText = "analista_baneado";
         document.getElementById('prof-titles').style.color = "#ff0000";
     } else {
-        document.getElementById('prof-behavior').innerText = "[ALERTA] Respuestas dudosas. Escaneo de tramas activo.";
         document.getElementById('prof-titles').innerText = "usuario_en_sandbox";
         document.getElementById('prof-titles').style.color = "#ffaa00";
     }
@@ -322,7 +355,7 @@ function renderLogros() {
         const div = document.createElement('div');
         div.className = 'data-item';
         div.style.borderColor = '#00ff00';
-        div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[${logro.titulo.toLowerCase()}]:</strong> ${logro.descripcion.toLowerCase()}`;
+        div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[${logro.titulo}]:</strong> ${logro.descripcion}`;
         container.appendChild(div);
     });
 }
@@ -390,6 +423,9 @@ window.confirmContinue = function() {
 };
 
 window.onload = function() {
+    // Registra las base para asegurar exclusión total
+    PREGUNTAS_BASE.forEach(p => gameState.preguntasMostradas.add(p));
+    
     actualizarOpinionDinamica();
     renderProfileData();
     renderHistoryData();
