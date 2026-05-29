@@ -1,5 +1,18 @@
-const BANCO_CONCEPTOS_A = ["un gato", "el router", "una plastilina", "el teclado", "un pato", "mi espejo", "la gravedad", "el brazo", "el agua", "mi abuela", "un cubo de rubik"];
-const BANCO_CONCEPTOS_B = ["duerme encima", "se mueve solo", "sabe a metal", "me mira fijamente", "es de color azul", "se ha vuelto negro", "tiembla mucho", "come teclado", "se hunde", "se cae"];
+// Bancos de preguntas categorizados para mantener la coherencia temática
+const CATEGORIAS_PREGUNTAS = [
+    {
+        sujetos: ["mi gato", "el perro de mi vecino", "un gato callejero"],
+        predicados: ["me mira fijamente cuando duermo", "duerme encima del router caliente", "maúlla a la pared vacía", "intenta morder el cable del teclado"]
+    },
+    {
+        sujetos: ["el agua del grifo", "una patata frita", "la plastilina azul"],
+        predicados: ["tiene a veces sabor a metal", "conduce la electricidad", "cambia de color si la dejas al sol"]
+    },
+    {
+        sujetos: ["la pantalla de mi ordenador", "el espejo de mi cuarto", "un robot de internet"],
+        predicados: ["se mueve un poco cuando no la miro", "puede saltarse un captcha de seguridad", "escribe solo si se llena de polvo"]
+    }
+];
 
 const INDICADORES_COHERENCIA = [
     "porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", 
@@ -36,11 +49,16 @@ const FRASES_MUCHO_TEXTO = [
 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
 
-const LOGROS_POOL = {
-    prefijos: ["acceso", "protocolo", "búfer", "parámetro", "bloque", "código", "módulo", "algoritmo", "flujo", "enlace"],
-    acciones: ["optimizado", "interrumpido", "forzado", "depurado", "saturado", "verificado", "degradado", "inyectado", "ignorado", "desfasado"],
-    sufijos: ["global", "alfa", "núcleo", "crítico", "interno", "remoto", "máximo", "alternativo", "lineal", "seguro"]
-};
+// Logros legibles y divertidos
+const TITULOS_LOGROS = [
+    { titulo: "búfer domado", desc: "has conseguido mantener una conversación sin que explote el sistema." },
+    { titulo: "filósofo de internet", desc: "has respondido con un texto argumentado y connectors de lógica." },
+    { titulo: "antivirus humano", desc: "has salvado a gugel de un colapso por respuestas basura." },
+    { titulo: "velocista del teclado", desc: "has introducido suficientes caracteres para llenar un registro." },
+    { titulo: "paciente cero", desc: "has aguantado los peores cambios de humor del motor." },
+    { titulo: "maestro de los cubos", desc: "gugel sospecha que resuelves acertijos mientras respondes." },
+    { titulo: "domador de gatos", desc: "has resuelto una duda existencial sobre felinos y tecnología." }
+];
 
 let gameState = { 
     index: 0, 
@@ -54,9 +72,11 @@ let gameState = {
 };
 
 function generarPreguntaAleatoria() {
-    let a = BANCO_CONCEPTOS_A[Math.floor(Math.random() * BANCO_CONCEPTOS_A.length)];
-    let b = BANCO_CONCEPTOS_B[Math.floor(Math.random() * BANCO_CONCEPTOS_B.length)];
-    return `¿por qué ${a} ${b}?`;
+    // Selecciona una categoría lógica y monta una frase coherente
+    let cat = CATEGORIAS_PREGUNTAS[Math.floor(Math.random() * CATEGORIAS_PREGUNTAS.length)];
+    let s = cat.sujetos[Math.floor(Math.random() * cat.sujetos.length)];
+    let p = cat.predicados[Math.floor(Math.random() * cat.predicados.length)];
+    return `¿por qué ${s} ${p}?`;
 }
 
 function generarReaccionCoherente(esCorrecto, esMuchoTexto) {
@@ -88,7 +108,6 @@ function appendMessage(sender, text) {
     msg.className = `message ${sender}`;
     const cleanText = text.toLowerCase();
     
-    // Cambiado para que ponga "tú" de forma más natural en vez de marcas raras de bot
     if (sender === 'gugel') {
         msg.innerHTML = `<strong>gugel:</strong> ${cleanText}`;
     } else {
@@ -154,20 +173,13 @@ function analizarCoherenciaEstructural(respuesta) {
 }
 
 function desbloquearLogroProcedural() {
-    let baseId = (gameState.cycles * 13 + gameState.totalChars * 7 + gameState.satisfaction * 3) % 1000;
-    
-    let idxPref = Math.floor(baseId / 100) % 10;
-    let idxAcc = Math.floor(baseId / 10) % 10;
-    let idxSuf = baseId % 10;
+    // Desbloqueo basado en ciclos de forma secuencial y limpia
+    let idx = gameState.cycles % TITULOS_LOGROS.length;
+    let logroData = TITULOS_LOGROS[idx];
 
-    let titulo = `${LOGROS_POOL.prefijos[idxPref]} ${LOGROS_POOL.acciones[idxAcc]} ${LOGROS_POOL.sufijos[idxSuf]}`;
-    let desc = `el sistema ha verificado un estado de tipo [${LOGROS_POOL.prefijos[idxPref]}] que ha sido [${LOGROS_POOL.acciones[idxAcc]}] bajo el entorno [${LOGROS_POOL.sufijos[idxSuf]}].`;
-    
-    let objetoLogro = { titulo: titulo, descripcion: desc };
-
-    let existe = gameState.logrosDesbloqueados.some(l => l.titulo === titulo);
+    let existe = gameState.logrosDesbloqueados.some(l => l.titulo === logroData.titulo);
     if (!existe) {
-        gameState.logrosDesbloqueados.push(objetoLogro);
+        gameState.logrosDesbloqueados.push(logroData);
     }
 }
 
@@ -185,7 +197,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
     let esCoherente = esMuchoTexto ? false : analizarCoherenciaEstructural(userText);
     
     let reaccion = generarReaccionCoherente(esCoherente, esMuchoTexto);
-    // Penalización estricta: +10 si aciertas, -25 si fallas
     let cambioSatisfacion = esCoherente ? 10 : -25; 
     
     setTimeout(() => {
@@ -240,7 +251,7 @@ function renderProfileData() {
     document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
     document.getElementById('prof-cycles').innerText = gameState.cycles;
     document.getElementById('prof-chars').innerText = gameState.totalChars;
-    document.getElementById('prof-summary').innerText = `procesadas con exito ${gameState.cycles} hilos de datos`;
+    document.getElementById('prof-summary').innerText = `procesadas con éxito ${gameState.cycles} hilos de datos`;
 }
 
 function renderLogros() {
@@ -248,7 +259,7 @@ function renderLogros() {
     document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
     
     if (gameState.logrosDesbloqueados.length === 0) {
-        container.innerHTML = `<div style="color: #444; font-style: italic;">[sistema oculto] las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida</div>`;
+        container.innerHTML = `<div style="color: #444; font-style: italic;">[sistema oculto] los logros resueltos aparecerán aquí cuando investigues de verdad</div>`;
         return;
     }
 
@@ -257,7 +268,7 @@ function renderLogros() {
         const div = document.createElement('div');
         div.className = 'data-item';
         div.style.borderColor = '#00ff00';
-        div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[${logro.titulo.toLowerCase()}]:</strong> ${logro.descripcion.toLowerCase()}`;
+        div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[${logro.titulo}]:</strong> ${logro.desc}`;
         container.appendChild(div);
     });
 }
