@@ -328,7 +328,13 @@
         const GEN_PREFIJOS = ["porque los", "como saber si mi", "es normal que el", "que pasa si como", "por que el", "que significa soñar con", "se puede vivir con un"];
         const GEN_SUFIJOS = ["gato me mira fijamente", "teclado escribe solo", "agua tiene sabor a metal", "plastilina se puede comer", "brazo me tiembla un poco", "universo es infinito", "espejo se mueve", "perro duerme boca arriba"];
 
-        // Bloques modulares para armar más de 1000 combinaciones con faltas, palabras cortadas y omisiones
+        // Conectores sintácticos e indicadores de contenido real
+        const INDICADORES_COHERENCIA = [
+            "porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", 
+            "es por", "causa", "efecto", "consecuencia", "depende de", "si pasa", "cuando",
+            "o sea", "es decir", "como", "esta relacionado", "visto que", "para que"
+        ];
+
         const COMPONENTES_OK = {
             inicios: ["a vale", "ok", "bale", "grax", "aa bue", "sirve", "perfect", "meno mal", "ntndido", "weno"],
             nexos: ["me cirve", "ta cn sntido", "me cuadra", "ya no me rayo", "ta bien expicao", "no m muero", "pense era peor"],
@@ -341,19 +347,22 @@
             finales: ["m voi otra pag", "fua q flojera", "alto mareo", "tonteria pura", "no t entendi nada", "hablas rrarisimo", "inutil total"]
         };
 
-        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja"];
+        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
 
         let gameState = { 
-            index: 3, 
-            satisfaction: 25,
-            cycles: 3,
-            totalChars: 6,
-            lastOpinion: "Usuario evasivo. El sistema detecta respuestas basura o redundantes.",
-            currentPregunta: "como saber si soy un robot test gratis",
+            index: 5, 
+            satisfaction: 40,
+            cycles: 6,
+            totalChars: 38,
+            lastOpinion: "El operador proporciona argumentos estructurados. Flujo de datos óptimo.",
+            currentPregunta: "",
             history: [
                 { pregunta: "cagar verde normal", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
                 { pregunta: "agua porque moja", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
-                { pregunta: "duele la cabeza al pensar", respuesta: "sí", reaccion: "no me convence nada esa respuesta buscare en otro sitio", fav: false }
+                { pregunta: "duele la cabeza al pensar", respuesta: "sí", reaccion: "no me convence nada esa respuesta buscare en otro sitio", fav: false },
+                { pregunta: "como saber si soy un robot test gratis", respuesta: "no sé", reaccion: "sirve ya no me rayo", fav: false },
+                { pregunta: "por que los patos no se hunden", respuesta: "depende", reaccion: "bale ta cn sntido", fav: false },
+                { pregunta: "se puede vivir con un gato me mira fijamente", respuesta: "no, vas a morir", reaccion: "weno ta cn sntido", fav: false }
             ],
             logrosDesbloqueados: ["breve", "primero"]
         };
@@ -371,7 +380,6 @@
             const nex = pool.nexos[Math.floor(Math.random() * pool.nexos.length)];
             const fin = pool.finales[Math.floor(Math.random() * pool.finales.length)];
             
-            // Variabilidad estructural (omisión voluntaria de palabras aleatorias)
             const estructuras = [
                 `${ini} ${nex}`,
                 `${nex} ${fin}`,
@@ -450,6 +458,24 @@
             }, 1000);
         }
 
+        function analizarCoherenciaEstructural(respuesta) {
+            // Palabras clave estructuralmente válidas por sí solas para el buscador
+            let respuestasCortasLegitimas = ["depende", "quizas", "tal vez", "posiblemente"];
+            if (respuestasCortasLegitimas.includes(respuesta)) return true;
+
+            // Bloqueo directo si es un término del array estricto de evasivas puras
+            if (EVASIVAS.includes(respuesta)) return false;
+
+            // Validación por conectores lógicos de desarrollo explicativo
+            let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
+            if (contieneConector) return true;
+
+            // Si es larga (más de 22 caracteres) y no contiene evasivas explícitas, se asume desarrollo creativo libre
+            if (respuesta.length > 22) return true;
+
+            return false;
+        }
+
         document.getElementById('chat-form').onsubmit = (e) => {
             e.preventDefault();
             const input = document.getElementById('user-input');
@@ -460,10 +486,9 @@
             
             appendMessage('ai', userText);
             
-            let esRespuestaValidaCorta = (userText === "no" || userText === "si" || userText === "ci" || userText === "depende");
-            let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || (userText.length <= 3 && !esRespuestaValidaCorta);
-            let reaccion = generarReaccionAleatoria(!esEvasiva);
-            let cambioSatisfacion = esEvasiva ? -20 : 15;
+            let esCoherente = analizarCoherenciaEstructural(userText);
+            let reaccion = generarReaccionAleatoria(esCoherente);
+            let cambioSatisfacion = esCoherente ? 15 : -20;
             
             setTimeout(() => {
                 const box = document.getElementById('chat-messages');
@@ -476,9 +501,9 @@
                 gameState.cycles++;
                 gameState.totalChars += userText.length;
 
-                if (esEvasiva) {
-                    gameState.lastOpinion = "Usuario evasivo. El sistema detecta respuestas basura o redundantes.";
-                } else if (userText.includes("porque") || userText.includes("ya que") || userText.length > 30) {
+                if (!esCoherente) {
+                    gameState.lastOpinion = "Anomalía estructural. Respuestas vacías o monosílabos evasivos detectados.";
+                } else if (userText.includes("porque") || userText.length > 25) {
                     gameState.lastOpinion = "El operador proporciona argumentos estructurados. Flujo de datos óptimo.";
                 } else {
                     gameState.lastOpinion = "Nivel de coherencia medio. Monitoreando flujos de texto plano.";
