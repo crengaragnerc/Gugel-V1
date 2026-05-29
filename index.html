@@ -135,7 +135,7 @@
         .fav-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
         .fav-btn.active { color: #00ff00; }
 
-        /* Modos */
+        /* Modos visuales alternativos */
         body.modo-oscuro { background: #080808; }
         body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #111; border-color: #222; }
         body.modo-oscuro .header h2 { color: #fff; }
@@ -256,14 +256,26 @@
             "por que los patos no se hunden"
         ];
 
-        // Reacciones de Gugel cortas, sin mayúsculas, comillas ni puntuación
-        const REACCIONES_GUGEL = [
+        // Respuestas si el usuario escribe algo razonable
+        const REACCIONES_OK = [
             "ah vale me quedo mas tranquilo entonces cerrare la pestaña",
             "me cuadra bastante la explicacion tiene sentido",
             "vale entonces no me preocupo pensaba que era algo peor",
             "entendido menos mal que lo he buscado aqui ya me estaba rayando",
             "ok me sirve"
         ];
+
+        // Respuestas si el usuario responde con evasivas, monosílabos o troleos descarados
+        const REACCIONES_RECHAZO = [
+            "no me convence nada esa respuesta buscare en otro sitio",
+            "vaya porqueria de buscador no me aclara nada",
+            "eso no responde a mi pregunta que respuesta mas inutil",
+            "para poner eso mejor no pongas nada sigo igual de rayado",
+            "no me sirve para nada abrire otra pestaña"
+        ];
+
+        // Lista de palabras o patrones que se consideran respuestas basura o evasivas
+        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea"];
 
         let gameState = { 
             index: 0, 
@@ -302,11 +314,8 @@
             const box = document.getElementById('chat-messages');
             const msg = document.createElement('div');
             msg.className = `message ${sender}`;
-            
-            // Convertimos todo a minúsculas estrictas para evitar sorpresas de inputs del usuario
             const cleanText = text.toLowerCase();
             msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${cleanText}` : `<strong>tú:</strong> ${cleanText}`;
-            
             box.appendChild(msg);
             box.scrollTop = box.scrollHeight;
         }
@@ -351,7 +360,18 @@
             
             appendMessage('ai', userText);
             
-            const reaccion = REACCIONES_GUGEL[Math.floor(Math.random() * REACCIONES_GUGEL.length)];
+            // Lógica de evaluación: ¿Acepta o rechaza?
+            let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || userText.length <= 3;
+            let reaccion = "";
+            let cambioSatisfacion = 0;
+
+            if (esEvasiva) {
+                reaccion = REACCIONES_RECHAZO[Math.floor(Math.random() * REACCIONES_RECHAZO.length)];
+                cambioSatisfacion = -20; // baja la satisfacción si pasas de él
+            } else {
+                reaccion = REACCIONES_OK[Math.floor(Math.random() * REACCIONES_OK.length)];
+                cambioSatisfacion = 15; // sube si hay un mínimo de contenido
+            }
             
             setTimeout(() => {
                 const box = document.getElementById('chat-messages');
@@ -375,7 +395,7 @@
                 if (gameState.cycles === 1) verifLogro("primero");
                 if (userText.includes("algoritmo") || userText.includes("cubo") || userText.includes("rubik")) verifLogro("cuber");
 
-                updateSatisfaction();
+                updateSatisfaction(cambioSatisfacion);
                 renderProfileData();
                 renderHistoryData();
                 renderLogros();
@@ -399,8 +419,7 @@
             nextRound();
         };
 
-        function updateSatisfaction() {
-            const cambio = Math.random() > 0.5 ? 10 : -10;
+        function updateSatisfaction(cambio) {
             gameState.satisfaction += cambio;
             if (gameState.satisfaction > 100) gameState.satisfaction = 100;
             if (gameState.satisfaction < 0) gameState.satisfaction = 0;
@@ -416,8 +435,8 @@
                 document.getElementById('prof-behavior').innerText = "gugel muestra conformidad absoluta con los datos de pantalla";
                 document.getElementById('prof-titles').innerText = "operador de confianza";
             } else if(gameState.satisfaction <= 30) {
-                document.getElementById('prof-behavior').innerText = "gugel muestra dudas leves sobre la respuesta generada";
-                document.getElementById('prof-titles').innerText = "analista de datos cuestionado";
+                document.getElementById('prof-behavior').innerText = "gugel ignora el sistema y busca alternativas por su cuenta";
+                document.getElementById('prof-titles').innerText = "analista de datos ignorado";
             } else {
                 document.getElementById('prof-behavior').innerText = "flujo normalizado gugel acepta la informacion recibida";
             }
