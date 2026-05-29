@@ -1,5 +1,13 @@
-const PREGUNTAS_CAMPAÑA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto", "no dormir una noche", "xq agua es liquida", "como allanar un barranco"];
-let gameState = { score: parseInt(localStorage.getItem('gugel_score')) || 0, campaignIndex: 0 };
+const PREGUNTAS = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto", "no dormir una noche"];
+let gameState = { score: parseInt(localStorage.getItem('gugel_score')) || 0, index: 0 };
+let ultimaFraseUsada = "";
+
+// Aquí irían tus 500 frases (he puesto una muestra representativa del sistema)
+const REACCIONES = {
+    malas: ["Vaya respuesta de mielda...", "Mi gato Vader lo hace mejor.", "Error fatal en el procesador."],
+    regulares: ["Bueno... algo es algo.", "Se nota que lo has intentado.", "Técnicamente correcto."],
+    buenas: ["¡De locos! Me has ayudado.", "Eres un crack del hardware.", "Funcionando a la primera, eres dios."]
+};
 
 document.getElementById('chat-form').onsubmit = handleUserResponse;
 
@@ -16,7 +24,6 @@ function nextRound() {
     const input = document.getElementById('user-input');
     const btn = document.getElementById('send-btn');
     input.disabled = true; btn.disabled = true;
-
     let timeLeft = 4;
     input.placeholder = `🧠 REFLEXIONANDO... (${timeLeft}s)`;
     const timer = setInterval(() => {
@@ -29,8 +36,7 @@ function nextRound() {
             input.focus();
         }
     }, 1000);
-
-    appendMessage('gugel', PREGUNTAS_CAMPAÑA[gameState.campaignIndex % PREGUNTAS_CAMPAÑA.length]);
+    appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
 }
 
 function handleUserResponse(e) {
@@ -38,9 +44,9 @@ function handleUserResponse(e) {
     const input = document.getElementById('user-input');
     const text = input.value.trim();
     if (!text) return;
-
     appendMessage('ai', text);
-    const pts = text.length > 20 ? 10 : 5;
+    
+    let pts = text.length > 20 ? 10 : 5;
     gameState.score += pts;
     localStorage.setItem('gugel_score', gameState.score);
     
@@ -51,7 +57,10 @@ function handleUserResponse(e) {
 
 function closeResultModal() {
     document.getElementById('result-modal').style.display = "none";
-    gameState.campaignIndex++;
+    let score = parseInt(document.getElementById('modal-score-number').innerText);
+    let pool = (score < 6) ? REACCIONES.malas : REACCIONES.buenas;
+    appendMessage('gugel', pool[Math.floor(Math.random() * pool.length)]);
+    gameState.index++;
     nextRound();
 }
 
