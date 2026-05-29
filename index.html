@@ -326,11 +326,24 @@
             "se puede vivir con un gato me mira fijamente",
             "que significa soñar con gato me mira fijamente",
             "que pasa si como teclado escribe solo",
-            "porque los agua tiene sabor a metal"
+            "porque el agua tiene sabor a metal"
         ];
 
-        const GEN_PREFIJOS = ["porque los", "como saber si mi", "es normal que el", "que pasa si como", "por que el", "que significa soñar con", "se puede vivir con un"];
-        const GEN_SUFIJOS = ["gato me mira fijamente", "teclado escribe solo", "agua tiene sabor a metal", "plastilina se puede comer", "brazo me tiembla un poco", "universo es infinito", "espejo se mueve", "perro duerme boca arriba"];
+        // BANCO DE PREGUNTAS COMPLETAS E INFINITAS CON CONTINUIDAD GRAMATICAL REAL
+        const PREGUNTAS_INFINITAS = [
+            "es normal que el gato duerma encima del router",
+            "que pasa si como plastilina de color azul por error",
+            "por que el cielo es azul pero de noche se vuelve negro",
+            "como saber si mi ordenador tiene un virus informatico",
+            "que significa soñar que caigo al vacio y no despierto",
+            "se puede vivir comiendo solo patatas fritas de bolsa",
+            "porque el brazo me tiembla un poco cuando uso el raton",
+            "es normal que el espejo de mi habitacion se mueva",
+            "como saber si un robot puede pasar un captcha de internet",
+            "por que los perros corren mientras estan durmiendo",
+            "que pasa si dejas el teclado conectado al reves",
+            "porque el agua del grifo a veces sale de color blanco"
+        ];
 
         const INDICADORES_COHERENCIA = [
             "porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", 
@@ -338,25 +351,30 @@
             "o sea", "es decir", "como", "esta relacionado", "visto que", "para que"
         ];
 
-        const COMPONENTES_OK = {
-            inicios: ["a vale", "ok", "bale", "grax", "aa bue", "sirve", "perfect", "meno mal", "ntndido", "weno"],
-            nexos: ["me cirve", "ta cn sntido", "me cuadra", "ya no me rayo", "ta bien expicao", "no m muero", "pense era peor"],
-            finales: ["cierro pestana", "grasias info", "no voa urgensias", "antotado queda", "ya m aclaro", "pestaña guardada", "me rersirve"]
-        };
+        const FRASES_OK = [
+            "vale, entiendo perfectamente la explicación. tiene bastante sentido.",
+            "perfecto, me sirve la información para resolver la duda que tenía.",
+            "entendido, ya no me rayo más con este tema. cierro la pestaña.",
+            "me cuadra lo que dices, está bien explicado y se entiende todo.",
+            "menos mal, ya me aclaro con esto. queda anotado en el sistema."
+        ];
 
-        const COMPONENTES_RECHAZO = {
-            inicios: ["q fiera", "vaya rerspuesta", "k basuro", "q dise", "ni sirve", "eso q e", "na q ver", "q estafa", "perdida tpo"],
-            nexos: ["abro otra pestaña", "sigo iwal", "habla bien", "no respondes na", "alto inutil", "que flashea", "alto bardo"],
-            finales: ["m voi otra pag", "fua q flojera", "alto mareo", "tonteria pura", "no t entendi nada", "hablas rrarisimo", "inutil total"]
-        };
+        const FRASES_RECHAZO = [
+            "vaya respuesta, no me convence nada. buscaré en otra página.",
+            "eso no tiene nada que ver con lo que he preguntado, qué estafa.",
+            "no te he entendido absolutamente nada, hablas de forma muy rara.",
+            "vaya pérdida de tiempo, no respondes a mi consulta. abro otra pestaña.",
+            "menuda tontería de texto, sigo exactamente igual que antes de entrar."
+        ];
 
-        const REACCIONES_MUCHO_TEXTO = [
-            "mucho texto ya me canse", "alto testamento cierro pestaña", "mucho texto para un buscador", "fua alto mareo de parrafo", "alto texto no voa leer eso"
+        const FRASES_MUCHO_TEXTO = [
+            "mucho texto, me da pereza leer un párrafo tan largo en el buscador.",
+            "alto testamento has escrito, paso de leer todo eso. cierro pestaña.",
+            "fua, menudo mareo de texto. es demasiado largo para una consulta rápida."
         ];
 
         const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
 
-        // BASE DE DATOS DE COMBINATORIA PARA 1000 LOGOS POSIBLES (10 x 10 x 10 = 1000)
         const LOGROS_POOL = {
             prefijos: ["acceso", "protocolo", "búfer", "parámetro", "bloque", "código", "módulo", "algoritmo", "flujo", "enlace"],
             acciones: ["optimizado", "interrumpido", "forzado", "depurado", "saturado", "verificado", "degradado", "inyectado", "ignorado", "desfasado"],
@@ -384,23 +402,12 @@
             logrosDesbloqueados: [] 
         };
 
-        function generarReaccionAleatoria(esCorrecto, esMuchoTexto) {
+        function generarReaccionCoherente(esCorrecto, esMuchoTexto) {
             if (esMuchoTexto) {
-                return REACCIONES_MUCHO_TEXTO[Math.floor(Math.random() * REACCIONES_MUCHO_TEXTO.length)];
+                return FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
             }
-            const pool = esCorrecto ? COMPONENTES_OK : COMPONENTES_RECHAZO;
-            const ini = pool.inicios[Math.floor(Math.random() * pool.inicios.length)];
-            const nex = pool.nexos[Math.floor(Math.random() * pool.nexos.length)];
-            const fin = pool.finales[Math.floor(Math.random() * pool.finales.length)];
-            
-            const estructuras = [
-                `${ini} ${nex}`,
-                `${nex} ${fin}`,
-                `${ini} ${fin}`,
-                `${ini} ${nex} ${fin}`
-            ];
-            
-            return estructuras[Math.floor(Math.random() * estructuras.length)];
+            const pool = esCorrecto ? FRASES_OK : FRASES_RECHAZO;
+            return pool[Math.floor(Math.random() * pool.length)];
         }
 
         function switchView(viewId) {
@@ -429,12 +436,6 @@
             box.scrollTop = box.scrollHeight;
         }
 
-        function generarPreguntaInfinita() {
-            const pref = GEN_PREFIJOS[Math.floor(Math.random() * GEN_PREFIJOS.length)];
-            const suf = GEN_SUFIJOS[Math.floor(Math.random() * GEN_SUFIJOS.length)];
-            return `${pref} ${suf}`;
-        }
-
         function nextRound() {
             const input = document.getElementById('user-input');
             const transmitBtn = document.getElementById('transmit-btn');
@@ -447,7 +448,8 @@
             if (gameState.index < PREGUNTAS_BASE.length) {
                 gameState.currentPregunta = PREGUNTAS_BASE[gameState.index];
             } else {
-                gameState.currentPregunta = generarPreguntaInfinita();
+                // Selección directa de pregunta redactada de forma fija
+                gameState.currentPregunta = PREGUNTAS_INFINITAS[(gameState.index - PREGUNTAS_BASE.length) % PREGUNTAS_INFINITAS.length];
             }
             
             appendMessage('gugel', gameState.currentPregunta);
@@ -477,7 +479,6 @@
 
             if (EVASIVAS.includes(respuesta)) return false;
 
-            // DETECTOR DE SPAM Y REPETICIONES
             const palabras = respuesta.split(/\s+/);
             let repeticionesLetrasOClp = 0;
             palabras.forEach(p => {
@@ -495,19 +496,21 @@
             return false;
         }
 
-        // MOTOR PROCEDURAL PARA GENERAR CUALQUIERA DE LOS 1000 LOGROS POSIBLES
         function desbloquearLogroProcedural() {
-            // Se calcula un índice único basado en el estado interno actual (0 a 999)
-            let baseId = (gameState.cycles * 7 + gameState.totalChars * 3 + gameState.satisfaction) % 1000;
+            let baseId = (gameState.cycles * 13 + gameState.totalChars * 7 + gameState.satisfaction * 3) % 1000;
             
             let idxPref = Math.floor(baseId / 100) % 10;
             let idxAcc = Math.floor(baseId / 10) % 10;
             let idxSuf = baseId % 10;
 
             let titulo = `${LOGROS_POOL.prefijos[idxPref]} ${LOGROS_POOL.acciones[idxAcc]} ${LOGROS_POOL.sufijos[idxSuf]}`;
+            let desc = `el sistema ha verificado un estado de tipo [${LOGROS_POOL.prefijos[idxPref]}] que ha sido [${LOGROS_POOL.acciones[idxAcc]}] bajo el entorno [${LOGROS_POOL.sufijos[idxSuf]}].`;
             
-            if (!gameState.logrosDesbloqueados.includes(titulo)) {
-                gameState.logrosDesbloqueados.push(titulo);
+            let objetoLogro = { titulo: titulo, descripcion: desc };
+
+            let existe = gameState.logrosDesbloqueados.some(l => l.titulo === titulo);
+            if (!existe) {
+                gameState.logrosDesbloqueados.push(objetoLogro);
             }
         }
 
@@ -521,11 +524,10 @@
             
             appendMessage('ai', userText);
             
-            // VALIDACIÓN DE MÁXIMO DE CARACTERES ("mucho texto")
-            let esMuchoTexto = userText.length > 50;
+            let esMuchoTexto = userText.length > 70;
             let esCoherente = esMuchoTexto ? false : analizarCoherenciaEstructural(userText);
             
-            let reaccion = generarReaccionAleatoria(esCoherente, esMuchoTexto);
+            let reaccion = generarReaccionCoherente(esCoherente, esMuchoTexto);
             let cambioSatisfacion = esCoherente ? 15 : -20;
             
             setTimeout(() => {
@@ -554,7 +556,6 @@
                     fav: false
                 });
 
-                // Cada transmisión evalúa y libera un logro de los 1000 del pool dinámico
                 desbloquearLogroProcedural();
 
                 updateSatisfaction(cambioSatisfacion);
@@ -608,11 +609,11 @@
             }
 
             container.innerHTML = "";
-            gameState.logrosDesbloqueados.forEach(titulo => {
+            gameState.logrosDesbloqueados.forEach(logro => {
                 const div = document.createElement('div');
                 div.className = 'data-item';
                 div.style.borderColor = '#00ff00';
-                div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[logro dinámico]:</strong> registro de tipo ${titulo.toLowerCase()}`;
+                div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[${logro.titulo.toLowerCase()}]:</strong> ${logro.descripcion.toLowerCase()}`;
                 container.appendChild(div);
             });
         }
@@ -659,7 +660,7 @@
             gameState.history.forEach((h, i) => {
                 textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n reaccion: ${h.reaccion}\n-------------------\n`;
             });
-            navigator.clipboard.writeText(textoVolcado.toLowerCase()).then(() => {
+            navigator.clipboard.writeText(textoVolcado).then(() => {
                 alert("registro copiado al portapapeles");
             });
         }
