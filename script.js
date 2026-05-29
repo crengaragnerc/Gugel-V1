@@ -1,10 +1,7 @@
-const PREGUNTAS = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque"];
-let score = parseInt(localStorage.getItem('gugel_score')) || 0;
+const PREGUNTAS_CAMPAÑA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto", "no dormir una noche", "xq agua es liquida", "como allanar un barranco"];
+let gameState = { score: parseInt(localStorage.getItem('gugel_score')) || 0, campaignIndex: 0 };
 
-window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('chat-form').onsubmit = handleUserResponse;
-    nextRound();
-});
+document.getElementById('chat-form').onsubmit = handleUserResponse;
 
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
@@ -18,37 +15,34 @@ function appendMessage(sender, text) {
 function nextRound() {
     const input = document.getElementById('user-input');
     const btn = document.getElementById('send-btn');
-    input.disabled = true;
-    btn.disabled = true;
+    input.disabled = true; btn.disabled = true;
 
     let timeLeft = 4;
     input.placeholder = `🧠 REFLEXIONANDO... (${timeLeft}s)`;
-    
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
         timeLeft--;
         input.placeholder = `🧠 REFLEXIONANDO... (${timeLeft}s)`;
-        if(timeLeft <= 0) {
-            clearInterval(interval);
-            input.disabled = false;
-            btn.disabled = false;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            input.disabled = false; btn.disabled = false;
             input.placeholder = "Escribe tu respuesta técnica...";
             input.focus();
         }
     }, 1000);
 
-    appendMessage('gugel', PREGUNTAS[Math.floor(Math.random() * PREGUNTAS.length)]);
+    appendMessage('gugel', PREGUNTAS_CAMPAÑA[gameState.campaignIndex % PREGUNTAS_CAMPAÑA.length]);
 }
 
 function handleUserResponse(e) {
     e.preventDefault();
     const input = document.getElementById('user-input');
     const text = input.value.trim();
-    if(!text) return;
+    if (!text) return;
 
     appendMessage('ai', text);
     const pts = text.length > 20 ? 10 : 5;
-    score += pts;
-    localStorage.setItem('gugel_score', score);
+    gameState.score += pts;
+    localStorage.setItem('gugel_score', gameState.score);
     
     document.getElementById('modal-score-number').innerText = `${pts}/10`;
     document.getElementById('result-modal').style.display = "flex";
@@ -57,5 +51,8 @@ function handleUserResponse(e) {
 
 function closeResultModal() {
     document.getElementById('result-modal').style.display = "none";
+    gameState.campaignIndex++;
     nextRound();
 }
+
+nextRound();
