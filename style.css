@@ -179,7 +179,7 @@ html[data-theme="hacker"] .level-badge { color: #000; background: var(--accent);
 .status-indicator { width: 8px; height: 8px; background: #34a853; border-radius: 50%; }
 
 .chat-box {
-    flex: 1; overflow-y: auto; margin-vertical: 16px;
+    flex: 1; overflow-y: auto; margin: 16px 0;
     padding: 16px 0; display: flex; flex-direction: column; gap: 12px;
 }
 
