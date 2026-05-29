@@ -1,305 +1,33 @@
-const PREGUNTAS_BASE = [
-    "cagar verde normal", 
-    "agua porque moja",
-    "duele la cabeza al pensar",
-    "como saber si soy un robot test gratis",
-    "por que los patos no se hunden"
-];
+* { box-sizing: border-box; font-family: monospace; }
+body { margin: 0; background: #0c0c0c; height: 100vh; display: flex; justify-content: center; align-items: center; }
 
-const GEN_PREFIJOS = ["porque los", "como saber si mi", "es normal que el", "que pasa si como", "por que el", "que significa soñar con", "se puede vivir con un"];
-const GEN_SUFIJOS = ["gato me mira fijamente", "teclado escribe solo", "agua tiene sabor a metal", "plastilina se puede comer", "brazo me tiembla un poco", "universo es infinito", "espejo se mueve", "perro duerme boca arriba"];
-
-const REACCIONES_OK = [
-    "ah vale me quedo mas tranquilo entonces cerrare la pestaña",
-    "me cuadra bastante la explicacion tiene sentido",
-    "vale entonces no me preocupo pensaba que era algo peor",
-    "entendido menos mal que lo he buscado aqui ya me estaba rayando",
-    "ok me sirve bastante esa respuesta",
-    "perfecto ya entendi el problema de raiz",
-    "bueno con eso me basta para no ir a urgencias",
-    "tiene logica gracias por la info",
-    "menos mal crei que me iba a morir o algo",
-    "vale lo anoto para tenerlo en cuenta"
-];
-
-const REACCIONES_RECHAZO = [
-    "no me convence nada esa respuesta buscare en otro sitio",
-    "vaya porqueria de buscador no me aclara nada",
-    "eso no responde a mi pregunta que respuesta mas inutil",
-    "para poner eso mejor no pongas nada sigo igual de rayado",
-    "no me sirve para nada abrire otra pestaña",
-    "que respuesta mas absurda que flojera",
-    "eso es una tonteria no tiene ningun sentido",
-    "vaya pérdida de tiempo me voy a otra pagina",
-    "no te entiendo nada hablas raro",
-    "que estafa de pagina sigo con la misma duda"
-];
-
-const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja"];
-
-let gameState = { 
-    index: 0, 
-    satisfaction: 50,
-    cycles: 0,
-    totalChars: 0,
-    lastOpinion: "no hay consultas en la sesión actual",
-    currentPregunta: "",
-    history: [],
-    logrosDesbloqueados: []
-};
-
-const LOGROS_DEFINICIONES = {
-    "breve": "<strong>[logro revelado] respuestita:</strong> responder a gugel usando 3 caracteres o menos",
-    "primero": "<strong>[logro revelado] primera consulta:</strong> resolver el primer hilo de datos de gugel",
-    "visual": "<strong>[logro revelado] cambio de entorno:</strong> modificar los parámetros visuales del terminal central",
-    "cuber": "<strong>[logro revelado] concepto avanzado:</strong> resolver un hilo de gugel inyectando términos algorítmicos o mecánicos"
-};
-
-function switchView(viewId) {
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(`btn-${viewId}`);
-    if (activeBtn) activeBtn.classList.add('active');
-
-    document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
-    const activePanel = document.getElementById(viewId);
-    if (activePanel) activePanel.classList.add('active');
-
-    if (viewId === 'view-consultas') {
-        document.getElementById('panel-title-text').innerText = "GUGEL Core";
-    } else {
-        document.getElementById('panel-title-text').innerText = "GUGEL Core - Sistema de Módulos";
-    }
-}
-
-function appendMessage(sender, text) {
-    const box = document.getElementById('chat-messages');
-    const msg = document.createElement('div');
-    msg.className = `message ${sender}`;
-    const cleanText = text.toLowerCase();
-    msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${cleanText}` : `<strong>tú:</strong> ${cleanText}`;
-    box.appendChild(msg);
-    box.scrollTop = box.scrollHeight;
-}
-
-function generarPreguntaInfinita() {
-    const pref = GEN_PREFIJOS[Math.floor(Math.random() * GEN_PREFIJOS.length)];
-    const suf = GEN_SUFIJOS[Math.floor(Math.random() * GEN_SUFIJOS.length)];
-    return `${pref} ${suf}`;
-}
-
-function nextRound() {
-    const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    const continueBtn = document.getElementById('continue-btn');
-    
-    continueBtn.style.display = "none";
-    transmitBtn.style.display = "block";
-    input.style.display = "block";
-
-    if (gameState.index < PREGUNTAS_BASE.length) {
-        gameState.currentPregunta = PREGUNTAS_BASE[gameState.index];
-    } else {
-        gameState.currentPregunta = generarPreguntaInfinita();
-    }
-    
-    appendMessage('gugel', gameState.currentPregunta);
-    
-    input.disabled = true; 
-    transmitBtn.disabled = true;
-    
-    let timeLeft = 5;
-    input.placeholder = `gugel buscando... (${timeLeft}s)`;
-    
-    const timer = setInterval(() => {
-        timeLeft--;
-        input.placeholder = `gugel buscando... (${timeLeft}s)`;
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            input.disabled = false; 
-            transmitBtn.disabled = false;
-            input.placeholder = "introduce la respuesta del motor...";
-            input.focus();
-        }
-    }, 1000);
-}
-
-document.getElementById('chat-form').onsubmit = (e) => {
-    e.preventDefault();
-    const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    const continueBtn = document.getElementById('continue-btn');
-    const userText = input.value.trim().toLowerCase();
-    if (!userText) return;
-    
-    appendMessage('ai', userText);
-    
-    let esRespuestaValidaCorta = (userText === "no" || userText === "si" || userText === "ci" || userText === "depende");
-    let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || (userText.length <= 3 && !esRespuestaValidaCorta);
-    let reaccion = "";
-    let cambioSatisfacion = 0;
-
-    if (esEvasiva) {
-        reaccion = REACCIONES_RECHAZO[Math.floor(Math.random() * REACCIONES_RECHAZO.length)];
-        cambioSatisfacion = -20;
-    } else {
-        reaccion = REACCIONES_OK[Math.floor(Math.random() * REACCIONES_OK.length)];
-        cambioSatisfacion = 15;
-    }
-    
-    setTimeout(() => {
-        const box = document.getElementById('chat-messages');
-        const msg = document.createElement('div');
-        msg.className = `message gugel`;
-        msg.innerHTML = `<strong>gugel:</strong> ${reaccion}`;
-        box.appendChild(msg);
-        box.scrollTop = box.scrollHeight;
-
-        gameState.cycles++;
-        gameState.totalChars += userText.length;
-
-        // Evaluación analítica corregida
-        if (esEvasiva) {
-            gameState.lastOpinion = "Usuario evasivo. El sistema detecta respuestas basura o redundantes.";
-        } else if (userText.includes("porque") || userText.includes("ya que") || userText.length > 30) {
-            gameState.lastOpinion = "El operador proporciona argumentos estructurados. Flujo de datos óptimo.";
-        } else {
-            gameState.lastOpinion = "Nivel de coherencia medio. Monitoreando flujos de texto plano.";
-        }
-
-        gameState.history.push({
-            pregunta: gameState.currentPregunta,
-            respuesta: userText,
-            reaccion: reaccion,
-            fav: false
-        });
-
-        if (userText.length <= 3) verifLogro("breve");
-        if (gameState.cycles === 1) verifLogro("primero");
-        if (userText.includes("algoritmo") || userText.includes("cubo") || userText.includes("rubik")) verifLogro("cuber");
-
-        updateSatisfaction(cambioSatisfacion);
-        renderProfileData();
-        renderHistoryData();
-        renderLogros();
-    }, 600);
-
-    input.value = "";
-    input.style.display = "none";
-    transmitBtn.style.display = "none";
-    continueBtn.style.display = "block";
-};
-
-function verifLogro(id) {
-    if (LOGROS_DEFINICIONES[id] && !gameState.logrosDesbloqueados.includes(id)) {
-        gameState.logrosDesbloqueados.push(id);
-    }
-}
-
-window.confirmContinue = function() {
-    document.getElementById('chat-messages').innerHTML = "";
-    gameState.index++;
-    nextRound();
-};
-
-function updateSatisfaction(cambio) {
-    gameState.satisfaction += cambio;
-    if (gameState.satisfaction > 100) gameState.satisfaction = 100;
-    if (gameState.satisfaction < 0) gameState.satisfaction = 0;
-}
-
-function renderProfileData() {
-    document.getElementById('prof-opinion').innerText = `${gameState.lastOpinion}`;
-    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
-    document.getElementById('prof-cycles').innerText = gameState.cycles;
-    document.getElementById('prof-chars').innerText = gameState.totalChars;
-
-    if(gameState.satisfaction >= 70) {
-        document.getElementById('prof-behavior').innerText = "Gugel muestra conformidad absoluta con los datos de pantalla.";
-        document.getElementById('prof-titles').innerText = "operador de confianza";
-    } else if(gameState.satisfaction <= 30) {
-        document.getElementById('prof-behavior').innerText = "Gugel ignora el sistema y busca alternativas por su cuenta.";
-        document.getElementById('prof-titles').innerText = "analista de datos ignorado";
-    } else {
-        document.getElementById('prof-behavior').innerText = "Patrón técnico estable. Cumplimiento estricto del protocolo.";
-    }
-
-    document.getElementById('prof-summary').innerText = `procesadas con exito ${gameState.cycles} hilos de datos`;
-}
-
-function renderLogros() {
-    const container = document.getElementById('logros-container');
-    if (gameState.logrosDesbloqueados.length === 0) {
-        container.innerHTML = `<div style="color: #444; font-style: italic;">[sistema oculto] las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida</div>`;
-        return;
-    }
-
-    container.innerHTML = "";
-    gameState.logrosDesbloqueados.forEach(id => {
-        const div = document.createElement('div');
-        div.className = 'data-item';
-        div.style.borderColor = '#00ff00';
-        div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> ${LOGROS_DEFINICIONES[id]}`;
-        container.appendChild(div);
-    });
-}
-
-function renderHistoryData() {
-    const container = document.getElementById('history-list-container');
-    if (gameState.history.length === 0) return;
-
-    container.innerHTML = "";
-    gameState.history.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = 'historial-item';
-        div.innerHTML = `
-            <div>
-                <strong>consulta:</strong> ${item.pregunta} <br>
-                <strong style="color:#00ff00;">respuesta:</strong> ${item.respuesta} <br>
-                <strong style="color:#888;">reacción:</strong> ${item.reaccion}
-            </div>
-            <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
-        `;
-        container.appendChild(div);
-    });
-
-    const favs = gameState.history.filter(h => h.fav);
-    const favStatus = document.getElementById('fav-status');
-    if (favs.length > 0) {
-        favStatus.innerHTML = `Tienes ${favs.length} transmisión(es) prioritarias en el búfer.`;
-    } else {
-        favStatus.innerText = "Ninguna transmisión marcada como prioritaria actualmente.";
-    }
-}
-
-window.toggleFavorite = function(idx) {
-    gameState.history[idx].fav = !gameState.history[idx].fav;
-    renderHistoryData();
-};
-
-function exportCoreData() {
-    if(gameState.history.length === 0) {
-        alert("historial vacio");
-        return;
-    }
-    let textoVolcado = "=== registro de trafico ===\n";
-    gameState.history.forEach((h, i) => {
-        textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n reaccion: ${h.reaccion}\n-------------------\n`;
-    });
-    navigator.clipboard.writeText(textoVolcado.toLowerCase()).then(() => {
-        alert("registro copiado al portapapeles");
-    });
-}
-
-function changeSystemMode() {
-    const select = document.getElementById('mode-select');
-    document.body.className = ''; 
-    if (select.value !== 'modo-hacker') {
-        document.body.classList.add(select.value);
-    }
-    verifLogro("visual");
-    renderLogros();
-}
-
-window.onload = function() {
-    nextRound();
-};
+.system-container { width: 1050px; height: 85vh; display: flex; gap: 20px; }
+.sidebar { width: 280px; background: #141414; border-radius: 12px; border: 1px solid #222; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.sidebar-title { color: #444; font-size: 11px; font-weight: bold; margin-top: 10px; margin-bottom: 4px; letter-spacing: 1px; }
+.nav-btn { background: #1a1a1a; color: #888; border: 1px solid #222; padding: 12px; text-align: left; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; transition: all 0.1s; }
+.nav-btn:hover, .nav-btn.active { background: #00ff00; color: #000; border-color: #00ff00; }
+.chat-card { flex: 1; background: #141414; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #222; }
+.header { background: #1a1a1a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+.header h2 { margin: 0; font-size: 1.1rem; color: #00ff00; }
+.mode-selector { background: #222; color: #fff; border: 1px solid #333; padding: 5px 10px; border-radius: 4px; outline: none; cursor: pointer; }
+.content-panel { flex: 1; padding: 30px; background: #0f0f0f; display: none; overflow-y: auto; color: #ccc; }
+#view-consultas.content-panel.active { display: flex; flex-direction: column; padding: 0; }
+.content-panel.active { display: block; }
+.content-panel h3 { margin-top: 0; color: #00ff00; border-bottom: 1px solid #222; padding-bottom: 10px; font-size: 15px; }
+.data-item { background: #141414; border: 1px solid #222; padding: 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; line-height: 1.5; }
+.data-label { color: #555; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+.badge-unlocked { color: #00ff00; font-weight: bold; }
+.chat-messages { flex: 1; padding: 25px; overflow-y: auto; background: #0b0b0b; display: flex; flex-direction: column; gap: 15px; }
+.message { padding: 12px 16px; border-radius: 8px; max-width: 80%; font-size: 14px; line-height: 1.5; }
+.message.gugel { background: #141414; align-self: flex-start; color: #fff; border: 1px solid #222; }
+.message.ai { background: #222; color: #00ff00; align-self: flex-end; border: 1px solid #333; }
+#chat-form { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; background: #141414; }
+input { flex: 1; padding: 14px; background: #0f0f0f; border: 1px solid #222; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
+input:focus { border-color: #00ff00; }
+button.action-btn { padding: 14px 24px; background: #00ff00; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
+button.action-btn:disabled { background: #222; color: #444; cursor: not-allowed; }
+#continue-btn { background: #fff; color: #000; display: none; width: 100%; }
+.historial-lista { display: flex; flex-direction: column; gap: 10px; }
+.historial-item { background: #141414; border: 1px solid #222; padding: 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+.fav-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
+.fav-btn.active { color: #00ff00; }
