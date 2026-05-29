@@ -1,29 +1,5 @@
-const PREGUNTAS_BASE = [
-    "cagar verde normal", 
-    "agua porque moja",
-    "duele la cabeza al pensar",
-    "como saber si soy un robot test gratis",
-    "por que los patos no se hunden",
-    "se puede vivir con un gato me mira fijamente",
-    "que significa soñar con gato me mira fijamente",
-    "que pasa si como teclado escribe solo",
-    "porque el agua tiene sabor a metal"
-];
-
-const PREGUNTAS_INFINITAS = [
-    "es normal que el gato duerma encima del router",
-    "que pasa si como plastilina de color azul por error",
-    "por que el cielo es azul pero de noche se vuelve negro",
-    "como saber si mi ordenador tiene un virus informatico",
-    "que significa soñar que caigo al vacio y no despierto",
-    "se puede vivir comiendo solo patatas fritas de bolsa",
-    "porque el brazo me tiembla un poco cuando uso el raton",
-    "es normal que el espejo de mi habitacion se mueva",
-    "como saber si un robot puede pasar un captcha de internet",
-    "por que los perros corren mientras estan durmiendo",
-    "que pasa si dejas el teclado conectado al reves",
-    "porque el agua del grifo a veces sale de color blanco"
-];
+const BANCO_CONCEPTOS_A = ["un gato", "el router", "una plastilina", "el teclado", "un pato", "mi espejo", "la gravedad", "el brazo", "el agua", "mi abuela", "un cubo de rubik"];
+const BANCO_CONCEPTOS_B = ["duerme encima", "se mueve solo", "sabe a metal", "me mira fijamente", "es de color azul", "se ha vuelto negro", "tiembla mucho", "come teclado", "se hunde", "se cae"];
 
 const INDICADORES_COHERENCIA = [
     "porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", 
@@ -32,25 +8,30 @@ const INDICADORES_COHERENCIA = [
 ];
 
 const FRASES_OK = [
-    "vale, entiendo perfectamente la explicación. tiene bastante sentido.",
-    "perfecto, me sirve la información para resolver la duda que tenía.",
-    "entendido, ya no me rayo más con este tema. cierro la pestaña.",
-    "me cuadra lo que dices, está bien explicado y se entiende todo.",
-    "menos mal, ya me aclaro con esto. queda anotado en el sistema."
+    "vale, me cuadra. tiene lógica.",
+    "aah, ya veo. gracias, me sirve.",
+    "cierto, no había caído en eso. buen punto.",
+    "pues me has salvado la tarde, la verdad.",
+    "vale, me quedo más tranquilo con esto.",
+    "ni tan mal, tiene sentido.",
+    "ah, pues sí. gracias por aclararlo."
 ];
 
 const FRASES_RECHAZO = [
-    "vaya respuesta, no me convence nada. buscaré en otra página.",
-    "eso no tiene nada que ver con lo que he preguntado, qué estafa.",
-    "no te he entendido absolutamente nada, hablas de forma muy rara.",
-    "vaya pérdida de tiempo, no respondes a mi consulta. abro otra pestaña.",
-    "menuda tontería de texto, sigo exactamente igual que antes de entrar."
+    "qué dices, eso no tiene ni pies ni cabeza.",
+    "paso, menuda respuesta más mala me has soltado.",
+    "¿te estás riendo de mí? eso no ayuda en nada.",
+    "vaya pérdida de tiempo. busco en otro lado.",
+    "no te he entendido nada, hablas súper raro.",
+    "eso no es lo que he preguntado. qué estafa.",
+    "dios, qué pereza de respuesta. no me sirve."
 ];
 
 const FRASES_MUCHO_TEXTO = [
-    "mucho texto, me da pereza leer un párrafo tan largo en el buscador.",
-    "alto testamento has escrito, paso de leer todo eso. cierro pestaña.",
-    "fua, menudo mareo de texto. es demasiado largo para una consulta rápida."
+    "uf, mucho texto. ni de coña me leo eso.",
+    "¿me has escrito una biblia? paso.",
+    "qué pereza, parece un examen de historia.",
+    "menudo testamento, resúmelo o algo."
 ];
 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
@@ -66,18 +47,23 @@ let gameState = {
     satisfaction: 10,
     cycles: 0,
     totalChars: 0,
-    lastOpinion: "no hay consultas en la sesión actual",
+    lastOpinion: "no hay consultas",
     currentPregunta: "",
     history: [],
     logrosDesbloqueados: [] 
 };
 
+function generarPreguntaAleatoria() {
+    let a = BANCO_CONCEPTOS_A[Math.floor(Math.random() * BANCO_CONCEPTOS_A.length)];
+    let b = BANCO_CONCEPTOS_B[Math.floor(Math.random() * BANCO_CONCEPTOS_B.length)];
+    return `¿por qué ${a} ${b}?`;
+}
+
 function generarReaccionCoherente(esCorrecto, esMuchoTexto) {
     if (esMuchoTexto) {
         return FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
     }
-    const pool = esCorrecto ? FRASES_OK : FRASES_RECHAZO;
-    return pool[Math.floor(Math.random() * pool.length)];
+    return esCorrecto ? FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)] : FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
 }
 
 function switchView(viewId) {
@@ -101,7 +87,14 @@ function appendMessage(sender, text) {
     const msg = document.createElement('div');
     msg.className = `message ${sender}`;
     const cleanText = text.toLowerCase();
-    msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${cleanText}` : `<strong>tú:</strong> ${cleanText}`;
+    
+    // Cambiado para que ponga "tú" de forma más natural en vez de marcas raras de bot
+    if (sender === 'gugel') {
+        msg.innerHTML = `<strong>gugel:</strong> ${cleanText}`;
+    } else {
+        msg.innerHTML = `<strong>tú:</strong> ${cleanText}`;
+    }
+    
     box.appendChild(msg);
     box.scrollTop = box.scrollHeight;
 }
@@ -115,28 +108,23 @@ function nextRound() {
     transmitBtn.style.display = "block";
     input.style.display = "block";
 
-    if (gameState.index < PREGUNTAS_BASE.length) {
-        gameState.currentPregunta = PREGUNTAS_BASE[gameState.index];
-    } else {
-        gameState.currentPregunta = PREGUNTAS_INFINITAS[(gameState.index - PREGUNTAS_BASE.length) % PREGUNTAS_INFINITAS.length];
-    }
-    
+    gameState.currentPregunta = generarPreguntaAleatoria();
     appendMessage('gugel', gameState.currentPregunta);
     
     input.disabled = true; 
     transmitBtn.disabled = true;
     
-    let timeLeft = 5;
-    input.placeholder = `gugel buscando... (${timeLeft}s)`;
+    let timeLeft = 3;
+    input.placeholder = `pensando... (${timeLeft}s)`;
     
     const timer = setInterval(() => {
         timeLeft--;
-        input.placeholder = `gugel buscando... (${timeLeft}s)`;
+        input.placeholder = `pensando... (${timeLeft}s)`;
         if (timeLeft <= 0) {
             clearInterval(timer);
             input.disabled = false; 
             transmitBtn.disabled = false;
-            input.placeholder = "introduce la respuesta del motor...";
+            input.placeholder = "escribe algo...";
             input.focus();
         }
     }, 1000);
@@ -197,16 +185,11 @@ document.getElementById('chat-form').onsubmit = (e) => {
     let esCoherente = esMuchoTexto ? false : analizarCoherenciaEstructural(userText);
     
     let reaccion = generarReaccionCoherente(esCoherente, esMuchoTexto);
-    // Penalización más estricta: +10 si aciertas, -25 si fallas
+    // Penalización estricta: +10 si aciertas, -25 si fallas
     let cambioSatisfacion = esCoherente ? 10 : -25; 
     
     setTimeout(() => {
-        const box = document.getElementById('chat-messages');
-        const msg = document.createElement('div');
-        msg.className = `message gugel`;
-        msg.innerHTML = `<strong>gugel:</strong> ${reaccion}`;
-        box.appendChild(msg);
-        box.scrollTop = box.scrollHeight;
+        appendMessage('gugel', reaccion);
 
         gameState.cycles++;
         gameState.totalChars += userText.length;
@@ -250,6 +233,7 @@ function renderProfileData() {
     ];
 
     let opinionIndex = Math.floor((gameState.satisfaction / 100) * (opiniones.length - 1));
+    if (opinionIndex < 0) opinionIndex = 0;
     gameState.lastOpinion = opiniones[opinionIndex];
 
     document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
@@ -292,8 +276,8 @@ function renderHistoryData() {
         div.innerHTML = `
             <div>
                 <strong>log #${idx + 1}:</strong> ${item.pregunta} <br>
-                <strong style="color:#00ff00;">respuesta:</strong> ${item.respuesta} <br>
-                <strong style="color:#888;">reacción:</strong> ${item.reaccion}
+                <strong>tú:</strong> ${item.respuesta} <br>
+                <strong style="color:#00ff00;">gugel:</strong> ${item.reaccion}
             </div>
             <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
         `;
