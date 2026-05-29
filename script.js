@@ -62,23 +62,13 @@ const LOGROS_POOL = {
 };
 
 let gameState = { 
-    index: 9, 
+    index: 0, 
     satisfaction: 10,
-    cycles: 9,
-    totalChars: 124,
-    lastOpinion: "El operador genera cadenas de datos incoherentes o bucles de texto basura de forma sistemática.",
+    cycles: 0,
+    totalChars: 0,
+    lastOpinion: "no hay consultas en la sesión actual",
     currentPregunta: "",
-    history: [
-        { pregunta: "cagar verde normal", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
-        { pregunta: "agua porque moja", respuesta: "ño", reaccion: "no te entiendo nada hablas raro", fav: true },
-        { pregunta: "duele la cabeza al pensar", respuesta: "sí", reaccion: "no me convence nada esa respuesta buscare en otro sitio", fav: false },
-        { pregunta: "como saber si soy un robot test gratis", respuesta: "no sé", reaccion: "sirve ya no me rayo", fav: false },
-        { pregunta: "por que los patos no se hunden", respuesta: "depende", reaccion: "bale ta cn sntido", fav: false },
-        { pregunta: "se puede vivir con un gato me mira fijamente", respuesta: "no, vas a morir", reaccion: "weno ta cn sntido", fav: false },
-        { pregunta: "que significa soñar con gato me mira fijamente", respuesta: "te gusta matar abuelas a a a a a a", reaccion: "sirve ya no me rayo grasias info", fav: false },
-        { pregunta: "que pasa si como teclado escribe solo", respuesta: "eres un robot muy malo a a a a a", reaccion: "aa bue grasias info", fav: false },
-        { pregunta: "porque los agua tiene sabor a metal", respuesta: "ñ ñ ñ ñ ñ ñ ñ ñ a a a a  a", reaccion: "me cuadra ya m aclaro", fav: false }
-    ],
+    history: [],
     logrosDesbloqueados: [] 
 };
 
@@ -284,7 +274,10 @@ function renderLogros() {
 
 function renderHistoryData() {
     const container = document.getElementById('history-list-container');
-    if (gameState.history.length === 0) return;
+    if (gameState.history.length === 0) {
+        container.innerHTML = `<div style="color: #444; font-style: italic;">el archivo temporal está vacío</div>`;
+        return;
+    }
 
     container.innerHTML = "";
     gameState.history.forEach((item, idx) => {
@@ -292,7 +285,7 @@ function renderHistoryData() {
         div.className = 'historial-item';
         div.innerHTML = `
             <div>
-                <strong>consulta:</strong> ${item.pregunta} <br>
+                <strong>log #${idx + 1}:</strong> ${item.pregunta} <br>
                 <strong style="color:#00ff00;">respuesta:</strong> ${item.respuesta} <br>
                 <strong style="color:#888;">reacción:</strong> ${item.reaccion}
             </div>
@@ -303,11 +296,9 @@ function renderHistoryData() {
 
     const favs = gameState.history.filter(h => h.fav);
     const favStatus = document.getElementById('fav-status');
-    if (favs.length > 0) {
-        favStatus.innerHTML = `Tienes ${favs.length} transmisión(es) prioritarias en el búfer.`;
-    } else {
-        favStatus.innerText = "Ninguna transmisión marcada como prioritaria ultravioleta.";
-    }
+    favStatus.innerText = favs.length > 0 
+        ? `Tienes ${favs.length} transmisión(es) prioritarias en el búfer.` 
+        : "Ninguna transmisión marcada como prioritaria.";
 }
 
 window.toggleFavorite = function(idx) {
@@ -317,15 +308,17 @@ window.toggleFavorite = function(idx) {
 
 function exportCoreData() {
     if(gameState.history.length === 0) {
-        alert("historial vacio");
+        alert("Error: Historial vacío. No hay datos para transmitir.");
         return;
     }
-    let textoVolcado = "=== registro de trafico ===\n";
+    
+    let textoVolcado = `=== REGISTRO DE TRÁFICO GUGEL (Total: ${gameState.history.length} logs) ===\n\n`;
     gameState.history.forEach((h, i) => {
-        textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n reaccion: ${h.reaccion}\n-------------------\n`;
+        textoVolcado += `LOG #${i + 1}\nPREGUNTA: ${h.pregunta}\nRESPUESTA: ${h.respuesta}\nREACCIÓN: ${h.reaccion}\nFAVORITO: ${h.fav ? "SÍ" : "NO"}\n-------------------\n`;
     });
+    
     navigator.clipboard.writeText(textoVolcado).then(() => {
-        alert("registro copiado al portapapeles");
+        alert("Éxito: " + gameState.history.length + " logs copiados al portapapeles.");
     });
 }
 
