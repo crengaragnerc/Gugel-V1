@@ -102,7 +102,6 @@
             "que se celebra 15 de agosto"
         ];
 
-        // Opiniones del sistema basadas en la calidad de la respuesta entregada
         const OPINIONES_GUGEL = [
             "Menuda sarta de sandeces acabas de transmitir. El núcleo está perdiendo neuronas.",
             "Respuesta aceptable, pero un niño de cinco años lo habría redactado con más elegancia.",
@@ -130,6 +129,10 @@
             transmitBtn.style.display = "block";
             input.style.display = "block";
             
+            // Imprime la pregunta inmediatamente al empezar la ronda
+            appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
+            
+            // Bloquea el campo para obligarte a pensar durante 5 segundos
             input.disabled = true; 
             transmitBtn.disabled = true;
             
@@ -141,13 +144,11 @@
                 input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
+                    // Se desbloquea tras los 5 segundos para que escribas tu respuesta
                     input.disabled = false; 
                     transmitBtn.disabled = false;
                     input.placeholder = "Escribe tu respuesta...";
                     input.focus();
-                    
-                    // La pregunta aparece ESTRICTAMENTE después de los 5 segundos de cuenta atrás
-                    appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
                 }
             }, 1000);
         }
@@ -159,7 +160,7 @@
             const continueBtn = document.getElementById('continue-btn');
             if (!input.value.trim()) return;
             
-            // 1. Tu respuesta (AI)
+            // 1. Tu respuesta
             appendMessage('ai', input.value);
             
             // 2. Opinión ácida de GUGEL
@@ -199,7 +200,6 @@
             }
         }
 
-        // Ejecución controlada tras la carga del DOM
         window.onload = function() {
             nextRound();
         };
