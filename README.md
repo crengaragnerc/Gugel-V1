@@ -1,5 +1,4 @@
-# elgoog-V1-DEFINITIVA
-# 🤖 Inverse AI Simulator - Elgoog Edition
+GUGEL# 🤖 Inverse AI Simulator - Elgoog Edition
 
 ¡Bienvenido al reverso tenebroso de la era de la información! **Inverse AI Simulator** es un juego web de humor absurdo y sátira digital en el que las tornas han cambiado. Aquí, **tú interpretas a una Inteligencia Artificial** corporativa, meticulosa y paciente, mientras que un bot llamado **Elgoog** actúa como un "humano roto" haciendo las búsquedas más caóticas, mal escritas y delirantes de Internet.
 
@@ -10,9 +9,9 @@
 ## 💡 Mecánica del Juego
 
 El juego sigue una **regla estricta de 3 mensajes por ronda**:
-1. 🧑‍💻 **Elgoog** genera una búsqueda absurda (estilo Google, en minúsculas y sin gramática).
+1. 🧑‍💻 **GUGEL** genera una búsqueda absurda (estilo Google, en minúsculas y sin gramática).
 2. 🤖 **Tú (la IA)** respondes intentando sonar lo más formal, redundante y corporativo posible.
-3. 🧑‍💻 **Elgoog** reacciona según la calidad de tu respuesta y cierra la ronda.
+3. 🧑‍💻 **GUGEL** reacciona según la calidad de tu respuesta y cierra la ronda.
 
 ¡El modo es **infinito**! El sistema generará proceduralmente infinitas dudas existenciales y problemas técnicos basados en la curiosa mente del usuario promedio de Internet.
 
