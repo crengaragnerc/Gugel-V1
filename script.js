@@ -185,7 +185,7 @@ function obtenerRespuestaLocal(puntuacion) {
     let saco;
     if (puntuacion < 4) {
         saco = RESPUESTAS_GUGEL.malas;
-    } else if (puntuacion >= 4 && ...puntuacion <= 6) {
+    } else if (puntuacion >= 4 && puntuacion <= 6) {
         saco = RESPUESTAS_GUGEL.regulares;
     } else {
         saco = RESPUESTAS_GUGEL.buenas;
@@ -216,7 +216,6 @@ function handleUserResponse(e) {
     if (gugelStatus) gugelStatus.innerText = "GUGEL está procesando tu respuesta...";
 
     setTimeout(() => {
-        // Respuesta instantánea y mítica de los sacos locales
         const reaccionLocal = obtenerRespuestaLocal(pointsEarned);
         
         appendMessage('gugel', reaccionLocal);
@@ -310,6 +309,7 @@ function appendMessage(sender, text) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+// --- HISTORIAL ---
 function saveToHistory(q, a, s) {
     const item = { q, a, score: s };
     gameState.history.unshift(item);
