@@ -62,28 +62,15 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// Carga e Inicio Seguro (Fijado en Unai)
+// --- ARRANQUE DIRECTO OBLIGATORIO (SIN LOG-IN) ---
 window.addEventListener('DOMContentLoaded', () => {
+    // Forzamos el tema oscuro por defecto al arrancar
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
 
-    const authForm = document.getElementById('auth-form');
-    if (authForm) {
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const inputName = document.getElementById('auth-username');
-            const name = inputName && inputName.value.trim() ? inputName.value.trim() : "Unai";
-            loginUser(name);
-        });
-    }
-
-    // Bypass automático directo asignando tu nombre de operador principal
-    setTimeout(() => {
-        if (!gameState.currentUser) {
-            console.log("Acceso directo autorizado para el operador principal.");
-            loginUser("Unai");
-        }
-    }, 200); 
+    // Entramos directamente como el operador principal sin esperar formularios
+    console.log("Acceso directo autorizado para el operador principal.");
+    loginUser("Unai");
 });
 
 function loginUser(username) {
@@ -285,6 +272,16 @@ function triggerSuggestion() {
     suggestionBox.dataset.pendingQuestion = elegida;
 }
 
+function acceptSuggestion() {
+    const suggestionBox = document.getElementById('suggestion-box');
+    if (!suggestionBox) return;
+    const nextQ = suggestionBox.dataset.pendingQuestion;
+    suggestionBox.style.display = "none";
+    suggestionBox.dataset.activeSuggestion = "true";
+    appendMessage('system', '--- REDIRECCIONANDO AL HUMANO POR ENLACE ---');
+    nextRound(nextQ);
+}
+
 // --- MODAL DE RESULTADOS BLINDADO CONTRA ERRORES ---
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
@@ -318,16 +315,6 @@ function closeResultModal() {
     const score = modalS ? parseInt(modalS.innerText.split("/")[0]) : 5;
 
     finishRoundAfterModal(score, q, a);
-}
-
-function acceptSuggestion() {
-    const suggestionBox = document.getElementById('suggestion-box');
-    if (!suggestionBox) return;
-    const nextQ = suggestionBox.dataset.pendingQuestion;
-    suggestionBox.style.display = "none";
-    suggestionBox.dataset.activeSuggestion = "true";
-    appendMessage('system', '--- REDIRECCIONANDO AL HUMANO POR ENLACE ---');
-    nextRound(nextQ);
 }
 
 // --- ARCHIVO Y LOGROS ---
@@ -410,6 +397,7 @@ function renderAchievements() {
     });
 }
 
+// --- ACTUALIZACIONES DE SISTEMA ---
 function updateSatisfaction(points) {
     const diff = points - 5;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
