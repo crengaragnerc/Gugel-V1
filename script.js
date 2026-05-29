@@ -1,4 +1,4 @@
-// --- CONFIGURACIÓN DE HISTORIAS Y PREGUNTAS ---
+// --- PREGUNTAS Y CONFIGURACIONES ---
 const PREGUNTAS_CAMPAÑA = [
     "cagar verde normal",
     "como hacer cubo rubik",
@@ -45,7 +45,7 @@ const LOGROS_DEFINICION = [
     { id: "infinito", icon: "🌌", title: "Más allá del Deber", desc: "Supera la campaña base y entra al Modo Infinito." }
 ];
 
-// --- ESTADO GLOBAL ---
+// --- ESTADO INTERNO ---
 let gameState = {
     score: parseInt(localStorage.getItem('gugel_score')) || 0,
     roundStep: 1,
@@ -62,7 +62,7 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// --- INICIO Y CONFIGURACIÓN ---
+// --- ENTRADA DE FLUJO ---
 window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
@@ -109,12 +109,10 @@ function setTheme(theme) {
     localStorage.setItem('gugel_theme', theme);
 }
 
-// CAMBIO DE PESTAÑAS EFECTIVO
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.style.display = 'none';
     });
-    
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -132,7 +130,7 @@ function switchTab(tabId) {
     }
 }
 
-// --- LÓGICA DEL JUEGO ---
+// --- CORE DEL BUCLE DE JUEGO ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
@@ -182,7 +180,7 @@ function nextRound(forcedQuestion = null) {
                     userInput.focus();
                 }
                 if (sendBtn) sendBtn.disabled = false;
-                if (gugelStatus) gugelStatus.innerText = "Esperando entrada de operador...";
+                if (gugelStatus) gugelStatus.innerText = "Conectado";
             }
         }, 1000);
     }, 800);
@@ -226,7 +224,7 @@ function evaluateResponse(text) {
 
 function finishRoundAfterModal(points, questionText, answerText) {
     const gugelStatus = document.getElementById('gugel-status');
-    if (gugelStatus) gugelStatus.innerText = "Procesando reacción de GUGEL...";
+    if (gugelStatus) gugelStatus.innerText = "Procesando reacción...";
     
     setTimeout(() => {
         const reaccion = obtenerRespuestaLocal(points);
@@ -271,7 +269,7 @@ function obtenerRespuestaLocal(puntuacion) {
     return fraseElegida;
 }
 
-// --- RECOMENDACIONES ---
+// --- SUGERENCIAS ---
 function triggerSuggestion() {
     const suggestionBox = document.getElementById('suggestion-box');
     if (!suggestionBox) return;
@@ -292,7 +290,7 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- VENTANAS MODALES ---
+// --- MODALES ---
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
     const modalQ = document.getElementById('modal-question');
@@ -325,7 +323,7 @@ function closeResultModal() {
     finishRoundAfterModal(score, q, a);
 }
 
-// --- HISTORIAL Y LOGROS ---
+// --- AUXILIARES INTERNOS ---
 function saveToArchive(q, a, score, reaccion) {
     const id = Date.now();
     gameState.history.unshift({ id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() });
