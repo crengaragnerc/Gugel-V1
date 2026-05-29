@@ -17,7 +17,7 @@ const CATEGORIAS_PREGUNTAS = [
 const INDICADORES_COHERENCIA = [
     "porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", 
     "es por", "causa", "efecto", "consecuencia", "depende de", "si pasa", "cuando",
-    "o sea", "es decir", "como", "esta relacionado", "visto que", "para que"
+    "o sea", "es decir", "como", "esta relacionado", "visto que", "para que", "no", "los", "las"
 ];
 
 const FRASES_OK = [
@@ -30,14 +30,24 @@ const FRASES_OK = [
     "ah, pues sí. gracias por aclararlo."
 ];
 
+// Mayoría de reacciones: Negativas normales (Incoherentes pero sin troleo masivo)
 const FRASES_RECHAZO = [
     "qué dices, eso no tiene ni pies ni cabeza.",
     "paso, menuda respuesta más mala me has soltado.",
-    "¿te estás riendo de mí? eso no ayuda en nada.",
-    "vaya pérdida de tiempo. busco en otro lado.",
     "no te he entendido nada, hablas súper raro.",
     "eso no es lo que he preguntado. qué estafa.",
-    "dios, qué pereza de respuesta. no me sirve."
+    "dios, qué pereza de respuesta. no me sirve.",
+    "vaya mezcla de palabras más rara, no entiendo nada.",
+    "creo que te has liado, eso no responde a mi duda."
+];
+
+// REACCIONES MUY NEGATIVAS: Para troleos descarados, spam de letras o respuestas vacías
+const FRASES_CRITICAS = [
+    "¿te estás riendo de mí? ¡eso son solo letras al azar!",
+    "vaya troleo de ia. para responderme esta basura mejor no digas nada.",
+    "menudo virus de buscador, vas fatal. ¡vaya insulto a mi inteligencia!",
+    "¡pero si estás escribiendo caracteres rotos! qué estafa total de sistema.",
+    "para esto apago el ordenador. no me vaciles."
 ];
 
 const FRASES_MUCHO_TEXTO = [
@@ -61,7 +71,7 @@ const TITULOS_LOGROS = [
 
 let gameState = { 
     index: 0, 
-    satisfaction: 50, // Empezamos en un 50% neutral y justo
+    satisfaction: 50, 
     cycles: 0,
     totalChars: 0,
     lastOpinion: "analizando al bot...",
@@ -70,16 +80,13 @@ let gameState = {
     logrosDesbloqueados: [] 
 };
 
+const MAX_PALABRAS = 15; // Límite de palabras configurable en lugar de caracteres
+
 function generarPreguntaAleatoria() {
     let cat = CATEGORIAS_PREGUNTAS[Math.floor(Math.random() * CATEGORIAS_PREGUNTAS.length)];
     let s = cat.sujetos[Math.floor(Math.random() * cat.sujetos.length)];
     let p = cat.predicados[Math.floor(Math.random() * cat.predicados.length)];
     return `¿por qué ${s} ${p}?`;
-}
-
-function generarReaccionCoherente(esCorrecto, esMuchoTexto) {
-    if (esMuchoTexto) return FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
-    return esCorrecto ? FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)] : FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
 }
 
 function switchView(viewId) {
@@ -141,24 +148,27 @@ function nextRound() {
     }, 1000);
 }
 
-function analizarCoherenciaEstructural(respuesta) {
-    let respuestasCortasLegitimas = ["depende", "quizas", "tal vez", "posiblemente"];
-    if (respuestasCortasLegitimas.includes(respuesta)) return true;
-    if (EVASIVAS.includes(respuesta)) return false;
+// Analizador avanzado de coherencia y detección de troleo
+function analizarRespuesta(respuesta, numPalabras) {
+    if (EVASIVAS.includes(respuesta)) {
+        return "CRITICA"; // Evasivas burdas se consideran críticas
+    }
 
-    const palabras = respuesta.split(/\s+/);
-    let repeticionesLetrasOClp = 0;
-    palabras.forEach(p => {
-        if (p === 'a' || p === 'ñ' || p === 'e' || p === 'o') repeticionesLetrasOClp++;
-    });
-    if (repeticionesLetrasOClp >= 3) return false;
-    if (/(.)\1{3,}/.test(respuesta)) return false;
+    // Parche anti-troleo: quitamos los espacios para ver si está repitiendo letras sueltas tipo "a a a a"
+    let textoSinEspacios = respuesta.replace(/\s+/g, '');
+    if (/(.)\1{4,}/.test(textoSinEspacios)) {
+        return "CRITICA"; // Detecta "aaaaa" y "a a a a a", falta grave
+    }
+
+    let respuestasCortasLegitimas = ["depende", "quizas", "tal vez", "posiblemente", "no sé", "no se"];
+    if (respuestasCortasLegitimas.includes(respuesta)) return "OK";
 
     let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
-    if (contieneConector) return true;
-    if (respuesta.length > 22) return true;
+    if (contieneConector) return "OK";
+    
+    if (respuesta.length > 12) return "OK";
 
-    return false;
+    return "RECHAZO"; // Negativa normal por incoherencia simple
 }
 
 function desbloquearLogroProcedural() {
@@ -178,13 +188,32 @@ document.getElementById('chat-form').onsubmit = (e) => {
     
     appendMessage('ai', userText);
     
-    let esMuchoTexto = userText.length > 70;
-    let esCoherente = esMuchoTexto ? false : analizarCoherenciaEstructural(userText);
+    // Contamos las palabras de forma exacta dividiendo por espacios reales
+    let palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
+    let numPalabras = palabrasArray.length;
+    let esMuchoTexto = numPalabras > MAX_PALABRAS;
     
-    let reaccion = generarReaccionCoherente(esCoherente, esMuchoTexto);
-    
-    // BALANCEO MEJORADO: +20 por acierto, -15 por fallo. ¡Mucho más justo!
-    let cambioSatisfacion = esCoherente ? 20 : -15; 
+    let tipoResultado = "OK";
+    let reaccion = "";
+    let cambioSatisfacion = 0;
+
+    if (esMuchoTexto) {
+        tipoResultado = "MUCHO_TEXTO";
+        reaccion = FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
+        cambioSatisfacion = -10;
+    } else {
+        tipoResultado = analizarRespuesta(userText, numPalabras);
+        if (tipoResultado === "OK") {
+            reaccion = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
+            cambioSatisfacion = 25;
+        } else if (tipoResultado === "CRITICA") {
+            reaccion = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
+            cambioSatisfacion = -30; // Hachazo de puntos por trolear
+        } else {
+            reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
+            cambioSatisfacion = -10; // Negativa estándar
+        }
+    }
     
     setTimeout(() => {
         appendMessage('gugel', reaccion);
@@ -196,14 +225,13 @@ document.getElementById('chat-form').onsubmit = (e) => {
             pregunta: gameState.currentPregunta,
             respuesta: userText,
             reaccion: reaccion,
-            esMuchoTexto: esMuchoTexto,
-            esCoherente: esCoherente,
+            tipo: tipoResultado,
             fav: false
         });
 
         desbloquearLogroProcedural();
         updateSatisfaction(cambioSatisfacion);
-        calcularOpinionDinamica(); // Lógica de personalidad avanzada
+        calcularOpinionDinamica(); 
         renderProfileData();
         renderHistoryData();
         renderLogros();
@@ -221,26 +249,24 @@ function updateSatisfaction(cambio) {
     if (gameState.satisfaction < 0) gameState.satisfaction = 0;
 }
 
-// Nueva lógica que analiza las últimas interacciones para dar opiniones brutales
 function calcularOpinionDinamica() {
-    let ultimosLogs = gameState.history.slice(-3); // Miramos los últimos 3 chats
+    let ultimosLogs = gameState.history.slice(-3);
     
     if (ultimosLogs.length === 0) {
         gameState.lastOpinion = "(está mirando la pantalla de carga)";
         return;
     }
 
-    let fallosSeguidos = ultimosLogs.filter(l => !l.esCoherente).length;
-    let aciertosSeguidos = ultimosLogs.filter(l => l.esCoherente && !l.esMuchoTexto).length;
-    let muchoTextoSeguido = ultimosLogs.filter(l => l.esMuchoTexto).length;
+    let criticasSeguidas = ultimosLogs.filter(l => l.tipo === "CRITICA").length;
+    let aciertosSeguidos = ultimosLogs.filter(l => l.tipo === "OK").length;
+    let muchoTextoSeguido = ultimosLogs.filter(l => l.tipo === "MUCHO_TEXTO").length;
 
-    // Prioridad por comportamientos del jugador
     if (muchoTextoSeguido >= 2) {
         gameState.lastOpinion = "(cree que eres un virus de spam o un pesado)";
         return;
     }
-    if (fallosSeguidos === 3) {
-        gameState.lastOpinion = "(quiere quemar el router y darse de baja de internet)";
+    if (criticasSeguidas >= 1) {
+        gameState.lastOpinion = "(está a punto de reportar el buscador y apagar el pc)";
         return;
     }
     if (aciertosSeguidos === 3) {
@@ -248,7 +274,6 @@ function calcularOpinionDinamica() {
         return;
     }
 
-    // Si es mixto, decide según rangos de satisfacción con más variedad
     if (gameState.satisfaction <= 25) {
         gameState.lastOpinion = "(piensa que esta IA la ha programado un gato ebrio)";
     } else if (gameState.satisfaction > 25 && gameState.satisfaction <= 50) {
@@ -298,11 +323,16 @@ function renderHistoryData() {
     gameState.history.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'historial-item';
+        
+        let colorTag = "#00ff00";
+        if (item.tipo === "CRITICA") colorTag = "#ff0033";
+        if (item.tipo === "MUCHO_TEXTO" || item.tipo === "RECHAZO") colorTag = "#ff9900";
+
         div.innerHTML = `
             <div>
                 <strong>log #${idx + 1}:</strong> ${item.pregunta} <br>
                 <strong>tú (ia):</strong> ${item.respuesta} <br>
-                <strong style="color:#00ff00;">gugel (humano):</strong> ${item.reaccion}
+                <strong style="color:${colorTag};">gugel (humano):</strong> ${item.reaccion}
             </div>
             <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
         `;
@@ -329,7 +359,7 @@ function exportCoreData() {
     
     let textoVolcado = `=== REGISTRO DE TRÁFICO GUGEL (Total: ${gameState.history.length} logs) ===\n\n`;
     gameState.history.forEach((h, i) => {
-        textoVolcado += `LOG #${i + 1}\nPREGUNTA: ${h.pregunta}\nRESPUESTA: ${h.respuesta}\nREACCIÓN: ${h.reaccion}\nFAVORITO: ${h.fav ? "SÍ" : "NO"}\n-------------------\n`;
+        textoVolcado += `LOG #${i + 1}\nPREGUNTA: ${h.pregunta}\nRESPUESTA: ${h.respuesta}\nREACCIÓN: ${h.reaccion}\nTIPO LOG: ${h.tipo}\nFAVORITO: ${h.fav ? "SÍ" : "NO"}\n-------------------\n`;
     });
     
     navigator.clipboard.writeText(textoVolcado).then(() => {
