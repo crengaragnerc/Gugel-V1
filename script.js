@@ -1,7 +1,3 @@
-/** * GUGEL Core - Versión Funcional Estable
- * Mantiene lógica de niveles, estados y registros sin intrusión en el chat
- */
-
 const PREGUNTAS_BASE = [
     "cagar verde normal", "agua porque moja", "duele la cabeza al pensar",
     "como saber si soy un robot test gratis", "por que los patos no se hunden",
@@ -9,46 +5,72 @@ const PREGUNTAS_BASE = [
     "que pasa si como teclado escribe solo", "porque el agua tiene sabor a metal"
 ];
 
+const LOGROS_LISTA = [
+    { id: 1, titulo: "Primeros Pasos", desc: "Has completado la primera consulta." },
+    { id: 2, titulo: "Analista Nivel 1", desc: "5 ciclos completados." },
+    { id: 3, titulo: "Hacker Profesional", desc: "Has accedido a los niveles profundos." }
+];
+
 let gameState = JSON.parse(localStorage.getItem('gugelState')) || { 
-    index: 0, satisfaction: 50, cycles: 0, totalChars: 0, history: [] 
+    index: 0, modoLibre: false, satisfaction: 50, cycles: 0, totalChars: 0, history: [], logros: [] 
 };
 
-function generarReaccion(texto) {
-    const t = texto.toLowerCase();
-    const evasivas = ["porque si", "no se", "jaja", "ño", "nose"];
+function calificarRespuesta(texto) {
+    let t = texto.toLowerCase();
+    let m = { humor: 0, coherencia: 0, vibraIA: 0, evasiva: false };
     
-    if (evasivas.some(e => t.includes(e))) return "otra vez con evasivas... ¿te cuesta tanto pensar?";
-    if (t.includes("ia") || t.includes("sistema")) return "suenas como una máquina barata. prueba a ser humano.";
-    if (t.includes("jaja") || t.includes("trola")) return "jaja, muy gracioso. sigamos.";
+    if (t.length > 25) m.coherencia = 100;
+    if (t.includes("jaja") || t.includes("trola")) m.humor = 100;
+    if (t.includes("ia") || t.includes("sistema")) m.vibraIA = 100;
+    if (["porque si", "no se", "jaja", "ño", "nose"].some(e => t.includes(e))) m.evasiva = true;
     
-    const neutrales = [
+    return m;
+}
+
+function generarReaccion(m) {
+    if (m.evasiva) return "otra vez con evasivas... ¿te cuesta tanto pensar?";
+    if (m.vibraIA > 50) return "suenas como una máquina barata. prueba a ser humano.";
+    if (m.humor > 50) return "jaja, muy gracioso. sigamos.";
+    
+    const reaccionesNeutras = [
         "interesante. anótalo en el registro.",
         "bueno, alguien tenía que decirlo.",
         "procedo a ignorar lo irrelevante de tu comentario.",
-        "anotado. espero que la siguiente valga más la pena.",
-        "ni bien ni mal. sigue."
+        "anotado. espero que la siguiente valga más la pena."
     ];
-    return neutrales[Math.floor(Math.random() * neutrales.length)];
+    return reaccionesNeutras[Math.floor(Math.random() * reaccionesNeutras.length)];
 }
 
 function nextRound() {
     const box = document.getElementById('chat-messages');
-    let p = PREGUNTAS_BASE[gameState.index] || "pregunta proc: " + Math.random().toString(36).substring(7);
+    let p = (gameState.modoLibre || gameState.index >= PREGUNTAS_BASE.length) 
+            ? "pregunta proc: " + Math.random().toString(36).substring(7) 
+            : PREGUNTAS_BASE[gameState.index];
     box.innerHTML += `<div class="message gugel"><strong>gugel:</strong> ${p}</div>`;
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     let text = document.getElementById('user-input').value;
-    let reaccion = generarReaccion(text);
+    let m = calificarRespuesta(text);
+    let reaccion = generarReaccion(m);
     
     gameState.cycles++;
     gameState.totalChars += text.length;
-    gameState.history.push({ index: gameState.index, respuesta: text });
+    gameState.satisfaction += (m.evasiva ? -10 : (m.coherencia > 50 ? 5 : -5));
+    gameState.history.push({ index: gameState.index, respuesta: text, metrics: m });
     
-    // El flujo de 3 tiempos puro:
     document.getElementById('chat-messages').innerHTML += `<div class="message ai"><strong>tú:</strong> ${text}</div>`;
     document.getElementById('chat-messages').innerHTML += `<div class="message gugel"><strong>gugel:</strong> ${reaccion}</div>`;
+    
+    if (gameState.cycles > 0 && gameState.cycles % 5 === 0) {
+        let logro = LOGROS_LISTA[(gameState.cycles/5 - 1) % LOGROS_LISTA.length];
+        if (!gameState.logros.find(l => l.id === logro.id)) {
+            gameState.logros.push(logro);
+            document.getElementById('logros-count').innerText = gameState.logros.length;
+            document.getElementById('logros-container').innerHTML += `<div class="badge-unlocked">${logro.titulo}</div>`;
+        }
+    }
     
     saveState();
     actualizarInterfaz();
@@ -61,11 +83,14 @@ function saveState() { localStorage.setItem('gugelState', JSON.stringify(gameSta
 function actualizarInterfaz() {
     document.getElementById('prof-cycles').innerText = gameState.cycles;
     document.getElementById('prof-chars').innerText = gameState.totalChars;
+    document.getElementById('prof-satisfaction').innerText = gameState.satisfaction + "%";
+    document.getElementById('prof-opinion').innerText = gameState.satisfaction > 50 ? "Estable" : "Sospechoso";
     renderHistoryData();
 }
 
 window.confirmContinue = function() {
     gameState.index++;
+    renderProfileData();
     nextRound();
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('transmit-btn').style.display = "block";
@@ -73,15 +98,39 @@ window.confirmContinue = function() {
     saveState();
 };
 
+window.saltarANivelInfinito = function() {
+    gameState.modoLibre = true;
+    renderProfileData();
+    nextRound();
+    saveState();
+};
+
+function renderProfileData() {
+    document.getElementById('prof-titles').innerText = (gameState.modoLibre || gameState.index >= PREGUNTAS_BASE.length) ? "MODO_INFINITO" : `NIVEL ${gameState.index + 1}/9`;
+}
+
 function renderHistoryData() {
-    document.getElementById('history-list-container').innerHTML = gameState.history.map(h => 
-        `<div class="historial-item">Log #${h.index}: ${h.respuesta.substring(0, 15)}...</div>`
-    ).join('');
+    document.getElementById('history-list-container').innerHTML = gameState.history.map(h => `<div class="historial-item">Log #${h.index}: ${h.respuesta.substring(0, 15)}...</div>`).join('');
+}
+
+function changeSystemMode() { 
+    document.body.className = document.getElementById('mode-select').value;
+    localStorage.setItem('gugelMode', document.getElementById('mode-select').value);
+}
+
+function exportCoreData() {
+    console.log("--- VOLCADO COMPLETO DEL NÚCLEO ---");
+    console.table(gameState);
+    alert("Datos volcados en consola.");
 }
 
 function clearSystem() { localStorage.clear(); location.reload(); }
 
 window.onload = () => {
+    let mode = localStorage.getItem('gugelMode') || 'default';
+    document.body.className = mode;
+    document.getElementById('mode-select').value = mode;
+    renderProfileData();
     actualizarInterfaz();
     nextRound();
 };
