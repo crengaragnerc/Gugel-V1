@@ -54,7 +54,7 @@ let gameState = {
     inInfiniteMode: localStorage.getItem('gugel_infinite_mode') === 'true', 
     satisfaction: parseInt(localStorage.getItem('gugel_satisfaction')) || 50,
     level: parseInt(localStorage.getItem('gugel_level')) || 1,
-    currentUser: null,
+    currentUser: localStorage.getItem('gugel_user') || "Unai",
     history: JSON.parse(localStorage.getItem('gugel_history')) || [],
     favorites: JSON.parse(localStorage.getItem('gugel_favorites')) || [],
     unlockedAchievements: JSON.parse(localStorage.getItem('gugel_achievements')) || []
@@ -62,60 +62,59 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// --- SISTEMA DE INICIO DE SESIÓN OBLIGATORIO ---
+// --- ENTRADA AL JUEGO INSTANTÁNEA ---
 window.addEventListener('DOMContentLoaded', () => {
-    // Aplicamos el tema visual guardado
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
 
-    // Escuchamos el envío del formulario obligatoriamente
+    // Enlazar el formulario del modal secundario por si decide usarse
     const authForm = document.getElementById('auth-form');
     if (authForm) {
         authForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const inputName = document.getElementById('auth-username');
-            const name = inputName && inputName.value.trim() ? inputName.value.trim() : "Operador Anónimo";
-            loginUser(name);
+            if (inputName && inputName.value.trim()) {
+                gameState.currentUser = inputName.value.trim();
+                localStorage.setItem('gugel_user', gameState.currentUser);
+                document.getElementById('logged-user-name').innerText = gameState.currentUser;
+            }
+            closeAuthModal();
         });
     }
-});
 
-function loginUser(username) {
-    gameState.currentUser = username;
-    localStorage.setItem('gugel_user', username);
-
-    const authScreen = document.getElementById('auth-screen');
-    const mainApp = document.getElementById('main-app');
-    const loggedUserName = document.getElementById('logged-user-name');
-
-    // Transición de pantallas
-    if (authScreen) authScreen.style.display = "none";
-    if (mainApp) mainApp.style.display = "flex"; 
-    if (loggedUserName) loggedUserName.innerText = username;
-    
-    // Activar manejadores de eventos de la app de chat
+    // Configuración del motor del chat
     const chatForm = document.getElementById('chat-form');
     if (chatForm) chatForm.onsubmit = handleUserResponse;
 
     const suggestionBox = document.getElementById('suggestion-box');
     if (suggestionBox) suggestionBox.onclick = acceptSuggestion;
-    
-    // Inicializar la interfaz gráfica
+
+    // Pintar datos iniciales y saltar al juego sin esperas
+    document.getElementById('logged-user-name').innerText = gameState.currentUser;
     updateSidebarUI();
     renderArchive();
     renderAchievements();
-    
-    // Arrancar primera ronda con un mini retardo para suavizar la entrada
-    setTimeout(() => { nextRound(); }, 400);
+
+    nextRound();
+});
+
+// --- FUNCIONES DEL MODAL OPCIONAL DE INICIO DE SESIÓN ---
+function openAuthModal() {
+    const modal = document.getElementById('auth-screen');
+    if (modal) modal.style.display = "flex";
+}
+function closeAuthModal() {
+    const modal = document.getElementById('auth-screen');
+    if (modal) modal.style.display = "none";
 }
 
-// --- TEMAS (CAMBIO EN TIEMPO REAL) ---
+// --- TEMAS VIVIENTES ---
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('gugel_theme', theme);
 }
 
-// --- PESTAÑAS ---
+// --- NAVEGACIÓN ---
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -128,12 +127,9 @@ function switchTab(tabId) {
         const idx = tabId === 'chat-tab' ? 0 : tabId === 'archive-tab' ? 1 : 2;
         btns[idx].classList.add('active');
     }
-
-    if (tabId === 'archive-tab') renderArchive();
-    if (tabId === 'achievements-tab') renderAchievements();
 }
 
-// --- MOTOR DEL TERMINAL ---
+// --- MOTOR DE CONSULTAS DE GUGEL ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
@@ -214,7 +210,6 @@ function handleUserResponse(e) {
     openResultModal(gameState.currentQuestion, text, pointsEarned);
 }
 
-// --- EVALUADOR ---
 function evaluateResponse(text) {
     let score = 5; 
     const lower = text.toLowerCase();
@@ -301,9 +296,7 @@ function openResultModal(q, a, score) {
     const modalA = document.getElementById('modal-answer');
     const modalS = document.getElementById('modal-score-number');
 
-    // Cortafuegos de seguridad: si el HTML no tiene los elementos listos, el juego no se cuelga
     if (!resultModal || !modalQ || !modalA || !modalS) {
-        console.warn("⚠️ Elementos del modal ausentes en el DOM. Saltando directo al procesamiento de ronda.");
         finishRoundAfterModal(score, q, a);
         return;
     }
@@ -329,7 +322,7 @@ function closeResultModal() {
     finishRoundAfterModal(score, q, a);
 }
 
-// --- HISTORIAL DE ARCHIVO ---
+// --- SISTEMAS AUXILIARES ---
 function saveToArchive(q, a, score, reaccion) {
     const id = Date.now();
     gameState.history.unshift({ id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() });
@@ -346,14 +339,9 @@ function toggleFavorite(id) {
 
 function shareChat(q, a, score) {
     const textToCopy = `🔴 [LOG DE SOPORTE GUGEL]\nConsulta: "${q}"\nRespuesta: "${a}"\nEficiencia: ${score}/10`;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        alert("¡Log copiado al portapapeles con éxito!");
-    }).catch(() => {
-        alert("No se pudo copiar.");
-    });
+    navigator.clipboard.writeText(textToCopy).then(() => { alert("¡Log copiado!"); }).catch(() => {});
 }
 
-// --- INTERFAZ ---
 function renderArchive() {
     const listEl = document.getElementById('archive-list');
     if (!listEl) return;
@@ -373,7 +361,7 @@ function renderArchive() {
                 <p><strong>Tú:</strong> ${item.a}</p>
             </div>
             <div class="archive-actions">
-                <button class="archive-btn" onclick="toggleFavorite(${item.id})">${isFav ? '⭐ Quitar' : '📁 Guardar en Favoritos'}</button>
+                <button class="archive-btn" onclick="toggleFavorite(${item.id})">${isFav ? '⭐ Quitar' : '📁 Guardar'}</button>
                 <button class="archive-btn" onclick="shareChat('${item.q}', '${item.a}', ${item.score})">🔗 Compartir</button>
             </div>
         `;
