@@ -24,12 +24,26 @@ function calificarRespuesta(texto) {
     if (EVASIVAS.some(e => texto.toLowerCase().includes(e))) m.evasiva = true;
     return m;
 }
-
 function generarReaccion(m) {
-    if (m.evasiva) return "tu respuesta es una evasiva. decepcionante.";
-    if (m.vibraIA > 50) return "patrón de IA detectado. aburrido.";
-    if (m.humor > 50) return "gracioso, me gusta.";
-    return "mensaje procesado correctamente.";
+    // Si detecta evasivas, se pone borde
+    if (m.evasiva) return "otra vez con evasivas... ¿te cuesta tanto pensar?";
+    
+    // Si intenta sonar a IA (y lo detectamos), se burla
+    if (m.vibraIA > 50) return "suenas como una máquina barata. prueba a ser humano.";
+    
+    // Si tiene humor (jaja, trola)
+    if (m.humor > 50) return "jaja, muy gracioso. sigamos.";
+    
+    // Respuestas neutras pero con algo más de estilo
+    const reaccionesNeutras = [
+        "interesante. anótalo en el registro.",
+        "ni bien ni mal. sigue.",
+        "bueno, alguien tenía que decirlo.",
+        "procedo a ignorar lo irrelevante de tu comentario.",
+        "anotado. espero que la siguiente valga más la pena."
+    ];
+    
+    return reaccionesNeutras[Math.floor(Math.random() * reaccionesNeutras.length)];
 }
 
 function nextRound() {
