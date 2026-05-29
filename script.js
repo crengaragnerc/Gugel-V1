@@ -30,18 +30,18 @@ const FRASES_OK = [
     "ah, pues sí. gracias por aclararlo."
 ];
 
-// Mayoría de reacciones: Negativas normales (Incoherentes pero sin troleo masivo)
+// Mayoría de reacciones: Negativas normales (Incoherentes o demasiado cortas)
 const FRASES_RECHAZO = [
     "qué dices, eso no tiene ni pies ni cabeza.",
-    "paso, menuda respuesta más mala me has soltado.",
+    "paso, menuda respuesta más mala y corta me has soltado.",
     "no te he entendido nada, hablas súper raro.",
     "eso no es lo que he preguntado. qué estafa.",
-    "dios, qué pereza de respuesta. no me sirve.",
-    "vaya mezcla de palabras más rara, no entiendo nada.",
-    "creo que te has liado, eso no responde a mi duda."
+    "dios, qué pereza de respuesta. no me sirve de nada.",
+    "vaya mezcla de palabras más rara, no entiendo tu lógica.",
+    "creo que te has liado, eso es demasiado vago para responder a mi duda."
 ];
 
-// REACCIONES MUY NEGATIVAS: Para troleos descarados, spam de letras o respuestas vacías
+// REACCIONES MUY NEGATIVAS: Para troleos descarados y spam de letras
 const FRASES_CRITICAS = [
     "¿te estás riendo de mí? ¡eso son solo letras al azar!",
     "vaya troleo de ia. para responderme esta basura mejor no digas nada.",
@@ -80,7 +80,7 @@ let gameState = {
     logrosDesbloqueados: [] 
 };
 
-const MAX_PALABRAS = 15; // Límite de palabras configurable en lugar de caracteres
+const MAX_PALABRAS = 15; 
 
 function generarPreguntaAleatoria() {
     let cat = CATEGORIAS_PREGUNTAS[Math.floor(Math.random() * CATEGORIAS_PREGUNTAS.length)];
@@ -148,27 +148,29 @@ function nextRound() {
     }, 1000);
 }
 
-// Analizador avanzado de coherencia y detección de troleo
+// Analizador avanzado de coherencia con bloqueo de respuestas ultra cortas
 function analizarRespuesta(respuesta, numPalabras) {
     if (EVASIVAS.includes(respuesta)) {
-        return "CRITICA"; // Evasivas burdas se consideran críticas
+        return "CRITICA"; 
     }
 
-    // Parche anti-troleo: quitamos los espacios para ver si está repitiendo letras sueltas tipo "a a a a"
+    // Filtro anti-troleo de letras sueltas tipo "a a a a"
     let textoSinEspacios = respuesta.replace(/\s+/g, '');
     if (/(.)\1{4,}/.test(textoSinEspacios)) {
-        return "CRITICA"; // Detecta "aaaaa" y "a a a a a", falta grave
+        return "CRITICA"; 
     }
 
-    let respuestasCortasLegitimas = ["depende", "quizas", "tal vez", "posiblemente", "no sé", "no se"];
-    if (respuestasCortasLegitimas.includes(respuesta)) return "OK";
+    // ¡NUEVO CANDADO!: Si respondes con 1 o 2 palabras, da igual lo que pongas, va para rechazo negativo
+    if (numPalabras <= 2) {
+        return "RECHAZO";
+    }
 
     let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
     if (contieneConector) return "OK";
     
     if (respuesta.length > 12) return "OK";
 
-    return "RECHAZO"; // Negativa normal por incoherencia simple
+    return "RECHAZO"; 
 }
 
 function desbloquearLogroProcedural() {
@@ -188,7 +190,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
     
     appendMessage('ai', userText);
     
-    // Contamos las palabras de forma exacta dividiendo por espacios reales
     let palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
     let numPalabras = palabrasArray.length;
     let esMuchoTexto = numPalabras > MAX_PALABRAS;
@@ -208,10 +209,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
             cambioSatisfacion = 25;
         } else if (tipoResultado === "CRITICA") {
             reaccion = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
-            cambioSatisfacion = -30; // Hachazo de puntos por trolear
+            cambioSatisfacion = -30; 
         } else {
             reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
-            cambioSatisfacion = -10; // Negativa estándar
+            cambioSatisfacion = -10; // Te quita 10 puntos por vago o inconexo
         }
     }
     
