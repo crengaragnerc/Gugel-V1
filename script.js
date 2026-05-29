@@ -1,96 +1,61 @@
-/**
- * GUGEL Core - Versión Esencial Estable
- */
+// ... (Mantén las constantes PREGUNTAS_BASE, PLANTILLAS_COHERENTES, etc. igual que antes) ...
 
-const PREGUNTAS_BASE = [
-    "cagar verde normal", "agua porque moja", "duele la cabeza al pensar",
-    "como saber si soy un robot test gratis", "por que los patos no se hunden",
-    "se puede vivir con un gato me mira fijamente", "que significa soñar con gato me mira fijamente",
-    "que pasa si como teclado escribe solo", "porque el agua tiene sabor a metal"
-];
-
-let gameState = JSON.parse(localStorage.getItem('gugelState')) || { 
-    index: 0, satisfaction: 50, cycles: 0, totalChars: 0, history: [] 
+let gameState = { 
+    index: 0, 
+    modoLibre: false, // <-- NUEVO: flag para desbloquear infinito
+    satisfaction: 50,
+    cycles: 0,
+    totalChars: 0,
+    lastOpinion: "",
+    currentPregunta: "",
+    preguntasMostradas: new Set(),
+    history: [],
+    logrosDesbloqueados: [] 
 };
-function generarReaccion(texto) {
-    const t = texto.toLowerCase();
-    const evasivas = ["porque si", "no se", "jaja", "ño", "nose"];
-    
-    // Si detecta evasivas o intentos de ser gracioso, GUGEL corta el rollo
-    if (evasivas.some(e => t.includes(e))) return "qué aburrido eres.";
-    if (t.includes("ia") || t.includes("sistema")) return "no intentes analizarme, humano.";
-    if (t.includes("jaja") || t.includes("trola")) return "no tiene ninguna gracia.";
-    
-    // Aquí está la esencia pura de GUGEL (sin registros, sin secretarios)
-    const respuestas = [
-        "¿y eso es todo lo que tienes que decir?",
-        "qué decepción de respuesta.",
-        "ni fu ni fa. siguiente.",
-        "podrías haberte esforzado un poco más.",
-        "paso de tu cara.",
-        "bueno... al menos has respondido."
-    ];
-    return respuestas[Math.floor(Math.random() * respuestas.length)];
-}
-    const reaccionesNeutras = [
-        "interesante. anótalo en el registro.",
-        "bueno, alguien tenía que decirlo.",
-        "procedo a ignorar lo irrelevante de tu comentario.",
-        "anotado. espero que la siguiente valga más la pena."
-    ];
-    return reaccionesNeutras[Math.floor(Math.random() * reaccionesNeutras.length)];
-}
+
+// ... (Mantén las funciones de calificación y generación como estaban) ...
 
 function nextRound() {
-    const box = document.getElementById('chat-messages');
-    let p = PREGUNTAS_BASE[gameState.index] || "pregunta proc: " + Math.random().toString(36).substring(7);
-    box.innerHTML += `<div class="message gugel"><strong>gugel:</strong> ${p}</div>`;
+    const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    
+    continueBtn.style.display = "none";
+    transmitBtn.style.display = "block";
+    input.style.display = "block";
+
+    // Lógica de salto: si modoLibre o index superó la base, generamos infinito
+    if (gameState.modoLibre || gameState.index >= PREGUNTAS_BASE.length) {
+        gameState.currentPregunta = generarPreguntaInfinitaCoherente();
+    } else {
+        gameState.currentPregunta = PREGUNTAS_BASE[gameState.index];
+    }
+    
+    appendMessage('gugel', gameState.currentPregunta);
+    // ... (resto del timer igual)
 }
 
-document.getElementById('chat-form').onsubmit = (e) => {
-    e.preventDefault();
-    let text = document.getElementById('user-input').value;
-    let reaccion = generarReaccion(text);
-    
-    gameState.cycles++;
-    gameState.totalChars += text.length;
-    gameState.history.push({ index: gameState.index, respuesta: text });
-    
-    document.getElementById('chat-messages').innerHTML += `<div class="message ai"><strong>tú:</strong> ${text}</div>`;
-    document.getElementById('chat-messages').innerHTML += `<div class="message gugel"><strong>gugel:</strong> ${reaccion}</div>`;
-    
-    saveState();
-    actualizarInterfaz();
-    document.getElementById('transmit-btn').style.display = "none";
-    document.getElementById('continue-btn').style.display = "block";
+// NUEVA FUNCIÓN: Salto directo
+window.saltarANivelInfinito = function() {
+    gameState.modoLibre = true;
+    gameState.index = PREGUNTAS_BASE.length;
+    document.getElementById('chat-messages').innerHTML = "";
+    nextRound();
+    renderProfileData();
+    alert("Acceso al núcleo infinito concedido.");
 };
 
-function saveState() { localStorage.setItem('gugelState', JSON.stringify(gameState)); }
-
-function actualizarInterfaz() {
+function renderProfileData() {
+    document.getElementById('prof-opinion').innerText = `${gameState.lastOpinion}`;
+    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
     document.getElementById('prof-cycles').innerText = gameState.cycles;
-    document.getElementById('prof-chars').innerText = gameState.totalChars;
-    renderHistoryData();
+
+    const levelBox = document.getElementById('prof-titles');
+    if (gameState.modoLibre || gameState.index >= PREGUNTAS_BASE.length) {
+        levelBox.innerText = "MODO_INFINITO_DESBLOQUEADO";
+        levelBox.style.color = "#00ff00";
+    } else {
+        levelBox.innerText = `NIVEL_BASE_${gameState.index + 1}_DE_9`;
+        levelBox.style.color = "#ffaa00";
+    }
 }
-
-window.confirmContinue = function() {
-    gameState.index++;
-    nextRound();
-    document.getElementById('continue-btn').style.display = "none";
-    document.getElementById('transmit-btn').style.display = "block";
-    document.getElementById('user-input').value = "";
-    saveState();
-};
-
-function renderHistoryData() {
-    document.getElementById('history-list-container').innerHTML = gameState.history.map(h => 
-        `<div class="historial-item">Log #${h.index}: ${h.respuesta.substring(0, 15)}...</div>`
-    ).join('');
-}
-
-function clearSystem() { localStorage.clear(); location.reload(); }
-
-window.onload = () => {
-    actualizarInterfaz();
-    nextRound();
-};
