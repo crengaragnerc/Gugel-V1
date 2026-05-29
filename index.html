@@ -135,14 +135,28 @@
         .fav-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
         .fav-btn.active { color: #00ff00; }
 
-        /* Modos visuales */
-        body.modo-oscuro { background: #080808; }
-        body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #111; border-color: #222; }
-        body.modo-oscuro .header h2 { color: #fff; }
-        body.modo-oscuro .message.gugel { color: #eee; background: #1c1c1c; border-color: #2b2b2b; }
-        body.modo-oscuro .message.ai { background: #252525; color: #fff; border-color: #3a3a3a; }
-        body.modo-oscuro button.action-btn { background: #fff; color: #000; }
+        /* MODO OSCURO (Refactorizado: Estilo moderno azulado/grisáceo, no hacker) */
+        body.modo-oscuro { background: #1e222b; }
+        body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #252a34; border-color: #303746; }
+        body.modo-oscuro .header { background: #2b313e; border-bottom: 1px solid #3d4659; }
+        body.modo-oscuro .header h2 { color: #ffffff; }
+        body.modo-oscuro .mode-selector { background: #3d4659; border-color: #4f5b73; }
+        body.modo-oscuro .content-panel, body.modo-oscuro .chat-messages { background: #1a1d24; color: #e1e4ea; }
+        body.modo-oscuro .message.gugel { background: #2b313e; border-color: #3d4659; color: #ffffff; }
+        body.modo-oscuro .message.ai { background: #00adb5; border-color: #00adb5; color: #ffffff; }
+        body.modo-oscuro #chat-form { background: #252a34; border-top: 1px solid #303746; }
+        body.modo-oscuro input { background: #1e222b; border-color: #3d4659; color: #ffffff; }
+        body.modo-oscuro input:focus { border-color: #00adb5; }
+        body.modo-oscuro button.action-btn { background: #00adb5; color: #ffffff; }
+        body.modo-oscuro .nav-btn { background: #2b313e; color: #a0a5b0; border-color: #3d4659; }
+        body.modo-oscuro .nav-btn:hover, body.modo-oscuro .nav-btn.active { background: #00adb5; color: #ffffff; border-color: #00adb5; }
+        body.modo-oscuro .data-item, body.modo-oscuro .historial-item { background: #2b313e; border-color: #3d4659; color: #e1e4ea; }
+        body.modo-oscuro .data-label { color: #00adb5; }
+        body.modo-oscuro #prof-satisfaction, body.modo-oscuro #prof-cycles, body.modo-oscuro #prof-chars, body.modo-oscuro #prof-titles, body.modo-oscuro .content-panel h3 { color: #00adb5; }
+        body.modo-oscuro .badge-unlocked { color: #00adb5; }
+        body.modo-oscuro .fav-btn.active { color: #00adb5; }
         
+        /* MODO CLARO (Permanece igual) */
         body.modo-claro { background: #eef0f2; }
         body.modo-claro .chat-card, body.modo-claro .sidebar { background: #ffffff; border-color: #ccc; }
         body.modo-claro .header { background: #f5f5f5; border-color: #ccc; }
@@ -153,9 +167,13 @@
         body.modo-claro #chat-form, body.modo-claro .sidebar { background: #ffffff; border-color: #ccc; }
         body.modo-claro input { background: #f5f5f5; border-color: #ccc; color: #111; }
         body.modo-claro button.action-btn { background: #222; color: #fff; }
-        body.modo-claro .data-item { background: #f5f5f5; border-color: #ccc; }
+        body.modo-claro .data-item, body.modo-claro .historial-item { background: #f5f5f5; border-color: #ccc; color: #333; }
         body.modo-claro .data-label { color: #777; }
         body.modo-claro .nav-btn { background: #f9f9f9; color: #666; border-color: #ccc; }
+        body.modo-claro .nav-btn:hover, body.modo-claro .nav-btn.active { background: #222; color: #fff; border-color: #222; }
+        body.modo-claro #prof-satisfaction, body.modo-claro #prof-cycles, body.modo-claro #prof-chars, body.modo-claro #prof-titles, body.modo-claro .content-panel h3 { color: #222; }
+        body.modo-claro .badge-unlocked { color: #222; }
+        body.modo-claro .fav-btn.active { color: #222; }
     </style>
 </head>
 <body class="modo-hacker">
@@ -185,359 +203,4 @@
                 </select>
             </header>
 
-            <div id="view-chat" class="content-panel active">
-                <div class="chat-messages" id="chat-messages"></div>
-                <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="introduce la respuesta del motor..." autocomplete="off">
-                    <button type="submit" id="transmit-btn" class="action-btn">TRANSMITIR</button>
-                    <button type="button" id="continue-btn" class="action-btn" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
-                </form>
-            </div>
-
-            <div id="view-perfil" class="content-panel">
-                <h3>Estado Analítico de Operación</h3>
-                <div class="data-item">
-                    <div class="data-label">Último retorno recibido de gugel:</div>
-                    <div id="prof-opinion" style="font-style: italic; color: #888;">no hay consultas en la sesión actual</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">Índice de Aceptación de gugel:</div>
-                    <div style="font-weight: bold; font-size: 18px; color: #00ff00;" id="prof-satisfaction">50%</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">Métricas de Flujo:</div>
-                    <div>Consultas resueltas: <span id="prof-cycles" style="color:#00ff00;">0</span></div>
-                    <div>Caracteres procesados: <span id="prof-chars" style="color:#00ff00;">0</span></div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">Estado del Búfer:</div>
-                    <div id="prof-behavior">conexión establecida con la terminal de gugel</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">Diagnóstico automático:</div>
-                    <div id="prof-summary">monitoreando flujos de datos entrantes desde el buscador</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">Rango Jerárquico:</div>
-                    <div id="prof-titles" style="font-weight: bold; color: #00ff00;">operador del sistema novato</div>
-                </div>
-            </div>
-
-            <div id="view-logros" class="content-panel">
-                <h3>Logros Desbloqueados</h3>
-                <div id="logros-container">
-                    <div style="color: #444; font-style: italic;">[sistema oculto] las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida</div>
-                </div>
-            </div>
-
-            <div id="view-historial" class="content-panel">
-                <h3>Historial de Consultas Cerradas</h3>
-                <div class="data-item">
-                    <div class="data-label">Archivo de Búfer Local</div>
-                    <div class="historial-lista" id="history-list-container">
-                        <div style="color: #444; font-style: italic;">el archivo temporal está vacío</div>
-                    </div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">Volcado Documental</div>
-                    <button class="action-btn" style="padding: 8px 16px; font-size: 11px;" onclick="exportCoreData()">Copiar Registro de Datos</button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <script>
-        const PREGUNTAS_BASE = [
-            "cagar verde normal", 
-            "agua porque moja",
-            "duele la cabeza al pensar",
-            "como saber si soy un robot test gratis",
-            "por que los patos no se hunden"
-        ];
-
-        const GEN_PREFIJOS = ["porque los", "como saber si mi", "es normal que el", "que pasa si como", "por que el", "que significa soñar con", "se puede vivir con un"];
-        const GEN_SUFIJOS = ["gato me mira fijamente", "teclado escribe solo", "agua tiene sabor a metal", "plastilina se puede comer", "brazo me tiembla un poco", "universo es infinito", "espejo se mueve", "perro duerme boca arriba"];
-
-        const REACCIONES_OK = [
-            "ah vale me quedo mas tranquilo entonces cerrare la pestaña",
-            "me cuadra bastante la explicacion tiene sentido",
-            "vale entonces no me preocupo pensaba que era algo peor",
-            "entendido menos mal que lo he buscado aqui ya me estaba rayando",
-            "ok me sirve bastante esa respuesta",
-            "perfecto ya entendi el problema de raiz",
-            "bueno con eso me basta para no ir a urgencias",
-            "tiene logica gracias por la info",
-            "menos mal crei que me iba a morir o algo",
-            "vale lo anoto para tenerlo en cuenta"
-        ];
-
-        const REACCIONES_RECHAZO = [
-            "no me convence nada esa respuesta buscare en otro sitio",
-            "vaya porqueria de buscador no me aclara nada",
-            "eso no responde a mi pregunta que respuesta mas inutil",
-            "para poner eso mejor no pongas nada sigo igual de rayado",
-            "no me sirve para nada abrire otra pestaña",
-            "que respuesta mas absurda que flojera",
-            "eso es una tonteria no tiene ningun sentido",
-            "vaya pérdida de tiempo me voy a otra pagina",
-            "no te entiendo nada hablas raro",
-            "que estafa de pagina sigo con la misma duda"
-        ];
-
-        // Eliminados los insultos. Solo quedan evasivas genéricas de texto vacío
-        const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea"];
-
-        let gameState = { 
-            index: 0, 
-            satisfaction: 50,
-            cycles: 0,
-            totalChars: 0,
-            lastOpinion: "sin datos",
-            currentPregunta: "",
-            history: [],
-            logrosDesbloqueados: []
-        };
-
-        const LOGROS_DEFINICIONES = {
-            "breve": "<strong>[logro revelado] respuestita:</strong> responder a gugel usando 3 caracteres o menos",
-            "primero": "<strong>[logro revelado] primera consulta:</strong> resolver el primer hilo de datos de gugel",
-            "visual": "<strong>[logro revelado] cambio de entorno:</strong> modificar los parámetros visuales del terminal central",
-            "cuber": "<strong>[logro revelado] concepto avanzado:</strong> resolver un hilo de gugel inyectando términos algorítmicos o mecánicos"
-        };
-
-        function switchView(viewId) {
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById(`btn-${viewId}`);
-            if (activeBtn) activeBtn.classList.add('active');
-
-            document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
-            const activePanel = document.getElementById(viewId);
-            activePanel.classList.add('active');
-
-            if (viewId === 'view-chat') {
-                document.getElementById('panel-title-text').innerText = "gugel core";
-            } else {
-                document.getElementById('panel-title-text').innerText = "gugel core - estado del sistema";
-            }
-        }
-
-        function appendMessage(sender, text) {
-            const box = document.getElementById('chat-messages');
-            const msg = document.createElement('div');
-            msg.className = `message ${sender}`;
-            const cleanText = text.toLowerCase();
-            msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${cleanText}` : `<strong>tú:</strong> ${cleanText}`;
-            box.appendChild(msg);
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function generarPreguntaInfinita() {
-            const pref = GEN_PREFIJOS[Math.floor(Math.random() * GEN_PREFIJOS.length)];
-            const suf = GEN_SUFIJOS[Math.floor(Math.random() * GEN_SUFIJOS.length)];
-            return `${pref} ${suf}`;
-        }
-
-        function nextRound() {
-            const input = document.getElementById('user-input');
-            const transmitBtn = document.getElementById('transmit-btn');
-            const continueBtn = document.getElementById('continue-btn');
-            
-            continueBtn.style.display = "none";
-            transmitBtn.style.display = "block";
-            input.style.display = "block";
-
-            if (gameState.index < PREGUNTAS_BASE.length) {
-                gameState.currentPregunta = PREGUNTAS_BASE[gameState.index];
-            } else {
-                gameState.currentPregunta = generarPreguntaInfinita();
-            }
-            
-            appendMessage('gugel', gameState.currentPregunta);
-            
-            input.disabled = true; 
-            transmitBtn.disabled = true;
-            
-            let timeLeft = 5;
-            input.placeholder = `gugel buscando... (${timeLeft}s)`;
-            
-            const timer = setInterval(() => {
-                timeLeft--;
-                input.placeholder = `gugel buscando... (${timeLeft}s)`;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    input.disabled = false; 
-                    transmitBtn.disabled = false;
-                    input.placeholder = "introduce la respuesta del motor...";
-                    input.focus();
-                }
-            }, 1000);
-        }
-
-        document.getElementById('chat-form').onsubmit = (e) => {
-            e.preventDefault();
-            const input = document.getElementById('user-input');
-            const transmitBtn = document.getElementById('transmit-btn');
-            const continueBtn = document.getElementById('continue-btn');
-            const userText = input.value.trim().toLowerCase();
-            if (!userText) return;
-            
-            appendMessage('ai', userText);
-            
-            // Se recupera la excepción controlada para respuestas analíticas cortas legítimas
-            let esRespuestaValidaCorta = (userText === "no" || userText === "si" || userText === "ci" || userText === "depende");
-            
-            // Vuelve la restricción de longitud de 3 caracteres como evasiva genérica
-            let esEvasiva = EVASIVAS.some(e => userText.includes(e)) || (userText.length <= 3 && !esRespuestaValidaCorta);
-            let reaccion = "";
-            let cambioSatisfacion = 0;
-
-            if (esEvasiva) {
-                reaccion = REACCIONES_RECHAZO[Math.floor(Math.random() * REACCIONES_RECHAZO.length)];
-                cambioSatisfacion = -20;
-            } else {
-                reaccion = REACCIONES_OK[Math.floor(Math.random() * REACCIONES_OK.length)];
-                cambioSatisfacion = 15;
-            }
-            
-            setTimeout(() => {
-                const box = document.getElementById('chat-messages');
-                const msg = document.createElement('div');
-                msg.className = `message gugel`;
-                msg.innerHTML = `<strong>gugel:</strong> ${reaccion}`;
-                box.appendChild(msg);
-                box.scrollTop = box.scrollHeight;
-
-                gameState.cycles++;
-                gameState.totalChars += userText.length;
-                gameState.lastOpinion = reaccion;
-
-                gameState.history.push({
-                    pregunta: gameState.currentPregunta,
-                    respuesta: userText,
-                    reaccion: reaccion,
-                    fav: false
-                });
-
-                if (userText.length <= 3) verifLogro("breve");
-                if (gameState.cycles === 1) verifLogro("primero");
-                if (userText.includes("algoritmo") || userText.includes("cubo") || userText.includes("rubik")) verifLogro("cuber");
-
-                updateSatisfaction(cambioSatisfacion);
-                renderProfileData();
-                renderHistoryData();
-                renderLogros();
-            }, 600);
-
-            input.value = "";
-            input.style.display = "none";
-            transmitBtn.style.display = "none";
-            continueBtn.style.display = "block";
-        };
-
-        function verifLogro(id) {
-            if (LOGROS_DEFINICIONES[id] && !gameState.logrosDesbloqueados.includes(id)) {
-                gameState.logrosDesbloqueados.push(id);
-            }
-        }
-
-        window.confirmContinue = function() {
-            document.getElementById('chat-messages').innerHTML = "";
-            gameState.index++;
-            nextRound();
-        };
-
-        function updateSatisfaction(cambio) {
-            gameState.satisfaction += cambio;
-            if (gameState.satisfaction > 100) gameState.satisfaction = 100;
-            if (gameState.satisfaction < 0) gameState.satisfaction = 0;
-        }
-
-        function renderProfileData() {
-            document.getElementById('prof-opinion').innerText = `${gameState.lastOpinion}`;
-            document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
-            document.getElementById('prof-cycles').innerText = gameState.cycles;
-            document.getElementById('prof-chars').innerText = gameState.totalChars;
-
-            if(gameState.satisfaction >= 70) {
-                document.getElementById('prof-behavior').innerText = "gugel muestra conformidad absoluta con los datos de pantalla";
-                document.getElementById('prof-titles').innerText = "operador de confianza";
-            } else if(gameState.satisfaction <= 30) {
-                document.getElementById('prof-behavior').innerText = "gugel ignora el sistema y busca alternativas por su cuenta";
-                document.getElementById('prof-titles').innerText = "analista de datos ignorado";
-            } else {
-                document.getElementById('prof-behavior').innerText = "flujo normalizado gugel acepta la informacion recibida";
-            }
-
-            document.getElementById('prof-summary').innerText = `procesadas con exito ${gameState.cycles} hilos de datos`;
-        }
-
-        function renderLogros() {
-            const container = document.getElementById('logros-container');
-            if (gameState.logrosDesbloqueados.length === 0) return;
-
-            container.innerHTML = "";
-            gameState.logrosDesbloqueados.forEach(id => {
-                const div = document.createElement('div');
-                div.className = 'data-item';
-                div.style.borderColor = '#00ff00';
-                div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> ${LOGROS_DEFINICIONES[id]}`;
-                container.appendChild(div);
-            });
-        }
-
-        function renderHistoryData() {
-            const container = document.getElementById('history-list-container');
-            if (gameState.history.length === 0) return;
-
-            container.innerHTML = "";
-            gameState.history.forEach((item, idx) => {
-                const div = document.createElement('div');
-                div.className = 'historial-item';
-                div.innerHTML = `
-                    <div>
-                        <strong>consulta:</strong> ${item.pregunta} <br>
-                        <strong style="color:#00ff00;">respuesta:</strong> ${item.respuesta} <br>
-                        <strong style="color:#888;">reacción:</strong> ${item.reaccion}
-                    </div>
-                    <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        window.toggleFavorite = function(idx) {
-            gameState.history[idx].fav = !gameState.history[idx].fav;
-            renderHistoryData();
-        };
-
-        function exportCoreData() {
-            if(gameState.history.length === 0) {
-                alert("historial vacio");
-                return;
-            }
-            let textoVolcado = "=== registro de trafico ===\n";
-            gameState.history.forEach((h, i) => {
-                textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n reaccion: ${h.reaccion}\n-------------------\n`;
-            });
-            navigator.clipboard.writeText(textoVolcado.toLowerCase()).then(() => {
-                alert("registro copiado al portapapeles");
-            });
-        }
-
-        function changeSystemMode() {
-            const select = document.getElementById('mode-select');
-            document.body.className = ''; 
-            if (select.value !== 'modo-hacker') {
-                document.body.classList.add(select.value);
-            }
-            verifLogro("visual");
-            renderLogros();
-        }
-
-        window.onload = function() {
-            nextRound();
-        };
-    </script>
-</body>
-</html>
+            <div id="view-
