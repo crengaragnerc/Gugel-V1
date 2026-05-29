@@ -11,125 +11,84 @@ const PREGUNTAS_CAMPAÑA = [
     "porque no carga una pagina web"
 ];
 
-const GENERADOR_TEMAS = {
-    problemas: ["internet", "wifi", "google", "movil", "wasap", "teclado", "pantalla", "netflix"],
-    conceptos: ["el bitcoing", "la clau", "un troyano", "el html", "la ia inteligente", "un gigabai"],
-    sintomas: ["fiebre en el dedo", "tos de perro", "dolor de pelo", "hinchazon oreja izquierda"]
-};
+// ARRAYS PARA MODO INFINITO (CONEXIONES ALEATORIAS)
+const SUSTANTIVOS_INFINITOS = ["mi cafetera", "el teclado mecánico", "un gato negro", "el router de casa", "mi cuenta de correo", "un cable de red", "el monitor secundario"];
+const ACCIONES_INFINITAS = ["hace un ruido raro", "no enciende la luz", "parpadea en bucle", "huele a quemado", "da calambre", "funciona muy lento", "se desconecta solo"];
+const CONTEXTOS_INFINITOS = ["al abrir el navegador", "cuando juego por la tarde", "después de actualizar", "sin tocar nada", "al conectar el USB", "al cambiar la resolución"];
 
 const RESPUESTAS_GUGEL = {
     malas: [
         "ia rota de mielda", "vaya respuesta de mielda no funsiona", 
-        "eso no tiene sentido mi primo dice otra cosa", "no rimes q te pego",
-        "q dices loco lo busco en la wikipedia mejor", "ia de hacendado arreglame el internet",
-        "para eso prefiero preguntar en un foro de coches", "no funsiona menudo timo"
+        "eso no tiene sentido mi primo dice otra cosa", "no rimes q te pego"
     ],
     regulares: [
         "mucho testo no lo leere", "ya provare a ver si funsiona", 
-        "suena raro pero me sirve de momento", "bueno... algo es algo supongo"
+        "bueno... algo es algo supongo"
     ],
     buenas: [
         "ia de locos me as ayudado", "me cuadra perfectamente grasias", 
-        "funsiona a la primera eres dios", "oleeee solucionado q grande"
+        "funsiona a la primera eres dios"
     ]
 };
-
-const LOGROS_DEFINICION = [
-    { id: "primer_paso", icon: "🚀", title: "Primer Soporte", desc: "Responde con éxito a la primera consulta." },
-    { id: "experto", icon: "🧠", title: "Verdad Absoluta", desc: "Consigue una puntuación perfecta de 10/10." },
-    { id: "gugel_love", icon: "❤️", title: "Ídolo de Masas", desc: "Alcanza más del 80% de satisfacción de usuario." },
-    { id: "infinito", icon: "🌌", title: "Más allá del Deber", desc: "Supera la campaña base y entra al Modo Infinito." }
-];
 
 let gameState = {
     score: parseInt(localStorage.getItem('gugel_score')) || 0,
     roundStep: 1,
     currentQuestion: "",
     campaignIndex: parseInt(localStorage.getItem('gugel_campaign_index')) || 0, 
-    inInfiniteMode: localStorage.getItem('gugel_infinite_mode') === 'true', 
     satisfaction: parseInt(localStorage.getItem('gugel_satisfaction')) || 50,
     level: parseInt(localStorage.getItem('gugel_level')) || 1,
-    history: JSON.parse(localStorage.getItem('gugel_history')) || [],
-    favorites: JSON.parse(localStorage.getItem('gugel_favorites')) || [],
-    unlockedAchievements: JSON.parse(localStorage.getItem('gugel_achievements')) || []
+    currentTheme: localStorage.getItem('gugel_theme') || 'dark'
 };
 
 let ultimaFraseUsada = "";
 
 window.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
-    setTheme(savedTheme);
+    // Inicializar tema visual guardado
+    document.body.setAttribute('data-theme', gameState.currentTheme);
+    const dropdown = document.getElementById('theme-dropdown');
+    if (dropdown) dropdown.value = gameState.currentTheme;
 
     const chatForm = document.getElementById('chat-form');
     if (chatForm) chatForm.onsubmit = handleUserResponse;
 
-    const suggestionBox = document.getElementById('suggestion-box');
-    if (suggestionBox) suggestionBox.onclick = acceptSuggestion;
-
     updateSidebarUI();
-    renderArchive();
-    renderAchievements();
-
     nextRound();
 });
 
-function setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('gugel_theme', theme);
+function changeSystemTheme(themeValue) {
+    gameState.currentTheme = themeValue;
+    localStorage.setItem('gugel_theme', themeValue);
+    document.body.setAttribute('data-theme', themeValue);
 }
 
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.style.display = 'none';
-    });
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    const targetTab = document.getElementById(tabId);
-    if (targetTab) {
-        targetTab.style.display = 'flex';
-    }
-    
-    const btns = document.querySelectorAll('.nav-btn');
-    if (btns.length >= 3) {
-        if (tabId === 'chat-tab') btns[0].classList.add('active');
-        if (tabId === 'archive-tab') { btns[1].classList.add('active'); renderArchive(); }
-        if (tabId === 'achievements-tab') { btns[2].classList.add('active'); renderAchievements(); }
-    }
+function generarPreguntaAleatoria() {
+    const s = SUSTANTIVOS_INFINITOS[Math.floor(Math.random() * SUSTANTIVOS_INFINITOS.length)];
+    const a = ACCIONES_INFINITAS[Math.floor(Math.random() * ACCIONES_INFINITAS.length)];
+    const c = CONTEXTOS_INFINITOS[Math.floor(Math.random() * CONTEXTOS_INFINITOS.length)];
+    return `${s} ${a} ${c}`;
 }
 
-function getNextQuestion() {
-    if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
-        return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
-    }
-    if (!gameState.inInfiniteMode) {
-        gameState.inInfiniteMode = true;
-        localStorage.setItem('gugel_infinite_mode', 'true');
-        unlockAchievement("infinito");
-        appendMessage('system', '⚠️ MODO INICIAL COMPLETADO: INCORPORANDO GENERADOR INFINITO...');
-    }
-    const tipos = ['problema', 'concepto', 'sintoma'];
-    const tipoElegido = tipos[Math.floor(Math.random() * tipos.length)];
-    switch (tipoElegido) {
-        case 'problema': return `porque no funciona ${GENERADOR_TEMAS.problemas[Math.floor(Math.random() * GENERADOR_TEMAS.problemas.length)]}`;
-        case 'concepto': return `que es ${GENERADOR_TEMAS.conceptos[Math.floor(Math.random() * GENERADOR_TEMAS.conceptos.length)]}`;
-        case 'sintoma': return `como curar ${GENERADOR_TEMAS.sintomas[Math.floor(Math.random() * GENERADOR_TEMAS.sintomas.length)]}`;
-    }
-}
-
-function nextRound(forcedQuestion = null) {
+function nextRound() {
     gameState.roundStep = 1;
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
     const gugelStatus = document.getElementById('gugel-status');
+    const statusDot = document.getElementById('status-dot');
 
     if (userInput) { userInput.disabled = true; userInput.value = ""; }
     if (sendBtn) sendBtn.disabled = true;
     if (gugelStatus) gugelStatus.innerText = "GUGEL está redactando su duda...";
+    if (statusDot) { statusDot.className = "status-indicator thinking"; }
 
     setTimeout(() => {
-        gameState.currentQuestion = forcedQuestion ? forcedQuestion : getNextQuestion();
+        // Selector de Campaña fija o Generador Infinito
+        if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
+            gameState.currentQuestion = PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
+        } else {
+            gameState.currentQuestion = generarPreguntaAleatoria();
+        }
+        
         appendMessage('gugel', gameState.currentQuestion);
         
         let timeLeft = 4;
@@ -149,6 +108,7 @@ function nextRound(forcedQuestion = null) {
                 }
                 if (sendBtn) sendBtn.disabled = false;
                 if (gugelStatus) gugelStatus.innerText = "Conectado";
+                if (statusDot) { statusDot.className = "status-indicator connected"; }
             }
         }, 1000);
     }, 800);
@@ -170,9 +130,6 @@ function handleUserResponse(e) {
     appendMessage('ai', text);
     const pointsEarned = evaluateResponse(text);
     
-    unlockAchievement("primer_paso");
-    if (pointsEarned === 10) unlockAchievement("experto");
-
     gameState.score += pointsEarned;
     updateSatisfaction(pointsEarned);
     
@@ -182,15 +139,19 @@ function handleUserResponse(e) {
 function evaluateResponse(text) {
     let score = 5; 
     const lower = text.toLowerCase();
+    
     if (text.length > 25) score += 2;
     if (text.length > 60) score += 2;
-    if (lower.includes("porque") || lower.includes("debido") || lower.includes("consiste") || lower.includes("solucion")) score += 1;
+    if (lower.includes("porque") || lower.includes("debido") || lower.includes("solucion") || lower.includes("configurar")) score += 1;
+    
+    // Penalizaciones directas
     if (text.length < 12) score -= 3;
-    if (lower.includes("jajaja") || lower.includes("xd")) score -= 3;
+    if (lower.includes("jajaja") || lower.includes("xd")) score -= 2;
+    
     return Math.max(0, Math.min(10, score));
 }
 
-function finishRoundAfterModal(points, questionText, answerText) {
+function finishRoundAfterModal(points) {
     const gugelStatus = document.getElementById('gugel-status');
     if (gugelStatus) gugelStatus.innerText = "Procesando reacción...";
     
@@ -198,32 +159,18 @@ function finishRoundAfterModal(points, questionText, answerText) {
         const reaccion = obtenerRespuestaLocal(points);
         appendMessage('gugel', reaccion);
         
-        saveToArchive(questionText, answerText, points, reaccion);
-
+        // Guardado persistente local
         localStorage.setItem('gugel_score', gameState.score);
         localStorage.setItem('gugel_satisfaction', gameState.satisfaction);
         localStorage.setItem('gugel_level', gameState.level);
         
+        gameState.campaignIndex++;
+        localStorage.setItem('gugel_campaign_index', gameState.campaignIndex);
+
         updateSidebarUI();
 
-        const suggestionBox = document.getElementById('suggestion-box');
-        let isSuggestionActive = false;
-        if (suggestionBox && suggestionBox.dataset.activeSuggestion === "true") {
-            isSuggestionActive = true;
-            delete suggestionBox.dataset.activeSuggestion;
-        }
-
-        if (!gameState.inInfiniteMode && !isSuggestionActive) {
-            gameState.campaignIndex++;
-            localStorage.setItem('gugel_campaign_index', gameState.campaignIndex);
-        }
-
-        if (gameState.inInfiniteMode && Math.random() < 0.35) {
-            triggerSuggestion();
-        } else {
-            appendMessage('system', '--- FIN DE LA RONDA: PETICIÓN CERRADA ---');
-            setTimeout(nextRound, 1200);
-        }
+        appendMessage('system', '--- FIN DE LA RONDA ---');
+        setTimeout(nextRound, 1200);
     }, 600);
 }
 
@@ -237,26 +184,6 @@ function obtenerRespuestaLocal(puntuacion) {
     return fraseElegida;
 }
 
-function triggerSuggestion() {
-    const suggestionBox = document.getElementById('suggestion-box');
-    if (!suggestionBox) return;
-    const sugerencias = ["porque internet se rompe", "como saber si una pagina es falsa", "mi ordenador hace ruido de cafetera ayuda"];
-    const elegida = sugerencias[Math.floor(Math.random() * sugerencias.length)];
-    suggestionBox.innerHTML = `🎬 <strong>Recomendación para GUGEL:</strong> "${elegida}" (Clic para forzar en la red)`;
-    suggestionBox.style.display = "block";
-    suggestionBox.dataset.pendingQuestion = elegida;
-}
-
-function acceptSuggestion() {
-    const suggestionBox = document.getElementById('suggestion-box');
-    if (!suggestionBox) return;
-    const nextQ = suggestionBox.dataset.pendingQuestion;
-    suggestionBox.style.display = "none";
-    suggestionBox.dataset.activeSuggestion = "true";
-    appendMessage('system', '--- REDIRECCIONANDO AL HUMANO POR ENLACE ---');
-    nextRound(nextQ);
-}
-
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
     const modalQ = document.getElementById('modal-question');
@@ -264,7 +191,7 @@ function openResultModal(q, a, score) {
     const modalS = document.getElementById('modal-score-number');
 
     if (!resultModal || !modalQ || !modalA || !modalS) {
-        finishRoundAfterModal(score, q, a);
+        finishRoundAfterModal(score);
         return;
     }
 
@@ -278,95 +205,17 @@ function closeResultModal() {
     const resultModal = document.getElementById('result-modal');
     if (resultModal) resultModal.style.display = "none";
     
-    const modalQ = document.getElementById('modal-question');
-    const modalA = document.getElementById('modal-answer');
     const modalS = document.getElementById('modal-score-number');
-
-    const q = modalQ ? modalQ.innerText.replace(/"/g, "") : gameState.currentQuestion;
-    const a = modalA ? modalA.innerText.replace(/"/g, "") : "";
     const score = modalS ? parseInt(modalS.innerText.split("/")[0]) : 5;
 
-    finishRoundAfterModal(score, q, a);
-}
-
-function saveToArchive(q, a, score, reaccion) {
-    const id = Date.now();
-    gameState.history.unshift({ id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() });
-    localStorage.setItem('gugel_history', JSON.stringify(gameState.history));
-}
-
-function toggleFavorite(id) {
-    const index = gameState.favorites.indexOf(id);
-    if (index === -1) gameState.favorites.push(id);
-    else gameState.favorites.splice(index, 1);
-    localStorage.setItem('gugel_favorites', JSON.stringify(gameState.favorites));
-    renderArchive();
-}
-
-function shareChat(q, a, score) {
-    const textToCopy = `🔴 [LOG DE SOPORTE GUGEL]\nConsulta: "${q}"\nRespuesta: "${a}"\nEficiencia: ${score}/10`;
-    navigator.clipboard.writeText(textToCopy).then(() => { alert("¡Log copiado!"); }).catch(() => {});
-}
-
-function renderArchive() {
-    const listEl = document.getElementById('archive-list');
-    if (!listEl) return;
-    listEl.innerHTML = "";
-    if (gameState.history.length === 0) {
-        listEl.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">No hay registros guardados.</p>`;
-        return;
-    }
-    gameState.history.forEach(item => {
-        const isFav = gameState.favorites.includes(item.id);
-        const card = document.createElement('div');
-        card.classList.add('archive-card');
-        card.innerHTML = `
-            <div class="archive-meta"><span>ID: #${item.id} - ${item.timestamp}</span><span>Calificación: <strong>${item.score}/10</strong></span></div>
-            <div class="archive-body">
-                <p><strong>GUGEL:</strong> ${item.q}</p>
-                <p><strong>Tú:</strong> ${item.a}</p>
-            </div>
-            <div class="archive-actions">
-                <button class="archive-btn" onclick="toggleFavorite(${item.id})">${isFav ? '⭐ Quitar' : '📁 Guardar'}</button>
-                <button class="archive-btn" onclick="shareChat('${item.q}', '${item.a}', ${item.score})">🔗 Compartir</button>
-            </div>
-        `;
-        listEl.appendChild(card);
-    });
-}
-
-function unlockAchievement(id) {
-    if (!gameState.unlockedAchievements.includes(id)) {
-        gameState.unlockedAchievements.push(id);
-        localStorage.setItem('gugel_achievements', JSON.stringify(gameState.unlockedAchievements));
-        appendMessage('system', `🏆 ¡LOGRO!: ${LOGROS_DEFINICION.find(l => l.id === id).title}`);
-    }
-}
-
-function renderAchievements() {
-    const listEl = document.getElementById('achievements-list');
-    if (!listEl) return;
-    listEl.innerHTML = "";
-    LOGROS_DEFINICION.forEach(logro => {
-        const isUnlocked = gameState.unlockedAchievements.includes(logro.id);
-        const card = document.createElement('div');
-        card.classList.add('achievement-card');
-        if (isUnlocked) card.classList.add('unlocked');
-        card.innerHTML = `
-            <div class="achievement-icon">${logro.icon}</div>
-            <div class="achievement-info">
-                <h4>${logro.title} ${isUnlocked ? '✅' : '🔒'}</h4>
-                <p>${logro.desc}</p>
-            </div>
-        `;
-        listEl.appendChild(card);
-    });
+    finishRoundAfterModal(score);
 }
 
 function updateSatisfaction(points) {
     const diff = points - 5;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
-    if (gameState.satisfaction >= 80) unlockAchievement("gugel_love");
+    
+    // Escala de niveles basada en puntuación
     if (gameState.score > 25 && gameState.score <= 60) gameState.level = 2;
     if (gameState.score > 60) gameState.level = 3;
 }
