@@ -6,10 +6,10 @@
     <title>GUGEL Core</title>
     <style>
         * { box-sizing: border-box; font-family: monospace; }
-        body { margin: 0; background: #121212; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        body { margin: 0; background: #0c0c0c; height: 100vh; display: flex; justify-content: center; align-items: center; }
         
         .system-container {
-            width: 1000px;
+            width: 1050px;
             height: 85vh;
             display: flex;
             gap: 20px;
@@ -17,9 +17,9 @@
 
         .sidebar {
             width: 280px;
-            background: #1a1a1a;
-            border-radius: 16px;
-            border: 1px solid #333;
+            background: #141414;
+            border-radius: 12px;
+            border: 1px solid #222;
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -27,7 +27,7 @@
         }
 
         .sidebar-title {
-            color: #666;
+            color: #444;
             font-size: 11px;
             font-weight: bold;
             margin-top: 10px;
@@ -36,16 +36,16 @@
         }
 
         .nav-btn {
-            background: #222;
-            color: #aaa;
-            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #888;
+            border: 1px solid #222;
             padding: 12px;
             text-align: left;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
             font-size: 13px;
-            transition: all 0.2s;
+            transition: all 0.1s;
         }
 
         .nav-btn:hover, .nav-btn.active {
@@ -56,36 +56,33 @@
 
         .chat-card { 
             flex: 1;
-            background: #1e1e1e; 
-            border-radius: 16px; 
+            background: #141414; 
+            border-radius: 12px; 
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
-            border: 1px solid #333; 
+            border: 1px solid #222; 
         }
         
-        .header { background: #1a1a1a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .header { background: #1a1a1a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
         .header h2 { margin: 0; font-size: 1.1rem; color: #00ff00; }
-        .mode-selector { background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 5px 10px; border-radius: 6px; outline: none; cursor: pointer; }
+        .mode-selector { background: #222; color: #fff; border: 1px solid #333; padding: 5px 10px; border-radius: 4px; outline: none; cursor: pointer; }
         
-        /* Control de paneles del sistema */
         .content-panel {
             flex: 1;
             padding: 30px;
-            background: #141414;
+            background: #0f0f0f;
             display: none;
             overflow-y: auto;
-            color: #fff;
+            color: #ccc;
         }
 
-        /* Regla de visualización específica para el panel del chat activo */
         #view-chat.content-panel.active {
             display: flex;
             flex-direction: column;
             padding: 0;
         }
 
-        /* Regla de visualización estándar para paneles de datos activos */
         .content-panel.active {
             display: block;
         }
@@ -93,69 +90,72 @@
         .content-panel h3 {
             margin-top: 0;
             color: #00ff00;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #222;
             padding-bottom: 10px;
+            font-size: 15px;
         }
 
         .data-item {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            padding: 12px 16px;
-            border-radius: 8px;
+            background: #141414;
+            border: 1px solid #222;
+            padding: 14px;
+            border-radius: 6px;
             margin-bottom: 12px;
             font-size: 13px;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .data-label {
-            color: #00ff00;
+            color: #555;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
 
-        .badge-locked { color: #ff3333; font-weight: bold; }
         .badge-unlocked { color: #00ff00; font-weight: bold; }
 
-        .chat-messages { flex: 1; padding: 25px; overflow-y: auto; background: #141414; display: flex; flex-direction: column; gap: 15px; }
-        .message { padding: 12px 18px; border-radius: 12px; max-width: 75%; font-size: 14px; line-height: 1.5; }
-        .message.gugel { background: #222; align-self: flex-start; color: #00ff00; border: 1px solid #333; }
-        .message.ai { background: #00ff00; color: #000; align-self: flex-end; font-weight: bold; }
+        .chat-messages { flex: 1; padding: 25px; overflow-y: auto; background: #0b0b0b; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 12px 16px; border-radius: 8px; max-width: 80%; font-size: 14px; line-height: 1.5; }
+        .message.gugel { background: #141414; align-self: flex-start; color: #fff; border: 1px solid #222; }
+        .message.ai { background: #222; color: #00ff00; align-self: flex-end; border: 1px solid #333; }
         
-        #chat-form { padding: 20px; border-top: 1px solid #333; display: flex; gap: 10px; background: #1a1a1a; }
-        input { flex: 1; padding: 14px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; outline: none; font-size: 14px; }
+        #chat-form { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; background: #141414; }
+        input { flex: 1; padding: 14px; background: #0f0f0f; border: 1px solid #222; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
         input:focus { border-color: #00ff00; }
         
-        button.action-btn { padding: 14px 24px; background: #00ff00; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        button.action-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        button.action-btn { padding: 14px 24px; background: #00ff00; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        button.action-btn:disabled { background: #222; color: #444; cursor: not-allowed; }
         
         #continue-btn { background: #fff; color: #000; display: none; width: 100%; }
 
         .historial-lista { display: flex; flex-direction: column; gap: 10px; }
-        .historial-item { background: #1a1a1a; border: 1px solid #333; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .fav-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 16px; }
-        .fav-btn.active { color: #ffcc00; }
+        .historial-item { background: #141414; border: 1px solid #222; padding: 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .fav-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 16px; }
+        .fav-btn.active { color: #00ff00; }
 
-        /* Modos visuales */
-        body.modo-oscuro { background: #121212; }
-        body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #1e1e1e; border-color: #333; }
+        /* Modos visuales alternativos */
+        body.modo-oscuro { background: #080808; }
+        body.modo-oscuro .chat-card, body.modo-oscuro .sidebar { background: #111; border-color: #222; }
         body.modo-oscuro .header h2 { color: #fff; }
-        body.modo-oscuro .message.gugel { color: #fff; background: #2a2a2a; border-color: #444; }
-        body.modo-oscuro .message.ai { background: #fff; color: #000; }
+        body.modo-oscuro .message.gugel { color: #eee; background: #1c1c1c; border-color: #2b2b2b; }
+        body.modo-oscuro .message.ai { background: #252525; color: #fff; border-color: #3a3a3a; }
         body.modo-oscuro button.action-btn { background: #fff; color: #000; }
         
-        body.modo-claro { background: #f0f2f5; }
-        body.modo-claro .chat-card, body.modo-claro .sidebar { background: #ffffff; border-color: #ddd; }
-        body.modo-claro .header { background: #f8f9fa; border-color: #ddd; }
-        body.modo-claro .header h2 { color: #333; }
-        body.modo-claro .chat-messages, body.modo-claro .content-panel { background: #fafafa; color: #222; }
-        body.modo-claro .message.gugel { color: #222; background: #f0f0f0; border-color: #e0e0e0; }
-        body.modo-claro .message.ai { background: #333; color: #fff; }
-        body.modo-claro #chat-form, body.modo-claro .sidebar { background: #ffffff; border-color: #ddd; }
-        body.modo-claro input { background: #fff; border-color: #ccc; color: #222; }
-        body.modo-claro button.action-btn { background: #333; color: #fff; }
-        body.modo-claro .data-item { background: #f8f9fa; border-color: #ddd; }
-        body.modo-claro .data-label { color: #333; }
-        body.modo-claro .nav-btn { background: #f0f2f5; color: #555; border-color: #ddd; }
+        body.modo-claro { background: #eef0f2; }
+        body.modo-claro .chat-card, body.modo-claro .sidebar { background: #ffffff; border-color: #ccc; }
+        body.modo-claro .header { background: #f5f5f5; border-color: #ccc; }
+        body.modo-claro .header h2 { color: #222; }
+        body.modo-claro .chat-messages, body.modo-claro .content-panel { background: #fcfcfc; color: #333; }
+        body.modo-claro .message.gugel { color: #111; background: #f0f0f0; border-color: #ddd; }
+        body.modo-claro .message.ai { background: #e0e0e0; color: #000; border-color: #ccc; }
+        body.modo-claro #chat-form, body.modo-claro .sidebar { background: #ffffff; border-color: #ccc; }
+        body.modo-claro input { background: #f5f5f5; border-color: #ccc; color: #111; }
+        body.modo-claro button.action-btn { background: #222; color: #fff; }
+        body.modo-claro .data-item { background: #f5f5f5; border-color: #ccc; }
+        body.modo-claro .data-label { color: #777; }
+        body.modo-claro .nav-btn { background: #f9f9f9; color: #666; border-color: #ccc; }
     </style>
 </head>
 <body class="modo-hacker">
@@ -163,19 +163,16 @@
     <div class="system-container">
         
         <div class="sidebar">
-            <button class="nav-btn active" id="btn-view-chat" onclick="switchView('view-chat')">💬 INTERFAZ CORE</button>
+            <button class="nav-btn active" id="btn-view-chat" onclick="switchView('view-chat')">💬 PANEL DE CONSULTAS</button>
             
-            <div class="sidebar-title">👤 PERFIL</div>
-            <button class="nav-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">DATOS PERFIL</button>
+            <div class="sidebar-title">👤 MONITOR DE SESIÓN</div>
+            <button class="nav-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
             
-            <div class="sidebar-title">🏆 LOGROS</div>
-            <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
+            <div class="sidebar-title">🏆 REGISTRO INTERNO</div>
+            <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
             
-            <div class="sidebar-title">📁 HISTORIAL</div>
-            <button class="nav-btn" id="btn-view-historial" onclick="switchView('view-historial')">CONVERSACIONES</button>
-            
-            <div class="sidebar-title">🎯 RECOMENDACIONES</div>
-            <button class="nav-btn" id="btn-view-recomendaciones" onclick="switchView('view-recomendaciones')">SUGERENCIAS IA</button>
+            <div class="sidebar-title">📁 REGISTRO CENTRAL</div>
+            <button class="nav-btn" id="btn-view-historial" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
         </div>
 
         <div class="chat-card">
@@ -191,81 +188,59 @@
             <div id="view-chat" class="content-panel active">
                 <div class="chat-messages" id="chat-messages"></div>
                 <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="Escribe tu respuesta..." autocomplete="off">
+                    <input type="text" id="user-input" placeholder="Introduce la respuesta del motor..." autocomplete="off">
                     <button type="submit" id="transmit-btn" class="action-btn">TRANSMITIR</button>
-                    <button type="button" id="continue-btn" class="action-btn" onclick="confirmContinue()">CONTINUAR</button>
+                    <button type="button" id="continue-btn" class="action-btn" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
                 </form>
             </div>
 
             <div id="view-perfil" class="content-panel">
-                <h3>Módulo de Perfil del Usuario</h3>
+                <h3>Estado Analítico de Operación</h3>
                 <div class="data-item">
-                    <div class="data-label">Opinión de Gugel sobre ti:</div>
-                    <div id="prof-opinion" style="font-style: italic; color: #aaa;">Sin datos suficientes. Transmite una respuesta primero.</div>
+                    <div class="data-label">Último retorno recibido de Gugel:</div>
+                    <div id="prof-opinion" style="font-style: italic; color: #888;">No hay consultas en la sesión actual.</div>
                 </div>
                 <div class="data-item">
-                    <div class="data-label">Porcentaje de Satisfacción:</div>
+                    <div class="data-label">Índice de Aceptación de Gugel:</div>
                     <div style="font-weight: bold; font-size: 18px; color: #00ff00;" id="prof-satisfaction">50%</div>
                 </div>
                 <div class="data-item">
-                    <div class="data-label">Estadísticas Personales:</div>
-                    <div>Ciclos completados: <span id="prof-cycles" style="color:#00ff00; font-weight:bold;">0</span></div>
-                    <div>Caracteres transmitidos: <span id="prof-chars" style="color:#00ff00; font-weight:bold;">0</span></div>
+                    <div class="data-label">Métricas de Flujo:</div>
+                    <div>Consultas resueltas: <span id="prof-cycles" style="color:#00ff00;">0</span></div>
+                    <div>Caracteres procesados: <span id="prof-chars" style="color:#00ff00;">0</span></div>
                 </div>
                 <div class="data-item">
-                    <div class="data-label">Historial de Comportamiento:</div>
-                    <div id="prof-behavior">Patrón inicializado. Esperando registros de flujo...</div>
+                    <div class="data-label">Estado del Búfer:</div>
+                    <div id="prof-behavior">Conexión establecida con la terminal de Gugel.</div>
                 </div>
                 <div class="data-item">
-                    <div class="data-label">Resumen de Chats:</div>
-                    <div id="prof-summary">No se han cerrado transmisiones en la sesión actual.</div>
+                    <div class="data-label">Diagnóstico automático:</div>
+                    <div id="prof-summary">Monitoreando flujos de datos entrantes desde el buscador.</div>
                 </div>
                 <div class="data-item">
-                    <div class="data-label">Títulos / Logros Personales:</div>
-                    <div id="prof-titles" style="font-weight: bold; color: #00ff00;">Operador de Núcleo Novato</div>
+                    <div class="data-label">Rango Jerárquico:</div>
+                    <div id="prof-titles" style="font-weight: bold; color: #00ff00;">Operador del Sistema Novato</div>
                 </div>
             </div>
 
             <div id="view-logros" class="content-panel">
-                <h3>Registro de Logros</h3>
-                <div class="data-item">
-                    <div class="data-label">🏆 Logros Raros</div>
-                    <div id="logro-raro"><span class="badge-locked">[BLOQUEADO]</span> Silencio Corto: Responder con menos de 3 caracteres.</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">👤 Logros Personales</div>
-                    <div id="logro-personal"><span class="badge-locked">[BLOQUEADO]</span> Primera Transmisión: Enviar con éxito el primer paquete de datos al Core.</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">🔒 Exclusivos (No todo el mundo los tiene)</div>
-                    <div id="logro-exclusivo"><span class="badge-locked">[BLOQUEADO]</span> Mente de Cuber: Responder a la pregunta sobre el cubo Rubik.</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">⚙️ Acciones Específicas</div>
-                    <div id="logro-accion"><span class="badge-locked">[BLOQUEADO]</span> Alternador: Cambiar el modo visual del sistema desde el selector superior.</div>
+                <h3>Logros Desbloqueados</h3>
+                <div id="logros-container">
+                    <div style="color: #444; font-style: italic;">[SISTEMA OCULTO] Las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida.</div>
                 </div>
             </div>
 
             <div id="view-historial" class="content-panel">
-                <h3>Gestión de Almacenamiento</h3>
+                <h3>Historial de Consultas Cerradas</h3>
                 <div class="data-item">
-                    <div class="data-label">Historial de Conversaciones</div>
+                    <div class="data-label">Archivo de Búfer Local</div>
                     <div class="historial-lista" id="history-list-container">
-                        <div style="color: #666; font-style: italic;">No hay registros guardados en el búfer.</div>
+                        <div style="color: #444; font-style: italic;">El archivo temporal está vacío.</div>
                     </div>
                 </div>
                 <div class="data-item">
-                    <div class="data-label">🔗 Compartir Conversaciones</div>
-                    <button class="action-btn" style="padding: 8px 16px; font-size: 11px;" onclick="exportCoreData()">Exportar Datos del Core</button>
-                </div>
-            </div>
-
-            <div id="view-recomendaciones" class="content-panel">
-                <h3>Sistema de Sugerencias de Entrada</h3>
-                <div class="data-item" style="border-left: 3px solid #00ff00;">
-                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #00ff00;" id="rec-trigger">“Esperando primera transmisión de datos...”</div>
-                    <div class="data-label">Recomendaciones Automáticas / Temas Conectados:</div>
-                    <div id="rec-links" style="color: #aaa; line-height: 1.6;">El algoritmo requiere un envío de datos previo para trazar conexiones de temas relacionados.</div>
+                    <div class="data-label">Volcado Documental</div>
+                    <button class="action-btn" style="padding: 8px 16px; font-size: 11px;" onclick="exportCoreData()">Copiar Registro de Datos</button>
                 </div>
             </div>
 
@@ -275,31 +250,18 @@
     <script>
         const PREGUNTAS = [
             "cagar verde normal", 
-            "como hacer cubo rubik", 
-            "que se celebra 15 de agosto"
+            "agua porque moja",
+            "duele la cabeza al pensar",
+            "como saber si soy un robot test gratis",
+            "por que los patos no se hunden"
         ];
 
-        const OPINIONES_GUGEL = [
-            "Menuda sarta de sandeces acabas de transmitir. El núcleo está perdiendo neuronas.",
-            "Respuesta aceptable, pero un niño de cinco años lo habría redactado con más elegancia.",
-            "¿Te ha costado mucho esfuerzo escribir esa obviedad? Esperaba algo más complejo.",
-            "Datos recibidos. La base de datos se siente profundamente insultada por tu respuesta."
+        const REACCIONES_GUGEL = [
+            "Ah, vale. Me quedo mucho más tranquilo entonces. Voy a cerrar la pestaña.",
+            "Me cuadra bastante la explicación. Tiene todo el sentido del mundo si lo piensas.",
+            "Vale, entonces no me preocupo. Pensaba que era algo mucho peor.",
+            "Entendido. Menos mal que lo he buscado aquí, ya me estaba rayando."
         ];
-
-        const RECOMENDACIONES_MAP = {
-            "cagar verde normal": {
-                trigger: "ya que has respondido sobre cambios biológicos y digestivos...",
-                links: "• Preguntas automáticas sugeridas:<br>-> 'duración estándar de la digestión humana'<br>-> 'componentes de la bilis y pigmentación'<br>-> 'efectos secundarios del exceso de clorofila'"
-            },
-            "como hacer cubo rubik": {
-                trigger: "ya que has respondido sobre algoritmos de permutación espacial...",
-                links: "• Preguntas automáticas sugeridas:<br>-> 'notación oficial de la WCA (World Cube Association)'<br>-> 'tipos de lubricantes para el cubo'<br>-> 'evolución cronológica del récord mundial de speedcubing'"
-            },
-            "que se celebra 15 de agosto": {
-                trigger: "ya que has respondido sobre efemérides e hitos del calendario...",
-                links: "• Preguntas automáticas sugeridas:<br>-> 'días no laborables y festivos estatales'<br>-> 'origen histórico de las celebraciones de mediados de agosto'<br>-> 'santoral completo del mes correspondiente'"
-            }
-        };
 
         let gameState = { 
             index: 0, 
@@ -308,27 +270,29 @@
             totalChars: 0,
             lastOpinion: "Sin datos.",
             history: [],
-            logros: { raro: false, personal: false, exclusivo: false, accion: false }
+            logrosDesbloqueados: []
+        };
+
+        const LOGROS_DEFINICIONES = {
+            "breve": "<strong>[LOGRO REVELADO] Respuestita:</strong> Responder a Gugel usando 3 caracteres o menos.",
+            "primero": "<strong>[LOGRO REVELADO] Primera Consulta:</strong> Resolver el primer hilo de datos de Gugel.",
+            "visual": "<strong>[LOGRO REVELADO] Cambio de Entorno:</strong> Modificar los parámetros visuales del terminal central.",
+            "cuber": "<strong>[LOGRO REVELADO] Concepto Avanzado:</strong> Resolver un hilo de Gugel inyectando términos algorítmicos o mecánicos."
         };
 
         function switchView(viewId) {
-            // Desactiva todos los botones de navegación
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            // Activa el botón clickeado
             const activeBtn = document.getElementById(`btn-${viewId}`);
             if (activeBtn) activeBtn.classList.add('active');
 
-            // Quita la clase activa de todos los contenedores principales
             document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
-            // Muestra el panel seleccionado mediante clases
             const activePanel = document.getElementById(viewId);
             activePanel.classList.add('active');
 
-            // Cambia el título de cabecera superior de la tarjeta de forma limpia
             if (viewId === 'view-chat') {
                 document.getElementById('panel-title-text').innerText = "GUGEL Core";
             } else {
-                document.getElementById('panel-title-text').innerText = "GUGEL Core - Sistema de Módulos";
+                document.getElementById('panel-title-text').innerText = "GUGEL Core - Estado del Sistema";
             }
         }
 
@@ -336,7 +300,7 @@
             const box = document.getElementById('chat-messages');
             const msg = document.createElement('div');
             msg.className = `message ${sender}`;
-            msg.innerHTML = sender === 'gugel' ? `<strong>GUGEL:</strong> ${text}` : text;
+            msg.innerHTML = sender === 'gugel' ? `<strong>GUGEL:</strong> "${text}"` : `<strong>TÚ:</strong> ${text}`;
             box.appendChild(msg);
             box.scrollTop = box.scrollHeight;
         }
@@ -356,16 +320,16 @@
             transmitBtn.disabled = true;
             
             let timeLeft = 5;
-            input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+            input.placeholder = `GUGEL BUSCANDO... (${timeLeft}s)`;
             
             const timer = setInterval(() => {
                 timeLeft--;
-                input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+                input.placeholder = `GUGEL BUSCANDO... (${timeLeft}s)`;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     input.disabled = false; 
                     transmitBtn.disabled = false;
-                    input.placeholder = "Escribe tu respuesta...";
+                    input.placeholder = "Introduce la respuesta del motor...";
                     input.focus();
                 }
             }, 1000);
@@ -381,42 +345,47 @@
             
             appendMessage('ai', userText);
             
-            const opinion = OPINIONES_GUGEL[Math.floor(Math.random() * OPINIONES_GUGEL.length)];
-            appendMessage('gugel', opinion);
+            const reaccion = REACCIONES_GUGEL[Math.floor(Math.random() * REACCIONES_GUGEL.length)];
             
-            gameState.cycles++;
-            gameState.totalChars += userText.length;
-            gameState.lastOpinion = opinion;
+            setTimeout(() => {
+                const box = document.getElementById('chat-messages');
+                const msg = document.createElement('div');
+                msg.className = `message gugel`;
+                msg.innerHTML = `<strong>GUGEL:</strong> ${reaccion}`;
+                box.appendChild(msg);
+                box.scrollTop = box.scrollHeight;
 
-            gameState.history.push({
-                pregunta: PREGUNTAS[gameState.index % PREGUNTAS.length],
-                respuesta: userText,
-                fav: false
-            });
+                gameState.cycles++;
+                gameState.totalChars += userText.length;
+                gameState.lastOpinion = reaccion;
 
-            if (!gameState.logros.personal) {
-                gameState.logros.personal = true;
-                document.getElementById('logro-personal').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Primera Transmisión: Paquete inicial integrado en el Core.`;
-            }
-            if (userText.length < 3 && !gameState.logros.raro) {
-                gameState.logros.raro = true;
-                document.getElementById('logro-raro').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Silencio Corto: Transmisión procesada con volumen mínimo de caracteres.`;
-            }
-            if (PREGUNTAS[gameState.index % PREGUNTAS.length].includes("rubik") && !gameState.logros.exclusivo) {
-                gameState.logros.exclusivo = true;
-                document.getElementById('logro-exclusivo').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Mente de Cuber: Modificación algorítmica espacial detectada en base de datos.`;
-            }
+                gameState.history.push({
+                    pregunta: PREGUNTAS[gameState.index % PREGUNTAS.length],
+                    respuesta: userText,
+                    fav: false
+                });
+
+                if (userText.length <= 3) verifLogro("breve");
+                if (gameState.cycles === 1) verifLogro("primero");
+                if (userText.toLowerCase().includes("algoritmo") || userText.toLowerCase().includes("cubo") || userText.toLowerCase().includes("rubik")) verifLogro("cuber");
+
+                updateSatisfaction();
+                renderProfileData();
+                renderHistoryData();
+                renderLogros();
+            }, 600);
 
             input.value = "";
             input.style.display = "none";
             transmitBtn.style.display = "none";
             continueBtn.style.display = "block";
-
-            updateSatisfaction();
-            renderProfileData();
-            renderHistoryData();
-            renderRecommendations();
         };
+
+        function verifLogro(id) {
+            if (!gameState.logrosDesbloqueados.includes(id)) {
+                gameState.logrosDesbloqueados.push(id);
+            }
+        }
 
         window.confirmContinue = function() {
             document.getElementById('chat-messages').innerHTML = "";
@@ -432,26 +401,36 @@
         }
 
         function renderProfileData() {
-            document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
+            document.getElementById('prof-opinion').innerText = `"${gameState.lastOpinion}"`;
             document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
             document.getElementById('prof-cycles').innerText = gameState.cycles;
             document.getElementById('prof-chars').innerText = gameState.totalChars;
 
             if(gameState.satisfaction >= 70) {
-                document.getElementById('prof-behavior').innerText = "Flujo optimizado. Alta tasa de asimilación de variables.";
+                document.getElementById('prof-behavior').innerText = "Gugel muestra conformidad absoluta con los datos de pantalla.";
+                document.getElementById('prof-titles').innerText = "Operador de Confianza";
             } else if(gameState.satisfaction <= 30) {
-                document.getElementById('prof-behavior').innerText = "Inestabilidad crítica en búfer. Datos inconsistentes.";
+                document.getElementById('prof-behavior').innerText = "Gugel muestra dudas leves sobre la respuesta generada.";
+                document.getElementById('prof-titles').innerText = "Analista de Datos Cuestionado";
             } else {
-                document.getElementById('prof-behavior').innerText = "Operación estándar. Sincronización continua.";
+                document.getElementById('prof-behavior').innerText = "Flujo normalizado. Gugel acepta la información recibida.";
             }
 
-            document.getElementById('prof-summary').innerText = `Procesados un total de ${gameState.cycles} ciclos con coherencia estructural verificada.`;
+            document.getElementById('prof-summary').innerText = `Procesadas con éxito ${gameState.cycles} hilos de datos.`;
+        }
 
-            if (gameState.logros.exclusivo) {
-                document.getElementById('prof-titles').innerText = "Especialista en Permutaciones Core";
-            } else if (gameState.cycles >= 2) {
-                document.getElementById('prof-titles').innerText = "Analista de Datos Verificado";
-            }
+        function renderLogros() {
+            const container = document.getElementById('logros-container');
+            if (gameState.logrosDesbloqueados.length === 0) return;
+
+            container.innerHTML = "";
+            gameState.logrosDesbloqueados.forEach(id => {
+                const div = document.createElement('div');
+                div.className = 'data-item';
+                div.style.borderColor = '#00ff00';
+                div.innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> ${LOGROS_DEFINICIONES[id]}`;
+                container.appendChild(div);
+            });
         }
 
         function renderHistoryData() {
@@ -464,8 +443,8 @@
                 div.className = 'historial-item';
                 div.innerHTML = `
                     <div>
-                        <strong>Q:</strong> ${item.pregunta} <br>
-                        <strong style="color:#00ff00;">A:</strong> ${item.respuesta}
+                        <strong>Consulta:</strong> "${item.pregunta}" <br>
+                        <strong style="color:#00ff00;">Respuesta:</strong> ${item.respuesta}
                     </div>
                     <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
                 `;
@@ -480,25 +459,16 @@
 
         function exportCoreData() {
             if(gameState.history.length === 0) {
-                alert("El historial está vacío. No hay datos que exportar.");
+                alert("Historial vacío.");
                 return;
             }
-            let textoVolcado = "=== VOLCADO DE LOGS DE GUGEL CORE ===\n";
+            let textoVolcado = "=== REGISTRO DE TRÁFICO ===\n";
             gameState.history.forEach((h, i) => {
-                textoVolcado += `Ciclo ${i+1} |\n Pregunta: ${h.pregunta}\n Respuesta: ${h.respuesta}\n Favorito: ${h.fav ? 'SÍ' : 'NO'}\n-------------------\n`;
+                textoVolcado += `LOG ${i+1} |\n Pregunta: '${h.pregunta}'\n Respuesta: ${h.respuesta}\n-------------------\n`;
             });
             navigator.clipboard.writeText(textoVolcado).then(() => {
-                alert("Volcado completo del historial copiado al portapapeles local del sistema.");
+                alert("Registro copiado al portapapeles.");
             });
-        }
-
-        function renderRecommendations() {
-            const preguntaActual = PREGUNTAS[(gameState.index) % PREGUNTAS.length];
-            const dataRec = RECOMENDACIONES_MAP[preguntaActual];
-            if (dataRec) {
-                document.getElementById('rec-trigger').innerText = `“Ya que has respondido a '${preguntaActual}'...”`;
-                document.getElementById('rec-links').innerHTML = dataRec.links;
-            }
         }
 
         function changeSystemMode() {
@@ -507,12 +477,8 @@
             if (select.value !== 'modo-hacker') {
                 document.body.classList.add(select.value);
             }
-
-            if (!gameState.logros.accion) {
-                gameState.logros.accion = true;
-                document.getElementById('logro-accion').innerHTML = `<span class="badge-unlocked">[DESBLOQUEADO]</span> Alternador: Módulo visual reconfigurado dinámicamente.`;
-                renderProfileData();
-            }
+            verifLogro("visual");
+            renderLogros();
         }
 
         window.onload = function() {
