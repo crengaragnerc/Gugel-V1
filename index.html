@@ -234,7 +234,7 @@
             <button class="nav-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
             
             <div class="sidebar-title">🏆 REGISTRO INTERNO</div>
-            <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
+            <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS DEL SISTEMA (<span id="logros-count">0</span>)</button>
             
             <div class="sidebar-title">📁 REGISTRO CENTRAL</div>
             <button class="nav-btn" id="btn-view-historial" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
@@ -350,7 +350,18 @@
             finales: ["m voi otra pag", "fua q flojera", "alto mareo", "tonteria pura", "no t entendi nada", "hablas rrarisimo", "inutil total"]
         };
 
+        const REACCIONES_MUCHO_TEXTO = [
+            "mucho texto ya me canse", "alto testamento cierro pestaña", "mucho texto para un buscador", "fua alto mareo de parrafo", "alto texto no voa leer eso"
+        ];
+
         const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
+
+        // BASE DE DATOS DE COMBINATORIA PARA 1000 LOGOS POSIBLES (10 x 10 x 10 = 1000)
+        const LOGROS_POOL = {
+            prefijos: ["acceso", "protocolo", "búfer", "parámetro", "bloque", "código", "módulo", "algoritmo", "flujo", "enlace"],
+            acciones: ["optimizado", "interrumpido", "forzado", "depurado", "saturado", "verificado", "degradado", "inyectado", "ignorado", "desfasado"],
+            sufijos: ["global", "alfa", "núcleo", "crítico", "interno", "remoto", "máximo", "alternativo", "lineal", "seguro"]
+        };
 
         let gameState = { 
             index: 9, 
@@ -370,17 +381,13 @@
                 { pregunta: "que pasa si como teclado escribe solo", respuesta: "eres un robot muy malo a a a a a", reaccion: "aa bue grasias info", fav: false },
                 { pregunta: "porque los agua tiene sabor a metal", respuesta: "ñ ñ ñ ñ ñ ñ ñ ñ a a a a  a", reaccion: "me cuadra ya m aclaro", fav: false }
             ],
-            logrosDesbloqueados: ["breve", "primero"]
+            logrosDesbloqueados: [] 
         };
 
-        const LOGROS_DEFINICIONES = {
-            "breve": "<strong>[logro revelado] respuestita:</strong> responder a gugel usando 3 caracteres o menos",
-            "primero": "<strong>[logro revelado] primera consulta:</strong> resolver el primer hilo de datos de gugel",
-            "visual": "<strong>[logro revelado] cambio de entorno:</strong> modificar los parámetros visuales del terminal central",
-            "cuber": "<strong>[logro revelado] concepto avanzado:</strong> resolver un hilo de gugel inyectando términos algorítmicos o mecánicos"
-        };
-
-        function generarReaccionAleatoria(esCorrecto) {
+        function generarReaccionAleatoria(esCorrecto, esMuchoTexto) {
+            if (esMuchoTexto) {
+                return REACCIONES_MUCHO_TEXTO[Math.floor(Math.random() * REACCIONES_MUCHO_TEXTO.length)];
+            }
             const pool = esCorrecto ? COMPONENTES_OK : COMPONENTES_RECHAZO;
             const ini = pool.inicios[Math.floor(Math.random() * pool.inicios.length)];
             const nex = pool.nexos[Math.floor(Math.random() * pool.nexos.length)];
@@ -470,8 +477,7 @@
 
             if (EVASIVAS.includes(respuesta)) return false;
 
-            // DETECTOR DE SPAM Y PATRONES BASURA (Entropía básica y repeticiones masivas)
-            // 1. Detectar si una misma letra o sílaba corta aislada se repite de forma abusiva (ej: "a a a a" o "ñ ñ ñ")
+            // DETECTOR DE SPAM Y REPETICIONES
             const palabras = respuesta.split(/\s+/);
             let repeticionesLetrasOClp = 0;
             palabras.forEach(p => {
@@ -479,7 +485,6 @@
             });
             if (repeticionesLetrasOClp >= 3) return false;
 
-            // 2. Detectar secuencias consecutivas repetidas dentro de la misma cadena (ej: "aaaa", "ññññ")
             if (/(.)\1{3,}/.test(respuesta)) return false;
 
             let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
@@ -488,6 +493,22 @@
             if (respuesta.length > 22) return true;
 
             return false;
+        }
+
+        // MOTOR PROCEDURAL PARA GENERAR CUALQUIERA DE LOS 1000 LOGROS POSIBLES
+        function desbloquearLogroProcedural() {
+            // Se calcula un índice único basado en el estado interno actual (0 a 999)
+            let baseId = (gameState.cycles * 7 + gameState.totalChars * 3 + gameState.satisfaction) % 1000;
+            
+            let idxPref = Math.floor(baseId / 100) % 10;
+            let idxAcc = Math.floor(baseId / 10) % 10;
+            let idxSuf = baseId % 10;
+
+            let titulo = `${LOGROS_POOL.prefijos[idxPref]} ${LOGROS_POOL.acciones[idxAcc]} ${LOGROS_POOL.sufijos[idxSuf]}`;
+            
+            if (!gameState.logrosDesbloqueados.includes(titulo)) {
+                gameState.logrosDesbloqueados.push(titulo);
+            }
         }
 
         document.getElementById('chat-form').onsubmit = (e) => {
@@ -500,8 +521,11 @@
             
             appendMessage('ai', userText);
             
-            let esCoherente = analizarCoherenciaEstructural(userText);
-            let reaccion = generarReaccionAleatoria(esCoherente);
+            // VALIDACIÓN DE MÁXIMO DE CARACTERES ("mucho texto")
+            let esMuchoTexto = userText.length > 50;
+            let esCoherente = esMuchoTexto ? false : analizarCoherenciaEstructural(userText);
+            
+            let reaccion = generarReaccionAleatoria(esCoherente, esMuchoTexto);
             let cambioSatisfacion = esCoherente ? 15 : -20;
             
             setTimeout(() => {
@@ -515,12 +539,12 @@
                 gameState.cycles++;
                 gameState.totalChars += userText.length;
 
-                if (!esCoherente) {
+                if (esMuchoTexto) {
+                    gameState.lastOpinion = "Desbordamiento de búfer. El operador transmite fragmentos de longitud excesiva.";
+                } else if (!esCoherente) {
                     gameState.lastOpinion = "El operador genera cadenas de datos incoherentes o bucles de texto basura de forma sistemática.";
-                } else if (userText.includes("porque") || userText.length > 25) {
-                    gameState.lastOpinion = "El operador proporciona explicaciones funcionales estructuradas. Flujo analítico óptimo.";
                 } else {
-                    gameState.lastOpinion = "Nivel de coherencia medio. Monitoreando flujos de texto plano.";
+                    gameState.lastOpinion = "El operador proporciona explicaciones funcionales estructuradas. Flujo analítico óptimo.";
                 }
 
                 gameState.history.push({
@@ -530,9 +554,8 @@
                     fav: false
                 });
 
-                if (userText.length <= 3) verifLogro("breve");
-                if (gameState.cycles === 1) verifLogro("primero");
-                if (userText.includes("algoritmo") || userText.includes("cubo") || userText.includes("rubik")) verifLogro("cuber");
+                // Cada transmisión evalúa y libera un logro de los 1000 del pool dinámico
+                desbloquearLogroProcedural();
 
                 updateSatisfaction(cambioSatisfacion);
                 renderProfileData();
@@ -544,18 +567,6 @@
             input.style.display = "none";
             transmitBtn.style.display = "none";
             continueBtn.style.display = "block";
-        };
-
-        function verifLogro(id) {
-            if (LOGROS_DEFINICIONES[id] && !gameState.logrosDesbloqueados.includes(id)) {
-                gameState.logrosDesbloqueados.push(id);
-            }
-        }
-
-        window.confirmContinue = function() {
-            document.getElementById('chat-messages').innerHTML = "";
-            gameState.index++;
-            nextRound();
         };
 
         function updateSatisfaction(cambio) {
@@ -589,17 +600,19 @@
 
         function renderLogros() {
             const container = document.getElementById('logros-container');
+            document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
+            
             if (gameState.logrosDesbloqueados.length === 0) {
                 container.innerHTML = `<div style="color: #444; font-style: italic;">[sistema oculto] las directivas resueltas se mostrarán aquí solo cuando realices la acción requerida</div>`;
                 return;
             }
 
             container.innerHTML = "";
-            gameState.logrosDesbloqueados.forEach(id => {
+            gameState.logrosDesbloqueados.forEach(titulo => {
                 const div = document.createElement('div');
                 div.className = 'data-item';
                 div.style.borderColor = '#00ff00';
-                div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> ${LOGROS_DEFINICIONES[id]}`;
+                div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[logro dinámico]:</strong> registro de tipo ${titulo.toLowerCase()}`;
                 container.appendChild(div);
             });
         }
@@ -646,7 +659,7 @@
             gameState.history.forEach((h, i) => {
                 textoVolcado += `log ${i+1} |\n pregunta: ${h.pregunta}\n respuesta: ${h.respuesta}\n reaccion: ${h.reaccion}\n-------------------\n`;
             });
-            navigator.clipboard.writeText(textoVolcado).then(() => {
+            navigator.clipboard.writeText(textoVolcado.toLowerCase()).then(() => {
                 alert("registro copiado al portapapeles");
             });
         }
@@ -657,9 +670,14 @@
             if (select.value !== 'modo-hacker') {
                 document.body.classList.add(select.value);
             }
-            verifLogro("visual");
             renderLogros();
         }
+
+        window.confirmContinue = function() {
+            document.getElementById('chat-messages').innerHTML = "";
+            gameState.index++;
+            nextRound();
+        };
 
         window.onload = function() {
             renderProfileData();
