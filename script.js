@@ -1,4 +1,4 @@
-// --- PREGUNTAS Y CONFIGURACIONES ---
+// --- BASE DE DATOS DEL JUEGO ---
 const PREGUNTAS_CAMPAÑA = [
     "cagar verde normal",
     "como hacer cubo rubik",
@@ -23,18 +23,15 @@ const RESPUESTAS_GUGEL = {
         "ia rota de mielda", "vaya respuesta de mielda no funsiona", 
         "eso no tiene sentido mi primo dice otra cosa", "no rimes q te pego",
         "q dices loco lo busco en la wikipedia mejor", "ia de hacendado arreglame el internet",
-        "para eso prefiero preguntar en un foro de coches", "no funsiona menudo timo",
-        "vaya estafa de inteligencia artificial", "me has dejado peor de lo que estaba"
+        "para eso prefiero preguntar en un foro de coches", "no funsiona menudo timo"
     ],
     regulares: [
         "mucho testo no lo leere", "ya provare a ver si funsiona", 
-        "suena raro pero me sirve de momento", "bueno... algo es algo supongo",
-        "un poco largo pero lo intentare", "ok provaremos aver"
+        "suena raro pero me sirve de momento", "bueno... algo es algo supongo"
     ],
     buenas: [
         "ia de locos me as ayudado", "me cuadra perfectamente grasias", 
-        "funsiona a la primera eres dios", "oleeee solucionado q grande", 
-        "lo has clavao de locos", "asi si da gusto usar una ia"
+        "funsiona a la primera eres dios", "oleeee solucionado q grande"
     ]
 };
 
@@ -45,7 +42,7 @@ const LOGROS_DEFINICION = [
     { id: "infinito", icon: "🌌", title: "Más allá del Deber", desc: "Supera la campaña base y entra al Modo Infinito." }
 ];
 
-// --- ESTADO INTERNO ---
+// --- ESTADO LOCAL ---
 let gameState = {
     score: parseInt(localStorage.getItem('gugel_score')) || 0,
     roundStep: 1,
@@ -62,7 +59,7 @@ let gameState = {
 
 let ultimaFraseUsada = "";
 
-// --- ENTRADA DE FLUJO ---
+// --- INICIALIZACIÓN ---
 window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
@@ -109,6 +106,7 @@ function setTheme(theme) {
     localStorage.setItem('gugel_theme', theme);
 }
 
+// CONTROLADOR DE PESTAÑAS VINCULADO CORRECTAMENTE
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.style.display = 'none';
@@ -130,7 +128,7 @@ function switchTab(tabId) {
     }
 }
 
-// --- CORE DEL BUCLE DE JUEGO ---
+// --- CORE DEL JUEGO ---
 function getNextQuestion() {
     if (gameState.campaignIndex < PREGUNTAS_CAMPAÑA.length) {
         return PREGUNTAS_CAMPAÑA[gameState.campaignIndex];
@@ -269,7 +267,7 @@ function obtenerRespuestaLocal(puntuacion) {
     return fraseElegida;
 }
 
-// --- SUGERENCIAS ---
+// --- SUGERENCIAS EXTRA ---
 function triggerSuggestion() {
     const suggestionBox = document.getElementById('suggestion-box');
     if (!suggestionBox) return;
@@ -280,6 +278,7 @@ function triggerSuggestion() {
     suggestionBox.dataset.pendingQuestion = elegida;
 }
 
+// --- CAPTURA DE SUGERENCIA ---
 function acceptSuggestion() {
     const suggestionBox = document.getElementById('suggestion-box');
     if (!suggestionBox) return;
@@ -290,7 +289,7 @@ function acceptSuggestion() {
     nextRound(nextQ);
 }
 
-// --- MODALES ---
+// --- COMPORTAMIENTO DE LOS MODALES ---
 function openResultModal(q, a, score) {
     const resultModal = document.getElementById('result-modal');
     const modalQ = document.getElementById('modal-question');
@@ -323,7 +322,7 @@ function closeResultModal() {
     finishRoundAfterModal(score, q, a);
 }
 
-// --- AUXILIARES INTERNOS ---
+// --- SISTEMAS AUXILIARES ---
 function saveToArchive(q, a, score, reaccion) {
     const id = Date.now();
     gameState.history.unshift({ id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() });
