@@ -1,233 +1,119 @@
-/* --- VARIABLES DEL SISTEMA --- */
-:root[data-theme="light"] {
-    --bg-main: #ffffff;
-    --bg-sidebar: #f1f3f4;
-    --text-main: #202124;
-    --text-muted: #5f6368;
-    --border-color: #dadce0;
-    --accent: #1a73e8;
-    --chat-gugel: #f8f9fa;
-    --chat-user: #e8f0fe;
-}
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>GUGEL Console</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-:root[data-theme="dark"] {
-    --bg-main: #202124;
-    --bg-sidebar: #2f3136;
-    --text-main: #e8eaed;
-    --text-muted: #9aa0a6;
-    --border-color: #3c4043;
-    --accent: #8ab4f8;
-    --chat-gugel: #303134;
-    --chat-user: #3b4b6b;
-}
+    <div class="screen">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>GUGEL Console</h2>
+                <div class="theme-selector">
+                    <button onclick="setTheme('light')">☀️</button>
+                    <button onclick="setTheme('dark')">🌙</button>
+                    <button onclick="setTheme('hacker')">📟</button>
+                </div>
+            </div>
 
-:root[data-theme="hacker"] {
-    --bg-main: #050505;
-    --bg-sidebar: #0f0f0f;
-    --text-main: #00ff00;
-    --text-muted: #008800;
-    --border-color: #00ff00;
-    --accent: #00ff00;
-    --chat-gugel: #111111;
-    --chat-user: #002200;
-}
+            <div class="profile-card">
+                <div class="avatar">💻</div>
+                <div class="profile-info">
+                    <span>Operador activo: <strong id="logged-user-name">Unai</strong></span>
+                    <button class="sidebar-action-btn" onclick="openAuthModal()">👤 Cambiar cuenta</button>
+                </div>
+            </div>
 
-/* --- MAQUETACIÓN GLOBAL --- */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+            <div class="stats-section">
+                <h3>Rango de Sistema</h3>
+                <div class="level-badge" id="player-level">Nivel 1 (Iniciante)</div>
+                <p>Puntuación Total: <strong id="total-score">0</strong></p>
+            </div>
 
-body, html {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg-main);
-}
+            <div class="stats-section">
+                <h3>Estado del Usuario</h3>
+                <p>Satisfacción: <strong id="satisfaction-percentage">50%</strong></p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="satisfaction-bar" style="width: 50%;"></div>
+                </div>
+                <p style="margin-top: 5px; font-size: 12px; color: var(--text-muted);">
+                    Opinión de GUGEL: <strong id="gugel-opinion">Indiferente</strong>
+                </p>
+            </div>
 
-.screen {
-    width: 100%;
-    height: 100%;
-    display: flex;
-}
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" onclick="switchTab('chat-tab')">💬 Terminal de Chat</button>
+                <button class="nav-btn" onclick="switchTab('archive-tab')">📁 Archivo de Chats</button>
+                <button class="nav-btn" onclick="switchTab('achievements-tab')">🏆 Logros Obtenidos</button>
+            </nav>
+        </aside>
 
-/* --- BARRA LATERAL --- */
-.sidebar {
-    width: 280px;
-    background: var(--bg-sidebar);
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    flex-shrink: 0;
-}
+        <main class="main-content">
+            
+            <div id="chat-tab" class="tab-content">
+                <div class="chat-header">
+                    <div class="status-indicator connected"></div>
+                    <span id="gugel-status">Conectado</span>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages"></div>
 
-.sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-.sidebar-header h2 { color: var(--text-main); font-size: 18px; }
-.sidebar-header h2 span { color: var(--accent); }
+                <div class="suggestion-box" id="suggestion-box" style="display: none;"></div>
 
-.theme-selector button {
-    background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px;
-}
+                <form class="chat-input-area" id="chat-form">
+                    <input type="text" id="user-input" placeholder="Escribe tu respuesta técnica avanzada..." autocomplete="off">
+                    <button type="submit" id="send-btn">Enviar</button>
+                </form>
+            </div>
 
-.profile-card, .stats-section {
-    background: var(--bg-main);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 12px;
-    margin-bottom: 16px;
-}
+            <div id="archive-tab" class="tab-content" style="display: none;">
+                <div class="tab-header-title">
+                    <h2>📁 Archivo de Logs Guardados</h2>
+                </div>
+                <div class="archive-list" id="archive-list"></div>
+            </div>
 
-.profile-card { display: flex; align-items: center; gap: 12px; }
-.profile-card .avatar { font-size: 24px; }
-.profile-info { display: flex; flex-direction: column; flex: 1; }
-.profile-info .label { font-size: 11px; color: var(--text-muted); }
-.profile-info strong { color: var(--text-main); font-size: 14px; }
+            <div id="achievements-tab" class="tab-content" style="display: none;">
+                <div class="tab-header-title">
+                    <h2>🏆 Logros Obtenidos</h2>
+                </div>
+                <div class="achievements-list" id="achievements-list"></div>
+            </div>
 
-.sidebar-action-btn {
-    background: none; border: none; color: var(--accent); font-size: 11px;
-    text-align: left; cursor: pointer; padding: 2px 0; margin-top: 4px; text-decoration: underline;
-}
+        </main>
+    </div>
 
-.stats-section h3 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-.level-badge {
-    background: var(--accent); color: #fff; text-align: center;
-    padding: 4px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 8px;
-}
-html[data-theme="hacker"] .level-badge { color: #000; background: var(--accent); }
+    <div class="modal-overlay" id="auth-screen" style="display: none;">
+        <div class="modal-box">
+            <h3>Acceso Operador</h3>
+            <form id="auth-form">
+                <input type="text" id="auth-username" placeholder="Nuevo Operador..." required>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-secondary" onclick="closeAuthModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Conectar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-.stat-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-main); }
+    <div class="modal-overlay" id="result-modal" style="display: none;">
+        <div class="modal-box">
+            <h3>Evaluación del Sistema</h3>
+            <div class="result-details">
+                <p><strong>Petición:</strong> <span id="modal-question">""</span></p>
+                <p><strong>Tu Respuesta:</strong> <span id="modal-answer">""</span></p>
+            </div>
+            <div class="score-display">
+                <span>Puntuación:</span>
+                <h1 id="modal-score-number">0/10</h1>
+            </div>
+            <button class="btn-primary" onclick="closeResultModal()">Aceptar y Continuar</button>
+        </div>
+    </div>
 
-.progress-bar-container {
-    width: 100%; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; margin-top: 6px;
-}
-.progress-bar { height: 100%; background: var(--accent); transition: width 0.4s ease; }
-
-.sidebar-nav { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
-.nav-btn {
-    width: 100%; padding: 12px; text-align: left; background: none;
-    border: 1px solid transparent; border-radius: 6px; color: var(--text-main);
-    cursor: pointer; font-size: 13px; transition: all 0.2s;
-}
-.nav-btn:hover, .nav-btn.active {
-    background: var(--bg-main); border-color: var(--border-color); font-weight: bold;
-}
-
-/* --- INTERFAZ DE VISTAS (CENTRAL) --- */
-.main-content {
-    flex: 1;
-    height: 100%;
-    position: relative;
-}
-
-.tab-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-/* --- COMPONENTES TERMINAL CHAT --- */
-.chat-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--bg-main);
-}
-.status-indicator { width: 8px; height: 8px; border-radius: 50%; background: #9aa0a6; }
-.status-indicator.connected { background: #34a853; }
-html[data-theme="hacker"] .status-indicator.connected { background: #00ff00; }
-#gugel-status { font-size: 13px; color: var(--text-main); font-weight: 500; }
-
-.chat-messages {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    background: var(--bg-main);
-}
-
-.message {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    line-height: 1.5;
-    word-break: break-word;
-}
-.message.gugel { background: var(--chat-gugel); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
-.message.ai { background: var(--accent); color: #ffffff; align-self: flex-end; border-bottom-right-radius: 2px; }
-html[data-theme="hacker"] .message.ai { color: #000000; font-weight: bold; }
-.message.system { background: transparent; color: var(--text-muted); align-self: center; font-family: monospace; font-size: 12px; text-align: center; border: none; }
-
-.suggestion-box {
-    padding: 10px 20px; background: var(--chat-gugel); border-top: 1px solid var(--border-color);
-    font-size: 13px; color: var(--text-main); cursor: pointer; text-align: center;
-}
-.suggestion-box:hover { text-decoration: underline; color: var(--accent); }
-
-.chat-input-area {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    gap: 12px;
-    background: var(--bg-main);
-}
-.chat-input-area input {
-    flex: 1; padding: 12px; background: var(--bg-sidebar); border: 1px solid var(--border-color);
-    border-radius: 6px; color: var(--text-main); font-size: 14px; outline: none;
-}
-.chat-input-area button {
-    padding: 12px 24px; background: var(--accent); color: white; border: none;
-    border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;
-}
-html[data-theme="hacker"] .chat-input-area button { color: #000; }
-.chat-input-area button:disabled, .chat-input-area input:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* --- COMPONENTES ARCHIVO / LOGROS --- */
-.tab-header-title { padding: 24px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
-.archive-list, .achievements-list { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: var(--bg-main); }
-
-.archive-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-.archive-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
-.archive-body p { font-size: 13px; color: var(--text-main); margin-bottom: 4px; }
-.archive-actions { display: flex; gap: 10px; }
-.archive-btn { background: none; border: 1px solid var(--border-color); color: var(--text-main); padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-.archive-btn:hover { background: var(--bg-main); border-color: var(--accent); }
-
-.achievement-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; display: flex; align-items: center; gap: 16px; opacity: 0.4; }
-.achievement-card.unlocked { opacity: 1; border-color: var(--accent); }
-.achievement-icon { font-size: 24px; }
-.achievement-info h4 { font-size: 14px; color: var(--text-main); margin-bottom: 2px; }
-.achievement-info p { font-size: 12px; color: var(--text-muted); }
-
-/* --- MODALES DE CONTROL --- */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000;
-}
-.modal-box {
-    background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: 8px;
-    padding: 24px; width: 400px; max-width: 90%; color: var(--text-main); display: flex; flex-direction: column; gap: 16px;
-}
-.modal-box input {
-    width: 100%; padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-main); outline: none;
-}
-.modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
-.btn-primary { background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-html[data-theme="hacker"] .btn-primary { color: #000; }
-.btn-secondary { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 10px 16px; border-radius: 4px; cursor: pointer; }
-.result-details { font-size: 13px; display: flex; flex-direction: column; gap: 6px; background: var(--bg-main); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); }
-.score-display { text-align: center; margin: 8px 0; }
-.score-display h1 { color: var(--accent); font-size: 32px; }
+    <script src="script.js"></script>
+</body>
+</html>
