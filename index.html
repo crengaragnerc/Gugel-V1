@@ -8,12 +8,18 @@
 <body class="modo-hacker">
     <div class="system-container">
         <div class="sidebar">
-            <button class="nav-btn active" id="btn-view-consultas" onclick="switchView('view-consultas')">💬 CONSULTAS</button>
+            <button class="nav-btn active" id="btn-view-consultas" onclick="switchView('view-consultas')">💬 PANEL DE CONSULTAS</button>
+            <div class="sidebar-title">👤 MONITOR DE SESIÓN</div>
             <button class="nav-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
+            <div class="sidebar-title">🏆 REGISTRO INTERNO</div>
+            <button class="nav-btn" id="btn-view-logros" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
+            <div class="sidebar-title">📁 REGISTRO CENTRAL</div>
+            <button class="nav-btn" id="btn-view-historial" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
         </div>
+
         <div class="chat-card">
             <header class="header">
-                <h2>GUGEL Core</h2>
+                <h2 id="panel-title-text">GUGEL Core</h2>
                 <select class="mode-selector" id="mode-select" onchange="changeSystemMode()">
                     <option value="modo-hacker">Modo Hacker</option>
                     <option value="modo-observatorio">Modo Observatorio</option>
@@ -22,17 +28,24 @@
             <div id="view-consultas" class="content-panel active">
                 <div class="chat-messages" id="chat-messages"></div>
                 <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="respuesta..." autocomplete="off">
-                    <button type="submit" class="action-btn">TRANSMITIR</button>
+                    <input type="text" id="user-input" placeholder="introduce la respuesta del motor..." autocomplete="off">
+                    <button type="submit" id="transmit-btn" class="action-btn">TRANSMITIR</button>
+                    <button type="button" id="continue-btn" class="action-btn" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
                 </form>
             </div>
             <div id="view-perfil" class="content-panel">
-                <h3>Estado Analítico</h3>
+                <h3>Módulo de Perfil</h3>
                 <div class="data-item">
                     <div class="data-label">Opinión de Gugel:</div>
-                    <div id="prof-opinion">No hay consultas.</div>
+                    <div id="prof-opinion" style="font-style: italic; color: #888;">no hay consultas en la sesión actual</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Porcentaje de Satisfacción:</div>
+                    <div id="prof-satisfaction" style="font-weight: bold; color: #00ff00;">50%</div>
                 </div>
             </div>
+            <div id="view-logros" class="content-panel"><h3>Registro de Logros</h3><div id="logros-container"></div></div>
+            <div id="view-historial" class="content-panel"><h3>Gestión de Almacenamiento</h3><div id="history-list-container"></div></div>
         </div>
     </div>
     <script src="script.js"></script>
