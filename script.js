@@ -335,7 +335,6 @@ function renderArchive() {
     });
 }
 
-// --- LOGROS Y SATISFACCIÓN ---
 function unlockAchievement(id) {
     if (!gameState.unlockedAchievements.includes(id)) {
         gameState.unlockedAchievements.push(id);
