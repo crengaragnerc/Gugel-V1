@@ -197,7 +197,8 @@ document.getElementById('chat-form').onsubmit = (e) => {
     let esCoherente = esMuchoTexto ? false : analizarCoherenciaEstructural(userText);
     
     let reaccion = generarReaccionCoherente(esCoherente, esMuchoTexto);
-    let cambioSatisfacion = esCoherente ? 15 : -20;
+    // Penalización más estricta: +10 si aciertas, -25 si fallas
+    let cambioSatisfacion = esCoherente ? 10 : -25; 
     
     setTimeout(() => {
         const box = document.getElementById('chat-messages');
@@ -210,14 +211,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
         gameState.cycles++;
         gameState.totalChars += userText.length;
 
-        if (esMuchoTexto) {
-            gameState.lastOpinion = "Desbordamiento de búfer. El operador transmite fragmentos de longitud excesiva.";
-        } else if (!esCoherente) {
-            gameState.lastOpinion = "El operador genera cadenas de datos incoherentes o bucles de texto basura de forma sistemática.";
-        } else {
-            gameState.lastOpinion = "El operador proporciona explicaciones funcionales estructuradas. Flujo analítico óptimo.";
-        }
-
         gameState.history.push({
             pregunta: gameState.currentPregunta,
             respuesta: userText,
@@ -226,7 +219,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
         });
 
         desbloquearLogroProcedural();
-
         updateSatisfaction(cambioSatisfacion);
         renderProfileData();
         renderHistoryData();
@@ -246,7 +238,21 @@ function updateSatisfaction(cambio) {
 }
 
 function renderProfileData() {
-    document.getElementById('prof-opinion').innerText = `${gameState.lastOpinion}`;
+    let opiniones = [
+        "(quiere quemar el router)", 
+        "(cree que eres un virus)", 
+        "(te juzga en silencio desde el búfer)", 
+        "(piensa que eres su mejor amigo, o sea, un gato)", 
+        "(cree que eres un dios de la plastilina azul)",
+        "(te cambiaría por un cubo de Rubik sin dudarlo)",
+        "(sospecha que intentas hackearlo con la mente)",
+        "(te tiene miedo, mucho miedo)"
+    ];
+
+    let opinionIndex = Math.floor((gameState.satisfaction / 100) * (opiniones.length - 1));
+    gameState.lastOpinion = opiniones[opinionIndex];
+
+    document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
     document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
     document.getElementById('prof-cycles').innerText = gameState.cycles;
     document.getElementById('prof-chars').innerText = gameState.totalChars;
