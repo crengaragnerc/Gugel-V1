@@ -8,8 +8,10 @@
 </head>
 <body>
 
+    <!-- APLICACIÓN PRINCIPAL (ENTRADA DIRECTA) -->
     <div id="main-app" class="screen">
         
+        <!-- BARRA LATERAL: PERFIL Y ESTADÍSTICAS -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>GUGEL <span>Console</span></h2>
@@ -20,14 +22,17 @@
                 </div>
             </div>
 
+            <!-- PERFIL VISIBLE -->
             <div class="profile-card">
                 <div class="avatar">💻</div>
                 <div class="profile-info">
                     <span class="label">Operador activo:</span>
                     <strong id="logged-user-name">Unai</strong>
+                    <button id="logout-btn" class="sidebar-action-btn" onclick="openAuthModal()">👤 Cambiar cuenta</button>
                 </div>
             </div>
 
+            <!-- SISTEMA DE NIVELES -->
             <div class="stats-section">
                 <h3>Rango de Sistema</h3>
                 <div class="level-badge" id="player-level">Nivel 1 (Iniciante)</div>
@@ -37,6 +42,7 @@
                 </div>
             </div>
 
+            <!-- SATISFACCIÓN Y OPINIÓN -->
             <div class="stats-section">
                 <h3>Estado del Usuario</h3>
                 <div class="stat-row">
@@ -52,6 +58,7 @@
                 </div>
             </div>
 
+            <!-- NAVEGACIÓN -->
             <nav class="sidebar-nav">
                 <button class="nav-btn active" onclick="switchTab('chat-tab')">💬 Terminal de Chat</button>
                 <button class="nav-btn" onclick="switchTab('archive-tab')">📁 Archivo de Chats</button>
@@ -59,8 +66,10 @@
             </nav>
         </aside>
 
+        <!-- CONTENIDO PRINCIPAL -->
         <main class="main-content">
             
+            <!-- PESTAÑA 1: TERMINAL DE CHAT -->
             <section id="chat-tab" class="tab-content">
                 <div class="chat-header">
                     <div class="status-indicator"></div>
@@ -77,22 +86,27 @@
                 </form>
             </section>
 
+            <!-- PESTAÑA 2: ARCHIVO DE CONVERSACIONES -->
             <section id="archive-tab" class="tab-content" style="display: none;">
                 <h2>Archivo de Comunicaciones Pasadas</h2>
                 <p class="section-desc">Historial completo de las consultas atendidas en esta sesión.</p>
                 <div id="archive-list" class="archive-container">
-                    </div>
+                    <!-- Se genera dinámicamente -->
+                </div>
             </section>
 
+            <!-- PESTAÑA 3: LOGROS -->
             <section id="achievements-tab" class="tab-content" style="display: none;">
                 <h2>Registro de Logros</h2>
                 <p class="section-desc">Objetivos de rendimiento del sistema de soporte.</p>
                 <div id="achievements-list" class="achievements-grid">
-                    </div>
+                    <!-- Se genera dinámicamente -->
+                </div>
             </section>
         </main>
     </div>
 
+    <!-- PANTALLA DE RESULTADOS / RESUMEN DE RONDA -->
     <div id="result-modal" class="modal-overlay" style="display: none;">
         <div class="modal-card">
             <h3>Informe de Rendimiento</h3>
@@ -109,6 +123,21 @@
                 <div id="modal-score-number">0/10</div>
             </div>
             <button onclick="closeResultModal()">Continuar Siguiente Ronda</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE AUTENTICACIÓN (AHORA ES UN MODAL OCULTO OPCIONAL) -->
+    <div id="auth-screen" class="modal-overlay" style="display: none;">
+        <div class="modal-card" style="text-align: center;">
+            <h3>Cambiar Perfil de Operador</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Introduce un nuevo ID si deseas registrar otra sesión.</p>
+            <form id="auth-form">
+                <input type="text" id="auth-username" placeholder="Nuevo nombre de operador..." required maxlength="15" style="width:100%; padding:10px; margin-bottom:12px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); border-radius:4px;">
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="closeAuthModal()" style="flex:1; background:var(--border-color); color:var(--text-main); padding:10px; border:none; border-radius:4px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" style="flex:1; background:var(--accent); color:#fff; padding:10px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 
