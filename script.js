@@ -260,21 +260,6 @@ function renderProfileData() {
     document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
     document.getElementById('prof-cycles').innerText = gameState.cycles;
     document.getElementById('prof-chars').innerText = gameState.totalChars;
-
-    if(gameState.satisfaction >= 70) {
-        document.getElementById('prof-behavior').innerText = "Gugel muestra conformidad absoluta con los datos de pantalla.";
-        document.getElementById('prof-titles').innerText = "operador de confianza";
-        document.getElementById('prof-titles').style.color = "#00ff00";
-    } else if(gameState.satisfaction <= 30) {
-        document.getElementById('prof-behavior').innerText = "Patrón técnico inestable. Respuestas incoherentes detectadas de forma sistemática.";
-        document.getElementById('prof-titles').innerText = "analista de datos ignorado";
-        document.getElementById('prof-titles').style.color = "#ff0000";
-    } else {
-        document.getElementById('prof-behavior').innerText = "Patrón técnico stable. Cumplimiento estricto del protocolo.";
-        document.getElementById('prof-titles').innerText = "operador del sistema novato";
-        document.getElementById('prof-titles').style.color = "#00ff00";
-    }
-
     document.getElementById('prof-summary').innerText = `procesadas con exito ${gameState.cycles} hilos de datos`;
 }
 
