@@ -7,71 +7,28 @@
 </head>
 <body>
 
-    <div class="screen">
-        
-        <!-- BARRA LATERAL CLÁSICA -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>GUGEL Console</h2>
-            </div>
+    <div class="chat-container">
+        <header class="header">
+            <h1>GUGEL Console</h1>
+            <div class="status-badge" id="status-dot">● Conectado</div>
+        </header>
 
-            <div class="stats-section">
-                <h3>Rango de Sistema</h3>
-                <div class="level-badge" id="player-level">Nivel 1 (Iniciante)</div>
-                <p>Puntuación Total: <strong id="total-score">0</strong></p>
-            </div>
+        <div class="chat-messages" id="chat-messages"></div>
 
-            <div class="stats-section">
-                <h3>Estado del Usuario</h3>
-                <p>Satisfacción: <strong id="satisfaction-percentage">50%</strong></p>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="satisfaction-bar" style="width: 50%;"></div>
-                </div>
-                <p style="margin-top: 8px; font-size: 12px; color: #9aa0a6;">
-                    Opinión de GUGEL: <strong id="gugel-opinion">Indiferente</strong>
-                </p>
-            </div>
-
-            <!-- SELECTOR DE TEMA INTEGRADO -->
-            <div class="theme-selector-section">
-                <h3>Interfaz Gráfica</h3>
-                <select id="theme-dropdown" onchange="changeSystemTheme(this.value)">
-                    <option value="dark">Modo Oscuro</option>
-                    <option value="light">Modo Claro</option>
-                    <option value="hacker">Terminal Hacker</option>
-                </select>
-            </div>
-        </aside>
-
-        <!-- PANTALLA DE CHAT EN GRANDE -->
-        <main class="main-content">
-            <div class="chat-header">
-                <div class="status-indicator connected" id="status-dot"></div>
-                <span id="gugel-status">Conectado</span>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages"></div>
-
-            <form class="chat-input-area" id="chat-form">
-                <input type="text" id="user-input" placeholder="Escribe tu respuesta técnica avanzada..." autocomplete="off">
-                <button type="submit" id="send-btn">Enviar</button>
-            </form>
-        </main>
+        <form class="input-area" id="chat-form">
+            <input type="text" id="user-input" placeholder="Escribe tu respuesta técnica avanzada..." autocomplete="off">
+            <button type="submit" id="send-btn">Enviar</button>
+        </form>
     </div>
 
-    <!-- MODAL DE EVALUACIÓN INTERMEDIO -->
+    <!-- Modal elegante -->
     <div class="modal-overlay" id="result-modal" style="display: none;">
         <div class="modal-box">
             <h3>Evaluación del Sistema</h3>
-            <div class="result-details">
-                <p><strong>Petición:</strong> <span id="modal-question">""</span></p>
-                <p><strong>Tu Respuesta:</strong> <span id="modal-answer">""</span></p>
-            </div>
             <div class="score-display">
-                <span>Puntuación:</span>
                 <h1 id="modal-score-number">0/10</h1>
             </div>
-            <button class="btn-primary" onclick="closeResultModal()">Aceptar y Continuar</button>
+            <button class="btn-primary" onclick="closeResultModal()">Continuar</button>
         </div>
     </div>
 
