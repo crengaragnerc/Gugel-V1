@@ -18,22 +18,44 @@ const GENERADOR_TEMAS = {
     sintomas: ["fiebre en el dedo", "tos de perro", "dolor de pelo", "hinchazon oreja izquierda"]
 };
 
+// Ampliado para evitar la repetición constante del meme de la Wikipedia
 const RESPUESTAS_GUGEL = {
     malas: [
-        "ia rota de mielda", "vaya respuesta de mielda no funsiona", 
-        "eso no tiene sentido mi primo dice otra cosa", "no rimes q te pego",
-        "q dices loco lo busco en la wikipedia mejor", "ia de hacendado arreglame el internet",
-        "para eso prefiero preguntar en un foro de coches", "no funsiona menudo timo"
+        "ia rota de mielda", 
+        "vaya respuesta de mielda no funsiona", 
+        "eso no tiene sentido mi primo dice otra cosa", 
+        "no rimes q te pego",
+        "q dices loco lo busco en la wikipedia mejor", 
+        "ia de hacendado arreglame el internet",
+        "para eso prefiero preguntar en un foro de coches", 
+        "no funsiona menudo timo",
+        "vaya estafa de inteligencia artificial",
+        "me has dejado peor de lo que estaba",
+        "seguro que esto lo ha escrito un bot de chat basico",
+        "no entiendo nada, voy a reiniciar el router a ver",
+        "menudo parrafon para no decir nada"
     ],
     regulares: [
-        "mucho testo no lo leere", "ya provare a ver si funsiona", 
-        "suena raro pero me sirve de momento", "bueno... algo es algo supongo",
-        "un poco largo pero lo intentare", "ok provaremos aver"
+        "mucho testo no lo leere", 
+        "ya provare a ver si funsiona", 
+        "suena raro pero me sirve de momento", 
+        "bueno... algo es algo supongo",
+        "un poco largo pero lo intentare", 
+        "ok provaremos aver",
+        "no me convence pero no tengo otra cosa",
+        "vale, me sirve a medias",
+        "esperaba algo mas profesional de la tecnologia"
     ],
     buenas: [
-        "ia de locos me as ayudado", "me cuadra perfectamente grasias", 
-        "funsiona a la primera eres dios", "oleeee solucionado q grande", 
-        "lo has clavao de locos", "asi si da gusto usar una ia"
+        "ia de locos me as ayudado", 
+        "me cuadra perfectamente grasias", 
+        "funsiona a la primera eres dios", 
+        "oleeee solucionado q grande", 
+        "lo has clavao de locos", 
+        "asi si da gusto usar una ia",
+        "bua magistral respuesta directo al grano",
+        "madre mia eres el puto amo de los servidores",
+        "solucionado en un segundo, mis dieces operador"
     ]
 };
 
@@ -59,13 +81,15 @@ let gameState = {
     unlockedAchievements: JSON.parse(localStorage.getItem('gugel_achievements')) || []
 };
 
+// Guardar la última frase usada de GUGEL para evitar repeticiones seguidas
+let ultimaFraseUsada = "";
+
 // Elementos DOM
 let authScreen, mainApp, authForm, loggedUserName, chatMessages, userInput, chatForm, sendBtn;
-let totalScoreEl, playerLevelEl, satisfactionBar, satisfactionPercentage, gugelOpinion, gugelStatus;
+let totalScoreEl, playerLevelEl, satisfactionBar, satisfactionPercentage, gugelOpinion, gugelStatus, suggestionBox;
 let resultModal, modalQuestion, modalAnswer, modalScoreNumber;
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Vinculación rápida de elementos
     authScreen = document.getElementById('auth-screen');
     mainApp = document.getElementById('main-app');
     authForm = document.getElementById('auth-form');
@@ -80,6 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
     satisfactionPercentage = document.getElementById('satisfaction-percentage');
     gugelOpinion = document.getElementById('gugel-opinion');
     gugelStatus = document.getElementById('gugel-status');
+    suggestionBox = document.getElementById('suggestion-box');
     
     // Modales
     resultModal = document.getElementById('result-modal');
@@ -87,7 +112,10 @@ window.addEventListener('DOMContentLoaded', () => {
     modalAnswer = document.getElementById('modal-answer');
     modalScoreNumber = document.getElementById('modal-score-number');
 
-    // Recuperar tema preferido
+    if (suggestionBox) {
+        suggestionBox.addEventListener('click', acceptSuggestion);
+    }
+
     const savedTheme = localStorage.getItem('gugel_theme') || 'dark';
     setTheme(savedTheme);
 
@@ -106,16 +134,16 @@ window.addEventListener('DOMContentLoaded', () => {
     if (savedUser) {
         loginUser(savedUser);
     } else {
-        authScreen.style.display = "flex";
-        mainApp.style.display = "none";
+        if (authScreen) authScreen.style.display = "flex";
+        if (mainApp) mainApp.style.display = "none";
     }
 });
 
 function loginUser(username) {
     gameState.currentUser = username;
     if (loggedUserName) loggedUserName.innerText = username;
-    authScreen.style.display = "none";
-    mainApp.style.display = "flex"; 
+    if (authScreen) authScreen.style.display = "none";
+    if (mainApp) mainApp.style.display = "flex"; 
     
     updateSidebarUI();
     renderArchive();
@@ -137,10 +165,14 @@ function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     
-    document.getElementById(tabId).style.display = 'flex';
-    // Marcar botón correspondiente como activo
-    const btnIndex = tabId === 'chat-tab' ? 0 : tabId === 'archive-tab' ? 1 : 2;
-    document.querySelectorAll('.nav-btn')[btnIndex].classList.add('active');
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.style.display = 'flex';
+    
+    const btns = document.querySelectorAll('.nav-nav-btn, .nav-btn');
+    if (btns.length >= 3) {
+        const btnIndex = tabId === 'chat-tab' ? 0 : tabId === 'archive-tab' ? 1 : 2;
+        btns[btnIndex].classList.add('active');
+    }
 
     if (tabId === 'archive-tab') renderArchive();
     if (tabId === 'achievements-tab') renderAchievements();
@@ -210,15 +242,13 @@ function handleUserResponse(e) {
     appendMessage('ai', text);
     const pointsEarned = evaluateResponse(text);
     
-    // Procesar logros por rendimiento
     unlockAchievement("primer_paso");
     if (pointsEarned === 10) unlockAchievement("experto");
 
-    // Guardar datos
     gameState.score += pointsEarned;
     updateSatisfaction(pointsEarned);
     
-    // Abrir pantalla de resultados
+    // Lanzar el modal de resultados
     openResultModal(gameState.currentQuestion, text, pointsEarned);
 }
 
@@ -229,7 +259,6 @@ function finishRoundAfterModal(points, questionText, answerText) {
         const reaccion = obtenerRespuestaLocal(points);
         appendMessage('gugel', reaccion);
         
-        // Guardar de forma definitiva en el archivo general
         saveToArchive(questionText, answerText, points, reaccion);
 
         localStorage.setItem('gugel_score', gameState.score);
@@ -238,20 +267,29 @@ function finishRoundAfterModal(points, questionText, answerText) {
         
         updateSidebarUI();
 
-        if (!gameState.inInfiniteMode && !document.getElementById('suggestion-box').dataset.activeSuggestion) {
+        let isSuggestionActive = false;
+        if (suggestionBox && suggestionBox.dataset.activeSuggestion === "true") {
+            isSuggestionActive = true;
+            delete suggestionBox.dataset.activeSuggestion;
+        }
+
+        if (!gameState.inInfiniteMode && !isSuggestionActive) {
             gameState.campaignIndex++;
             localStorage.setItem('gugel_campaign_index', gameState.campaignIndex);
         }
-        delete document.getElementById('suggestion-box').dataset.activeSuggestion;
 
-        appendMessage('system', '--- FIN DE LA RONDA: PETICIÓN CERRADA ---');
-        setTimeout(nextRound, 1200);
+        if (gameState.inInfiniteMode && Math.random() < 0.30) {
+            triggerSuggestion();
+        } else {
+            appendMessage('system', '--- FIN DE LA RONDA: PETICIÓN CERRADA ---');
+            setTimeout(nextRound, 1200);
+        }
     }, 800);
 }
 
-// --- EVALUACIÓN REAJUSTADA (MÁXIMA COHERENCIA INTERNET) ---
+// --- EVALUACIÓN REAJUSTADA (INTERNET REAL COHERENTE) ---
 function evaluateResponse(text) {
-    let score = 5; // Base neutra equilibrada
+    let score = 5; 
     const lower = text.toLowerCase();
 
     if (text.length > 25) score += 2;
@@ -264,9 +302,38 @@ function evaluateResponse(text) {
     return Math.max(0, Math.min(10, score));
 }
 
+// Filtro inteligente anti-repeticiones de frases
 function obtenerRespuestaLocal(puntuacion) {
     let saco = puntuacion < 4 ? RESPUESTAS_GUGEL.malas : puntuacion <= 6 ? RESPUESTAS_GUGEL.regulares : RESPUESTAS_GUGEL.buenas;
-    return saco[Math.floor(Math.random() * saco.length)];
+    
+    let fraseElegida = saco[Math.floor(Math.random() * saco.length)];
+    
+    // Si sale la misma que la anterior ronda, intentamos sacar otra del saco una vez
+    if (fraseElegida === ultimaFraseUsada && saco.length > 1) {
+        fraseElegida = saco[(saco.indexOf(fraseElegida) + 1) % saco.length];
+    }
+    
+    ultimaFraseUsada = fraseElegida;
+    return fraseElegida;
+}
+
+// --- RECOMENDACIONES ENLACES ---
+function triggerSuggestion() {
+    if (!suggestionBox) return;
+    const sugerencias = ["porque internet se rompe", "como saber si una pagina es falsa", "mi ordenador hace ruido de cafetera ayuda"];
+    const elegida = sugerencias[Math.floor(Math.random() * sugerencias.length)];
+    suggestionBox.innerHTML = `🎬 <strong>Recomendación para GUGEL:</strong> "${elegida}" (Clic para forzar en la red)`;
+    suggestionBox.style.display = "block";
+    suggestionBox.dataset.pendingQuestion = elegida;
+}
+
+function acceptSuggestion() {
+    if (!suggestionBox) return;
+    const nextQ = suggestionBox.dataset.pendingQuestion;
+    suggestionBox.style.display = "none";
+    suggestionBox.dataset.activeSuggestion = "true";
+    appendMessage('system', '--- REDIRECCIONANDO AL HUMANO POR ENLACE ---');
+    nextRound(nextQ);
 }
 
 // --- PANTALLA DE RESULTADOS (MODAL) ---
@@ -281,7 +348,6 @@ function openResultModal(q, a, score) {
 function closeResultModal() {
     if (!resultModal) return;
     resultModal.style.display = "none";
-    // Extraer datos visuales para continuar el flujo normal del chat
     const q = modalQuestion.innerText.replace(/"/g, "");
     const a = modalAnswer.innerText.replace(/"/g, "");
     const score = parseInt(modalScoreNumber.innerText.split("/")[0]);
@@ -317,7 +383,7 @@ function renderAchievements() {
     });
 }
 
-// --- ARCHIVO, FAVORITOS Y COMPARTIR ---
+// --- ARCHIVO DE CHATS ---
 function saveToArchive(q, a, score, reaccion) {
     const id = Date.now();
     const item = { id, q, a, score, reaccion, timestamp: new Date().toLocaleTimeString() };
@@ -336,9 +402,9 @@ function toggleFavorite(id) {
 function shareChat(q, a, score) {
     const textToCopy = `🔴 [LOG DE SOPORTE GUGEL]\nConsulta: "${q}"\nRespuesta del Sistema: "${a}"\nEvaluación de Eficiencia: ${score}/10\nModulo de simulación de red activo.`;
     navigator.clipboard.writeText(textToCopy).then(() => {
-        alert("Enlace cifrado y log copiado al portapapeles. ¡Listo para compartir!");
+        alert("¡Informe copiado al portapapeles con formato oficial técnico!");
     }).catch(() => {
-        alert("Error al acceder al portapapeles del sistema.");
+        alert("Error al acceder al portapapeles.");
     });
 }
 
@@ -347,7 +413,7 @@ function renderArchive() {
     if (!listEl) return;
     listEl.innerHTML = "";
     if (gameState.history.length === 0) {
-        listEl.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">No hay registros grabados en el disco local todavía.</p>`;
+        listEl.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">No hay registros grabados en el disco de soporte técnico todavía.</p>`;
         return;
     }
     gameState.history.forEach(item => {
@@ -356,30 +422,29 @@ function renderArchive() {
         card.classList.add('archive-card');
         card.innerHTML = `
             <div class="archive-meta">
-                <span>Registro ID: #${item.id} - ${item.timestamp}</span>
-                <span>Calificación: <strong>${item.score}/10</strong></span>
+                <span>Registro Operador #ID-${item.id} - [${item.timestamp}]</span>
+                <span>Eficiencia: <strong>${item.score}/10</strong></span>
             </div>
             <div class="archive-body">
-                <p><strong>Usuario:</strong> ${item.q}</p>
-                <p><strong>Tú:</strong> ${item.a}</p>
-                <p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin-top:2px;"><strong>GUGEL:</strong> ${item.reaccion}</p>
+                <p><strong>Usuario GUGEL:</strong> ${item.q}</p>
+                <p><strong>Operador Técnico:</strong> ${item.a}</p>
+                <p style="color: var(--text-muted); font-style: italic; font-size: 13px; margin-top:4px;"><strong>Feedback:</strong> ${item.reaccion}</p>
             </div>
             <div class="archive-actions">
-                <button class="archive-btn" onclick="toggleFavorite(${item.id})">${isFav ? '⭐ Quitar Favorito' : '📁 Guardar en Favoritos'}</button>
-                <button class="archive-btn" onclick="shareChat('${item.q}', '${item.a}', ${item.score})">🔗 Compartir Ficha</button>
+                <button class="archive-btn" onclick="toggleFavorite(${item.id})">${isFav ? '⭐ Quitar de Favoritos' : '📁 Guardar en Favoritos'}</button>
+                <button class="archive-btn" onclick="shareChat('${item.q}', '${item.a}', ${item.score})">🔗 Compartir Log</button>
             </div>
         `;
         listEl.appendChild(card);
     });
 }
 
-// --- ACTUALIZACIÓN DE ESTADÍSTICAS LATERALES ---
+// --- ACTUALIZACIÓN DE ESTADÍSTICAS ---
 function updateSatisfaction(points) {
     const diff = points - 5;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (diff * 4)));
     if (gameState.satisfaction >= 80) unlockAchievement("gugel_love");
     
-    // Escala de niveles según puntuación acumulada
     if (gameState.score > 25 && gameState.score <= 60) gameState.level = 2;
     if (gameState.score > 60) gameState.level = 3;
 }
