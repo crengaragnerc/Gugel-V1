@@ -1,4 +1,8 @@
-const PREGUNTAS = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto", "no dormir una noche"];
+const PREGUNTAS = [
+    "cagar verde normal", 
+    "como hacer cubo rubik", 
+    "que se celebra 15 de agosto"
+];
 let gameState = { index: 0 };
 
 function appendMessage(sender, text) {
@@ -13,19 +17,24 @@ function appendMessage(sender, text) {
 function nextRound() {
     const input = document.getElementById('user-input');
     const btn = document.getElementById('send-btn');
-    input.disabled = true; btn.disabled = true;
-    let timeLeft = 4;
+    input.disabled = true; 
+    btn.disabled = true;
+    
+    let timeLeft = 5;
     input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
+    
     const timer = setInterval(() => {
         timeLeft--;
         input.placeholder = `REFLEXIONANDO... (${timeLeft}s)`;
         if (timeLeft <= 0) {
             clearInterval(timer);
-            input.disabled = false; btn.disabled = false;
+            input.disabled = false; 
+            btn.disabled = false;
             input.placeholder = "Escribe tu respuesta...";
             input.focus();
         }
     }, 1000);
+    
     appendMessage('gugel', PREGUNTAS[gameState.index % PREGUNTAS.length]);
 }
 
@@ -33,7 +42,9 @@ document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
     if (!input.value.trim()) return;
+    
     appendMessage('ai', input.value);
+    
     document.getElementById('modal-score-number').innerText = "10/10";
     document.getElementById('result-modal').style.display = "flex";
     input.value = "";
@@ -45,4 +56,5 @@ function closeResultModal() {
     nextRound();
 }
 
+// Inicialización automática
 nextRound();
