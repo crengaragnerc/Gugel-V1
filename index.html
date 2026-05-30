@@ -5,299 +5,273 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL Core System</title>
     <style>
-        /* Variables por defecto: MODO OSCURO */
+        /* ESTILOS ORIGINALES DEL JUEGO */
         :root {
-            --bg-color: #0d0e12;
-            --panel-bg: #161820;
-            --border-color: #2a2d3d;
-            --text-color: #e2e8f0;
-            --accent-color: #3b82f6;
-            --gugel-msg: #1f2937;
-            --ai-msg: #2563eb;
+            --bg-color: #1a1a24;
+            --panel-bg: #252538;
+            --border-color: #3f3f5a;
+            --text-color: #ffffff;
+            --accent-color: #ff9f43;
+            --gugel-msg: #32324d;
+            --ai-msg: #5f27cd;
         }
 
-        /* CONFIGURACIÓN DE THEMES */
         body.modo-claro {
-            --bg-color: #f0f2f5;
+            --bg-color: #f5f6fa;
             --panel-bg: #ffffff;
-            --border-color: #ccd1d9;
-            --text-color: #1e293b;
-            --accent-color: #1d4ed8;
-            --gugel-msg: #e2e8f0;
-            --ai-msg: #93c5fd;
+            --border-color: #dcdde1;
+            --text-color: #2f3640;
+            --accent-color: #e67e22;
+            --gugel-msg: #dcdde1;
+            --ai-msg: #9c88ff;
         }
 
         body.modo-hacker {
             --bg-color: #000000;
-            --panel-bg: #050a05;
+            --panel-bg: #0c0c0c;
             --border-color: #00ff00;
             --text-color: #00ff00;
             --accent-color: #00ff00;
-            --gugel-msg: #0a140a;
-            --ai-msg: #003300;
+            --gugel-msg: #141414;
+            --ai-msg: #004400;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
-            flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            transition: background 0.3s, color 0.3s;
         }
 
-        header {
+        /* Tu estructura original de paneles de pestañas */
+        .sidebar {
+            width: 260px;
             background-color: var(--panel-bg);
-            border-bottom: 2px solid var(--border-color);
-            padding: 12px 20px;
+            border-right: 2px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
+            flex-direction: column;
+            padding: 20px;
             gap: 10px;
         }
 
-        h1 {
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-            color: #f39c12;
+        .nav-btn {
+            background: none;
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            font-weight: bold;
+            transition: all 0.2s;
         }
 
-        body.modo-hacker h1 { color: #00ff00; }
+        .nav-btn.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #000;
+        }
 
-        .controles-header {
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+        }
+
+        .top-bar {
+            background-color: var(--panel-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selectors-group {
             display: flex;
             gap: 15px;
-            align-items: center;
         }
 
         select {
             background-color: var(--bg-color);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 6px 10px;
-            font-family: inherit;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
+            font-family: inherit;
         }
 
-        .main-container {
-            display: flex;
+        .content-container {
             flex: 1;
+            position: relative;
             overflow: hidden;
         }
 
-        /* Chat Panel */
-        .chat-panel {
-            flex: 2;
-            display: flex;
+        .content-panel {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none;
             flex-direction: column;
-            border-right: 2px solid var(--border-color);
-            background: rgba(0,0,0,0.05);
+            padding: 20px;
         }
 
-        #chat-messages {
+        .content-panel.active { display: flex; }
+
+        /* Panel de consultas (Chat) */
+        .chat-box {
             flex: 1;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
             padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 15px;
+            margin-bottom: 15px;
         }
 
         .message {
-            max-width: 80%;
-            padding: 12px 16px;
+            max-width: 75%;
+            padding: 12px;
             border-radius: 8px;
             line-height: 1.4;
-            font-size: 0.95rem;
         }
+        .message.gugel { background-color: var(--gugel-msg); align-self: flex-start; }
+        .message.ai { background-color: var(--ai-msg); align-self: flex-end; }
 
-        .message.gugel {
-            background-color: var(--gugel-msg);
-            align-self: flex-start;
-            border-left: 4px solid #f1c40f;
-        }
-
-        .message.ai {
-            background-color: var(--ai-msg);
-            align-self: flex-end;
-            border-right: 4px solid #00ff00;
-        }
-
-        .input-area {
-            background-color: var(--panel-bg);
-            border-top: 2px solid var(--border-color);
-            padding: 15px;
-        }
-
-        #chat-form {
-            display: flex;
-            gap: 10px;
-        }
-
-        #user-input {
+        .input-form { display: flex; gap: 10px; }
+        .input-form input {
             flex: 1;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
             color: var(--text-color);
             padding: 12px;
-            border-radius: 4px;
-            font-family: inherit;
+            border-radius: 6px;
             font-size: 1rem;
         }
-
-        #user-input:focus { outline: none; }
-
-        button {
+        .input-form button {
             background-color: var(--accent-color);
-            color: white;
+            color: #000;
             border: none;
-            padding: 0 20px;
-            border-radius: 4px;
+            padding: 0 25px;
+            border-radius: 6px;
+            font-weight: bold;
             cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
         }
 
-        body.modo-hacker button { color: #000; background-color: #00ff00; }
-
-        #continue-btn {
-            background-color: #27ae60;
-            width: 100%;
-            padding: 12px;
+        /* Estilos del panel de Perfil/Estado de antes */
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
-
-        /* Status Panel */
-        .status-panel {
-            flex: 1;
-            max-width: 380px;
+        .card-info {
             background-color: var(--panel-bg);
-            display: flex;
-            flex-direction: column;
+            border: 2px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .card-info h3 { font-size: 0.85rem; color: #a0aec0; text-transform: uppercase; margin-bottom: 5px; }
+        body.modo-hacker .card-info h3 { color: #00ff00; }
+        .card-info p { font-size: 1.2rem; font-weight: bold; }
+
+        .historial-lista {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
             overflow-y: auto;
-        }
-
-        .panel-section {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .panel-header {
-            font-size: 0.95rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 5px;
-        }
-
-        .data-item {
-            margin-bottom: 12px;
-            font-size: 0.9rem;
-        }
-
-        .data-item strong { color: #a0aec0; }
-        body.modo-hacker .data-item strong { color: #00ff00; }
-
-        #history-list-container {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 250px;
-            overflow-y: auto;
         }
-
         .historial-item {
             background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-
-        .btn-utility {
-            background-color: #34495e;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            margin-top: 10px;
-            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-color);
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1 id="panel-title-text">GUGEL Core Core</h1>
-        <div class="controles-header">
-            <!-- Selector de Modo de Juego -->
-            <div>
-                <label>Modo:</label>
+    <!-- MENÚ LATERAL DE ANTES -->
+    <div class="sidebar">
+        <h2 style="font-size: 1.3rem; margin-bottom: 15px; text-align: center; color: var(--accent-color)">GUGEL Core</h2>
+        <button id="btn-view-consultas" class="nav-btn active" onclick="switchView('view-consultas')">Consola Central</button>
+        <button id="btn-view-perfil" class="nav-btn" onclick="switchView('view-perfil')">Estado y Datos</button>
+        <button id="btn-view-historial" class="nav-btn" onclick="switchView('view-historial')">Búfer de Logs</button>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h2 id="panel-title-text">GUGEL Core</h2>
+            <div class="selectors-group">
+                <!-- Selector de Modo -->
                 <select id="game-mode-select" onchange="cambiarModoJuego()">
-                    <option value="historia">Modo Historia (10 Retos)</option>
+                    <option value="historia">Modo Historia (10 Niveles)</option>
                     <option value="infinito">Modo Infinito (Aleatorio)</option>
                 </select>
-            </div>
-            <!-- Selector de Temas Visuales -->
-            <div>
-                <label>Tema:</label>
+                <!-- Selector de Temas que antes no iba -->
                 <select id="mode-select" onchange="changeSystemMode()">
-                    <option value="modo-oscuro">Oscuro</option>
-                    <option value="modo-claro">Claro</option>
-                    <option value="modo-hacker">Hacker</option>
+                    <option value="modo-oscuro">Tema Oscuro</option>
+                    <option value="modo-claro">Tema Claro</option>
+                    <option value="modo-hacker">Tema Hacker</option>
                 </select>
             </div>
         </div>
-    </header>
 
-    <div class="main-container">
-        <div class="chat-panel">
-            <div id="chat-messages"></div>
-            <div class="input-area">
-                <form id="chat-form">
-                    <input type="text" id="user-input" autocomplete="off" placeholder="GUGEL buscando...">
-                    <button type="submit" id="transmit-btn">RESPONDER</button>
-                    <button type="button" id="continue-btn" style="display: none;" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
+        <div class="content-container">
+            <!-- PESTAÑA 1: CONSOLA DE CONSULTAS -->
+            <div id="view-consultas" class="content-panel active">
+                <div id="chat-messages" class="chat-box"></div>
+                <form id="chat-form" class="input-form">
+                    <input type="text" id="user-input" autocomplete="off" placeholder="Escribe tu respuesta de IA...">
+                    <button type="submit" id="transmit-btn">TRANSMITIR</button>
+                    <button type="button" id="continue-btn" style="display: none; background-color: #2ecc71;" onclick="confirmContinue()">SIGUIENTE</button>
                 </form>
             </div>
-        </div>
 
-        <div class="status-panel">
-            <div class="panel-section">
-                <div class="panel-header">Estado de GUGEL</div>
-                <div class="panel-body">
-                    <div class="data-item">
-                        <strong>Mentalidad:</strong> <span id="prof-opinion">(Pensando...)</span>
+            <!-- PESTAÑA 2: ESTADO Y DATOS -->
+            <div id="view-perfil" class="content-panel">
+                <div class="grid-info">
+                    <div class="card-info">
+                        <h3>Opinión de GUGEL</h3>
+                        <p id="prof-opinion">(esperando...)</p>
                     </div>
-                    <div class="data-item">
-                        <strong>Satisfacción:</strong> <span id="prof-satisfaction">50%</span>
+                    <div class="card-info">
+                        <h3>Satisfacción</h3>
+                        <p id="prof-satisfaction">50%</p>
                     </div>
-                    <div class="data-item">
-                        <strong>Fase Actual:</strong> <span id="prof-cycles">Nivel 1</span>
+                    <div class="card-info">
+                        <h3>Fase Actual</h3>
+                        <p id="prof-cycles">Nivel 1</p>
                     </div>
-                    <div class="data-item">
-                        <strong>Progreso:</strong> <span id="prof-summary">Cargando...</span>
+                    <div class="card-info">
+                        <h3>Progreso Fijo</h3>
+                        <p id="prof-summary">0 / 10</p>
                     </div>
-                    <div class="data-item">
-                        <strong>Letras Procesadas:</strong> <span id="prof-chars">0</span>
-                    </div>
+                </div>
+                <div class="card-info" style="margin-top: 10px;">
+                    <h3>Caracteres Totales Procesados</h3>
+                    <p id="prof-chars">0</p>
                 </div>
             </div>
 
-            <div class="panel-section">
-                <div class="panel-header">Registros del Búfer</div>
-                <div id="history-list-container"></div>
-                <button class="btn-utility" onclick="exportCoreData()">Copiar Logs</button>
+            <!-- PESTAÑA 3: BÚFER DE LOGS -->
+            <div id="view-historial" class="content-panel">
+                <div id="history-list-container" class="historial-lista"></div>
+                <button onclick="exportCoreData()" class="nav-btn" style="margin-top: 15px; text-align: center;">Copiar Logs al Portapapeles</button>
             </div>
         </div>
     </div>
