@@ -441,29 +441,38 @@ function nextRound() {
 }
 
 function analizarRespuesta(respuesta, numPalabras, palabrasArray) {
-    if (EVASIVAS.includes(respuesta)) return "CRITICA";
-    
-    let textoSinEspacios = respuesta.replace(/\s+/g, '');
-    if (/(.)\1{4,}/.test(textoSinEspacios)) return "CRITICA";
-    
+    const textoMinus = respuesta.toLowerCase();
+
+    // 1. Detección de evasivas (GUGEL se mosquea si le intentas ignorar)
+    if (EVASIVAS.includes(textoMinus)) return "CRITICA";
+
+    // 2. Patrones repetitivos (ej: "aaaaa", ".....")
+    if (/(.)\1{4,}/.test(respuesta)) return "CRITICA";
+
+    // 3. Detección de "Keyboard Mash" (si no hay vocales en algo largo, es aporreo)
+    const tieneVocales = /[aeiouáéíóú]/i.test(respuesta);
+    if (!tieneVocales && respuesta.length > 5) return "CRITICA";
+
+    // 4. Repetición excesiva de palabras (por si intentas marear la perdiz repitiendo lo mismo)
     if (palabrasArray.length >= 4) {
         let conteoPalabras = {};
         let maximaRepeticion = 0;
         palabrasArray.forEach(p => {
             conteoPalabras[p] = (conteoPalabras[p] || 0) + 1;
-            if (conteoPalabras[p] > maximaRepeticion) {
-                maximaRepeticion = conteoPalabras[p];
-            }
+            if (conteoPalabras[p] > maximaRepeticion) maximaRepeticion = conteoPalabras[p];
         });
-        if (maximaRepeticion > palabrasArray.length * 0.5) {
-            return "CRITICA";
-        }
+        if (maximaRepeticion > palabrasArray.length * 0.5) return "CRITICA";
     }
 
+    // 5. Validación de longitud mínima (evitar monosílabos)
     if (numPalabras <= 2) return "RECHAZO";
-    
-    let contieneConector = INDICADORES_COHERENCIA.some(c => respuesta.includes(c));
-    return contieneConector || respuesta.length > 12 ? "OK" : "RECHAZO";
+
+    // 6. Validación de coherencia (los conectores son obligatorios)
+    const contieneConector = INDICADORES_COHERENCIA.some(c => textoMinus.includes(c));
+    if (!contieneConector) return "RECHAZO";
+
+    // Si ha pasado todo este "filtro de seguridad", la respuesta es válida
+    return "OK";
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
