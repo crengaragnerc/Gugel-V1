@@ -588,6 +588,10 @@ function renderAllData() {
     const btnC = document.getElementById('btn-mode-campaña') || document.getElementById('btn-mode-campana');
     if (btnC) {
         btnC.style.display = gameState.campanaCompletada ? "none" : "inline-block";
+        // Ocultar botón de campaña si está completada
+    const btnC = document.getElementById('btn-mode-campaña') || document.getElementById('btn-mode-campana');
+    if (btnC) {
+        btnC.style.display = gameState.campanaCompletada ? "none" : "inline-block";
     }
 }
 
