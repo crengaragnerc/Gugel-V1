@@ -2,7 +2,7 @@
 // SISTEMA DE CUENTAS (CON PASSWORD)
 // ==========================================
 function ejecutarAccionCuenta() {
-    const userIn = prompt("Introduce tu nombre de usuario para Registrarte/Iniciar Sesión:\n(Déjalo en blanco o cancela para seguir como invitado)");
+    const userIn = prompt("Introduce tu nombre de usuario para Registrarte/Iniciar Sesión:\n(Déjalo en blanco o cancela para salir)");
     if (userIn === null) return;
     
     const userClean = userIn.trim().toLowerCase();
@@ -11,28 +11,44 @@ function ejecutarAccionCuenta() {
         return;
     }
 
-    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    // Obtenemos la base de datos de usuarios
+    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
 
-    if (copiaUsuarios[userClean]) {
-        // Iniciar Sesión existente
-        currentUser = userClean;
-        gameState = copiaUsuarios[userClean];
-        alert(`Sesión iniciada correctamente. Bienvenido, ${userClean}.`);
+    if (db[userClean]) {
+        // --- INICIAR SESIÓN ---
+        const passIn = prompt(`Usuario "${userClean}" encontrado. Introduce la contraseña:`);
+        if (passIn === db[userClean].pass) {
+            currentUser = userClean;
+            gameState = db[userClean].data; // Cargar datos del usuario
+            alert(`Sesión iniciada correctamente. Bienvenido, ${userClean}.`);
+        } else {
+            alert("Contraseña incorrecta. Acceso denegado.");
+            return;
+        }
     } else {
-        // Registrar cuenta nueva de forma transparente e importar progreso actual si se desea
+        // --- REGISTRAR CUENTA ---
+        const passIn = prompt(`Usuario nuevo "${userClean}". Define tu contraseña de seguridad:`);
+        if (!passIn) {
+            alert("Necesitas una contraseña para crear la cuenta.");
+            return;
+        }
+        
+        // Si ya hay una partida empezada, damos opción a migrarla
         if (gameState.cycles > 0 || gameState.history.length > 0) {
             const migrar = confirm("¿Quieres vincular tu partida actual de invitado a esta nueva cuenta?");
             if (!migrar) {
-                // Si no migra, inicializa desde cero para la cuenta nueva
+                // Resetear estado si no quiere migrar
                 gameState = { 
                     modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
                     satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", currentPregunta: "", history: [], logrosDesbloqueados: [] 
                 };
             }
         }
+        
         currentUser = userClean;
-        copiaUsuarios[userClean] = gameState;
-        localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
+        // Guardar nuevo usuario con contraseña y estado actual
+        db[userClean] = { pass: passIn, data: gameState };
+        localStorage.setItem("gugel_users", JSON.stringify(db));
         alert(`Cuenta "${userClean}" creada con éxito.`);
     }
 
@@ -44,11 +60,17 @@ function ejecutarAccionCuenta() {
 }
 
 function guardarProgresoCuenta() {
-    if (!currentUser) return; // Si es invitado, no hace nada de forma obligatoria
-    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
-    copiaUsuarios[currentUser] = gameState;
-    localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
+    if (!currentUser) return; 
+    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    // Actualizamos solo los datos, manteniendo la contraseña intacta
+    if (db[currentUser]) {
+        db[currentUser].data = gameState;
+        localStorage.setItem("gugel_users", JSON.stringify(db));
+    }
 }
+
+// ... EL RESTO DE TU CÓDIGO (PREGUNTAS_CAMPANA, etc.) SE MANTIENE IGUAL ...
+// (Asegúrate de copiar aquí el resto de tu archivo js original)
 const PREGUNTAS_CAMPANA = [
     "cagar verde normal",
     "como hacer cubo rubik",
