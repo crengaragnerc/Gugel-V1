@@ -483,38 +483,42 @@ function analizarRespuesta(respuesta, numPalabras, palabrasArray) {
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    const continueBtn = document.getElementById('continue-btn');
     const userText = input.value.trim().toLowerCase();
-    if (!userText) return;
     
+    if (!userText) return;
+
+    // FILTRO ANTI-REPETICIÓN: Compara tu respuesta actual con el historial
+    const esMuySimilar = gameState.history.some(h => {
+        const past = h.respuesta.replace(/s+$/g, '');
+        const current = userText.replace(/s+$/g, '');
+        return current.includes(past) || past.includes(current);
+    });
+
+    if (esMuySimilar) {
+        alert("Ya has dicho algo muy parecido, intenta ser más original.");
+        return;
+    }
+
     appendMessage('ai', userText);
     
-    let palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
-    let numPalabras = palabrasArray.length;
-    let esMuchoTexto = numPalabras > MAX_PALABRAS;
+    let reaccion = "vale me cuadra tiene logica";
     
-    let tipoResultado = "OK";
-    let reaccion = "";
-    let cambioSatisfacion = 0;
-
-    if (esMuchoTexto) {
-        tipoResultado = "MUCHO_TEXTO";
-        reaccion = FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
-        cambioSatisfacion = -10;
-    } else {
-        tipoResultado = analizarRespuesta(userText, numPalabras, palabrasArray);
-        if (tipoResultado === "OK") {
-            reaccion = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
-            cambioSatisfacion = 25;
-        } else if (tipoResultado === "CRITICA") {
-            reaccion = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
-            cambioSatisfacion = -30;
-        } else {
-            reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
-            cambioSatisfacion = -10;
-        }
-    }
+    setTimeout(() => {
+        appendMessage('gugel', reaccion);
+        
+        // Guardar en el historial
+        gameState.history.push({ 
+            pregunta: gameState.currentPregunta, 
+            respuesta: userText, 
+            reaccion: reaccion 
+        });
+        
+        // Actualizar UI y guardar progreso
+        renderAllData();
+        guardarProgresoCuenta();
+        nextRound();
+    }, 600);
+};
     
     setTimeout(() => {
         appendMessage('gugel', reaccion);
