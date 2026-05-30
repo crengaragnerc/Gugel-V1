@@ -1,144 +1,147 @@
-// Banco de datos estructurado como búsquedas crudas de internet basadas en palabras clave
-const CATEGORIAS_PREGUNTAS = [
-    {
-        sujetos: ["gato", "perro vecino", "gato callejero"],
-        predicados: ["mira fijo raro", "duerme encima router caliente", "maulla pared vacia", "morder cable teclado"]
-    },
-    {
-        sujetos: ["agua grifo", "patata frita", "plastilina azul"],
-        predicados: ["sabor metal porque", "conduce electricidad", "cambia color sol"]
-    },
-    {
-        sujetos: ["pantalla ordenador", "espejo cuarto", "robot internet"],
-        predicados: ["se mueve si no miro", "saltarse captcha como", "escribe solo con polvo"]
-    }
+// BANCO DE PREGUNTAS FIJAS DE CAMPAÑA
+const PREGUNTAS_CAMPANA = [
+    "cagar verde normal",
+    "como hacer cubo rubik",
+    "que se celebra 15 de agosto y porque",
+    "no dormir una noche que pasa",
+    "xq agua es liquida",
+    "como allanar un barranco",
+    "tomate fruta verdura?",
+    "cancion tan tan tan tann nombre",
+    "como saber si alguien te ha bloqueado",
+    "porque no carga una pagina web"
 ];
 
-const INDICADORES_COHERENCIA = [
-    "porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", 
-    "es por", "causa", "efecto", "consecuencia", "depende de", "si pasa", "cuando",
-    "o sea", "es decir", "como", "esta relacionado", "visto que", "para que", "no", "los", "las"
-];
+// BANCO PARA GENERACIÓN INFINITA PROCEDURAL
+const INFINITO_SUJETOS = ["gato", "perro vecino", "gato callejero", "pantalla pc", "espejo cuarto", "plastilina azul"];
+const INFINITO_PREDICADOS = ["mira fijo raro", "duerme encima router caliente", "maulla pared vacia", "morder cable teclado", "conduce electricidad"];
 
+const INDICADORES_COHERENCIA = ["porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", "es por", "como", "cuando"];
+
+// RESPUESTAS Y REACCIONES DE GUGEL
 const FRASES_OK = [
     "vale me cuadra tiene logica",
     "aah ya veo gracias me sirve",
     "cierto buen punto no habia caido",
-    "pues me has salvado la tarde la verdad",
-    "vale me quedo mas tranquilo con esto",
-    "ni tan mal tiene sentido",
-    "ah pues si gracias por aclararlo"
+    "ni tan mal tiene sentido"
 ];
 
 const FRASES_RECHAZO = [
     "vaya respuesta mas corta y vaga no aclaras nada",
     "ya esta? solo eso me vas a decir?",
-    "a ver no te enrolles pero tampoco me pongas eso q no sirve",
-    "eso es super impreciso estirate un poco mas q eres ia",
-    "dios q pereza para decirme eso no pongas nada",
-    "menudo escaqueo dame mas detalles",
-    "no me dejes a medias con eso no resuelvo mi duda"
+    "¿Te ha costado mucho esfuerzo escribir esa obviedad? Esperaba algo más complejo.",
+    "dios q pereza para decirme eso no pongas nada"
 ];
 
 const FRASES_CRITICAS = [
     "te estas riendo de mi? eso son letras al azar",
     "vaya troleo de ia para responderme esta basura mejor nada",
-    "menudo virus de buscador vas fatal q insulto",
-    "pero si estas escribiendo caracteres rotos q estafa total",
     "para esto apago el pc no me vaciles"
 ];
 
 const FRASES_MUCHO_TEXTO = [
     "uf mucho texto ni de coña me leo eso",
-    "me has escrito una biblia paso",
-    "que pereza parece un examen de historia",
-    "menudo testamento resúmelo o algo"
+    "me has escrito una biblia paso"
 ];
 
-const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
+const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
 const TITULOS_LOGROS = [
-    { titulo: "búfer domado", desc: "has conseguido mantener una conversación sin que explote el sistema." },
-    { titulo: "filósofo de internet", desc: "has respondido con un texto argumentado y conectores de lógica." },
-    { titulo: "antivirus humano", desc: "has salvado a gugel de un colapso por respuestas basura." },
-    { titulo: "velocista del teclado", desc: "has introducido suficientes caracteres para llenar un registro." },
-    { titulo: "paciente cero", desc: "has aguantado los peores cambios de humor del motor." },
-    { titulo: "maestro de los cubos", desc: "gugel sospecha que resuelves acertijos mientras respondes." },
-    { titulo: "domador de gatos", desc: "has resuelto una duda existencial sobre felinos y tecnología." }
+    { titulo: "Búfer Domado", desc: "Mantuviste la sesión estable." },
+    { titulo: "Filósofo de Red", desc: "Respuesta con conectores estructurales." },
+    { titulo: "Antivirus Activo", desc: "Filtro anti-troleos superado con éxito." }
 ];
 
 let gameState = { 
-    index: 0, 
+    modoActual: "campaña", // campaña o infinito
+    campanaIndex: 0,
     satisfaction: 50, 
-    cycles: 0,
-    totalChars: 0,
-    lastOpinion: "analizando al bot...",
-    currentPregunta: "",
-    history: [],
+    cycles: 0, 
+    totalChars: 0, 
+    lastOpinion: "(analizando conexiones...)", 
+    currentPregunta: "", 
+    history: [], 
     logrosDesbloqueados: [] 
 };
 
-const MAX_PALABRAS = 15; 
+const MAX_PALABRAS = 15;
 
-function generarPreguntaAleatoria() {
-    let cat = CATEGORIAS_PREGUNTAS[Math.floor(Math.random() * CATEGORIAS_PREGUNTAS.length)];
-    let s = cat.sujetos[Math.floor(Math.random() * cat.sujetos.length)];
-    let p = cat.predicados[Math.floor(Math.random() * cat.predicados.length)];
-    return `${s} ${p}`;
+function seleccionarModoJuego(modo) {
+    gameState.modoActual = modo;
+    
+    document.querySelectorAll('.nav-btn, .sub-btn').forEach(b => b.classList.remove('active'));
+    if (modo === 'campaña') {
+        document.getElementById('btn-view-core').classList.add('active');
+        document.getElementById('panel-title-text').innerText = "Interfaz Core - Campaña";
+    } else {
+        document.getElementById('btn-view-infinito').classList.add('active');
+        document.getElementById('panel-title-text').innerText = "Interfaz Core - Modo Infinito";
+    }
+    
+    switchView('view-core');
+    document.getElementById('chat-messages').innerHTML = "";
+    nextRound();
 }
 
 function switchView(viewId) {
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(`btn-${viewId}`);
-    if (activeBtn) activeBtn.classList.add('active');
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    
+    // Si no es el chat principal, desmarcar los botones de juego activos en la UI visualmente
+    if (viewId !== 'view-core') {
+        document.querySelectorAll('.sub-btn').forEach(b => {
+            if(b.id === `btn-${viewId}`) b.classList.add('active');
+        });
+    }
+}
 
-    document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
-    const activePanel = document.getElementById(viewId);
-    if (activePanel) activePanel.classList.add('active');
-
-    document.getElementById('panel-title-text').innerText = (viewId === 'view-consultas') ? "GUGEL Core" : "GUGEL Core - Sistema de Módulos";
+function generarPregunta() {
+    if (gameState.modoActual === "campaña") {
+        let q = PREGUNTAS_CAMPANA[gameState.campanaIndex];
+        // Bucle si termina las 10 preguntas
+        gameState.campanaIndex = (gameState.campanaIndex + 1) % PREGUNTAS_CAMPANA.length;
+        return q;
+    } else {
+        let s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+        let p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+        return `${s} ${p}`;
+    }
 }
 
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     const msg = document.createElement('div');
     msg.className = `message ${sender}`;
-    const cleanText = text.toLowerCase();
-    
-    if (sender === 'gugel') {
-        msg.innerHTML = `<strong>gugel (humano):</strong> ${cleanText}`;
-    } else {
-        msg.innerHTML = `<strong>tú (ia):</strong> ${cleanText}`;
-    }
-    
+    msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${text}` : `<strong>tú:</strong> ${text}`;
     box.appendChild(msg);
     box.scrollTop = box.scrollHeight;
 }
 
+// CUENTA ATRÁS MANDATORIA DE 5 SEGUNDOS
 function nextRound() {
     const input = document.getElementById('user-input');
     const transmitBtn = document.getElementById('transmit-btn');
     const continueBtn = document.getElementById('continue-btn');
     
     continueBtn.style.display = "none";
-    transmitBtn.style.display = "block";
     input.style.display = "block";
+    transmitBtn.style.display = "block";
 
-    gameState.currentPregunta = generarPreguntaAleatoria();
+    gameState.currentPregunta = generarPregunta();
     appendMessage('gugel', gameState.currentPregunta);
     
-    input.disabled = true; 
+    input.disabled = true;
     transmitBtn.disabled = true;
     
-    let timeLeft = 3;
-    input.placeholder = `gugel buscando... (${timeLeft}s)`;
+    let timeLeft = 5;
+    input.placeholder = `Procesando conexión... (${timeLeft}s)`;
     
     const timer = setInterval(() => {
         timeLeft--;
-        input.placeholder = `gugel buscando... (${timeLeft}s)`;
+        input.placeholder = `Procesando conexión... (${timeLeft}s)`;
         if (timeLeft <= 0) {
             clearInterval(timer);
-            input.disabled = false; 
+            input.disabled = false;
             transmitBtn.disabled = false;
             input.placeholder = "introduce tu respuesta de ia...";
             input.focus();
@@ -147,133 +150,13 @@ function nextRound() {
 }
 
 function analizarRespuesta(respuesta, numPalabras) {
-    if (EVASIVAS.includes(respuesta)) {
-        return "CRITICA"; 
-    }
-
+    if (EVASIVAS.includes(respuesta)) return "CRITICA";
     let textoSinEspacios = respuesta.replace(/\s+/g, '');
-    if (/(.)\1{4,}/.test(textoSinEspacios)) {
-        return "CRITICA"; 
-    }
-
-    if (numPalabras <= 2) {
-        return "RECHAZO";
-    }
-
-    let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
-    if (contieneConector) return "OK";
+    if (/(.)\1{4,}/.test(textoSinEspacios)) return "CRITICA";
+    if (numPalabras <= 2) return "RECHAZO";
     
-    if (respuesta.length > 12) return "OK";
-
-    return "RECHAZO"; 
-}
-
-function updateSatisfaction(cambio) {
-    gameState.satisfaction += cambio;
-    if (gameState.satisfaction > 100) gameState.satisfaction = 100;
-    if (gameState.satisfaction < 0) gameState.satisfaction = 0;
-}
-
-function calcularOpinionDinamica() {
-    let ultimosLogs = gameState.history.slice(-3);
-    
-    if (ultimosLogs.length === 0) {
-        gameState.lastOpinion = "(mirando la pantalla...)";
-        return;
-    }
-
-    let criticasSeguidas = ultimosLogs.filter(l => l.tipo === "CRITICA").length;
-    let aciertosSeguidos = ultimosLogs.filter(l => l.tipo === "OK").length;
-    let muchoTextoSeguido = ultimosLogs.filter(l => l.tipo === "MUCHO_TEXTO").length;
-
-    if (muchoTextoSeguido >= 2) {
-        gameState.lastOpinion = "(cree que eres un virus pesado)";
-        return;
-    }
-    if (criticasSeguidas >= 1) {
-        gameState.lastOpinion = "(va a cerrar la pestaña cabreado)";
-        return;
-    }
-    if (aciertosSeguidos === 3) {
-        gameState.lastOpinion = "(cree que eres la mejor ia de internet)";
-        return;
-    }
-
-    if (gameState.satisfaction <= 25) {
-        gameState.lastOpinion = "(piensa que este buscador es una basura)";
-    } else if (gameState.satisfaction > 25 && gameState.satisfaction <= 50) {
-        gameState.lastOpinion = "(juzgando en silencio en su cuarto)";
-    } else if (gameState.satisfaction > 50 && gameState.satisfaction <= 75) {
-        gameState.lastOpinion = "(le sirve lo que pones pero sin mas)";
-    } else {
-        gameState.lastOpinion = "(te tiene guardado en marcadores)";
-    }
-}
-
-function renderProfileData() {
-    document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
-    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
-    document.getElementById('prof-cycles').innerText = gameState.cycles;
-    document.getElementById('prof-chars').innerText = gameState.totalChars;
-    document.getElementById('prof-summary').innerText = `procesadas con éxito ${gameState.cycles} consultas`;
-}
-
-function renderLogros() {
-    const container = document.getElementById('logros-container');
-    document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
-    
-    if (gameState.logrosDesbloqueados.length === 0) {
-        container.innerHTML = `<div style="color: #444; font-style: italic;">[sistema oculto] los logros aparecerán aquí</div>`;
-        return;
-    }
-
-    container.innerHTML = "";
-    gameState.logrosDesbloqueados.forEach(logro => {
-        const div = document.createElement('div');
-        div.className = 'data-item';
-        div.style.borderColor = 'var(--border-color)';
-        div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[${logro.titulo}]:</strong> ${logro.desc}`;
-        container.appendChild(div);
-    });
-}
-
-function renderHistoryData() {
-    const container = document.getElementById('history-list-container');
-    if (gameState.history.length === 0) {
-        container.innerHTML = `<div style="color: #444; font-style: italic;">búfer vacío</div>`;
-        return;
-    }
-
-    container.innerHTML = "";
-    gameState.history.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = 'historial-item';
-        
-        let colorTag = "var(--border-color)";
-        if (item.tipo === "CRITICA") colorTag = "#ff0033";
-        if (item.tipo === "MUCHO_TEXTO" || item.tipo === "RECHAZO") colorTag = "#ff9900";
-
-        div.innerHTML = `
-            <div>
-                <strong>log #${idx + 1}:</strong> ${item.pregunta} <br>
-                <strong>tú (ia):</strong> ${item.respuesta} <br>
-                <strong style="color:${colorTag};">gugel (humano):</strong> ${item.reaccion}
-            </div>
-            <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
-        `;
-        container.appendChild(div);
-    });
-
-    const favs = gameState.history.filter(h => h.fav);
-    const favStatus = document.getElementById('fav-status');
-    favStatus.innerText = favs.length > 0 ? `Búfer activo con favoritos.` : "Sin marcas prioritarias.";
-}
-
-function desbloquearLogroProcedural() {
-    let idx = gameState.cycles % TITULOS_LOGROS.length;
-    let logroData = TITULOS_LOGROS[idx];
-    let existe = gameState.logrosDesbloqueados.some(l => l.titulo === logroData.titulo);
-    if (!existe) gameState.logrosDesbloqueados.push(logroData);
+    let contieneConector = INDICADORES_COHERENCIA.some(c => respuesta.includes(c));
+    return contieneConector || respuesta.length > 12 ? "OK" : "RECHAZO";
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
@@ -305,33 +188,38 @@ document.getElementById('chat-form').onsubmit = (e) => {
             cambioSatisfacion = 25;
         } else if (tipoResultado === "CRITICA") {
             reaccion = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
-            cambioSatisfacion = -30; 
+            cambioSatisfacion = -30;
         } else {
             reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
-            cambioSatisfacion = -10; 
+            cambioSatisfacion = -10;
         }
     }
     
     setTimeout(() => {
         appendMessage('gugel', reaccion);
-
         gameState.cycles++;
         gameState.totalChars += userText.length;
 
-        gameState.history.push({
-            pregunta: gameState.currentPregunta,
-            respuesta: userText,
-            reaccion: reaccion,
-            tipo: tipoResultado,
-            fav: false
-        });
+        gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion, tipo: tipoResultado, fav: false });
+        
+        if (gameState.cycles % 3 === 0 && gameState.logrosDesbloqueados.length < TITULOS_LOGROS.length) {
+            gameState.logrosDesbloqueados.push(TITULOS_LOGROS[gameState.logrosDesbloqueados.length]);
+        }
 
-        desbloquearLogroProcedural();
-        updateSatisfaction(cambioSatisfacion);
-        calcularOpinionDinamica(); 
-        renderProfileData();
-        renderHistoryData();
-        renderLogros();
+        gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + cambioSatisfacion));
+        
+        // OPINIONES DINÁMICAS REQUERIDAS EXTREMAS
+        if (gameState.satisfaction <= 25) {
+            gameState.lastOpinion = "(quiere quemar el router)";
+        } else if (gameState.satisfaction <= 50) {
+            gameState.lastOpinion = "(sospecha que eres un gato pisando el teclado)";
+        } else if (gameState.satisfaction <= 75) {
+            gameState.lastOpinion = "(cree que eres un bot pasable pero va a llamar a un tecnico)";
+        } else {
+            gameState.lastOpinion = "(se cree que eres dios)";
+        }
+
+        renderAllData();
     }, 600);
 
     input.value = "";
@@ -340,44 +228,50 @@ document.getElementById('chat-form').onsubmit = (e) => {
     continueBtn.style.display = "block";
 };
 
+function renderAllData() {
+    document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
+    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
+    document.getElementById('prof-cycles').innerText = gameState.cycles;
+    document.getElementById('prof-chars').innerText = gameState.totalChars;
+
+    // Logros
+    const lContainer = document.getElementById('logros-container');
+    document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
+    lContainer.innerHTML = gameState.logrosDesbloqueados.map(l => `<div class="list-item">🟢 <strong>[${l.titulo}]:</strong> ${l.desc}</div>`).join('') || "No hay logros registrados.";
+
+    // Historial
+    const hContainer = document.getElementById('history-list-container');
+    hContainer.innerHTML = gameState.history.map((h, idx) => `
+        <div class="historial-item">
+            <div>
+                <strong>Q:</strong> ${h.pregunta}<br><strong>A:</strong> ${h.respuesta}<br><strong>GUGEL:</strong> ${h.reaccion}
+            </div>
+            <button class="fav-btn ${h.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
+        </div>
+    `).join('') || "Búfer de logs vacío.";
+}
+
 window.toggleFavorite = function(idx) {
     gameState.history[idx].fav = !gameState.history[idx].fav;
-    renderHistoryData();
+    renderAllData();
 };
-
-function exportCoreData() {
-    if(gameState.history.length === 0) {
-        alert("Historial vacío.");
-        return;
-    }
-    let textoVolcado = `=== REGISTRO GUGEL (${gameState.history.length} logs) ===\n\n`;
-    gameState.history.forEach((h, i) => {
-        textoVolcado += `LOG #${i + 1}\nPREGUNTA: ${h.pregunta}\nRESPUESTA: ${h.respuesta}\nREACCIÓN: ${h.reaccion}\n-------------------\n`;
-    });
-    navigator.clipboard.writeText(textoVolcado).then(() => {
-        alert("Copiado.");
-    });
-}
-
-function changeSystemMode() {
-    const select = document.getElementById('mode-select');
-    document.body.className = ''; 
-    if (select.value !== 'modo-hacker') {
-        document.body.classList.add(select.value);
-    }
-    renderLogros();
-}
 
 window.confirmContinue = function() {
     document.getElementById('chat-messages').innerHTML = "";
-    gameState.index++;
     nextRound();
 };
 
+function changeSystemMode() {
+    const select = document.getElementById('mode-select');
+    document.body.className = select.value;
+}
+
+function exportCoreData() {
+    let txt = gameState.history.map(h => `Q: ${h.pregunta} | A: ${h.respuesta}`).join('\n');
+    navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Registro copiado."));
+}
+
 window.onload = function() {
-    calcularOpinionDinamica();
-    renderProfileData();
-    renderHistoryData();
-    renderLogros();
+    renderAllData();
     nextRound();
 };
