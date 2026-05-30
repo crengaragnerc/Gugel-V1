@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL Core System</title>
     <style>
-        /* EL ESTILO MINIMALISTA Y BONITO DE ANTES */
         :root {
             --bg-color: #0d0e12;
             --panel-bg: #161820;
@@ -14,26 +13,6 @@
             --accent-color: #3b82f6;
             --gugel-msg: #1f2937;
             --ai-msg: #2563eb;
-        }
-
-        body.modo-claro {
-            --bg-color: #f0f2f5;
-            --panel-bg: #ffffff;
-            --border-color: #ccd1d9;
-            --text-color: #1e293b;
-            --accent-color: #1d4ed8;
-            --gugel-msg: #e2e8f0;
-            --ai-msg: #93c5fd;
-        }
-
-        body.modo-hacker {
-            --bg-color: #000000;
-            --panel-bg: #050a05;
-            --border-color: #00ff00;
-            --text-color: #00ff00;
-            --accent-color: #00ff00;
-            --gugel-msg: #0a140a;
-            --ai-msg: #003300;
         }
 
         * {
@@ -50,39 +29,18 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            transition: background 0.3s, color 0.3s;
         }
 
         header {
             background-color: var(--panel-bg);
             border-bottom: 2px solid var(--border-color);
             padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         h1 {
             font-size: 1.1rem;
             letter-spacing: 1px;
             color: #f39c12;
-        }
-        body.modo-hacker h1 { color: #00ff00; }
-
-        .controles-header {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        select {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 6px 10px;
-            font-family: inherit;
-            border-radius: 4px;
-            cursor: pointer;
         }
 
         .main-container {
@@ -91,7 +49,6 @@
             overflow: hidden;
         }
 
-        /* Bloque de chat limpio (Izquierda) */
         .chat-panel {
             flex: 2;
             display: flex;
@@ -151,7 +108,9 @@
             font-size: 1rem;
         }
 
-        #user-input:focus { outline: none; }
+        #user-input:focus {
+            outline: none;
+        }
 
         button {
             background-color: var(--accent-color);
@@ -163,7 +122,6 @@
             font-family: inherit;
             font-weight: bold;
         }
-        body.modo-hacker button { color: #000; background-color: #00ff00; }
 
         #continue-btn {
             background-color: #27ae60;
@@ -171,7 +129,6 @@
             padding: 12px;
         }
 
-        /* Bloque de monitor fijos (Derecha) */
         .status-panel {
             flex: 1;
             max-width: 380px;
@@ -201,8 +158,9 @@
             font-size: 0.9rem;
         }
 
-        .data-item strong { color: #a0aec0; }
-        body.modo-hacker .data-item strong { color: #00ff00; }
+        .data-item strong {
+            color: #a0aec0;
+        }
 
         #history-list-container {
             display: flex;
@@ -233,22 +191,7 @@
 <body>
 
     <header>
-        <h1 id="panel-title-text">GUGEL Core</h1>
-        <div class="controles-header">
-            <div>
-                <select id="game-mode-select" onchange="cambiarModoJuego()">
-                    <option value="historia">Modo Historia (10 Retos)</option>
-                    <option value="infinito">Modo Infinito (Aleatorio)</option>
-                </select>
-            </div>
-            <div>
-                <select id="mode-select" onchange="changeSystemMode()">
-                    <option value="modo-oscuro">Oscuro</option>
-                    <option value="modo-claro">Claro</option>
-                    <option value="modo-hacker">Hacker</option>
-                </select>
-            </div>
-        </div>
+        <h1 id="panel-title-text">GUGEL Core System</h1>
     </header>
 
     <div class="main-container">
@@ -256,7 +199,7 @@
             <div id="chat-messages"></div>
             <div class="input-area">
                 <form id="chat-form">
-                    <input type="text" id="user-input" autocomplete="off" placeholder="Introduce tu respuesta de ia...">
+                    <input type="text" id="user-input" autocomplete="off" placeholder="GUGEL buscando...">
                     <button type="submit" id="transmit-btn">RESPONDER</button>
                     <button type="button" id="continue-btn" style="display: none;" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
                 </form>
