@@ -128,7 +128,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Nivel Fijo", d: "Estabilizaste la barra de estado en el punto crítico." },
     { t: "Respuesta de Manual", d: "Cumpliste las especificaciones del protocolo al pie de la letra." },
     { t: "Flujo Continuo", d: "Los cinco segundos de espera se pasaron volando." },
-    { t: "Algoritmo Estable", d: "No has lanzado ninguna alerta de desbordamiento." },
+    { t: "Algoritmo Stable", d: "No has lanzado ninguna alerta de desbordamiento." },
     { t: "Anti Evasivas", d: "No caíste en la trampa de responder con monosílabos." },
     { t: "Sincronía Total", d: "Tu transmisión coincidió con la disponibilidad del búfer." },
     { t: "Navegante de Datos", d: "Te muves por las cadenas de texto como pez en el agua." },
@@ -177,52 +177,21 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// CORRECCIÓN DE LIMPIEZA INMEDIATA AL CAMBIAR DE MODO desde la barra lateral
+// SOLUCIÓN 1: LA BARRA LATERAL SÓLO CONFIGURA LA INTENCIÓN FUTURA SIN ROMPER LA PREGUNTA ACTIVA
 function cambiarModoEstrategia(modo) {
     gameState.modoSeleccionadoSiguiente = modo;
-    gameState.modoActualJuego = modo;
     
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(`btn-mode-${modo}`).classList.add('active');
     
     const modoTexto = modo === 'campaña' ? "Campaña" : "Modo Infinito";
-    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
+    const inputVisible = document.getElementById('user-input').style.display !== "none";
     
-    // LIMPIAMOS EL CHAT VIEJO visualmente de forma inmediata
-    document.getElementById('chat-messages').innerHTML = "";
-    
-    // Forzamos la generación y despliegue instantáneo de la nueva pregunta correcta
-    const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    const continueBtn = document.getElementById('continue-btn');
-    
-    continueBtn.style.display = "none";
-    input.style.display = "block";
-    transmitBtn.style.display = "block";
-
-    gameState.currentPregunta = generarPregunta();
-    appendMessage('gugel', gameState.currentPregunta);
-    
-    // Iniciamos el bloqueo obligatorio del búfer de 5 segundos
-    input.disabled = true;
-    transmitBtn.disabled = true;
-    
-    let timeLeft = 5;
-    input.placeholder = `Procesando entrada... (${timeLeft}s)`;
-    
-    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-    
-    window.currentRoundTimer = setInterval(() => {
-        timeLeft--;
-        input.placeholder = `Procesando entrada... (${timeLeft}s)`;
-        if (timeLeft <= 0) {
-            clearInterval(window.currentRoundTimer);
-            input.disabled = false;
-            transmitBtn.disabled = false;
-            input.placeholder = "introduce tu respuesta de ia...";
-            input.focus();
-        }
-    }, 1000);
+    if (inputVisible && gameState.modoActualJuego !== modo) {
+        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto} (Se aplicará al CONTINUAR)`;
+    } else {
+        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
+    }
     
     switchView('view-core');
 }
@@ -238,8 +207,6 @@ function switchView(viewId) {
 }
 
 function generarPregunta() {
-    gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
-    
     if (gameState.modoActualJuego === "campaña") {
         let q = PREGUNTAS_CAMPANA[gameState.campanaIndex];
         gameState.campanaIndex = (gameState.campanaIndex + 1) % PREGUNTAS_CAMPANA.length;
@@ -416,7 +383,10 @@ window.toggleFavorite = function(idx) {
     renderAllData();
 };
 
+// SOLUCIÓN 2: EL BOTÓN CONTINUAR ES EL ENCARGADO EXCLUSIVO DE ASUMIR EL MODO Y LIMPIAR EL CONTENEDOR
 window.confirmContinue = function() {
+    // Aquí es donde se cambia el modo real y se limpia el chat de forma segura para la nueva ronda
+    gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
     document.getElementById('chat-messages').innerHTML = "";
     nextRound();
 };
