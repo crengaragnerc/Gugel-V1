@@ -3,101 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL - AI Simulator</title>
+    <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-
-    <aside id="sidebar">
-        <div class="sidebar-title" style="color: #00ff66; font-weight: bold; margin-bottom: 20px; text-align: center;">
-            GUGEL: SIMULADOR DE IA
-        </div>
-        
-        <div class="nav-group">
-            <span class="nav-group-title">📌 MODOS DE JUEGO</span>
-            <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                📌 LAS 10 CAMPAÑAS
-            </button>
-            <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
-                ∞ PREGUNTAS INFINITAS
-            </button>
-        </div>
-
-        <div class="nav-group" style="margin-top: 20px;">
-            <span class="nav-group-title">🖥️ PANELES</span>
-            <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core')">
-                DATOS PERFIL
-            </button>
-            <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">
-                LOGROS SISTEMA
-            </button>
-            <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">
-                CONVERSACIONES
-            </button>
-        </div>
-
-        <div class="nav-group" style="margin-top: auto;">
-            <select id="mode-select" onchange="changeSystemMode()">
-                <option value="default">Modo Hacker</option>
-            </select>
-        </div>
-    </aside>
-
-    <main id="main-content">
-
-        <section id="view-core" class="content-panel active">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 class="panel-title" id="panel-title-text" style="margin: 0; border: none; padding: 0;">
-                    Interfaz Core - Campaña
-                </h2>
-                <select id="mode-select-top" onchange="changeSystemMode()" style="background: #141418; color: white; border: 1px solid #2a2a35; padding: 5px 10px; border-radius: 6px;">
-                    <option>Modo Hacker</option>
-                </select>
-            </div>
+<body class="modo-hacker">
+    <div id="app-container">
+        <aside id="sidebar">
+            <div class="brand">GUGEL: simulador de IA</div>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Estado de Ánimo (GUGEL)</div>
-                    <div class="stat-value" id="prof-opinion">(analizando conexiones...)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Nivel de Satisfacción</div>
-                    <div class="stat-value" id="prof-satisfaction">50%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Ciclos Procesados</div>
-                    <div class="stat-value" id="prof-cycles">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Volumen de Datos</div>
-                    <div class="stat-value"><span id="prof-chars">0</span> bits</div>
-                </div>
+            <div class="menu-section">
+                <div class="section-title">🕹️ MODOS DE JUEGO</div>
+                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
+                    📌 LAS 10 CAMPAÑAS
+                </button>
+                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
+                    ♾️ PREGUNTAS INFINITAS
+                </button>
             </div>
 
-            <div id="chat-container">
-                <div id="chat-messages">
+            <div class="menu-section">
+                <div class="section-title">🖥️ PANELES</div>
+                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">CONVERSACIONES</button>
+            </div>
+        </aside>
+
+        <main id="main-content">
+            <header id="panel-header">
+                <h2 id="panel-title-text">Interfaz Core - Campaña</h2>
+                <select id="mode-select" onchange="changeSystemMode()">
+                    <option value="modo-hacker">Modo Hacker</option>
+                    <option value="modo-claro">Modo Claro</option>
+                    <option value="modo-oscuro">Modo Oscuro</option>
+                </select>
+            </header>
+
+            <section id="view-core" class="content-panel active">
+                <div id="chat-messages"></div>
+                <form id="chat-form" autocomplete="off">
+                    <div class="input-container">
+                        <input type="text" id="user-input" placeholder="introduce tu respuesta de ia..." required>
+                        <button type="submit" id="transmit-btn">TRANSMITIR</button>
                     </div>
-                <form id="chat-form">
-                    <input type="text" id="user-input" autocomplete="off" placeholder="Procesando entrada...">
-                    <button type="submit" id="transmit-btn">Transmitir</button>
-                    <button type="button" id="continue-btn" style="display: none;" onclick="window.confirmContinue()">CONTINUAR</button>
+                    <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
                 </form>
-            </div>
-        </section>
+            </section>
 
-        <section id="view-logros" class="content-panel">
-            <h2 class="panel-title">Logros de Red (<span id="logros-count">0</span>)</h2>
-            <div id="logros-container"></div>
-        </section>
+            <section id="view-perfil" class="content-panel">
+                <div class="card">
+                    <h3>👤 Módulo: Estado del Humano</h3>
+                    <div class="opinion-box" id="opinion-container">
+                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
+                    </div>
+                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
+                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
+                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
+                </div>
+            </section>
 
-        <section id="view-historial" class="content-panel">
-            <h2 class="panel-title">Búfer de Logs (Historial)</h2>
-            <div id="history-list-container"></div>
-            <button class="action-btn" onclick="exportCoreData()">Exportar Registros al Portapapeles</button>
-        </section>
+            <section id="view-logros" class="content-panel">
+                <div class="card">
+                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
+                    <div id="logros-container" class="list-container"></div>
+                </div>
+            </section>
 
-    </main>
-
+            <section id="view-historial" class="content-panel">
+                <div class="card">
+                    <h3>📁 Historial de Conversaciones</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <div id="history-list-container" class="list-container"></div>
+                </div>
+            </section>
+        </main>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
