@@ -25,20 +25,58 @@
                 <div class="section-title">🖥️ PANELES</div>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
                 <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">📁 HISTORIAL</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">👤 CUENTA</div>
-                <button id="btn-gestion-cuenta" class="sub-btn">GESTIÓN CUENTA</button>
+                <div class="section-title">👤 USUARIO</div>
+                <button id="btn-gestion-cuenta">👤 CREAR CUENTA</button>
             </div>
         </aside>
 
         <main id="main-content">
-            <div id="chat-messages"></div>
+            <section id="view-core" class="content-panel active">
+                <div id="chat-container">
+                    <div id="chat-header">
+                        <span id="panel-title-text">Interfaz Core - Campaña</span>
+                    </div>
+                    <div id="chat-messages"></div>
+                    <form id="chat-form">
+                        <input type="text" id="user-input" placeholder="introduce tu respuesta de ia..." autocomplete="off">
+                        <button type="submit" id="transmit-btn">TRANSMITIR</button>
+                        <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="view-perfil" class="content-panel">
+                <div class="card">
+                    <h3>📊 Datos de Usuario</h3>
+                    <div class="opinion-box" id="opinion-container">
+                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
+                    </div>
+                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
+                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
+                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
+                </div>
+            </section>
+
+            <section id="view-logros" class="content-panel">
+                <div class="card">
+                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
+                    <div id="logros-container" class="list-container"></div>
+                </div>
+            </section>
+
+            <section id="view-historial" class="content-panel">
+                <div class="card">
+                    <h3>📁 Historial de Conversaciones</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <div id="history-list-container" class="list-container"></div>
+                </div>
+            </section>
         </main>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
