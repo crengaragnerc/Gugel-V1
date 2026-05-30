@@ -653,37 +653,6 @@ window.confirmContinue = function() {
     nextRound();
 };
 
-document.getElementById('chat-form').onsubmit = (e) => {
-    e.preventDefault();
-    const input = document.getElementById('user-input');
-    const userText = input.value.trim().toLowerCase();
-    if (!userText) return;
-
-    // EL FILTRO VA AQUÍ DENTRO, DONDE TIENE SENTIDO
-    const esMuySimilar = gameState.history.some(h => {
-        const past = h.respuesta.replace(/s+$/g, '');
-        const current = userText.replace(/s+$/g, '');
-        return current.includes(past) || past.includes(current);
-    });
-
-    if (esMuySimilar) {
-        alert("Ya has dicho algo muy parecido, intenta ser más original.");
-        return;
-    }
-
-    appendMessage('ai', userText);
-    
-    let reaccion = "vale me cuadra tiene logica";
-    
-    setTimeout(() => {
-        appendMessage('gugel', reaccion);
-        gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion });
-        renderAllData();
-        guardarProgresoCuenta();
-        nextRound();
-    }, 600);
-};
-
 function changeSystemMode() {
     const select = document.getElementById('mode-select');
     if (select) document.body.className = select.value;
