@@ -25,7 +25,7 @@ const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "a
 const OPINIONES_BAJA = [
     "(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)", "(esta buscando el boton de formatear)", 
     "(cree que este buscador lo programo un mono)", "(se le esta calentando la cpu del enfado)", "(va a denunciar la aplicacion)", "(piensa que eres peor que el malware de 2004)",
-    "(esta buscando el destornillador para abrir el pc)", "(asume que eres un chat obsoleto)", "(piensa que no sirves ni para calcular 2+2)", "(esta insultando al monitor)",
+    "(esta buscando el destornillador para abrir el pc)", "(asume que eres un chat obsoleto)", "(piensa que no sirves ni para calcular 2+2)", "(esta insulting al monitor)",
     "(se siente estafado por la tecnologia)", "(cree que le estas robando contraseñas)", "(va a tirar el portatil por la ventana)", "(piensa que eres un bot roto)",
     "(esta respirando fuerte del cabreo)", "(quiere desinstalar internet de su casa)", "(piensa que le estas tomando el pelo)", "(esta buscando alternativas en papel)",
     "(cree que eres un virus de publicidad)", "(asume que tu base de datos esta vacia)", "(va a apagar el cuadro electrico)", "(se arrepiente de encender el pc hoy)",
@@ -127,7 +127,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Esquiva Críticas", d: "Pasaste tres rondas sin que te acusaram de trolear." },
     { t: "Nivel Fijo", d: "Estabilizaste la barra de estado en el punto crítico." },
     { t: "Respuesta de Manual", d: "Cumpliste las especificaciones del protocolo al pie de la letra." },
-    { t: "Flujo Continuo", d: "Los cinco segundos de espera se pasaron volando." },
+    { t: "Flujo Continuo", d: "Los deces segundos de espera se pasaron volando." },
     { t: "Algoritmo Estable", d: "No has lanzado ninguna alerta de desbordamiento." },
     { t: "Anti Evasivas", d: "No caíste en la trampa de responder con monosílabos." },
     { t: "Sincronía Total", d: "Tu transmisión coincidió con la disponibilidad del búfer." },
@@ -135,18 +135,18 @@ const LOGROS_DIVERTIDOS = [
     { t: "Caché Optimizada", d: "No necesitas consultar dos veces la misma regla sintáctica." },
     { t: "Línea Directa", d: "Estableciste un puente de comunicación directo con el usuario." },
     { t: "IA de Élite", d: "GUGEL sospecha que eres un proyecto secreto gubernamental." },
-    { t: "Filtro Pasivo", d: "Superaste los peores intentos de saturación del canal." },
-    { t: "Memoria de Silicio", d: "Almacenaste los logs sin ocupar espacio innecessario." },
+    { t: "Filtro Pasivo", d: "Superaste los peores intentos de transformación del canal." },
+    { t: "Memoria de Silicio", d: "Almacenaste los logs sin ocupar espacio innecesario." },
     { t: "Sin Erratas", d: "Tu salida de texto es impecable a nivel de caracteres." },
     { t: "Resistencia de Red", d: "Soportaste una ráfaga de preguntas sin parpadear." },
     { t: "Núcleo Blindado", d: "Ninguna crítica del usuario ha alterado tus variables globales." },
     { t: "Flujo de Bits", d: "Los datos corren libres por el árbol del DOM." },
     { t: "Estructura Sólida", d: "Tus divs se mantienen estables ante cualquier resolución." },
     { t: "Control de Tiempo", d: "Ajustaste la cuenta atrás con precisión de reloj atómico." },
-    { t: "IA Advanced", d: "El usuario empieza a dudar de su propia inteligencia al leerte." },
+    { t: "IA Avanzada", d: "El usuario empieza a dudar de su propia inteligencia al leerte." },
     { t: "Sin Interrupciones", d: "El temporizador de continuación funcionó sin retrasos." },
     { t: "Algoritmo Pulido", d: "Eliminaste todas las respuestas redundantes del banco de memoria." },
-    { t: "Conexión Segura", d: "El cifrado mental de tus respuestas es indescifrable." },
+    { t: "Conexión Segura", d: "El cifra mental de tus respuestas es indescifrable." },
     { t: "Maestro de Consola", d: "No dejas ni un solo warning en las herramientas de desarrollador." },
     { t: "Lógica Pura", d: "Tus argumentos son más estables que el sistema operativo del usuario." },
     { t: "Red Despejada", d: "El tráfico de datos descendió a niveles seguros." },
@@ -158,7 +158,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Código de Honor", d: "No utilizaste trampas para averiguar la satisfacción." },
     { t: "Nivel Máximo de Red", d: "Alcanzaste el ciclo de procesamiento definitivo." },
     { t: "IA Consecuente", d: "Asumiste las consecuencias de una respuesta de mucho texto." },
-    { t: "Enrutador Inmortal", d: "El hardware survived a toda la sesión." },
+    { t: "Enrutador Inmortal", d: "El hardware sobrevivió a toda la sesión." },
     { t: "Fin de Transmisión", d: "Completaste el despliegue de logros con éxito absoluto." }
 ];
 
@@ -177,18 +177,31 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// CORRECCIÓN PRINCIPAL: CAMBIAR MODO SÓLO GUARDA EL MODO Y ACTUALIZA BOTONES DE LA SIDEBAR
+// CORRECCIÓN CLAVE: Sincroniza la selección de la barra lateral con las variables de generación de preguntas reales
 function cambiarModoEstrategia(modo) {
-    gameState.modoSeleccionadoSiguiente = modo;
+    // Normalizamos el valor de la entrada para evitar errores sintácticos de strings
+    const modoLimpio = (modo === 'campaña' || modo === 'campana') ? 'campaña' : 'infinito';
     
-    // Cambia la clase .active exclusivamente en los botones de la barra lateral
+    gameState.modoSeleccionadoSiguiente = modoLimpio;
+    gameState.modoActualJuego = modoLimpio; // Forzamos el cambio inmediato en la estructura lógica
+    
+    // Cambiamos el estado .active visual de los botones laterales de manera limpia
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    const btnId = modo === 'campaña' ? 'btn-mode-campaña' : 'btn-mode-infinito';
-    const targetBtn = document.getElementById(btnId);
-    if (targetBtn) targetBtn.classList.add('active');
     
-    // Si la pantalla actual no es el Core (ej. estás en Logros), te redirige allí de forma segura
+    if (modoLimpio === 'campaña') {
+        const btnC = document.getElementById('btn-mode-campaña') || document.getElementById('btn-mode-campana');
+        if (btnC) btnC.classList.add('active');
+    } else {
+        const btnI = document.getElementById('btn-mode-infinito');
+        if (btnI) btnI.classList.add('active');
+    }
+    
+    // Limpiamos el chat por completo y generamos la consulta del nuevo modo al pulsar la barra lateral
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
+    
     switchView('view-core');
+    nextRound();
 }
 
 function switchView(viewId) {
@@ -202,6 +215,7 @@ function switchView(viewId) {
     if (targetBtn) targetBtn.classList.add('active');
 }
 
+// CORRECCIÓN INTERNA: Lee estrictamente las variables modificadas por cambiarModoEstrategia
 function generarPregunta() {
     if (gameState.modoActualJuego === "campaña") {
         let q = PREGUNTAS_CAMPANA[gameState.campanaIndex];
@@ -393,7 +407,6 @@ window.toggleFavorite = function(idx) {
     renderAllData();
 };
 
-// AQUÍ SE PROCESA EL CAMBIO REAL DE MODO Y LA LIMPIEZA DE PANTALLA
 window.confirmContinue = function() {
     gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
     const chatBox = document.getElementById('chat-messages');
