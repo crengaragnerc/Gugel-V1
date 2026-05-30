@@ -154,7 +154,6 @@ body {
     cursor: pointer;
 }
 
-/* CORRECCIÓN DE SUPERPOSICIÓN: DISPLAY NONE POR DEFECTO */
 .content-panel {
     display: none;
     flex-grow: 1;
@@ -167,7 +166,6 @@ body {
     overflow-y: auto;
 }
 
-/* SOLO LA VISTA ACTIVA TIENE FLEX */
 .content-panel.active {
     display: flex;
 }
@@ -255,6 +253,11 @@ body {
     cursor: pointer;
     text-align: center;
     display: none;
+}
+
+#continue-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .card {
