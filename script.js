@@ -1,3 +1,60 @@
+// ==========================================
+// SISTEMA DE CUENTAS (CON PASSWORD)
+// ==========================================
+function ejecutarAccionCuenta() {
+    const userIn = prompt("Introduce tu nombre de usuario:");
+    if (userIn === null) return;
+    
+    const userClean = userIn.trim().toLowerCase();
+    if (!userClean) { alert("El nombre no puede estar vacío."); return; }
+
+    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+
+    if (db[userClean]) {
+        const passIn = prompt(`Usuario "${userClean}" encontrado. Introduce la contraseña:`);
+        if (passIn === db[userClean].pass) {
+            currentUser = userClean;
+            gameState = db[userClean].data || db[userClean]; 
+            alert(`Bienvenido de nuevo, ${userClean}.`);
+        } else {
+            alert("Contraseña incorrecta. Acceso denegado.");
+            return;
+        }
+    } else {
+        const passIn = prompt(`Usuario nuevo "${userClean}". Define tu contraseña de seguridad:`);
+        if (!passIn) { alert("Necesitas una contraseña para crear cuenta."); return; }
+        
+        if (gameState.cycles > 0) {
+            const migrar = confirm("¿Quieres vincular tus datos actuales de invitado a esta cuenta?");
+            if (!migrar) {
+                gameState = { 
+                    modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
+                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", currentPregunta: "", history: [], logrosDesbloqueados: [] 
+                };
+            }
+        }
+        
+        currentUser = userClean;
+        db[userClean] = { pass: passIn, data: gameState };
+        localStorage.setItem("gugel_users", JSON.stringify(db));
+        alert(`Cuenta "${userClean}" creada con éxito.`);
+    }
+
+    actualizarBotonCuentaUI();
+    renderAllData();
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
+    nextRound();
+}
+
+function guardarProgresoCuenta() {
+    if (!currentUser) return;
+    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    if (db[currentUser]) {
+        db[currentUser].data = gameState;
+        localStorage.setItem("gugel_users", JSON.stringify(db));
+    }
+}
 const PREGUNTAS_CAMPANA = [
     "cagar verde normal",
     "como hacer cubo rubik",
