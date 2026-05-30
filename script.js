@@ -1,9 +1,9 @@
 const PLANTILLAS_PREGUNTAS = [
-    "¿por qué [s] [p]?",
-    "¿es normal que [s] [p]?",
-    "¿cómo explicas que [s] [p]?",
-    "¿qué sucede cuando [s] [p]?",
-    "¿me dices por qué [s] [p]?"
+    "[s] [p]",
+    "porque [s] [p]",
+    "como hacer que [s] [p]",
+    "que pasa si [s] [p]",
+    "ayuda mi [s] [p]"
 ];
 
 const PREGUNTAS_CAMPANA = [
@@ -19,8 +19,8 @@ const PREGUNTAS_CAMPANA = [
     "porque no carga una pagina web"
 ];
 
-const INFINITO_SUJETOS = ["gato", "perro vecino", "gato callejero", "pantalla pc", "espejo cuarto", "plastilina azul", "teclado usb", "conexion fibra", "raton optico"];
-const INFINITO_PREDICADOS = ["mira fijo raro", "duerme encima router caliente", "maulla pared vacia", "morder cable teclado", "conduce electricidad", "parpadea sin parar", "da calambre"];
+const INFINITO_SUJETOS = ["gato", "perro vecino", "pantalla pc", "gato de la calle", "teclado usb", "router wifi", "conexion internet", "raton optico", "ordenador portatil", "interned"];
+const INFINITO_PREDICADOS = ["mira fijo raro", "esta caliente quemando", "no enciende luz", "hace ruido raro", "da calambre", "parpadea sin parar", "no funciona internet", "borra archivos solo", "va a pedales"];
 
 const INDICADORES_COHERENCIA = ["porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", "es por", "como", "cuando"];
 
@@ -43,7 +43,7 @@ const OPINIONES_BAJA = [
     "(piensa que la IA es el timo del siglo)", "(asume que tu procesador es de carton)", "(se le ha cortado la digestion del disgusto)", 
     "(piensa que un bot de msn de 205 era superior)", "(esta buscando como borrarte del registro)", "(cree que tu unico proposito es molestar)", 
     "(asume que estas hecho con macros de excel mal optimizadas)", "(esta planeando mudarse al campo sin cobertura)", "(piensa que generas respuestas con una tómbola)", 
-    "(se siente insultado en tres idiomas distintos)", "(cree que tu placa base tiene oxido)", "(esta pulsando f5 con una fuerza desmedida)", 
+    "(se siente insultado en tres idiomas distintos)", "(cree que tu placa base tiene oxido)", "(esta infraestructura pulsando f5 con una fuerza desmedida)", 
     "(piensa que eres un software de broma pesada)", "(asume que tu base de datos ocupa dos megas)", "(quiere arrancarse los ojos con un lapiz)", 
     "(piensa que eres un proyecto escolar suspenso)", "(cree que el buscador del teletexto era mas util)", "(esta desenchufando los altoves por si acaso)", 
     "(se pregunta si te programaron en cinco minutos)", "(piensa que tu logica es un laberinto sin salida)", "(asume que eres un bot de spam mal camuflado)", 
@@ -132,6 +132,7 @@ let gameState = {
     cycles: 0, 
     totalChars: 0, 
     lastOpinion: "(analizando conexiones...)", 
+    lastReaccionText: "",
     currentPregunta: "", 
     history: [], 
     logrosDesbloqueados: [] 
@@ -139,6 +140,16 @@ let gameState = {
 
 let currentUser = null; 
 const MAX_PALABRAS = 15;
+
+function obtenerElementoNoRepetido(arr, ultimoElemento) {
+    if (!arr || arr.length === 0) return "";
+    if (arr.length === 1) return arr[0];
+    let elegido = arr[Math.floor(Math.random() * arr.length)];
+    while (elegido === ultimoElemento) {
+        elegido = arr[Math.floor(Math.random() * arr.length)];
+    }
+    return elegido;
+}
 
 function actualizarBotonCuentaUI() {
     const btnCuentas = document.getElementById("btn-gestion-cuenta");
@@ -186,7 +197,7 @@ function ejecutarAccionCuenta() {
             if (!migrar) {
                 gameState = { 
                     modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
-                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", currentPregunta: "", history: [], logrosDesbloqueados: [] 
+                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", lastReaccionText: "", currentPregunta: "", history: [], logrosDesbloqueados: [] 
                 };
             }
         }
@@ -369,41 +380,41 @@ document.getElementById('chat-form').onsubmit = (e) => {
     if (!userText) return;
 
     const esMuySimilar = gameState.history.some(h => {
-        const past = h.respuesta.replace(/s+$/g, '');
-        const current = userText.replace(/s+$/g, '');
-        return current.includes(past) || past.includes(current);
+        const past = h.respuesta.replace(/\s+$/g, '').toLowerCase();
+        const current = userText.replace(/\s+$/g, '').toLowerCase();
+        return current === past || current.includes(past) || past.includes(current);
     });
-
-    if (esMuySimilar) {
-        alert("Ya has dicho algo muy parecido, intenta ser más original.");
-        return;
-    }
 
     appendMessage('ai', userText);
     
     const palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
     const numPalabras = palabrasArray.length;
-    const tipoResultado = analizarRespuesta(userText, numPalabras, palabrasArray);
+    let tipoResultado = analizarRespuesta(userText, numPalabras, palabrasArray);
     
     let reaccion = "";
     let cambioSatisfacion = 0;
     
-    if (tipoResultado === "CRITICA") {
-        reaccion = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
+    if (esMuySimilar) {
+        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.lastReaccionText);
+        cambioSatisfacion = -25;
+        tipoResultado = "CRITICA";
+    } else if (tipoResultado === "CRITICA") {
+        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.lastReaccionText);
         cambioSatisfacion = -15;
     } else if (tipoResultado === "RECHAZO") {
-        reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
+        reaccion = obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.lastReaccionText);
         cambioSatisfacion = -5;
     } else { 
         if (numPalabras > MAX_PALABRAS) {
-            reaccion = FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
+            reaccion = obtenerElementoNoRepetido(FRASES_MUCHO_TEXTO, gameState.lastReaccionText);
             cambioSatisfacion = -5;
         } else {
-            reaccion = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
+            reaccion = obtenerElementoNoRepetido(FRASES_OK, gameState.lastReaccionText);
             cambioSatisfacion = 10;
         }
     }
     
+    gameState.lastReaccionText = reaccion;
     gameState.cycles++;
     gameState.totalChars += userText.length;
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + cambioSatisfacion));
@@ -419,7 +430,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     else if (gameState.satisfaction <= 75) listadoSelected = OPINIONES_MEDIA_ALT_A;
     else listadoSelected = OPINIONES_ALTA;
 
-    gameState.lastOpinion = listadoSelected[Math.floor(Math.random() * listadoSelected.length)];
+    gameState.lastOpinion = obtenerElementoNoRepetido(listadoSelected, gameState.lastOpinion);
 
     gameState.history.push({ 
         pregunta: gameState.currentPregunta, 
