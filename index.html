@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL Core System</title>
     <style>
-        /* CONFIGURACIÓN DE COLORES Y VARIABLES */
+        /* EL ESTILO MINIMALISTA Y BONITO DE ANTES */
         :root {
             --bg-color: #0d0e12;
             --panel-bg: #161820;
@@ -16,7 +16,6 @@
             --ai-msg: #2563eb;
         }
 
-        /* Temas que ahora sí cambian con el selector */
         body.modo-claro {
             --bg-color: #f0f2f5;
             --panel-bg: #ffffff;
@@ -68,7 +67,6 @@
             letter-spacing: 1px;
             color: #f39c12;
         }
-
         body.modo-hacker h1 { color: #00ff00; }
 
         .controles-header {
@@ -93,7 +91,7 @@
             overflow: hidden;
         }
 
-        /* ESTRUCTURA ANTERIOR DE CHAT (IZQUIERDA) */
+        /* Bloque de chat limpio (Izquierda) */
         .chat-panel {
             flex: 2;
             display: flex;
@@ -165,7 +163,6 @@
             font-family: inherit;
             font-weight: bold;
         }
-
         body.modo-hacker button { color: #000; background-color: #00ff00; }
 
         #continue-btn {
@@ -174,7 +171,7 @@
             padding: 12px;
         }
 
-        /* ESTRUCTURA ANTERIOR DE PANEL FIJO (DERECHA) */
+        /* Bloque de monitor fijos (Derecha) */
         .status-panel {
             flex: 1;
             max-width: 380px;
@@ -236,18 +233,15 @@
 <body>
 
     <header>
-        <h1 id="panel-title-text">GUGEL Core Core</h1>
+        <h1 id="panel-title-text">GUGEL Core</h1>
         <div class="controles-header">
-            <!-- Selectores discretos arriba a la derecha sin romper la estructura -->
             <div>
-                <label>Modo:</label>
                 <select id="game-mode-select" onchange="cambiarModoJuego()">
                     <option value="historia">Modo Historia (10 Retos)</option>
                     <option value="infinito">Modo Infinito (Aleatorio)</option>
                 </select>
             </div>
             <div>
-                <label>Tema:</label>
                 <select id="mode-select" onchange="changeSystemMode()">
                     <option value="modo-oscuro">Oscuro</option>
                     <option value="modo-claro">Claro</option>
@@ -258,7 +252,6 @@
     </header>
 
     <div class="main-container">
-        <!-- Chat central izquierdo -->
         <div class="chat-panel">
             <div id="chat-messages"></div>
             <div class="input-area">
@@ -270,7 +263,6 @@
             </div>
         </div>
 
-        <!-- Panel de Estado lateral derecho (Fijo) -->
         <div class="status-panel">
             <div class="panel-section">
                 <div class="panel-header">Estado de GUGEL</div>
