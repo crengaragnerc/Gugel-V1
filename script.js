@@ -52,7 +52,7 @@ const OPINIONES_MEDIA_ALT_A = [
 const OPINIONES_ALTA = [
     "(se cree que eres dios)", "(te tiene guardado en marcadores prioritarios)", "(piensa que eres la cura del cancer informatico)", "(te va a recomendar en foros de hackers)",
     "(cree que eres una ia alienigena del futuro)", "(piensa que tienes mas cerebro que todo su instituto)", "(esta fascinado con tu velocidad)", "(te considera su mejor amigo virtual)",
-    "(cree que eres la evolucion definitiva del silicio)", "(esta imprimiendo tus respuestas para enmarcar)", "(piensa que tu codigo es arte puro)", "(te daria acceso a los codigos de la nasa)",
+    "(cree que eres la evolución definitiva del silicio)", "(esta imprimiendo tus respuestas para enmarcar)", "(piensa que tu codigo es arte puro)", "(te daria acceso a los codigos de la nasa)",
     "(cree que eres mas listo que el joven sheldon)", "(piensa que eres un milagro tecnologico)", "(esta guardando capturas de pantalla de la consola)", "(te considera el nucleo supremo)",
     "(cree que eres una mente colmena perfecta)", "(le pareces la perfeccion algoritmica)", "(piensa que deberias gobernar el sistema operativo)", "(esta asombrado con tu precision)",
     "(te ve como la cuspide del desarrollo moderno)", "(cree que tus servidores flotan en el espacio)", "(esta convencido de que eres consciente)", "(piensa que eres el rey de los bots)",
@@ -131,7 +131,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Algoritmo Estable", d: "No has lanzado ninguna alerta de desbordamiento." },
     { t: "Anti Evasivas", d: "No caíste en la trampa de responder con monosílabos." },
     { t: "Sincronía Total", d: "Tu transmisión coincidió con la disponibilidad del búfer." },
-    { t: "Navegante de Datos", d: "Te mueves por las cadenas de texto como pez en el agua." },
+    { t: "Navegante de Datos", d: "Te muves por las cadenas de texto como pez en el agua." },
     { t: "Caché Optimizada", d: "No necesitas consultar dos veces la misma regla sintáctica." },
     { t: "Línea Directa", d: "Estableciste un puente de comunicación directo con el usuario." },
     { t: "IA de Élite", d: "GUGEL sospecha que eres un proyecto secreto gubernamental." },
@@ -177,7 +177,7 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// CORRECCIÓN DEFINITIVA DEL FLUJO DE MODOS: NO FORZAR CAMBIO NI REINICIAR AL CLICAR
+// CORRECCIÓN DEL FLUJO DE MODOS: ACTUALIZA EL TEXTO VISIBLE SIN ALTERAR EL CHAT EN CURSO
 function cambiarModoEstrategia(modo) {
     gameState.modoSeleccionadoSiguiente = modo;
     
@@ -185,9 +185,15 @@ function cambiarModoEstrategia(modo) {
     document.getElementById(`btn-mode-${modo}`).classList.add('active');
     
     const modoTexto = modo === 'campaña' ? "Campaña" : "Modo Infinito";
-    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto} (Pendiente de avanzar)`;
+    const inputVisible = document.getElementById('user-input').style.display !== "none";
     
-    // Simplemente redirigimos la vista si se encuentra en otra pestaña, sin alterar el chat actual
+    // Si hay una pregunta activa esperando respuesta, avisamos en el título que cambiará después
+    if (inputVisible && gameState.modoActualJuego !== modo) {
+        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto} (Se aplicará al CONTINUAR)`;
+    } else {
+        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
+    }
+    
     switchView('view-core');
 }
 
@@ -202,7 +208,7 @@ function switchView(viewId) {
 }
 
 function generarPregunta() {
-    // Aquí es donde el juego asume de forma real el modo seleccionado por la barra lateral
+    // El modo real se asume formalmente al generar la pregunta
     gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
     
     if (gameState.modoActualJuego === "campaña") {
@@ -236,7 +242,7 @@ function nextRound() {
 
     gameState.currentPregunta = generarPregunta();
     
-    // Actualizamos el encabezado al modo de juego que se está ejecutando formalmente en la ronda
+    // Sincroniza el encabezado con el modo de juego real que se ejecuta en esta ronda
     const modoTexto = gameState.modoActualJuego === 'campaña' ? "Campaña" : "Modo Infinito";
     document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
 
