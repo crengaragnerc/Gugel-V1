@@ -690,11 +690,21 @@ function exportCoreData() {
 }
 
 window.onload = function() {
-    // Escucha el clic del botón del menú lateral que definas en tu HTML con id="btn-gestion-cuenta"
+    // 1. Buscamos el botón en el HTML
     const btnCuentas = document.getElementById("btn-gestion-cuenta");
+    
+    // 2. Si el botón existe, conectamos la función
     if (btnCuentas) {
         btnCuentas.onclick = ejecutarAccionCuenta;
+        console.log("✅ Sistema de cuentas conectado correctamente.");
+    } else {
+        console.error("❌ ERROR: No se encontró ningún botón con el ID 'btn-gestion-cuenta' en tu HTML.");
     }
+
+    // 3. Inicialización del resto de tu app
+    renderAllData();
+    if (typeof nextRound === 'function') nextRound();
+};
     actualizarBotonCuentaUI();
     renderAllData();
     nextRound();
