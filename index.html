@@ -13,26 +13,19 @@
             
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE JUEGO</div>
-                <button id="btn-view-core" class="nav-btn active main-btn" onclick="seleccionarModoJuego('campaña')">
+                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
                     📌 LAS 10 CAMPAÑAS
                 </button>
-                <button id="btn-view-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">
+                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
                     ♾️ PREGUNTAS INFINITAS
                 </button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">👤 PERFIL</div>
+                <div class="section-title">🖥️ PANELES</div>
+                <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core')">INTERFAZ CORE</button>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">🏆 LOGROS</div>
                 <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">📁 HISTORIAL</div>
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">CONVERSACIONES</button>
             </div>
         </aside>
