@@ -5,16 +5,17 @@ let gameState = {
     cycles: 0,
     charsSent: 0,
     history: [],
-    modoActualJuego: 'campaña', // 'campaña' o 'infinito'
+    modoActualJuego: 'campaña', 
     campanaIndex: 0,
     campanaCompletada: false,
     currentPregunta: "",
-    modoSeleccionadoSiguiente: ""
+    modoSeleccionadoSiguiente: "",
+    ultimoSujetoInfinito: ""
 };
 
 let currentUser = null;
 
-// Constantes de Campaña (Las 10 misiones canónicas)
+// Banco de datos cerrado del Modo Campaña (Las 10 misiones fijas canónicas)
 const PREGUNTAS_CAMPANA = [
     "¿Por qué mi gato me mira fijamente mientras duermo?",
     "¿Es normal que el router parpadee en rojo a las 3 AM?",
@@ -28,7 +29,7 @@ const PREGUNTAS_CAMPANA = [
     "¿Me dices por qué la conexión se corta justo cuando voy a ganar?"
 ];
 
-// Constantes de Modo Infinito
+// Banco de datos del Modo Infinito
 const PLANTILLAS_PREGUNTAS = [
     "¿por qué [s] [p]?",
     "¿es normal que [s] [p]?",
@@ -40,16 +41,41 @@ const PLANTILLAS_PREGUNTAS = [
 const INFINITO_SUJETOS = ["mi gato", "el router", "la conexión", "el vecino", "la plastilina", "el teclado", "la batería", "el wifi", "el cargador"];
 const INFINITO_PREDICADOS = ["está ardiendo", "hace un ruido raro", "se ha vuelto loco", "no enciende", "parpadea todo el rato", "se queda pillado", "está muy lento"];
 
-// Constantes de Logros del Sistema
+// Banco de Reacciones de Gugel (Sistema de anti-repetición de frases cortas en minúsculas)
+const REACCIONES_GUGEL = [
+    "entiendo mas o menos",
+    "vale tiene sentido",
+    "esto es raro pero ok",
+    "entiendo mas o menos pero vale",
+    "vale me cuadra tiene logica",
+    "ok dudo pero lo compro",
+    "no entiendo nada pero suena cientifico"
+];
+
+// Banco de Logros del Sistema
 const LOGROS_SISTEMA = [
     { id: "primer_paso", titulo: "Primer Enlace", desc: "Envía tu primera respuesta de simulación de IA.", cond: (state) => state.cycles >= 1 },
     { id: "veterano", titulo: "Procesador Veterano", desc: "Procesa un total de 10 consultas en el sistema.", cond: (state) => state.cycles >= 10 },
     { id: "escritor", titulo: "Generador de Datos", desc: "Transmite más de 100 caracteres al núcleo de GUGEL.", cond: (state) => state.charsSent >= 100 },
-    { id: "campana_top", titulo: "Misión Cumplida", desc: "Completa con éxito las 10 misiones del modo campaña.", cond: (state) => state.campanaCompletada }
+    { id: "campana_top", titulo: "Misión Cumplida", desc: "Completa con éxito las 10 misiones del modo campaña.", cond: (state) => state.campanaCompletada },
+    { id: "logro_corto", titulo: "Procesamiento Perezoso", desc: "Envía una respuesta extremadamente corta (menos de 5 caracteres).", cond: (state) => state.history.some(h => h.respuesta.length > 0 && h.respuesta.length < 5) }
 ];
 
+// Mapeo temático para el sistema de recomendación "Ya que has respondido esto..."
+const RECOMENDACIONES_MAP = {
+    "gato": "¿por qué el teclado de mi gato no enciende?",
+    "router": "¿me dices por qué el wifi parpadea todo el rato?",
+    "conexión": "¿es normal que el vecino se queda pillado?",
+    "vecino": "¿cómo explicas que la conexión se ha vuelto loco?",
+    "plastilina": "¿por qué la batería está ardiendo?",
+    "teclado": "¿qué sucede cuando el router hace un ruido raro?",
+    "batería": "¿me dices por qué el cargador no enciende?",
+    "wifi": "¿por qué el router está muy lento?",
+    "cargador": "¿es normal que la batería parpadea todo el rato?"
+};
+
 // ==========================================
-// NÚCLEO DE LOGICA DEL JUEGO
+// NÚCLEO DE LÓGICA DEL JUEGO
 // ==========================================
 function generarPregunta() {
     if (gameState.modoActualJuego === "campaña") {
@@ -57,13 +83,37 @@ function generarPregunta() {
             gameState.campanaCompletada = true;
             return null;
         }
-        return PREGUNTAS_CAMPANA[gameState.campanaIndex++];
+        const q = PREGUNTAS_CAMPANA[gameState.campanaIndex++];
+        // Almacenar palabra clave para la recomendación
+        if (q.includes("gato")) gameState.ultimoSujetoInfinito = "gato";
+        else if (q.includes("router")) gameState.ultimoSujetoInfinito = "router";
+        else if (q.includes("conexion") || q.includes("conexión")) gameState.ultimoSujetoInfinito = "conexión";
+        else if (q.includes("vecino")) gameState.ultimoSujetoInfinito = "vecino";
+        else if (q.includes("plastilina")) gameState.ultimoSujetoInfinito = "plastilina";
+        else if (q.includes("teclado")) gameState.ultimoSujetoInfinito = "teclado";
+        else if (q.includes("batería")) gameState.ultimoSujetoInfinito = "batería";
+        else if (q.includes("wifi")) gameState.ultimoSujetoInfinito = "wifi";
+        else if (q.includes("cargador")) gameState.ultimoSujetoInfinito = "cargador";
+        return q;
     } else {
         const s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
         const p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
         let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+        gameState.ultimoSujetoInfinito = s.replace("mi ", "").replace("la ", "").replace("el ", "");
         return plantilla.replace("[s]", s).replace("[p]", p);
     }
+}
+
+function generarReaccionGugel() {
+    // Sistema anti-repetición de respuestas de Gugel
+    let reaccionesDisponibles = REACCIONES_GUGEL.filter(r => {
+        if (gameState.history.length === 0) return true;
+        const ultimasReacciones = gameState.history.slice(-3).map(h => h.reaccion);
+        return !ultimasReacciones.includes(r);
+    });
+    
+    if (reaccionesDisponibles.length === 0) reaccionesDisponibles = REACCIONES_GUGEL;
+    return reaccionesDisponibles[Math.floor(Math.random() * reaccionesDisponibles.length)];
 }
 
 function nextRound() {
@@ -71,18 +121,19 @@ function nextRound() {
     const input = document.getElementById('user-input');
     const transBtn = document.getElementById('transmit-btn');
     const contBtn = document.getElementById('continue-btn');
+    const recBox = document.getElementById('streaming-recommendation');
 
     if (!chatBox) return;
 
-    // Reactivar controles de transmisión
     if (input) { input.disabled = false; input.value = ""; }
     if (transBtn) transBtn.style.display = "inline-block";
     if (contBtn) contBtn.style.display = "none";
+    if (recBox) recBox.style.display = "none";
 
     const pregunta = generarPregunta();
 
     if (pregunta === null && gameState.modoActualJuego === "campaña") {
-        appendMessage('gugel', "⚠️ CAMPAÑA COMPLETADA. Has procesado los 10 módulos de datos obligatorios de forma lógica.");
+        appendMessage('gugel', "⚠️ campaña completada. has procesado los 10 modulos de datos obligatorios.");
         if (input) input.disabled = true;
         if (transBtn) transBtn.disabled = true;
         renderAllData();
@@ -106,25 +157,21 @@ function appendMessage(sender, text) {
 }
 
 // ==========================================
-// INTERFAZ, VISTAS Y NAVEGACIÓN
+// INTERFAZ, TEMAS Y NAVEGACIÓN
 // ==========================================
 function switchView(viewId) {
-    // 1. Desactivar todos los paneles y botones secundarios
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
 
-    // 2. Si volvemos a la interfaz principal (Core)
     if (viewId === 'view-core') {
         const panelCore = document.getElementById('view-core');
         if (panelCore) panelCore.classList.add('active');
         return;
     }
 
-    // 3. Activar el panel seleccionado
     const targetPanel = document.getElementById(viewId);
     if (targetPanel) targetPanel.classList.add('active');
 
-    // Mapear el botón lateral correspondiente para ponerle la clase active
     let btnId = "";
     if (viewId === 'view-perfil') btnId = 'btn-view-perfil';
     if (viewId === 'view-logros') btnId = 'btn-view-logros';
@@ -133,7 +180,6 @@ function switchView(viewId) {
     const btn = document.getElementById(btnId);
     if (btn) btn.classList.add('active');
 
-    // Forzar renderizado para asegurar coherencia visual
     renderAllData();
 }
 
@@ -143,20 +189,17 @@ function cambiarModoEstrategia(modo) {
         return;
     }
 
-    // Configurar estados de botones de modo
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     if (modo === 'campaña') document.getElementById('btn-mode-campaña').classList.add('active');
     if (modo === 'infinito') document.getElementById('btn-mode-infinito').classList.add('active');
 
     gameState.modoSeleccionadoSiguiente = modo;
 
-    // Cambiar dinámicamente el título del header de la interfaz
     const titleText = document.getElementById('panel-title-text');
     if (titleText) {
         titleText.innerText = `Interfaz Core - ${modo.charAt(0).toUpperCase() + modo.slice(1)}`;
     }
 
-    // Interrupción del flujo para confirmar la carga del nuevo módulo
     const input = document.getElementById('user-input');
     const transBtn = document.getElementById('transmit-btn');
     const contBtn = document.getElementById('continue-btn');
@@ -178,20 +221,29 @@ function confirmContinue() {
     nextRound();
 }
 
+function cambiarTemaVisual(tema) {
+    document.body.className = "";
+    document.body.classList.add(tema);
+}
+
 // ==========================================
 // RENDERIZADO COMPLETO DE PANELES DE DATOS
 // ==========================================
 function renderAllData() {
-    // 1. Panel de Perfil y Estadísticas
     const profCycles = document.getElementById('prof-cycles');
     const profChars = document.getElementById('prof-chars');
     const profSatisfaction = document.getElementById('prof-satisfaction');
     const profOpinion = document.getElementById('prof-opinion');
+    const profLevel = document.getElementById('prof-level');
 
     if (profCycles) profCycles.innerText = gameState.cycles;
     if (profChars) profChars.innerText = gameState.charsSent;
 
-    // Cálculo dinámico de la opinión basada en la longitud media de tus respuestas
+    // Cálculo de Nivel Dinámico
+    let nivelCalculado = Math.floor(gameState.cycles / 5) + 1;
+    if (profLevel) profLevel.innerText = nivelCalculado;
+
+    // Cálculo dinámico de opinión basado en la longitud media de las respuestas
     if (profSatisfaction && profOpinion) {
         if (gameState.cycles === 0) {
             profSatisfaction.innerText = "50%";
@@ -200,18 +252,18 @@ function renderAllData() {
             let promedioTextos = gameState.charsSent / gameState.cycles;
             if (promedioTextos < 15) {
                 profSatisfaction.innerText = "25%";
-                profOpinion.innerText = "IA demasiado escueta. Respuestas con poca sustancia lógica.";
+                profOpinion.innerText = "escueto. ia con poca sustancia logica.";
             } else if (promedioTextos >= 15 && promedioTextos < 40) {
                 profSatisfaction.innerText = "65%";
-                profOpinion.innerText = "IA equilibrada. Sigue las directrices y responde con coherencia.";
+                profOpinion.innerText = "equilibrado. responde con coherencia basica.";
             } else {
                 profSatisfaction.innerText = "90%";
-                profOpinion.innerText = "Excelente simulación. Respuestas descriptivas y alta precisión de datos.";
+                profOpinion.innerText = "excelente. respuestas descriptivas y alta precision.";
             }
         }
     }
 
-    // 2. Panel de Logros
+    // Inyección de Logros
     const logrosCount = document.getElementById('logros-count');
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
@@ -229,7 +281,7 @@ function renderAllData() {
         if (logrosCount) logrosCount.innerText = conseguidos;
     }
 
-    // 3. Panel del Historial
+    // Inyección de Historial
     const historyContainer = document.getElementById('history-list-container');
     if (historyContainer) {
         historyContainer.innerHTML = gameState.history.map((h, idx) => `
@@ -244,7 +296,7 @@ function renderAllData() {
         `).join('');
     }
 
-    // Ocultar dinámicamente el botón de campaña en el menú lateral si ya se completó
+    // Ocultación del botón de campaña en el menú lateral si se completó
     const btnCampSidebar = document.getElementById('btn-mode-campaña');
     if (btnCampSidebar) {
         btnCampSidebar.style.display = gameState.campanaCompletada ? "none" : "inline-block";
@@ -260,11 +312,23 @@ window.toggleFavorite = function(idx, event) {
 
 function exportCoreData() {
     let txt = gameState.history.map(h => `Q: ${h.pregunta} | A: ${h.respuesta} | GUGEL: ${h.reaccion}`).join('\n');
-    navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Registro copiado."));
+    navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Registro copiado al portapapeles."));
+}
+
+function inyectarPreguntaRecomendada(textoPregunta) {
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
+    cambiarModoEstrategia('infinito');
+    
+    const recBox = document.getElementById('streaming-recommendation');
+    if (recBox) recBox.style.display = "none";
+    
+    gameState.currentPregunta = textoPregunta;
+    appendMessage('gugel', textoPregunta);
 }
 
 // ==========================================
-// ALMACENAMIENTO LOCAL Y GESTIÓN DE CUENTAS
+// PERSISTENCIA Y CUENTAS DE USUARIO
 // ==========================================
 function guardarProgresoCuenta() {
     if (currentUser) {
@@ -289,47 +353,45 @@ function ejecutarAccionCuenta() {
     let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
 
     if (db[userClean]) {
-        // --- LOGIN ---
+        // LOGIN
         const passIn = prompt(`Usuario "${userClean}" detectado. Introduce tu contraseña:`);
         if (passIn === db[userClean].pass) {
             currentUser = userClean;
             gameState = db[userClean].data;
-            alert(`Módulo de perfil cargado. Bienvenido de nuevo, ${userClean}.`);
+            alert(`Módulo de perfil cargado. Bienvenido, ${userClean}.`);
             
-            // Actualizar etiqueta del botón de cuenta para reflejar la sesión activa
             const btnAcc = document.getElementById("btn-gestion-cuenta");
             if (btnAcc) btnAcc.innerText = `👤 ${userClean.toUpperCase()}`;
         } else {
-            alert("Contraseña incorrecta. Acceso denegado.");
+            alert("Contraseña incorrecta.");
             return;
         }
     } else {
-        // --- REGISTRO ---
+        // REGISTRO
         const passIn = prompt(`Creando usuario nuevo "${userClean}". Define tu clave de seguridad:`);
         if (!passIn) {
-            alert("No se puede registrar una cuenta sin contraseña de seguridad.");
+            alert("Contraseña requerida.");
             return;
         }
         
         if (gameState.cycles > 0 || gameState.history.length > 0) {
-            if (confirm("¿Deseas migrar y salvar tus datos locales actuales en esta nueva cuenta?")) {
+            if (confirm("¿Deseas migrar y guardar tus datos locales actuales en esta nueva cuenta?")) {
                 db[userClean] = { pass: passIn, data: gameState };
             } else {
-                db[userClean] = { pass: passIn, data: { cycles: 0, charsSent: 0, history: [], modoActualJuego: 'campaña', campanaIndex: 0, campanaCompletada: false, currentPregunta: "", modoSeleccionadoSiguiente: "" } };
+                db[userClean] = { pass: passIn, data: { cycles: 0, charsSent: 0, history: [], modoActualJuego: 'campaña', campanaIndex: 0, campanaCompletada: false, currentPregunta: "", modoSeleccionadoSiguiente: "", ultimoSujetoInfinito: "" } };
             }
         } else {
-            db[userClean] = { pass: passIn, data: { cycles: 0, charsSent: 0, history: [], modoActualJuego: 'campaña', campanaIndex: 0, campanaCompletada: false, currentPregunta: "", modoSeleccionadoSiguiente: "" } };
+            db[userClean] = { pass: passIn, data: { cycles: 0, charsSent: 0, history: [], modoActualJuego: 'campaña', campanaIndex: 0, campanaCompletada: false, currentPregunta: "", modoSeleccionadoSiguiente: "", ultimoSujetoInfinito: "" } };
         }
         
         localStorage.setItem("gugel_users", JSON.stringify(db));
         currentUser = userClean;
-        alert(`Cuenta corporativa "${userClean}" registrada e iniciada.`);
+        alert(`Cuenta "${userClean}" registrada.`);
         
         const btnAcc = document.getElementById("btn-gestion-cuenta");
         if (btnAcc) btnAcc.innerText = `👤 ${userClean.toUpperCase()}`;
     }
     
-    // Limpieza de pantalla e inicio de flujo limpio para la cuenta cargada
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) chatBox.innerHTML = "";
     
@@ -343,13 +405,9 @@ function ejecutarAccionCuenta() {
 window.onload = function() {
     console.log("✅ Inicializando el núcleo del simulador GUGEL...");
 
-    // Enlazar evento del botón de gestión de cuenta
     const btnCuentas = document.getElementById("btn-gestion-cuenta");
-    if (btnCuentas) {
-        btnCuentas.onclick = ejecutarAccionCuenta;
-    }
+    if (btnCuentas) btnCuentas.onclick = ejecutarAccionCuenta;
 
-    // Vincular el formulario de envío de transmisiones
     const chatForm = document.getElementById('chat-form');
     if (chatForm) {
         chatForm.onsubmit = (e) => {
@@ -357,13 +415,13 @@ window.onload = function() {
             const input = document.getElementById('user-input');
             if (!input) return;
 
-            const userText = input.value.trim().toLowerCase();
+            const userText = input.value.trim();
             if (!userText) return;
 
-            // --- FILTRO ANTI-REPETICIÓN ---
+            // --- FILTRO ANTI-REPETICIÓN DEL USUARIO ---
             const esMuySimilar = gameState.history.some(h => {
-                const past = h.respuesta.replace(/\s+$/g, '');
-                const current = userText.replace(/\s+$/g, '');
+                const past = h.respuesta.trim().toLowerCase().replace(/\s+$/g, '');
+                const current = userText.trim().toLowerCase().replace(/\s+$/g, '');
                 return current.includes(past) || past.includes(current);
             });
 
@@ -372,18 +430,29 @@ window.onload = function() {
                 return;
             }
 
-            // Actualizar métricas globales
+            // Actualización de métricas
             gameState.cycles++;
             gameState.charsSent += userText.length;
 
             appendMessage('ai', userText);
-            
-            let reaccion = "vale me cuadra tiene logica";
+
+            // Simulación visual de procesamiento
+            const statusInd = document.getElementById('status-indicator');
+            if (statusInd) {
+                statusInd.innerText = "● escribiendo...";
+                statusInd.className = "status-typing";
+            }
+
+            let reaccion = generarReaccionGugel();
             
             setTimeout(() => {
+                if (statusInd) {
+                    statusInd.innerText = "● en línea";
+                    statusInd.className = "status-online";
+                }
+
                 appendMessage('gugel', reaccion);
                 
-                // Guardar en la estructura de registros
                 gameState.history.push({ 
                     pregunta: gameState.currentPregunta, 
                     respuesta: userText, 
@@ -394,7 +463,7 @@ window.onload = function() {
                 renderAllData();
                 guardarProgresoCuenta();
                 
-                // Modificar la interfaz para pausar el hilo de ejecución hasta pulsar Continuar
+                // Bloqueo temporal del input e inyección del paso intermedio
                 const transBtn = document.getElementById('transmit-btn');
                 const contBtn = document.getElementById('continue-btn');
                 
@@ -405,11 +474,18 @@ window.onload = function() {
                     contBtn.innerText = "CONTINUAR";
                     gameState.modoSeleccionadoSiguiente = gameState.modoActualJuego;
                 }
+
+                // --- SISTEMA "YA QUE HAS RESPONDIDO ESTO..." (Estilo Streaming) ---
+                const recBox = document.getElementById('streaming-recommendation');
+                if (recBox && gameState.ultimoSujetoInfinito) {
+                    const sugerencia = RECOMENDACIONES_MAP[gameState.ultimoSujetoInfinito] || "¿por qué el router se ha vuelto loco?";
+                    recBox.innerHTML = `📺 ya que has respondido esto, tal vez quieras procesar: <span style="text-decoration: underline; cursor: pointer;" onclick="inyectarPreguntaRecomendada('${sugerencia}')">${sugerencia}</span>`;
+                    recBox.style.display = "block";
+                }
             }, 600);
         };
     }
 
-    // Inicializar primera ronda de juego automáticamente al arrancar
     renderAllData();
     nextRound();
 };
