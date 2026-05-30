@@ -24,10 +24,62 @@ const INFINITO_PREDICADOS = ["mira fijo raro", "esta caliente quemando", "no enc
 
 const INDICADORES_COHERENCIA = ["porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", "es por", "como", "cuando"];
 
-const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido"];
-const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", "dios q pereza para decirme eso no pongas nada"];
-const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura mejor nada", "para esto apago el pc no me vaciles"];
-const FRASES_MUCHO_TEXTO = ["uf mucho texto ni de coña me leo eso", "me has escrito una biblia paso"];
+const FRASES_OK = [
+    "vale me cuadra tiene logica", 
+    "aah ya veo gracias me sirve", 
+    "cierto buen punto no habia caido", 
+    "ni tan mal tiene sentido",
+    "ok eso responde lo que queria",
+    "perfecto gracias por aclararlo",
+    "ah vale ya lo entiendo mejor",
+    "bueno me sirve la explicacion",
+    "ok anotado no parece dificil",
+    "entendido tiene bastante coherencia",
+    "no se me habia ocurrido pero vale",
+    "ahora si me queda claro el asunto"
+];
+
+const FRASES_RECHAZO = [
+    "vaya respuesta mas corta y vaga no aclaras nada", 
+    "ya esta? solo eso me vas a decir?", 
+    "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", 
+    "dios q pereza para decirme eso no pongas nada",
+    "menuda porqueria de respuesta muy vacia",
+    "explicate mejor q no me entero de nada",
+    "escribeme algo mas q pareces un bot perezoso",
+    "no me convence eso es muy simple",
+    "poca informacion me das para lo que pregunto",
+    "vaya linea mas pobre búscame otra cosa",
+    "esperaba mas texto y desarrollo de tu parte",
+    "eso no soluciona mi duda busca otra respuesta"
+];
+
+const FRASES_CRITICAS = [
+    "te estas riendo de mi? eso son letras al azar", 
+    "vaya troleo de ia para responderme esta basura mejor nada", 
+    "para esto apago el pc no me vaciles",
+    "pero q dices bicho raro no tiene sentido",
+    "estas rompiendome la cabeza con estas respuestas",
+    "que dejes de vacilarme pesado que no soy tonto",
+    "vete a tomar el pelo a otra parte",
+    "menuda estafa de ia me estas vacilando",
+    "no tiene coherencia ninguna lo que pones",
+    "deja de trolear de una vez y responde bien",
+    "esto es spam o que te pasa en el codigo",
+    "menudo timo de chat no entiendo nada de esas letras"
+];
+
+const FRASES_MUCHO_TEXTO = [
+    "uf mucho texto ni de coña me leo eso", 
+    "me has escrito una biblia paso",
+    "vaya chapa me acabas de meter en un momento",
+    "resume un poco q no tengo todo el dia para leer",
+    "menudo textaco paso de leer todo ese rollo",
+    "demasiadas palabras me da pereza maxima",
+    "vaya testamento te has marcado corta un poco",
+    "uf que pereza ver tanto parrafo junto"
+];
+
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
 const OPINIONES_BAJA = [
@@ -46,7 +98,7 @@ const OPINIONES_BAJA = [
     "(se siente insultado en tres idiomas distintos)", "(cree que tu placa base tiene oxido)", "(esta infraestructura pulsando f5 con una fuerza desmedida)", 
     "(piensa que eres un software de broma pesada)", "(asume que tu base de datos ocupa dos megas)", "(quiere arrancarse los ojos con un lapiz)", 
     "(piensa que eres un proyecto escolar suspenso)", "(cree que el buscador del teletexto era mas util)", "(esta desenchufando los altoves por si acaso)", 
-    "(se pregunta si te programaron en cinco minutos)", "(piensa que tu logica es un laberinto sin salida)", "(asume que eres un bot de spam mal camuflado)", 
+    "(se pregunta si te programaron en cinco minutos)", "(piensa que tu logika es un laberinto sin salida)", "(asume que eres un bot de spam mal camuflado)", 
     "(quiere tirar el cable de linea por el balcon)", "(cree que tu servidor funciona con poleas)", "(esta estas cancelando su suscripcion a internet)", 
     "(piensa que eres una perdida de tiempo electrico)", "(asume que tu memoria ram se evaporo)", "(quiere formatear hasta la bios)", "(cree que eres un castigo informatico)", 
     "(piensa que tu creador odiaba la tecnologia)", "(esta buscando la factura para devolver el pc)", "(asume que tu algoritmo tiene amnesia)", 
@@ -133,6 +185,7 @@ let gameState = {
     totalChars: 0, 
     lastOpinion: "(analizando conexiones...)", 
     lastReaccionText: "",
+    recentReactions: [],
     currentPregunta: "", 
     history: [], 
     logrosDesbloqueados: [] 
@@ -141,14 +194,19 @@ let gameState = {
 let currentUser = null; 
 const MAX_PALABRAS = 15;
 
-function obtenerElementoNoRepetido(arr, ultimoElemento) {
+function obtenerElementoNoRepetido(arr, excluidos) {
     if (!arr || arr.length === 0) return "";
-    if (arr.length === 1) return arr[0];
-    let elegido = arr[Math.floor(Math.random() * arr.length)];
-    while (elegido === ultimoElemento) {
-        elegido = arr[Math.floor(Math.random() * arr.length)];
+    
+    let listaExcluidos = Array.isArray(excluidos) ? excluidos : [excluidos];
+    let disponibles = arr.filter(el => !listaExcluidos.includes(el));
+    
+    if (disponibles.length === 0) {
+        let ultimoAbsoluto = listaExcluidos[listaExcluidos.length - 1];
+        disponibles = arr.filter(el => el !== ultimoAbsoluto);
+        if (disponibles.length === 0) disponibles = arr;
     }
-    return elegido;
+    
+    return disponibles[Math.floor(Math.random() * disponibles.length)];
 }
 
 function actualizarBotonCuentaUI() {
@@ -197,7 +255,7 @@ function ejecutarAccionCuenta() {
             if (!migrar) {
                 gameState = { 
                     modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
-                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", lastReaccionText: "", currentPregunta: "", history: [], logrosDesbloqueados: [] 
+                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", lastReaccionText: "", recentReactions: [], currentPregunta: "", history: [], logrosDesbloqueados: [] 
                 };
             }
         }
@@ -394,24 +452,34 @@ document.getElementById('chat-form').onsubmit = (e) => {
     let reaccion = "";
     let cambioSatisfacion = 0;
     
+    if (!gameState.recentReactions) {
+        gameState.recentReactions = [];
+    }
+    let excluidos = gameState.recentReactions;
+    
     if (esMuySimilar) {
-        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.lastReaccionText);
+        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, excluidos);
         cambioSatisfacion = -25;
         tipoResultado = "CRITICA";
     } else if (tipoResultado === "CRITICA") {
-        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.lastReaccionText);
+        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, excluidos);
         cambioSatisfacion = -15;
     } else if (tipoResultado === "RECHAZO") {
-        reaccion = obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.lastReaccionText);
+        reaccion = obtenerElementoNoRepetido(FRASES_RECHAZO, excluidos);
         cambioSatisfacion = -5;
     } else { 
         if (numPalabras > MAX_PALABRAS) {
-            reaccion = obtenerElementoNoRepetido(FRASES_MUCHO_TEXTO, gameState.lastReaccionText);
+            reaccion = obtenerElementoNoRepetido(FRASES_MUCHO_TEXTO, excluidos);
             cambioSatisfacion = -5;
         } else {
-            reaccion = obtenerElementoNoRepetido(FRASES_OK, gameState.lastReaccionText);
+            reaccion = obtenerElementoNoRepetido(FRASES_OK, excluidos);
             cambioSatisfacion = 10;
         }
+    }
+    
+    gameState.recentReactions.push(reaccion);
+    if (gameState.recentReactions.length > 2) {
+        gameState.recentReactions.shift();
     }
     
     gameState.lastReaccionText = reaccion;
