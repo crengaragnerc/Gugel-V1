@@ -3,85 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL: Simulador de IA</title>
+    <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
     <div id="app-container">
         <aside id="sidebar">
-            <div class="brand">SIMULADOR GUGEL</div>
+            <div class="brand">GUGEL: simulador de IA</div>
             
             <div class="menu-section">
-                <div class="section-title">MODOS DE OPERACIÓN</div>
-                <button id="btn-mode-campana" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                    CAMPAÑA (10)
+                <div class="section-title">🕹️ MODOS DE JUEGO</div>
+                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
+                    📌 LAS 10 CAMPAÑAS
                 </button>
                 <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
-                    INFINITO
+                    ♾️ PREGUNTAS INFINITAS
                 </button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">PANELES DE CONTROL</div>
-                <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core')">CONSOLA NÚCLEO</button>
+                <div class="section-title">🖥️ PANELES</div>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
                 <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
             </div>
-
-            <div class="menu-section">
-                <div class="section-title">CREDENCIALES</div>
-                <div id="user-status" class="account-label">INVITADO</div>
-                <button id="btn-gestion-cuenta">GESTIÓN DE CUENTA</button>
-            </div>
+            <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN CUENTA</button>
         </aside>
 
-        <main id="main-content">
-            <header id="panel-header">
-                <span id="panel-title-text">CONSOLA NÚCLEO</span>
-                <select id="mode-select" onchange="cambiarTema(this.value)">
-                    <option value="modo-hacker">Terminal (Hacker)</option>
-                    <option value="modo-claro">Estándar (Claro)</option>
-                    <option value="modo-oscuro">Nocturno (Oscuro)</option>
-                </select>
-            </header>
-
-            <section id="view-core" class="content-panel active">
-                <div id="chat-container">
-                    <div id="chat-messages"></div>
-                    <form id="chat-form">
-                        <input type="text" id="user-input" placeholder="Introducir respuesta generada..." autocomplete="off">
-                        <button type="submit" id="transmit-btn">TRANSMITIR</button>
-                        <button type="button" id="continue-btn" onclick="confirmContinue()">PROCESANDO (5)</button>
-                    </form>
-                </div>
-            </section>
+        <main id="chat-area">
+            <div id="chat-messages"></div>
+            <form id="chat-form">
+                <input type="text" id="user-input" placeholder="Escribe tu respuesta..." autocomplete="off">
+                <button type="submit">ENVIAR</button>
+            </form>
 
             <section id="view-perfil" class="content-panel">
                 <div class="card">
-                    <h3>Métricas de Rendimiento</h3>
+                    <h3>📊 Datos de Usuario</h3>
                     <div class="opinion-box" id="opinion-container">
-                        <strong>ÚLTIMA EVALUACIÓN DEL USUARIO:</strong> <span id="prof-opinion">Esperando datos...</span>
+                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
                     </div>
-                    <p><strong>Índice de satisfacción:</strong> <span id="prof-satisfaction">50%</span></p>
-                    <p><strong>Consultas resueltas:</strong> <span id="prof-cycles">0</span></p>
-                    <p><strong>Volumen de datos transmitidos:</strong> <span id="prof-chars">0</span> caracteres</p>
+                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
+                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
+                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
                 </div>
             </section>
 
             <section id="view-logros" class="content-panel">
                 <div class="card">
-                    <h3>Registro de Logros (<span id="logros-count">0</span> / 200)</h3>
-                    <p class="instruccion-menor">Los logros bloqueados son invisibles en la interfaz.</p>
+                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
                     <div id="logros-container" class="list-container"></div>
                 </div>
             </section>
 
             <section id="view-historial" class="content-panel">
                 <div class="card">
-                    <h3>Registros de Sesión</h3>
-                    <p class="instruccion-menor">Haz clic en un registro para ver el chat completo.</p>
-                    <button class="action-btn" onclick="exportCoreData()">Exportar Registros</button>
+                    <h3>📁 Historial de Conversaciones</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
                     <div id="history-list-container" class="list-container"></div>
                 </div>
             </section>
