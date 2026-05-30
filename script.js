@@ -22,7 +22,7 @@ const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya 
 const FRASES_MUCHO_TEXTO = ["uf mucho texto ni de coña me leo eso", "me has escrito una biblia paso"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
-// GENERACIÓN DE LAS 100 OPINIONES SEGÚN RANGOS DE SATISFACCIÓN
+// 100 OPINIONES SEGÚN RANGOS DE SATISFACCIÓN
 const OPINIONES_BAJA = [
     "(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)", "(esta buscando el boton de formatear)", 
     "(cree que este buscador lo programo un mono)", "(se le esta calentando la cpu del enfado)", "(va a denunciar la aplicacion)", "(piensa que eres peor que el malware de 2004)",
@@ -60,17 +60,19 @@ const OPINIONES_ALTA = [
     "(te considera la mayor obra de ingenieria actual)"
 ];
 
-// GENERACIÓN DE LOS 100 LOGROS
+// 100 LOGROS MÁS ENTENDIBLES Y DESCRIPTIVOS
 const GENERADOR_LOGROS = [];
+const CATEGORIAS_LOGROS = ["Arranque", "Fluidez", "Conexion", "Algoritmo", "Procesamiento", "Sincronia", "Estabilidad", "Búfer", "Filtro", "Rendimiento"];
 for (let i = 1; i <= 100; i++) {
+    let cat = CATEGORIAS_LOGROS[(i - 1) % CATEGORIAS_LOGROS.length];
     GENERADOR_LOGROS.push({
-        titulo: `Logro Core #${i}`,
-        desc: `Fase de optimizacion del nucleo superada con exito en el ciclo operacional numero ${i}.`
+        titulo: `Nivel de Red ${i}: [${cat}]`,
+        desc: `Has completado con exito el ciclo de respuesta número ${i} sin que el sistema colapse.`
     });
 }
 
 let gameState = { 
-    modoSeleccionadoSiguiente: "campaña", // Almacena la seleccion sin reiniciar el chat
+    modoSeleccionadoSiguiente: "campaña", 
     modoActualJuego: "campaña", 
     campanaIndex: 0,
     satisfaction: 50, 
@@ -84,23 +86,19 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// CORRECCIÓN CLAVE: NO REINICIA LA PREGUNTA AL CLICAR LOS BOTONES DE MODO
 function cambiarModoEstrategia(modo) {
     gameState.modoSeleccionadoSiguiente = modo;
     
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(`btn-mode-${modo}`).classList.add('active');
     
-    // Solo cambia visualmente el encabezado para indicar que la proxima pregunta sera de ese modo
     const modoTexto = modo === 'campaña' ? "Campaña" : "Modo Infinito";
     document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
     
-    // Nos asegura de llevar al usuario a la pantalla del chat sin alterar la pregunta actual
     switchView('view-core');
 }
 
 function switchView(viewId) {
-    // Correccion de superposición eliminando la clase active de todas las vistas antes de asignar
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
@@ -110,8 +108,8 @@ function switchView(viewId) {
     if (targetBtn) targetBtn.classList.add('active');
 }
 
+// ARREGLO DEL BUG: LEE EL MODO SELECCIONADO SOLO CUANDO SE CREA LA PREGUNTA
 function generarPregunta() {
-    // Sincroniza el modo real de ejecucion al empezar una nueva ronda limpia
     gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
     
     if (gameState.modoActualJuego === "campaña") {
@@ -150,11 +148,11 @@ function nextRound() {
     transmitBtn.disabled = true;
     
     let timeLeft = 5;
-    input.placeholder = `Procesando conexión... (${timeLeft}s)`;
+    input.placeholder = `Procesando entrada... (${timeLeft}s)`;
     
     const timer = setInterval(() => {
         timeLeft--;
-        input.placeholder = `Procesando conexión... (${timeLeft}s)`;
+        input.placeholder = `Procesando entrada... (${timeLeft}s)`;
         if (timeLeft <= 0) {
             clearInterval(timer);
             input.disabled = false;
@@ -218,30 +216,44 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion, tipo: tipoResultado, fav: false });
         
-        // Asignacion de logros de la lista de 100 progresivamente
         if (gameState.logrosDesbloqueados.length < 100) {
             gameState.logrosDesbloqueados.push(GENERADOR_LOGROS[gameState.logrosDesbloqueados.length]);
         }
 
         gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + cambioSatisfacion));
         
-        // ASIGNACIÓN EXCLUSIVA DE LAS 100 OPINIONES SEGÚN RANGO
         let listadoSeleccionado;
         if (gameState.satisfaction <= 25) listadoSeleccionado = OPINIONES_BAJA;
         else if (gameState.satisfaction <= 50) listadoSeleccionado = OPINIONES_MEDIA_BAJA;
         else if (gameState.satisfaction <= 75) listadoSeleccionado = OPINIONES_MEDIA_ALT_A;
         else listadoSeleccionado = OPINIONES_ALTA;
 
-        // Selecciona una opinion de las 25 disponibles de ese rango especifico de forma aleatoria
         gameState.lastOpinion = listadoSeleccionado[Math.floor(Math.random() * listadoSeleccionado.length)];
 
         renderAllData();
+
+        // SEGUNDO TEMPORIZADOR OBLIGATORIO DE 5 SEGUNDOS PARA EL BOTÓN CONTINUAR
+        input.style.display = "none";
+        transmitBtn.style.display = "none";
+        continueBtn.style.display = "block";
+        continueBtn.disabled = true;
+        
+        let continueTimeLeft = 5;
+        continueBtn.innerText = `CONTINUAR (${continueTimeLeft}s)`;
+        
+        const continueTimer = setInterval(() => {
+            continueTimeLeft--;
+            continueBtn.innerText = `CONTINUAR (${continueTimeLeft}s)`;
+            if (continueTimeLeft <= 0) {
+                clearInterval(continueTimer);
+                continueBtn.disabled = false;
+                continueBtn.innerText = "CONTINUAR";
+            }
+        }, 1000);
+
     }, 600);
 
     input.value = "";
-    input.style.display = "none";
-    transmitBtn.style.display = "none";
-    continueBtn.style.display = "block";
 };
 
 function renderAllData() {
@@ -250,12 +262,10 @@ function renderAllData() {
     document.getElementById('prof-cycles').innerText = gameState.cycles;
     document.getElementById('prof-chars').innerText = gameState.totalChars;
 
-    // Render Logros
     const lContainer = document.getElementById('logros-container');
     document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
     lContainer.innerHTML = gameState.logrosDesbloqueados.map(l => `<div class="list-item">🟢 <strong>[${l.titulo}]:</strong> ${l.desc}</div>`).join('') || "No hay logros registrados.";
 
-    // Render Historial
     const hContainer = document.getElementById('history-list-container');
     hContainer.innerHTML = gameState.history.map((h, idx) => `
         <div class="historial-item">
