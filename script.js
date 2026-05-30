@@ -136,7 +136,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Línea Directa", d: "Estableciste un puente de comunicación directo con el usuario." },
     { t: "IA de Élite", d: "GUGEL sospecha que eres un proyecto secreto gubernamental." },
     { t: "Filtro Pasivo", d: "Superaste los peores intentos de saturación del canal." },
-    { t: "Memoria de Silicio", d: "Almacenaste los logs sin ocupar espacio innecesario." },
+    { t: "Memoria de Silicio", d: "Almacenaste los logs sin ocupar espacio innecessario." },
     { t: "Sin Erratas", d: "Tu salida de texto es impecable a nivel de caracteres." },
     { t: "Resistencia de Red", d: "Soportaste una ráfaga de preguntas sin parpadear." },
     { t: "Núcleo Blindado", d: "Ninguna crítica del usuario ha alterado tus variables globales." },
@@ -177,22 +177,52 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// CORRECCIÓN DEL FLUJO DE MODOS: ACTUALIZA EL TEXTO VISIBLE SIN ALTERAR EL CHAT EN CURSO
+// CORRECCIÓN DE LIMPIEZA INMEDIATA AL CAMBIAR DE MODO desde la barra lateral
 function cambiarModoEstrategia(modo) {
     gameState.modoSeleccionadoSiguiente = modo;
+    gameState.modoActualJuego = modo;
     
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(`btn-mode-${modo}`).classList.add('active');
     
     const modoTexto = modo === 'campaña' ? "Campaña" : "Modo Infinito";
-    const inputVisible = document.getElementById('user-input').style.display !== "none";
+    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
     
-    // Si hay una pregunta activa esperando respuesta, avisamos en el título que cambiará después
-    if (inputVisible && gameState.modoActualJuego !== modo) {
-        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto} (Se aplicará al CONTINUAR)`;
-    } else {
-        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
-    }
+    // LIMPIAMOS EL CHAT VIEJO visualmente de forma inmediata
+    document.getElementById('chat-messages').innerHTML = "";
+    
+    // Forzamos la generación y despliegue instantáneo de la nueva pregunta correcta
+    const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    
+    continueBtn.style.display = "none";
+    input.style.display = "block";
+    transmitBtn.style.display = "block";
+
+    gameState.currentPregunta = generarPregunta();
+    appendMessage('gugel', gameState.currentPregunta);
+    
+    // Iniciamos el bloqueo obligatorio del búfer de 5 segundos
+    input.disabled = true;
+    transmitBtn.disabled = true;
+    
+    let timeLeft = 5;
+    input.placeholder = `Procesando entrada... (${timeLeft}s)`;
+    
+    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+    
+    window.currentRoundTimer = setInterval(() => {
+        timeLeft--;
+        input.placeholder = `Procesando entrada... (${timeLeft}s)`;
+        if (timeLeft <= 0) {
+            clearInterval(window.currentRoundTimer);
+            input.disabled = false;
+            transmitBtn.disabled = false;
+            input.placeholder = "introduce tu respuesta de ia...";
+            input.focus();
+        }
+    }, 1000);
     
     switchView('view-core');
 }
@@ -208,7 +238,6 @@ function switchView(viewId) {
 }
 
 function generarPregunta() {
-    // El modo real se asume formalmente al generar la pregunta
     gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
     
     if (gameState.modoActualJuego === "campaña") {
@@ -242,7 +271,6 @@ function nextRound() {
 
     gameState.currentPregunta = generarPregunta();
     
-    // Sincroniza el encabezado con el modo de juego real que se ejecuta en esta ronda
     const modoTexto = gameState.modoActualJuego === 'campaña' ? "Campaña" : "Modo Infinito";
     document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
 
@@ -254,11 +282,13 @@ function nextRound() {
     let timeLeft = 5;
     input.placeholder = `Procesando entrada... (${timeLeft}s)`;
     
-    const timer = setInterval(() => {
+    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+    
+    window.currentRoundTimer = setInterval(() => {
         timeLeft--;
         input.placeholder = `Procesando entrada... (${timeLeft}s)`;
         if (timeLeft <= 0) {
-            clearInterval(timer);
+            clearInterval(window.currentRoundTimer);
             input.disabled = false;
             transmitBtn.disabled = false;
             input.placeholder = "introduce tu respuesta de ia...";
