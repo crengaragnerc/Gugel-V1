@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL: simulador de IA</title>
+    <title>GUGEL: Simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
     <div id="app-container">
         <aside id="sidebar">
-            <div class="brand">GUGEL: simulador de IA</div>
+            <div class="brand">SIMULADOR GUGEL</div>
             
             <div class="menu-section">
-                <div class="section-title">MODOS DE JUEGO</div>
-                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                    LAS 10 CAMPAÑAS
+                <div class="section-title">MODOS DE OPERACIÓN</div>
+                <button id="btn-mode-campana" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
+                    CAMPAÑA (10)
                 </button>
                 <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
-                    PREGUNTAS INFINITAS
+                    INFINITO
                 </button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">PANELES</div>
+                <div class="section-title">PANELES DE CONTROL</div>
                 <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core')">CONSOLA NÚCLEO</button>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
                 <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
@@ -30,19 +30,19 @@
             </div>
 
             <div class="menu-section">
-                <div class="section-title">USUARIO</div>
+                <div class="section-title">CREDENCIALES</div>
                 <div id="user-status" class="account-label">INVITADO</div>
-                <button id="btn-gestion-cuenta">CREAR / INICIAR CUENTA</button>
+                <button id="btn-gestion-cuenta">GESTIÓN DE CUENTA</button>
             </div>
         </aside>
 
         <main id="main-content">
             <header id="panel-header">
-                <span id="panel-title-text">Consola Núcleo</span>
+                <span id="panel-title-text">CONSOLA NÚCLEO</span>
                 <select id="mode-select" onchange="cambiarTema(this.value)">
-                    <option value="modo-hacker">Modo Hacker</option>
-                    <option value="modo-claro">Modo Claro</option>
-                    <option value="modo-oscuro">Modo Oscuro</option>
+                    <option value="modo-hacker">Terminal (Hacker)</option>
+                    <option value="modo-claro">Estándar (Claro)</option>
+                    <option value="modo-oscuro">Nocturno (Oscuro)</option>
                 </select>
             </header>
 
@@ -50,36 +50,38 @@
                 <div id="chat-container">
                     <div id="chat-messages"></div>
                     <form id="chat-form">
-                        <input type="text" id="user-input" placeholder="introduce tu respuesta de ia..." autocomplete="off">
+                        <input type="text" id="user-input" placeholder="Introducir respuesta generada..." autocomplete="off">
                         <button type="submit" id="transmit-btn">TRANSMITIR</button>
-                        <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR (5)</button>
+                        <button type="button" id="continue-btn" onclick="confirmContinue()">PROCESANDO (5)</button>
                     </form>
                 </div>
             </section>
 
             <section id="view-perfil" class="content-panel">
                 <div class="card">
-                    <h3>Datos de Usuario</h3>
+                    <h3>Métricas de Rendimiento</h3>
                     <div class="opinion-box" id="opinion-container">
-                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)'</span>
+                        <strong>ÚLTIMA EVALUACIÓN DEL USUARIO:</strong> <span id="prof-opinion">Esperando datos...</span>
                     </div>
-                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
-                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
-                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
+                    <p><strong>Índice de satisfacción:</strong> <span id="prof-satisfaction">50%</span></p>
+                    <p><strong>Consultas resueltas:</strong> <span id="prof-cycles">0</span></p>
+                    <p><strong>Volumen de datos transmitidos:</strong> <span id="prof-chars">0</span> caracteres</p>
                 </div>
             </section>
 
             <section id="view-logros" class="content-panel">
                 <div class="card">
-                    <h3>Logros de Sistema Desbloqueados (<span id="logros-count">0</span>)</h3>
+                    <h3>Registro de Logros (<span id="logros-count">0</span> / 200)</h3>
+                    <p class="instruccion-menor">Los logros bloqueados son invisibles en la interfaz.</p>
                     <div id="logros-container" class="list-container"></div>
                 </div>
             </section>
 
             <section id="view-historial" class="content-panel">
                 <div class="card">
-                    <h3>Historial de Conversaciones</h3>
-                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <h3>Registros de Sesión</h3>
+                    <p class="instruccion-menor">Haz clic en un registro para ver el chat completo.</p>
+                    <button class="action-btn" onclick="exportCoreData()">Exportar Registros</button>
                     <div id="history-list-container" class="list-container"></div>
                 </div>
             </section>
