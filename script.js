@@ -28,7 +28,7 @@ const OPINIONES_BAJA = [
     "(esta buscando el destornillador para abrir el pc)", "(asume que eres un chat obsoleto)", "(piensa que no sirves ni para calcular 2+2)", "(esta insulting al monitor)",
     "(se siente estafado por la tecnologia)", "(cree que le estas robando contraseñas)", "(va a tirar el portatil por la ventana)", "(piensa que eres un bot roto)",
     "(esta respirando fuerte del cabreo)", "(quiere desinstalar internet de su casa)", "(piensa que le estas tomando el pelo)", "(esta buscando alternativas en papel)",
-    "(cree que eres un virus de publicidad)", "(asume que tu base de datos esta vacia)", "(va a apagar el cuadro electrico)", "(se arrepiente de encender el pc hoy)",
+    "(cree que eres un virus de publicidad)", "(asume que tu base de datos esta vacia)", "(va a pagar el cuadro electrico)", "(se arrepiente de encender el pc hoy)",
     "(piensa que tiene mas luces un disquete viejo)",
     "(cree que tu codigo se hizo con recortes de prensa)", "(esta buscando un hacha para el cable de red)", "(asume que respondes tirando dados)", "(le da un puñetazo leve a la mesa)",
     "(piensa que un tamagotchi muerto es mas listo)", "(se pregunta si usas windows 95)", "(quiere denunciar tus servidores a la policia)", "(cree que eres un virus que ralentiza los videos)",
@@ -36,7 +36,7 @@ const OPINIONES_BAJA = [
     "(piensa que un bot de msn de 205 era superior)", "(esta buscando como borrarte del registro)", "(cree que tu unico proposito es molestar)", "(asume que estas hecho con macros de excel mal optimizadas)",
     "(esta planeando mudarse al campo sin cobertura)", "(piensa que generas respuestas con una tómbola)", "(se siente insultado en tres idiomas distintos)", "(cree que tu placa base tiene oxido)",
     "(esta pulsando f5 con una fuerza desmedida)", "(piensa que eres un software de broma pesada)", "(asume que tu base de datos ocupa dos megas)", "(quiere arrancarse los ojos con un lapiz)",
-    "(piensa que eres un proyecto escolar suspenso)", "(cree que el buscador del teletexto era mas util)", "(esta desenchufando los altavoces por si acaso)", "(se pregunta si te programaron en cinco minutos)",
+    "(piensa que eres un proyecto escolar suspenso)", "(cree que el buscador del teletexto era mas util)", "(esta desenchufando los altoves por si acaso)", "(se pregunta si te programaron en cinco minutos)",
     "(piensa que tu logica es un laberinto sin salida)", "(asume que eres un bot de spam mal camuflado)", "(quiere tirar el cable de linea por el balcon)", "(cree que tu servidor funciona con poleas)",
     "(esta cancelando su suscripcion a internet)", "(piensa que eres una perdida de tiempo electrico)", "(asume que tu memoria ram se evaporo)", "(quiere formatear hasta la bios)",
     "(cree que eres un castigo informatico)", "(piensa que tu creador odiaba la tecnologia)", "(esta buscando la factura para devolver el pc)", "(asume que tu algoritmo tiene amnesia)",
@@ -227,7 +227,73 @@ let gameState = {
     logrosDesbloqueados: [] 
 };
 
+let currentUser = null; // Almacena el usuario autenticado (null = sesión de invitado)
+
 const MAX_PALABRAS = 15;
+
+// ==========================================
+// SISTEMA DE CUENTAS (OPCIONAL)
+// ==========================================
+function ejecutarAccionCuenta() {
+    const userIn = prompt("Introduce tu nombre de usuario para Registrarte/Iniciar Sesión:\n(Déjalo en blanco o cancela para seguir como invitado)");
+    if (userIn === null) return;
+    
+    const userClean = userIn.trim().toLowerCase();
+    if (!userClean) {
+        alert("El nombre de usuario no puede estar vacío.");
+        return;
+    }
+
+    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+
+    if (copiaUsuarios[userClean]) {
+        // Iniciar Sesión existente
+        currentUser = userClean;
+        gameState = copiaUsuarios[userClean];
+        alert(`Sesión iniciada correctamente. Bienvenido, ${userClean}.`);
+    } else {
+        // Registrar cuenta nueva de forma transparente e importar progreso actual si se desea
+        if (gameState.cycles > 0 || gameState.history.length > 0) {
+            const migrar = confirm("¿Quieres vincular tu partida actual de invitado a esta nueva cuenta?");
+            if (!migrar) {
+                // Si no migra, inicializa desde cero para la cuenta nueva
+                gameState = { 
+                    modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
+                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", currentPregunta: "", history: [], logrosDesbloqueados: [] 
+                };
+            }
+        }
+        currentUser = userClean;
+        copiaUsuarios[userClean] = gameState;
+        localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
+        alert(`Cuenta "${userClean}" creada con éxito.`);
+    }
+
+    actualizarBotonCuentaUI();
+    renderAllData();
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
+    nextRound();
+}
+
+function guardarProgresoCuenta() {
+    if (!currentUser) return; // Si es invitado, no hace nada de forma obligatoria
+    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    copiaUsuarios[currentUser] = gameState;
+    localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
+}
+
+function actualizarBotonCuentaUI() {
+    const btnCuentas = document.getElementById("btn-gestion-cuenta");
+    if (!btnCuentas) return;
+    if (currentUser) {
+        btnCuentas.innerHTML = `⚙️ CUENTA: <strong>${currentUser}</strong>`;
+        btnCuentas.style.color = "#00ffcc";
+    } else {
+        btnCuentas.innerHTML = "👤 CREAR CUENTA";
+        btnCuentas.style.color = "";
+    }
+}
 
 function cambiarModoEstrategia(modo) {
     const modoLimpio = (modo === 'campaña' || modo === 'campana') ? 'campaña' : 'infinito';
@@ -359,7 +425,6 @@ function analizarRespuesta(respuesta, numPalabras, palabrasArray) {
     let textoSinEspacios = respuesta.replace(/\s+/g, '');
     if (/(.)\1{4,}/.test(textoSinEspacios)) return "CRITICA";
     
-    // FILTRO DE REPETICIÓN DE PALABRAS (ANTI-SPAM)
     if (palabrasArray.length >= 4) {
         let conteoPalabras = {};
         let maximaRepeticion = 0;
@@ -369,7 +434,6 @@ function analizarRespuesta(respuesta, numPalabras, palabrasArray) {
                 maximaRepeticion = conteoPalabras[p];
             }
         });
-        // Si una sola palabra representa más del 50% de un mensaje largo, es spam repetitivo
         if (maximaRepeticion > palabrasArray.length * 0.5) {
             return "CRITICA";
         }
@@ -439,6 +503,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         gameState.lastOpinion = listadoSelected[Math.floor(Math.random() * listadoSelected.length)];
 
+        guardarProgresoCuenta(); // Sincroniza datos si hay cuenta activa
         renderAllData();
 
         if (gameState.modoActualJuego === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
@@ -546,6 +611,7 @@ window.verChatHistorial = function(idx, event) {
 window.toggleFavorite = function(idx, event) {
     if (event) event.stopPropagation();
     gameState.history[idx].fav = !gameState.history[idx].fav;
+    guardarProgresoCuenta();
     renderAllData();
 };
 
@@ -567,6 +633,12 @@ function exportCoreData() {
 }
 
 window.onload = function() {
+    // Escucha el clic del botón del menú lateral que definas en tu HTML con id="btn-gestion-cuenta"
+    const btnCuentas = document.getElementById("btn-gestion-cuenta");
+    if (btnCuentas) {
+        btnCuentas.onclick = ejecutarAccionCuenta;
+    }
+    actualizarBotonCuentaUI();
     renderAllData();
     nextRound();
 };
