@@ -46,7 +46,7 @@ const FRASES_OK = [
     "buena respuesta se nota que comprendes",
     "me sirve bastante esta explicacion concisa",
     "tiene coherencia absoluta me lo apunto",
-    "ok anotado queda claro el concepto",
+    "ok anotado queda claro el concept",
     "me parece correcto el planteamiento",
     "vale entiendo el punto perfectamente",
     "gracias por resolver la duda de forma clara",
@@ -70,7 +70,7 @@ const FRASES_OK = [
     "ninguna objecion al argumento", 
     "la respuesta es totalmente valida", 
     "anotado en los registros del sistema", 
-    "informacion estructurada correctamente", 
+    "informacion estruturada correctamente", 
     "todo claro en este punto", 
     "explicacion concisa y directa", 
     "datos validados sin problemas", 
@@ -407,7 +407,8 @@ let gameState = {
     recentReactions: [],
     currentPregunta: "", 
     history: [], 
-    logrosDesbloqueados: [] 
+    logrosDesbloqueados: [],
+    tema: "modo-hacker"
 };
 
 let currentUser = null; 
@@ -457,6 +458,7 @@ function ejecutarAccionCuenta() {
         if (passIn === db[userClean].pass) {
             currentUser = userClean;
             gameState = db[userClean].data; 
+            document.body.className = gameState.tema || "modo-hacker";
             alert(`Sesión iniciada correctamente. Bienvenido, ${userClean}.`);
         } else {
             alert("Contraseña incorrecta. Acceso denegado.");
@@ -474,7 +476,7 @@ function ejecutarAccionCuenta() {
             if (!migrar) {
                 gameState = { 
                     modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
-                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", lastReaccionText: "", recentReactions: [], currentPregunta: "", history: [], logrosDesbloqueados: [] 
+                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", lastReaccionText: "", recentReactions: [], currentPregunta: "", history: [], logrosDesbloqueados: [], tema: "modo-hacker"
                 };
             }
         }
@@ -482,6 +484,7 @@ function ejecutarAccionCuenta() {
         currentUser = userClean;
         db[userClean] = { pass: passIn, data: gameState };
         localStorage.setItem("gugel_users", JSON.stringify(db));
+        document.body.className = gameState.tema || "modo-hacker";
         alert(`Cuenta "${userClean}" creada con éxito.`);
     }
 
@@ -806,6 +809,19 @@ function renderAllData() {
     }
 }
 
+window.ciclarTema = function() {
+    const temas = ["modo-hacker", "modo-oscuro", "modo-claro"];
+    let currentTema = gameState.tema || "modo-hacker";
+    let idx = temas.indexOf(currentTema);
+    if (idx === -1) idx = 0;
+    
+    let nextIdx = (idx + 1) % temas.length;
+    gameState.tema = temas[nextIdx];
+    
+    document.body.className = gameState.tema;
+    guardarProgresoCuenta();
+};
+
 window.verChatHistorial = function(idx, event) {
     if (event) event.stopPropagation();
     const h = gameState.history[idx];
@@ -875,6 +891,7 @@ window.onload = function() {
         btnCuentas.onclick = ejecutarAccionCuenta;
     }
 
+    document.body.className = gameState.tema || "modo-hacker";
     actualizarBotonCuentaUI();
     renderAllData();
     nextRound();
