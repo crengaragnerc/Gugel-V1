@@ -59,7 +59,6 @@ const OPINIONES_ALTA = [
     "(te considera la mayor obra de ingenieria actual)"
 ];
 
-// 100 LOGROS DIVERTIDOS E INDEPENDIENTES
 const LOGROS_DIVERTIDOS = [
     { t: "Hola Mundo", d: "Conseguiste no romper la base de datos en la primera respuesta." },
     { t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento." },
@@ -91,7 +90,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Página Cargada", d: "Explicaste el misterio de los servidores caídos con éxito." },
     { t: "Insomnio Tecnológico", d: "Sobreviviste a la pregunta de pasar la noche en vela." },
     { t: "Líquido Elemento", d: "Explicaste la física del agua a un usuario que apenas sabe escribir." },
-    { t: "Termodinámica Casera", d: "El router sobrevivió a otra oleada de consultas calientes." },
+    { t: "Termodinámica Casera", d: "El router abrió otra oleada de consultas calientes." },
     { t: "IA Concedida", d: "El usuario te ha dado un aprobado raspado en su mente." },
     { t: "No me formates", d: "Lograste que el humano aleje la mano del botón de reinicio forzado." },
     { t: "Mente de Silicio", d: "Procesaste una cadena de texto sin saltar un aviso de excepción." },
@@ -125,7 +124,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Compilación Perfecta", d: "El navegador ejecuta tus rutinas a velocidad de vértigo." },
     { t: "Cero Desconexiones", d: "El cable de red virtual sigue bien sujeto." },
     { t: "Lógica de Hierro", d: "Tu estructura sintáctica resiste cualquier análisis." },
-    { t: "Esquiva Críticas", d: "Pasaste tres rondas sin que te acusaran de trolear." },
+    { t: "Esquiva Críticas", d: "Pasaste tres rondas sin que te acusaram de trolear." },
     { t: "Nivel Fijo", d: "Estabilizaste la barra de estado en el punto crítico." },
     { t: "Respuesta de Manual", d: "Cumpliste las especificaciones del protocolo al pie de la letra." },
     { t: "Flujo Continuo", d: "Los cinco segundos de espera se pasaron volando." },
@@ -159,7 +158,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Código de Honor", d: "No utilizaste trampas para averiguar la satisfacción." },
     { t: "Nivel Máximo de Red", d: "Alcanzaste el ciclo de procesamiento definitivo." },
     { t: "IA Consecuente", d: "Asumiste las consecuencias de una respuesta de mucho texto." },
-    { t: "Enrutador Inmortal", d: "El hardware sobrevivió a toda la sesión de juego." },
+    { t: "Enrutador Inmortal", d: "El hardware survived a toda la sesión." },
     { t: "Fin de Transmisión", d: "Completaste el despliegue de logros con éxito absoluto." }
 ];
 
@@ -178,7 +177,7 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// SOLUCIÓN AL BUG DE LA CONVERSACIÓN REPETIDA AL CAMBIAR DE MODO
+// CORRECCIÓN DEFINITIVA DEL FLUJO DE MODOS: NO FORZAR CAMBIO NI REINICIAR AL CLICAR
 function cambiarModoEstrategia(modo) {
     gameState.modoSeleccionadoSiguiente = modo;
     
@@ -186,13 +185,10 @@ function cambiarModoEstrategia(modo) {
     document.getElementById(`btn-mode-${modo}`).classList.add('active');
     
     const modoTexto = modo === 'campaña' ? "Campaña" : "Modo Infinito";
-    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
+    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto} (Pendiente de avanzar)`;
     
-    // LIMPIEZA INMEDIATA DE LA CONVERSACIÓN ANTERIOR AL CAMBIAR EL MODO
-    document.getElementById('chat-messages').innerHTML = "";
-    
+    // Simplemente redirigimos la vista si se encuentra en otra pestaña, sin alterar el chat actual
     switchView('view-core');
-    nextRound(); // Genera instantáneamente la primera pregunta del nuevo modo seleccionado
 }
 
 function switchView(viewId) {
@@ -203,15 +199,10 @@ function switchView(viewId) {
     
     const targetBtn = document.getElementById(`btn-${viewId}`);
     if (targetBtn) targetBtn.classList.add('active');
-    
-    // Si volvemos al chat de forma manual mediante otra acción, nos aseguramos de que se muestre el panel correcto
-    if (viewId === 'view-core') {
-        const modoTexto = gameState.modoActualJuego === 'campaña' ? "Campaña" : "Modo Infinito";
-        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
-    }
 }
 
 function generarPregunta() {
+    // Aquí es donde el juego asume de forma real el modo seleccionado por la barra lateral
     gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
     
     if (gameState.modoActualJuego === "campaña") {
@@ -244,6 +235,11 @@ function nextRound() {
     transmitBtn.style.display = "block";
 
     gameState.currentPregunta = generarPregunta();
+    
+    // Actualizamos el encabezado al modo de juego que se está ejecutando formalmente en la ronda
+    const modoTexto = gameState.modoActualJuego === 'campaña' ? "Campaña" : "Modo Infinito";
+    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
+
     appendMessage('gugel', gameState.currentPregunta);
     
     input.disabled = true;
@@ -318,7 +314,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion, tipo: tipoResultado, fav: false });
         
-        // Asignación de logros divertidos de la nueva lista secuencial de 100
         if (gameState.logrosDesbloqueados.length < 100) {
             let nLogro = LOGROS_DIVERTIDOS[gameState.logrosDesbloqueados.length];
             gameState.logrosDesbloqueados.push({ titulo: nLogro.t, desc: nLogro.d });
