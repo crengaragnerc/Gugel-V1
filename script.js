@@ -7,8 +7,7 @@
 
     if (esMuySimilar) {
         alert("ya has dicho algo parecido, intenta ser más original.");
-        return;
-    }
+    
     // ------------------------------
 function exportCoreData() {
     let txt = gameState.history.map(h => `${h.respuesta}`).join('\n');
