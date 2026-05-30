@@ -1,3 +1,30 @@
+// --- FILTRO ANTI-REPETICIÓN ---
+    const esMuySimilar = gameState.history.some(h => {
+        const past = h.respuesta.replace(/s+$/g, '');
+        const current = userText.replace(/s+$/g, '');
+        return current.includes(past) || past.includes(current);
+    });
+
+    if (esMuySimilar) {
+        alert("ya has dicho algo parecido, intenta ser más original.");
+        return;
+    }
+    // ------------------------------
+function exportCoreData() {
+    let txt = gameState.history.map(h => `${h.respuesta}`).join('\n');
+    navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Respuestas copiadas al portapapeles."));
+}
+// Añade esto cerca de tus otras constantes al principio
+const PLANTILLAS_PREGUNTAS = [
+    "¿por qué [s] [p]?",
+    "¿es normal que [s] [p]?",
+    "¿cómo explicas que [s] [p]?",
+    "¿qué sucede cuando [s] [p]?",
+    "¿me dices por qué [s] [p]?"
+];
+
+const INFINITO_SUJETOS = ["mi gato", "el router", "la conexión", "el vecino", "la plastilina", "el teclado", "la batería", "el wifi", "el cargador"];
+const INFINITO_PREDICADOS = ["está ardiendo", "hace un ruido raro", "se ha vuelto loco", "no enciende", "parpadea todo el rato", "se queda pillado", "está muy lento"];
 // ==========================================
 // SISTEMA DE CUENTAS (CON PASSWORD)
 // ==========================================
@@ -363,13 +390,12 @@ function generarPregunta() {
             gameState.campanaCompletada = true;
             return null;
         }
-        let q = PREGUNTAS_CAMPANA[gameState.campanaIndex];
-        gameState.campanaIndex++;
-        return q;
+        return PREGUNTAS_CAMPANA[gameState.campanaIndex++];
     } else {
-        let s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-        let p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-        return `${s} ${p}`;
+        const s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+        const p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+        return plantilla.replace("[s]", s).replace("[p]", p);
     }
 }
 
@@ -555,22 +581,14 @@ document.getElementById('chat-form').onsubmit = (e) => {
 };
 
 function renderAllData() {
-    const profOpinion = document.getElementById('prof-opinion');
-    const profSatisfaction = document.getElementById('prof-satisfaction');
-    const profCycles = document.getElementById('prof-cycles');
-    const profChars = document.getElementById('prof-chars');
+    // ... (tu código anterior de renderizado) ...
 
-    if (profOpinion) profOpinion.innerText = gameState.lastOpinion;
-    if (profSatisfaction) profSatisfaction.innerText = `${gameState.satisfaction}%`;
-    if (profCycles) profCycles.innerText = gameState.cycles;
-    if (profChars) profChars.innerText = gameState.totalChars;
-
-    const lContainer = document.getElementById('logros-container');
-    const lCount = document.getElementById('logros-count');
-    if (lCount) lCount.innerText = gameState.logrosDesbloqueados.length;
-    if (lContainer) {
-        lContainer.innerHTML = gameState.logrosDesbloqueados.map(l => `<div class="list-item">🟢 <strong>[${l.titulo}]:</strong> ${l.desc}</div>`).join('') || "No hay logros registrados.";
+    // AÑADE ESTO AL FINAL DE LA FUNCIÓN:
+    const btnC = document.getElementById('btn-mode-campaña') || document.getElementById('btn-mode-campana');
+    if (btnC) {
+        btnC.style.display = gameState.campanaCompletada ? "none" : "inline-block";
     }
+}
 
     const hContainer = document.getElementById('history-list-container');
     if (hContainer) {
