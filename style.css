@@ -106,6 +106,12 @@ body.modo-claro {
     border-color: var(--accent);
 }
 
+.menu-btn.active {
+    border-color: var(--accent);
+    color: var(--text-gugel);
+    background-color: var(--bg-main);
+}
+
 .main-content {
     flex: 1;
     background-color: var(--bg-main);
@@ -237,16 +243,4 @@ body.modo-claro {
     align-items: center;
     font-size: 0.85rem;
     line-height: 1.4;
-}
-
-.fav-btn {
-    background: none;
-    border: none;
-    color: #444;
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-.fav-btn.active {
-    color: #ffcc00;
 }
