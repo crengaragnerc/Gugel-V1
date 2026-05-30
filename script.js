@@ -1,3 +1,12 @@
+const PLANTILLAS_PREGUNTAS = [
+    "¿por qué [s] [p]?",
+    "¿es normal que [s] [p]?",
+    "¿cómo explicas que [s] [p]?",
+    "¿qué sucede cuando [s] [p]?",
+    "¿me dices por qué [s] [p]?"
+];
+const INFINITO_SUJETOS = ["mi gato", "el router", "la conexión", "el vecino", "la plastilina", "el teclado", "la batería", "el wifi", "el cargador"];
+const INFINITO_PREDICADOS = ["está ardiendo", "hace un ruido raro", "se ha vuelto loco", "no enciende", "parpadea todo el rato", "se queda pillado", "está muy lento"];
 function exportCoreData() {
     let txt = gameState.history.map(h => `${h.respuesta}`).join('\n');
     navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Respuestas copiadas."));
