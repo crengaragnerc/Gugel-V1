@@ -1,8 +1,8 @@
 // =================================================================
-// GUGEL: VERSIÓN MAESTRA COMPLETA (INCLUYE TODAS LAS LISTAS)
+// GUGEL: VERSIÓN MAESTRA COMPLETA (NO TOCAR - NO SIMPLIFICAR)
 // =================================================================
 
-// --- 1. CONFIGURACIÓN Y BASES DE DATOS ---
+// --- 1. LISTAS COMPLETAS (NO BORRAR) ---
 const PLANTILLAS_PREGUNTAS = [
     "¿por qué [s] [p]?", "¿es normal que [s] [p]?", "¿cómo explicas que [s] [p]?",
     "¿qué sucede cuando [s] [p]?", "¿me dices por qué [s] [p]?"
@@ -127,13 +127,23 @@ const LOGROS_DIVERTIDOS = [
     { t: "Fin de Transmisión", d: "Completaste el despliegue de logros con éxito absoluto." }
 ];
 
+// --- 2. ESTADO DEL SISTEMA ---
 let gameState = { 
-    modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
-    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", currentPregunta: "", history: [], logrosDesbloqueados: [] 
+    modoSeleccionadoSiguiente: "campaña", 
+    modoActualJuego: "campaña", 
+    campanaIndex: 0, 
+    campanaCompletada: false,
+    satisfaction: 50, 
+    cycles: 0, 
+    totalChars: 0, 
+    lastOpinion: "(analizando conexiones...)", 
+    currentPregunta: "", 
+    history: [], 
+    logrosDesbloqueados: [] 
 };
 let currentUser = null;
 
-// --- 2. FUNCIONES DE LÓGICA Y CUENTAS ---
+// --- 3. FUNCIONES DE LÓGICA Y CUENTAS ---
 function ejecutarAccionCuenta() {
     const userIn = prompt("Introduce tu usuario:");
     if (userIn === null) return;
@@ -146,7 +156,7 @@ function ejecutarAccionCuenta() {
             currentUser = userClean;
             gameState = db[userClean].data;
             alert("Sesión iniciada.");
-        } else { alert("Error."); }
+        } else { alert("Error de credenciales."); }
     } else {
         const passIn = prompt("Nueva contraseña:");
         if (passIn) {
@@ -155,7 +165,6 @@ function ejecutarAccionCuenta() {
             alert("Cuenta creada.");
         }
     }
-    actualizarBotonCuentaUI();
     renderAllData();
     nextRound();
 }
@@ -169,16 +178,11 @@ function guardarProgresoCuenta() {
     }
 }
 
-function actualizarBotonCuentaUI() {
-    const btnCuentas = document.getElementById("btn-gestion-cuenta");
-    if (btnCuentas) btnCuentas.innerHTML = currentUser ? `⚙️: ${currentUser}` : "👤 Cuenta";
-}
-
 function generarPregunta() {
     if (gameState.modoActualJuego === "campaña") {
         if (gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
             gameState.campanaCompletada = true;
-            return null;
+            return "Campaña completada. Cambia a modo infinito.";
         }
         return PREGUNTAS_CAMPANA[gameState.campanaIndex++];
     } else {
@@ -197,27 +201,40 @@ function appendMessage(sender, text) {
     }
 }
 
+function limpiarPantallaChat() {
+    const box = document.getElementById('chat-messages');
+    if (box) box.innerHTML = "";
+}
+
 function nextRound() {
+    limpiarPantallaChat();
     gameState.currentPregunta = generarPregunta();
     if (gameState.currentPregunta) appendMessage('gugel', gameState.currentPregunta);
+    guardarProgresoCuenta();
 }
 
 function renderAllData() {
+    // Actualiza botones de modo
     const btnC = document.getElementById('btn-mode-campaña') || document.getElementById('btn-mode-campana');
     if (btnC) btnC.style.display = gameState.campanaCompletada ? "none" : "inline-block";
 
+    // Historial
     const hContainer = document.getElementById('history-list-container');
     if (hContainer) {
         hContainer.innerHTML = gameState.history.map((h, idx) => `
-            <div class="historial-item" onclick="verChatHistorial(${idx}, event)">
+            <div class="historial-item">
                 <div><strong>Q:</strong> ${h.pregunta}<br><strong>A:</strong> ${h.respuesta}</div>
                 <button onclick="toggleFavorite(${idx}, event)">★</button>
             </div>
         `).join('') || "Búfer vacío.";
     }
+    
+    // Perfil (si está visible)
+    const opinionEl = document.getElementById('prof-opinion');
+    if (opinionEl) opinionEl.innerText = gameState.lastOpinion;
 }
 
-// --- 3. NÚCLEO CHAT (CON FILTRO) ---
+// --- 4. NÚCLEO CHAT (CON PENALIZACIÓN Y LIMPIEZA) ---
 window.onload = function() {
     const btnCuentas = document.getElementById("btn-gestion-cuenta");
     if (btnCuentas) btnCuentas.onclick = ejecutarAccionCuenta;
@@ -230,7 +247,7 @@ window.onload = function() {
             const userText = input.value.trim().toLowerCase();
             if (!userText) return;
 
-            // Filtro Anti-Repetición
+            // Filtro Anti-Repetición (Penalización en vez de bloqueo)
             const esMuySimilar = gameState.history.some(h => {
                 const past = h.respuesta.replace(/s+$/g, '');
                 const current = userText.replace(/s+$/g, '');
@@ -238,42 +255,40 @@ window.onload = function() {
             });
 
             if (esMuySimilar) {
-                alert("Ya has dicho algo muy parecido.");
-                return;
+                gameState.satisfaction -= 10;
+                appendMessage('gugel', '(GUGEL detecta falta de originalidad: satisfacción reducida -10)');
             }
 
             appendMessage('ai', userText);
             
-            // Lógica de respuesta (Simulación)
-            let reaccion = "vale me cuadra tiene logica";
+            // Selección de opinión basada en satisfacción
+            let listadoSelected;
+            if (gameState.satisfaction <= 25) listadoSelected = OPINIONES_BAJA;
+            else if (gameState.satisfaction <= 50) listadoSelected = OPINIONES_MEDIA_BAJA;
+            else if (gameState.satisfaction <= 75) listadoSelected = OPINIONES_MEDIA_ALT_A;
+            else listadoSelected = OPINIONES_ALTA;
+            
+            gameState.lastOpinion = listadoSelected[Math.floor(Math.random() * listadoSelected.length)];
             
             setTimeout(() => {
-                appendMessage('gugel', reaccion);
+                appendMessage('gugel', gameState.lastOpinion);
                 gameState.history.push({ 
                     pregunta: gameState.currentPregunta, 
-                    respuesta: userText, 
-                    reaccion: reaccion 
+                    respuesta: userText 
                 });
-                
-                // Lógica de opinión (Aquí entra en juego el listado que faltaba)
-                gameState.cycles++;
-                let listadoSelected;
-                if (gameState.satisfaction <= 25) listadoSelected = OPINIONES_BAJA;
-                else if (gameState.satisfaction <= 50) listadoSelected = OPINIONES_MEDIA_BAJA;
-                else if (gameState.satisfaction <= 75) listadoSelected = OPINIONES_MEDIA_ALT_A;
-                else listadoSelected = OPINIONES_ALTA;
-                gameState.lastOpinion = listadoSelected[Math.floor(Math.random() * listadoSelected.length)];
-
                 renderAllData();
                 guardarProgresoCuenta();
                 nextRound();
+                input.value = ""; // Limpiar input
             }, 600);
         };
     }
+    
     renderAllData();
     nextRound();
 };
 
+// --- 5. FUNCIONES AUXILIARES ---
 window.toggleFavorite = function(idx, event) {
     if (event) event.stopPropagation();
     gameState.history[idx].fav = !gameState.history[idx].fav;
@@ -281,4 +296,18 @@ window.toggleFavorite = function(idx, event) {
     renderAllData();
 };
 
-window.verChatHistorial = function(idx, event) { /* Tu lógica existente aquí */ };
+function cambiarModoEstrategia(m) {
+    gameState.modoActualJuego = m;
+    gameState.campanaIndex = 0;
+    nextRound();
+}
+
+function switchView(id) {
+    document.querySelectorAll('.content-panel').forEach(p => p.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+}
+
+function exportCoreData() {
+    let txt = gameState.history.map(h => `Q: ${h.pregunta} | A: ${h.respuesta}`).join('\n');
+    navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Registro copiado."));
+}
