@@ -17,7 +17,6 @@ const PREGUNTAS_CAMPANA = [
 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
-// Generación de 200 opiniones humanas y realistas de usuarios interactuando con un buscador
 const OPINIONES_BAJA = [
     "esta mierda no me ha solucionado nada", "vaya perdida de tiempo de verdad", "creo que el buscador esta roto",
     "le he preguntado una cosa y me salta con otra", "estoy por apagar el ordenador e irme", "vaya respuestas mas inutiles da esto",
@@ -28,7 +27,7 @@ const OPINIONES_BAJA = [
     "es que ni te acercas a lo que te he pedido", "que frustración de pagina", "esto no sirve para absolutamente nada",
     "vaya programador ha hecho esto", "es nefasto el nivel de comprension", "escribo letras aleatorias y seguro responde mejor",
     "seguro que esto es una broma pesada", "no se como sigue online esta web", "un niño de tres años razona mas",
-    "me estas dando dolor de cabeza", "vaya basura de servicio", "que desastre de base de datos",
+    "me estas dando dolor de cabeza", "vaya basura de servicio", "que desastro de base de datos",
     "no das una ni de casualidad", "vaya respuestas incoherentes", "me rindo con este chat",
     "que perdida de luz tener esto encendido", "eres lo mas inutil de internet", "vaya respuestas mas vacias",
     "no respondes a la pregunta ni queriendo", "que desesperacion de verdad", "esta aplicacion da pena",
@@ -42,7 +41,7 @@ const OPINIONES_MEDIA_BAJA = [
     "me sirve a medias la verdad", "un poco simple pero bueno", "esta bien pero te falta informacion",
     "no esta del todo mal pero tampoco bien", "medio entiendo lo que quieres decir", "bastante mejorable la respuesta",
     "una respuesta un poco vaga", "te has quedado a medias chaval", "bueno algo de sentido tiene",
-    "un aprobado raspado y gracias", "no me quejo pero tampoco te aplaudo", "un poco flojo el sistema hoy",
+    "un aprobado raspado y gracias", "no me quejo pero tampoco te apluado", "un poco flojo el sistema hoy",
     "bueno al menos has puesto algo coherente", "esperaba otra cosa pero me vale de momento", "bastante estandar la verdad",
     "un argumento un poco pillado con pinzas", "se nota que te cuesta procesar", "esta pasable pero sin tirar cohetes",
     "bueno se nota el intento al menos", "un poco robotica la estructura", "me dejas casi igual que estaba",
@@ -97,7 +96,6 @@ const OPINIONES_ALTA = [
     "la perfeccion hecha lineas de texto", "gracias por esta obra de arte de respuesta"
 ];
 
-// Generar 200 estructuras de logros internos para poblar el juego
 const LOGROS_SUPREMO = [];
 for (let i = 1; i <= 200; i++) {
     LOGROS_SUPREMO.push({
@@ -247,7 +245,7 @@ function renderAllData() {
         `).join('') || "Búfer vacío.";
     }
 
-    // Logros (Ocultos por completo hasta que sean desbloqueados)
+    // Logros Ocultos
     const lContainer = document.getElementById('logros-container');
     if (lContainer) {
         const logrosMostrados = LOGROS_SUPREMO.filter(l => gameState.logrosDesbloqueados.includes(l.t));
@@ -266,7 +264,7 @@ function renderAllData() {
 function cambiarModoEstrategia(m) {
     gameState.modoActualJuego = m;
     switchView('view-core'); 
-    nextRound(true); // Corrección: fuerza la actualización inmediata de la pregunta según el modo seleccionado
+    nextRound(true); 
     renderAllData();
 }
 
@@ -296,7 +294,6 @@ function confirmContinue() {
 
     appendMessage('ai', currentAnswerText);
 
-    // Sistema estricto de penalización por repetición o caracteres absurdos
     const esVacioOMuyCorto = currentAnswerText.length < 5;
     const esPatronRepetitivo = /(.)\1{4,}/.test(currentAnswerText) || currentAnswerText.split(' ').some(w => w.length > 15);
     const esEvasiva = EVASIVAS.includes(currentAnswerText);
@@ -337,7 +334,6 @@ function confirmContinue() {
 
     gameState.lastOpinion = listadoSelected[Math.floor(Math.random() * listadoSelected.length)];
 
-    // Desbloqueo dinámico secuencial de los 200 logros basados en ciclos operativos exitosos
     if (gameState.cycles < 200) {
         let nombreLogro = `Logro de Sistema #${gameState.cycles + 1}`;
         if (!gameState.logrosDesbloqueados.includes(nombreLogro)) {
