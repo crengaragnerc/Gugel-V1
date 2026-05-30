@@ -27,15 +27,40 @@
                 <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
             </div>
-            <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN CUENTA</button>
+
+            <div class="menu-section">
+                <div class="section-title">👤 USUARIO</div>
+                <button id="btn-gestion-cuenta">👤 CREAR CUENTA</button>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-title">🎨 INTERFAZ</div>
+                <select id="tema-select" onchange="cambiarTemaVisual(this.value)">
+                    <option value="modo-hacker">Modo Hacker</option>
+                    <option value="modo-oscuro">Modo Oscuro</option>
+                    <option value="modo-claro">Modo Claro</option>
+                </select>
+            </div>
         </aside>
 
-        <main id="chat-area">
-            <div id="chat-messages"></div>
-            <form id="chat-form">
-                <input type="text" id="user-input" placeholder="Escribe tu respuesta..." autocomplete="off">
-                <button type="submit">ENVIAR</button>
-            </form>
+        <main id="main-content">
+            <section id="view-core" class="content-panel active">
+                <div id="chat-container">
+                    <div id="chat-header">
+                        <span id="panel-title-text">Interfaz Core - Campaña</span>
+                        <span id="status-indicator" class="status-online">● en línea</span>
+                    </div>
+                    <div id="chat-messages"></div>
+                    <form id="chat-form">
+                        <input type="text" id="user-input" placeholder="introduce tu respuesta de ia..." autocomplete="off">
+                        <div class="input-container">
+                            <button type="submit" id="transmit-btn">TRANSMITIR</button>
+                            <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
+                        </div>
+                    </form>
+                    <div id="streaming-recommendation" class="streaming-box" style="display: none;"></div>
+                </div>
+            </section>
 
             <section id="view-perfil" class="content-panel">
                 <div class="card">
@@ -43,6 +68,7 @@
                     <div class="opinion-box" id="opinion-container">
                         <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
                     </div>
+                    <p><strong>Nivel del Sistema:</strong> <span id="prof-level">1</span></p>
                     <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
                     <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
                     <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
