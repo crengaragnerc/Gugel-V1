@@ -48,13 +48,6 @@ const FRASES_MUCHO_TEXTO = [
 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
 
-const TITULOS_LOGROS = [
-    { titulo: "búfer domado", desc: "has conseguido mantener una conversación sin que explote el sistema." },
-    { titulo: "filósofo de internet", desc: "has respondido con un texto argumentado y conectores de lógica." },
-    { titulo: "antivirus humano", desc: "has salvado a gugel de un colapso por respuestas basura." },
-    { titulo: "velocista del teclado", desc: "has introducido suficientes caracteres para llenar un registro." }
-];
-
 let gameState = { 
     currentLevelIdx: 0, 
     satisfaction: 50, 
@@ -62,22 +55,35 @@ let gameState = {
     totalChars: 0,
     lastOpinion: "esperando respuesta...",
     currentPregunta: "",
-    history: [],
-    logrosDesbloqueados: [] 
+    history: []
 };
 
 const MAX_PALABRAS = 15; 
 
+// FUNCIÓN PARA CAMBIAR DE PESTAÑA SIN ROMPER NADA
 function switchView(viewId) {
-    document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
+    document.querySelectorAll('.content-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    
     const targetPanel = document.getElementById(viewId);
     if (targetPanel) targetPanel.classList.add('active');
 
-    const titleText = document.getElementById('panel-title-text');
+    document.querySelectorAll('.menu-btn, .nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
     if (viewId === 'view-consultas') {
-        titleText.innerText = "GUGEL Core";
+        document.getElementById('btn-view-consultas').classList.add('active');
+        document.getElementById('panel-title-text').innerText = "GUGEL Core";
     } else {
-        titleText.innerText = "GUGEL Core - Monitor de Sistema";
+        const clickedBtn = Array.from(document.querySelectorAll('.menu-btn')).find(b => b.getAttribute('onclick').includes(viewId));
+        if (clickedBtn) clickedBtn.classList.add('active');
+        
+        if (viewId === 'view-perfil') document.getElementById('panel-title-text').innerText = "GUGEL Core - Monitor de Sesión";
+        if (viewId === 'view-logros') document.getElementById('panel-title-text').innerText = "GUGEL Core - Registro Interno";
+        if (viewId === 'view-historial') document.getElementById('panel-title-text').innerText = "GUGEL Core - Búfer Central";
+        if (viewId === 'view-recomendaciones') document.getElementById('panel-title-text').innerText = "GUGEL Core - Optimización";
     }
 }
 
@@ -219,20 +225,13 @@ document.getElementById('chat-form').onsubmit = (e) => {
             pregunta: gameState.currentPregunta,
             respuesta: userText,
             reaccion: reaccion,
-            tipo: tipoResultado,
-            fav: false
+            tipo: tipoResultado
         });
-
-        if (gameState.cycles % 3 === 0) {
-            let idx = (gameState.cycles / 3) - 1;
-            if (idx < TITULOS_LOGROS.length) gameState.logrosDesbloqueados.push(TITULOS_LOGROS[idx]);
-        }
 
         updateSatisfaction(cambioSatisfacion);
         calcularOpinionDinamica(); 
         renderProfileData();
         renderHistoryData();
-        renderLogros();
     }, 600);
 
     input.value = "";
@@ -240,19 +239,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
     transmitBtn.style.display = "none";
     continueBtn.style.display = "block";
 };
-
-function renderLogros() {
-    const container = document.getElementById('logros-container');
-    document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
-    if (gameState.logrosDesbloqueados.length === 0) return;
-    container.innerHTML = "";
-    gameState.logrosDesbloqueados.forEach(logro => {
-        const div = document.createElement('div');
-        div.className = 'historial-item';
-        div.innerHTML = `<strong>[${logro.titulo.toUpperCase()}]:</strong> ${logro.desc}`;
-        container.appendChild(div);
-    });
-}
 
 function renderHistoryData() {
     const container = document.getElementById('history-list-container');
@@ -266,26 +252,9 @@ function renderHistoryData() {
                 <strong>Nivel #${idx + 1}:</strong> ${item.pregunta} | <strong>IA:</strong> ${item.respuesta}<br>
                 <strong>GUGEL:</strong> ${item.reaccion}
             </div>
-            <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
         `;
         container.appendChild(div);
     });
-    const favs = gameState.history.filter(h => h.fav).length;
-    document.getElementById('fav-status').innerText = `Tienes ${favs} logs prioritarios en memoria.`;
-}
-
-window.toggleFavorite = function(idx) {
-    gameState.history[idx].fav = !gameState.history[idx].fav;
-    renderHistoryData();
-};
-
-function exportCoreData() {
-    if(gameState.history.length === 0) return;
-    let texto = `=== REGISTRO GUGEL ===\n\n`;
-    gameState.history.forEach((h, i) => {
-        texto += `LOG #${i + 1}\nPREGUNTA: ${h.pregunta}\nRESPUESTA: ${h.respuesta}\nREACCIÓN: ${h.reaccion}\n-------------------\n`;
-    });
-    navigator.clipboard.writeText(texto).then(() => alert("Copiado al portapapeles."));
 }
 
 function changeSystemMode() {
