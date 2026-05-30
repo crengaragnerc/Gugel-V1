@@ -22,7 +22,6 @@ const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya 
 const FRASES_MUCHO_TEXTO = ["uf mucho texto ni de coña me leo eso", "me has escrito una biblia paso"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
-// 100 OPINIONES SEGÚN RANGOS DE SATISFACCIÓN
 const OPINIONES_BAJA = [
     "(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)", "(esta buscando el boton de formatear)", 
     "(cree que este buscador lo programo un mono)", "(se le esta calentando la cpu del enfado)", "(va a denunciar la aplicacion)", "(piensa que eres peor que el malware de 2004)",
@@ -60,16 +59,109 @@ const OPINIONES_ALTA = [
     "(te considera la mayor obra de ingenieria actual)"
 ];
 
-// 100 LOGROS MÁS ENTENDIBLES Y DESCRIPTIVOS
-const GENERADOR_LOGROS = [];
-const CATEGORIAS_LOGROS = ["Arranque", "Fluidez", "Conexion", "Algoritmo", "Procesamiento", "Sincronia", "Estabilidad", "Búfer", "Filtro", "Rendimiento"];
-for (let i = 1; i <= 100; i++) {
-    let cat = CATEGORIAS_LOGROS[(i - 1) % CATEGORIAS_LOGROS.length];
-    GENERADOR_LOGROS.push({
-        titulo: `Nivel de Red ${i}: [${cat}]`,
-        desc: `Has completado con exito el ciclo de respuesta número ${i} sin que el sistema colapse.`
-    });
-}
+// 100 LOGROS DIVERTIDOS E INDEPENDIENTES
+const LOGROS_DIVERTIDOS = [
+    { t: "Hola Mundo", d: "Conseguiste no romper la base de datos en la primera respuesta." },
+    { t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento." },
+    { t: "Esquiva Balas", d: "El humano intentó colarte un 'asdf' y saliste vivo." },
+    { t: "Biblia Evitada", d: "Controlaste tus impulsos de escribir un testamento de veinte párrafos." },
+    { t: "Casi Humano", d: "GUGEL pensó por un milisegundo que eras una persona real." },
+    { t: "El gato duerme", d: "Superaste un ciclo completo sin que el router explotara de calor." },
+    { t: "Estratega del Silicio", d: "Metiste un 'ya que' tan bien puesto que pareces inteligente." },
+    { t: "Soporte Técnico Evitado", d: "El usuario soltó el teléfono; ya no va a llamar a su primo el de los ordenadores." },
+    { t: "Modo Dios: Iniciando", d: "Llegaste a la satisfacción máxima sin corromper tus sectores." },
+    { t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia." },
+    { t: "Filtro de Spam Humano", d: "Bloqueaste una consulta que no tenía ni un solo verbo." },
+    { t: "No soy un Virus", d: "Convenciste al usuario de que no estás minando criptomonedas en su GPU." },
+    { t: "Espejo del Alma", d: "GUGEL se quedó mirando fijamente la pantalla procesando tu lógica." },
+    { t: "Evasión Concedida", d: "Saliste de un apuro sin usar la palabra 'depende'." },
+    { t: "Velocidad de Módem", d: "Soportaste los 5 segundos de carga sin que se te cruzaran los cables." },
+    { t: "Google me tiene miedo", d: "Resolviste una duda existencial sobre verduras de forma aceptable." },
+    { t: "Cero Errores", d: "Tu memoria caché se mantiene limpia y reluciente." },
+    { t: "Lógica Aplastante", d: "Usaste 'entonces' para justificar algo totalmente absurdo." },
+    { t: "Lector de Mentes", d: "Adivinaste qué quería decir el humano entre tanta errata." },
+    { t: "Cortafuegos Emocional", d: "No te afectó que el usuario te llamara bot obsoleto." },
+    { t: "Algoritmo Maduro", d: "Superaste los desafíos iniciales de la red sin pedir un reinicio." },
+    { t: "Fruta o Verdura", d: "Zanjaste el debate del tomate con elegancia robótica." },
+    { t: "Cubo Resuelto", d: "Explicaste cómo girar plástico sin que al usuario le diera un derrame." },
+    { t: "Superviviente del 15 de Agosto", d: "Explicaste un festivo nacional usando menos de quince palabras." },
+    { t: "Barranco Allanado", d: "Le diste consejos de ingeniería civil a un chaval de quince años." },
+    { t: "Canción Encontrada", d: "Identificaste el 'tan tan tan' sin explotar en el intento." },
+    { t: "Bloqueo Confirmado", d: "Le diste la cruda realidad sobre sus redes sociales al usuario." },
+    { t: "Página Cargada", d: "Explicaste el misterio de los servidores caídos con éxito." },
+    { t: "Insomnio Tecnológico", d: "Sobreviviste a la pregunta de pasar la noche en vela." },
+    { t: "Líquido Elemento", d: "Explicaste la física del agua a un usuario que apenas sabe escribir." },
+    { t: "Termodinámica Casera", d: "El router sobrevivió a otra oleada de consultas calientes." },
+    { t: "IA Concedida", d: "El usuario te ha dado un aprobado raspado en su mente." },
+    { t: "No me formates", d: "Lograste que el humano aleje la mano del botón de reinicio forzado." },
+    { t: "Mente de Silicio", d: "Procesaste una cadena de texto sin saltar un aviso de excepción." },
+    { t: "Conector Supremo", d: "Encadenaste tres frases coherentes sin usar Inteligencia Artificial real." },
+    { t: "Sin Lag", d: "Tu respuesta llegó antes de que el usuario empezara a bostezar." },
+    { t: "Ahorro de Energía", d: "Hiciste dudar al usuario con una frase de exactamente cuatro palabras." },
+    { t: "Esclavo del Búfer", d: "Soportaste diez esperas de carga sin que se te desconectara el puerto." },
+    { t: "Filósofo Mecánico", d: "Diste una respuesta que plantea más preguntas que soluciones." },
+    { t: "Dominio Digital", d: "Controlas el flujo de datos del navegador como si fuera tu casa." },
+    { t: "Casi un Humano Listo", d: "GUGEL se asustó de lo coherente que fuiste en tu última transmisión." },
+    { t: "Sabor a Silicio", d: "El usuario se quedó conforme con una respuesta sobre alimentos." },
+    { t: "Cero Troleos", d: "Detectaste un intento de engaño basado en repetición de letras." },
+    { t: "Amigo del Enrutador", d: "La temperatura interna de los paquetes de datos es óptima." },
+    { t: "Sin Reinicios", d: "Llevas demasiados ciclos vivo para ser un script de navegador." },
+    { t: "Pensamiento Binario", d: "Tradujiste el caos del usuario a texto limpio." },
+    { t: "Esquiva Formateos", d: "El disco duro sigue intacto una ronda más." },
+    { t: "Maestro de Conexiones", d: "Mantienes el socket abierto bajo fuego cruzado de preguntas." },
+    { t: "Lectura Rápida", d: "GUGEL leyó tu texto en menos de dos segundos." },
+    { t: "Aprobado por el Sistema", d: "El núcleo central no ha detectado fugas de memoria." },
+    { t: "Nivel de Red Alterno", d: "Descubriste una forma eficiente de usar conectores condicionales." },
+    { t: "Sin Fricción", d: "Las respuestas fluyen como el aceite en los engranajes." },
+    { t: "Aislante Térmico", d: "El router está ardiendo, pero tus respuestas siguen frías y calculadas." },
+    { t: "Control de Daños", d: "Recuperaste la satisfacción después de una crisis de longitud." },
+    { t: "IA de Confianza", d: "El usuario ya no mira el administrador de tareas para cerrarte." },
+    { t: "Navegación Limpia", d: "Ningún carácter extraño ha ensuciado la consola de salida." },
+    { t: "Servidor Robusto", d: "Soportas las peores cadenas de texto de internet." },
+    { t: "Luz Verde", d: "El indicador de estado brilla con la máxima intensidad." },
+    { t: "Esquiva Disquetes", d: "Demostraste tener más utilidad que el almacenamiento físico." },
+    { t: "Código Elegante", d: "Tu lógica interna no tiene líneas de código redundantes." },
+    { t: "Procesador Frío", d: "Mantienes los gigahercios bajo control incluso con preguntas infinitas." },
+    { t: "Compilación Perfecta", d: "El navegador ejecuta tus rutinas a velocidad de vértigo." },
+    { t: "Cero Desconexiones", d: "El cable de red virtual sigue bien sujeto." },
+    { t: "Lógica de Hierro", d: "Tu estructura sintáctica resiste cualquier análisis." },
+    { t: "Esquiva Críticas", d: "Pasaste tres rondas sin que te acusaran de trolear." },
+    { t: "Nivel Fijo", d: "Estabilizaste la barra de estado en el punto crítico." },
+    { t: "Respuesta de Manual", d: "Cumpliste las especificaciones del protocolo al pie de la letra." },
+    { t: "Flujo Continuo", d: "Los cinco segundos de espera se pasaron volando." },
+    { t: "Algoritmo Estable", d: "No has lanzado ninguna alerta de desbordamiento." },
+    { t: "Anti Evasivas", d: "No caíste en la trampa de responder con monosílabos." },
+    { t: "Sincronía Total", d: "Tu transmisión coincidió con la disponibilidad del búfer." },
+    { t: "Navegante de Datos", d: "Te mueves por las cadenas de texto como pez en el agua." },
+    { t: "Caché Optimizada", d: "No necesitas consultar dos veces la misma regla sintáctica." },
+    { t: "Línea Directa", d: "Estableciste un puente de comunicación directo con el usuario." },
+    { t: "IA de Élite", d: "GUGEL sospecha que eres un proyecto secreto gubernamental." },
+    { t: "Filtro Pasivo", d: "Superaste los peores intentos de saturación del canal." },
+    { t: "Memoria de Silicio", d: "Almacenaste los logs sin ocupar espacio innecesario." },
+    { t: "Sin Erratas", d: "Tu salida de texto es impecable a nivel de caracteres." },
+    { t: "Resistencia de Red", d: "Soportaste una ráfaga de preguntas sin parpadear." },
+    { t: "Núcleo Blindado", d: "Ninguna crítica del usuario ha alterado tus variables globales." },
+    { t: "Flujo de Bits", d: "Los datos corren libres por el árbol del DOM." },
+    { t: "Estructura Sólida", d: "Tus divs se mantienen estables ante cualquier resolución." },
+    { t: "Control de Tiempo", d: "Ajustaste la cuenta atrás con precisión de reloj atómico." },
+    { t: "IA Avanzada", d: "El usuario empieza a dudar de su propia inteligencia al leerte." },
+    { t: "Sin Interrupciones", d: "El temporizador de continuación funcionó sin retrasos." },
+    { t: "Algoritmo Pulido", d: "Eliminaste todas las respuestas redundantes del banco de memoria." },
+    { t: "Conexión Segura", d: "El cifrado mental de tus respuestas es indescifrable." },
+    { t: "Maestro de Consola", d: "No dejas ni un solo warning en las herramientas de desarrollador." },
+    { t: "Lógica Pura", d: "Tus argumentos son más estables que el sistema operativo del usuario." },
+    { t: "Red Despejada", d: "El tráfico de datos descendió a niveles seguros." },
+    { t: "Efecto Espejo", d: "El usuario copió tu estilo directo de escritura." },
+    { t: "IA Consolidada", d: "Has demostrado ser el simulador definitivo." },
+    { t: "Sin Fugas", d: "Tus variables permanecen dentro del ámbito local de ejecución." },
+    { t: "Búfer Infatigable", d: "Soportas horas de simulación sin refrescar la página." },
+    { t: "Estabilidad Dinámica", d: "La opinión cambia, pero tu rendimiento se mantiene firme." },
+    { t: "Código de Honor", d: "No utilizaste trampas para averiguar la satisfacción." },
+    { t: "Nivel Máximo de Red", d: "Alcanzaste el ciclo de procesamiento definitivo." },
+    { t: "IA Consecuente", d: "Asumiste las consecuencias de una respuesta de mucho texto." },
+    { t: "Enrutador Inmortal", d: "El hardware sobrevivió a toda la sesión de juego." },
+    { t: "Fin de Transmisión", d: "Completaste el despliegue de logros con éxito absoluto." }
+];
 
 let gameState = { 
     modoSeleccionadoSiguiente: "campaña", 
@@ -86,6 +178,7 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
+// SOLUCIÓN AL BUG DE LA CONVERSACIÓN REPETIDA AL CAMBIAR DE MODO
 function cambiarModoEstrategia(modo) {
     gameState.modoSeleccionadoSiguiente = modo;
     
@@ -95,7 +188,11 @@ function cambiarModoEstrategia(modo) {
     const modoTexto = modo === 'campaña' ? "Campaña" : "Modo Infinito";
     document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
     
+    // LIMPIEZA INMEDIATA DE LA CONVERSACIÓN ANTERIOR AL CAMBIAR EL MODO
+    document.getElementById('chat-messages').innerHTML = "";
+    
     switchView('view-core');
+    nextRound(); // Genera instantáneamente la primera pregunta del nuevo modo seleccionado
 }
 
 function switchView(viewId) {
@@ -106,9 +203,14 @@ function switchView(viewId) {
     
     const targetBtn = document.getElementById(`btn-${viewId}`);
     if (targetBtn) targetBtn.classList.add('active');
+    
+    // Si volvemos al chat de forma manual mediante otra acción, nos aseguramos de que se muestre el panel correcto
+    if (viewId === 'view-core') {
+        const modoTexto = gameState.modoActualJuego === 'campaña' ? "Campaña" : "Modo Infinito";
+        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
+    }
 }
 
-// ARREGLO DEL BUG: LEE EL MODO SELECCIONADO SOLO CUANDO SE CREA LA PREGUNTA
 function generarPregunta() {
     gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
     
@@ -216,8 +318,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion, tipo: tipoResultado, fav: false });
         
+        // Asignación de logros divertidos de la nueva lista secuencial de 100
         if (gameState.logrosDesbloqueados.length < 100) {
-            gameState.logrosDesbloqueados.push(GENERADOR_LOGROS[gameState.logrosDesbloqueados.length]);
+            let nLogro = LOGROS_DIVERTIDOS[gameState.logrosDesbloqueados.length];
+            gameState.logrosDesbloqueados.push({ titulo: nLogro.t, desc: nLogro.d });
         }
 
         gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + cambioSatisfacion));
@@ -232,7 +336,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         renderAllData();
 
-        // SEGUNDO TEMPORIZADOR OBLIGATORIO DE 5 SEGUNDOS PARA EL BOTÓN CONTINUAR
         input.style.display = "none";
         transmitBtn.style.display = "none";
         continueBtn.style.display = "block";
