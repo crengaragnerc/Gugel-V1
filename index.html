@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL Core System</title>
+    <title>GUGEL Core - Modo Historia</title>
     <style>
         :root {
             --bg-color: #0d0e12;
@@ -34,11 +34,14 @@
         header {
             background-color: var(--panel-bg);
             border-bottom: 2px solid var(--border-color);
-            padding: 12px 20px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         h1 {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             letter-spacing: 1px;
             color: #f39c12;
         }
@@ -49,12 +52,13 @@
             overflow: hidden;
         }
 
+        /* Panel Izquierdo: El Chat con GUGEL */
         .chat-panel {
             flex: 2;
             display: flex;
             flex-direction: column;
             border-right: 2px solid var(--border-color);
-            background: rgba(0,0,0,0.05);
+            background: #090a0f;
         }
 
         #chat-messages {
@@ -99,7 +103,7 @@
 
         #user-input {
             flex: 1;
-            background-color: var(--bg-color);
+            background-color: #0d0e12;
             border: 1px solid var(--border-color);
             color: var(--text-color);
             padding: 12px;
@@ -110,6 +114,7 @@
 
         #user-input:focus {
             outline: none;
+            border-color: var(--accent-color);
         }
 
         button {
@@ -121,6 +126,17 @@
             cursor: pointer;
             font-family: inherit;
             font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        button:disabled, #user-input:disabled {
+            background-color: #1f222e;
+            color: #555;
+            cursor: not-allowed;
         }
 
         #continue-btn {
@@ -129,9 +145,14 @@
             padding: 12px;
         }
 
+        #continue-btn:hover {
+            background-color: #219653;
+        }
+
+        /* Panel Derecho: Monitor de Estado */
         .status-panel {
             flex: 1;
-            max-width: 380px;
+            max-width: 400px;
             background-color: var(--panel-bg);
             display: flex;
             flex-direction: column;
@@ -144,10 +165,10 @@
         }
 
         .panel-header {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: bold;
             text-transform: uppercase;
-            color: var(--accent-color);
+            color: #3b82f6;
             margin-bottom: 15px;
             border-bottom: 1px dashed var(--border-color);
             padding-bottom: 5px;
@@ -162,6 +183,7 @@
             color: #a0aec0;
         }
 
+        /* Historial en la zona inferior del panel */
         #history-list-container {
             display: flex;
             flex-direction: column;
@@ -171,7 +193,7 @@
         }
 
         .historial-item {
-            background-color: var(--bg-color);
+            background-color: #0d0e12;
             border: 1px solid var(--border-color);
             padding: 10px;
             border-radius: 4px;
@@ -179,6 +201,7 @@
             line-height: 1.4;
         }
 
+        /* Utilidades */
         .btn-utility {
             background-color: #34495e;
             padding: 8px 12px;
@@ -191,27 +214,33 @@
 <body>
 
     <header>
-        <h1 id="panel-title-text">GUGEL Core System</h1>
+        <h1 id="panel-title-text">GUGEL - Modo Historia (Cargando...)</h1>
+        <div>v2.1.0_Historia</div>
     </header>
 
     <div class="main-container">
+        <!-- Panel de Interacción Directa -->
         <div class="chat-panel">
-            <div id="chat-messages"></div>
+            <div id="chat-messages">
+                <!-- Los mensajes se inyectan dinámicamente -->
+            </div>
+            
             <div class="input-area">
                 <form id="chat-form">
-                    <input type="text" id="user-input" autocomplete="off" placeholder="GUGEL buscando...">
+                    <input type="text" id="user-input" autocomplete="off" placeholder="Esperando que GUGEL piense...">
                     <button type="submit" id="transmit-btn">RESPONDER</button>
-                    <button type="button" id="continue-btn" style="display: none;" onclick="confirmContinue()">SIGUIENTE CONSULTA</button>
+                    <button type="button" id="continue-btn" style="display: none;" onclick="confirmContinue()">PASAR DE NIVEL</button>
                 </form>
             </div>
         </div>
 
+        <!-- Panel de Diagnóstico y Estado Fijo -->
         <div class="status-panel">
             <div class="panel-section">
-                <div class="panel-header">Estado de GUGEL</div>
+                <div class="panel-header">Estado del Sistema</div>
                 <div class="panel-body">
                     <div class="data-item">
-                        <strong>Mentalidad:</strong> <span id="prof-opinion">(Pensando...)</span>
+                        <strong>Opinión de GUGEL:</strong> <span id="prof-opinion">(Mirando la pantalla...)</span>
                     </div>
                     <div class="data-item">
                         <strong>Satisfacción:</strong> <span id="prof-satisfaction">50%</span>
@@ -220,22 +249,25 @@
                         <strong>Fase Actual:</strong> <span id="prof-cycles">Nivel 1</span>
                     </div>
                     <div class="data-item">
-                        <strong>Progreso:</strong> <span id="prof-summary">Cargando...</span>
+                        <strong>Progreso:</strong> <span id="prof-summary">Progreso: 0 / 10</span>
                     </div>
                     <div class="data-item">
-                        <strong>Letras Procesadas:</strong> <span id="prof-chars">0</span>
+                        <strong>Caracteres IA:</strong> <span id="prof-chars">0</span>
                     </div>
                 </div>
             </div>
 
             <div class="panel-section">
-                <div class="panel-header">Registros del Búfer</div>
-                <div id="history-list-container"></div>
-                <button class="btn-utility" onclick="exportCoreData()">Copiar Logs</button>
+                <div class="panel-header">Búfer de Logs (Historial)</div>
+                <div id="history-list-container">
+                    <!-- Aquí se guardan las preguntas contestadas -->
+                </div>
+                <button class="btn-utility" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
             </div>
         </div>
     </div>
 
+    <!-- Vinculamos tu script.js personalizado -->
     <script src="script.js"></script>
 </body>
 </html>
