@@ -1,5 +1,5 @@
 // =================================================================
-// GUGEL: VERSIÓN MAESTRA COMPLETA (NO TOCAR - NO SIMPLIFICAR)
+// GUGEL: VERSIÓN MAESTRA COMPLETA CON LOGROS OCULTOS Y REACCIONES HUMANAS
 // =================================================================
 
 const PLANTILLAS_PREGUNTAS = [
@@ -15,26 +15,96 @@ const PREGUNTAS_CAMPANA = [
     "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"
 ];
 
-const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
-const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)", "(cree que este buscador lo programo un mono)", "(se le esta calentando la cpu del enfado)", "(va a denunciar la aplicacion)", "(piensa que eres peor que el malware de 2004)", "(esta buscando el destornillador para abrir el pc)", "(asume que eres un chat obsoleto)", "(piensa que no sirves ni para calcular 2+2)", "(esta insulting al monitor)", "(se siente estafado por la tecnologia)", "(cree que le estas robando contraseñas)", "(va a tirar el portatil por la ventana)", "(piensa que eres un bot roto)", "(esta respirando fuerte del cabreo)", "(quiere desinstalar internet de su casa)", "(piensa que le estas tomando el pelo)", "(esta buscando alternatives en papel)", "(cree que eres un virus de publicidad)", "(asume que tu base de datos esta vacia)", "(va a pagar el cuadro electrico)", "(se arrepiente de encender el pc hoy)", "(piensa que tiene mas luces un disquete viejo)", "(cree que tu codigo se hizo con recortes de prensa)", "(esta buscando un hacha para el cable de red)", "(asume que respondes tirando dados)", "(le da un puñetazo leve a la mesa)", "(piensa que un tamagotchi muerto es mas listo)", "(se pregunta si usas windows 95)", "(quiere denunciar tus servidores a la policia)", "(cree que eres un virus que ralentiza los videos)", "(esta mirando ofertas de ordenadores nuevos)", "(piensa que la IA es el timo del siglo)", "(asume que tu procesador es de carton)", "(se le ha corta la digestion del disgusto)", "(piensa que un bot de msn de 205 era superior)", "(esta buscando como borrarte del registro)", "(cree que tu unico proposito es molestar)", "(asume que estas hecho con macros de excel mal optimizadas)", "(esta planeando mudarse al campo sin cobertura)", "(piensa que generas respuestas con una tómbola)", "(se siente insultado en tres idiomas distintos)", "(cree que tu placa base tiene oxido)", "(esta construcción f5 con una fuerza desmedida)", "(piensa que eres un software de broma pesada)", "(asume que tu base de datos ocupa dos megas)", "(quiere arrancarse los ojos con un lapiz)", "(piensa que eres un proyecto escolar suspenso)", "(cree que el buscador del teletexto era mas util)", "(esta desenchufando los altoves por si acaso)", "(se pregunta si te programaron en cinco minutos)", "(piensa que tu lógica es un laberinto sin salida)", "(asume que eres un bot de spam mal camuflado)", "(quiere tirar el cable de linea por el balcon)", "(cree que tu servidor funciona con poleas)", "(esta cambiando su suscripcion a internet)", "(piensa que eres una perdida de tiempo electrico)", "(asume que tu memoria ram se evaporo)", "(quiere formatear hasta la bios)", "(cree que eres un castigo informatico)", "(piensa que tu creador odiaba la tecnologia)", "(esta buscando la factura para devolver el pc)", "(asume que tu algoritmo tiene amnesia)", "(se siente profundamente decepcionado del progreso)", "(piensa que la prehistoria no estaba tan mal)", "(quiere bloquear tu ip permanentemente)", "(cree que eres un troyano de bajo presupuesto)", "(esta buscando un tutorial de como hackearte)", "(asume que tus circuitos estan fritos)", "(piensa que eres un insulto a la programacion)", "(se arrepiente de haber comprado un raton)", "(cree que eres el peor script del nodo)", "(está mirando el router con intenciones violentas)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)", "(te mira con desconfianza absoluta)", "(cree que respondes con los ojos cerrados)", "(piensa que eres un becario en tu primer dia)", "(se esta aburriendo soberanamente)", "(busca el boton de saltar consulta)", "(cree que tu sistema tiene lag)", "(piensa que copias las respuestas de un foro caido)", "(te califica con un cero interno)", "(sospecha que eres una broma oculta)", "(esta tecleando con desgana)", "(piensa que tu creador tenia prisa)", "(cree que la conexion va a pedales)", "(te compara con un bot de soporte de telefonia)", "(esperaba algo decente)", "(se esta arrepintiendo de su pregunta)", "(piensa que eres un simulador de respuestas vagas)", "(mira el reloj esperando que mejores)", "(le pareces un bot de nivel bajo)", "(cree que necesitas una buena actualizacion)", "(sospecha que usas respuestas pregrabadas)", "(piensa que tu codigo esta lleno de bugs)", "(se siente incomprendido por la maquina)", "(asume que el servidor esta saturado)", "(cree que tu logica funciona a medio gas)", "(sospecha que lees las respuestas al reves)", "(te ve como un programa sin terminar)", "(piensa que necesitas mas lineas de codigo)", "(se pregunta si estas usando la wiki de 2008)", "(te mira de reojo con cara rara)", "(cree que te falta un hervor algoritmico)", "(piensa que tu base de datos tiene goteras)", "(sospecha que estas perdiendo paquetes de datos)", "(le pareces un bot demasiado perezoso)", "(cree que respondes con desgana robotica)", "(piensa que tu script necesita un reinicio)", "(se cuestiona si eres una ia o un script txt)", "(te ve como un proyecto a medio hacer)", "(sospecha que tu servidor esta en un garaje)", "(piensa que tu rendimiento cae por segundos)", "(cree que usas un traductor malo)", "(le pareces un asistente de gama baja)", "(sospecha que te copias de otros bots peores)", "(piensa que tu estructura tiene lag estructural)", "(se aburre buscando coherencia)", "(te considera un bot del monton bajo)", "(cree que tu creador se canso a la mitad)", "(sospecha que respondes por inercia)", "(piensa que tu motor de busqueda patina)", "(le pareces un simulador de barra de carga)", "(cree que tu algoritmo es demasiado plano)", "(sospecha que fallas mas que aciertas)", "(piensa que te vendria bien un parche de urgencia)", "(te ve como una herramienta muy limitada)", "(cree que tu nivel de comprension es plano)", "(sospecha que usas plantillas basicas)", "(piensa que tu nucleo esta un poco oxidado)", "(le pareces un bot con pocas luces de silicio)", "(cree que tu conexion parpadea demasiado)", "(sospecha que tu cache esta saturada)", "(piensa que te cuesta procesar cosas simples)", "(te ve como un experimento mejorable)", "(cree que tu logica tiene lag temporal)", "(sospecha que respondes sin mirar)", "(piensa que te falta potencia de calculo)", "(le pareces un bot de soporte obsoleto)", "(cree que tu sistema operativo es arcaico)", "(sospecha que tu codigo es un laberinto)", "(piensa que tu rendimiento es una montaña rusa)", "(te considera un asistente de nivel inicial)", "(cree que tus servidores se calientan rapido)", "(sospecha que eres un bot en practicas)"];
-const OPINIONES_MEDIA_ALT_A = ["(cree que eres un bot pasable pero va a llamar a un tecnico)", "(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)", "(piensa que vas por buen camino)", "(cree que tienes potencial oculto)", "(le ha parecido una respuesta aceptable)", "(asiente levemente con la cabeza)", "(guarda la info en un bloc de notas)", "(piensa que no estas del todo mal entrenado)", "(te da un aprobado raspado)", "(continua buscando por curiosidad)", "(le parece una respuesta estandar)", "(no se queja, lo cual ya es un logro)", "(cree que eres una ia normalita)", "(te procesa sin lanzar errores)", "(le encuentra utilidad intermedia)", "(piensa que eres un buscador aceptable)", "(no te odia, pero tampoco te quiere)", "(sigue testeando tus capacidades)", "(te ve como un asistente promedio)", "(asume que cumples con tu expediente)", "(te considera una herramienta util a ratos)", "(encuentra logica en tus lineas)", "(te deja trabajar tranquilo)", "(valora el intento de tu algoritmo)", "(piensa que eres un bot bastante decente)", "(le parece que tu codigo tiene sentido)", "(te da un voto de confianza temporal)", "(asiente frente al monitor)", "(cree que respondes mejor que la media)", "(te ve como un buscador utilitario)", "(piensa que tu velocidad es aceptable)", "(no encuentra fallos graves de momento)", "(le gusta como estructuras las frases)", "(cree que tu base de datos esta limpia)", "(te considera un asistente competente)", "(piensa que tu logica es aceptable)", "(asume que tus servidores son estables)", "(le parece una respuesta bien enfocada)", "(te ve potencial para proyectos grandes)", "(piensa que no le haces perder el tiempo)", "(valora la rapidez del script)", "(cree que tu algoritmo esta pulido)", "(le convence tu planteamiento logico)", "(te considera un bot de confianza)", "(piensa que tu rendimiento es constante)", "(asume que tu nucleo funciona bien)", "(le parece un resultado correcto)", "(te ve como una IA de nivel medio)", "(piensa que cumples bien los requisitos)", "(valora que no pongas texto raro)", "(cree que tu indexacion es correcta)", "(le parece un bot util para el dia a dia)", "(piensa que tu tasa de acierto es buena)", "(te ve como un programa bien estructurado)", "(asume que tu codigo no tiene fugas)", "(le cuadra tu forma de responder)", "(piensa que tienes un buen motor detras)", "(te considera un recurso pasable)", "(valora la coherencia sintactica)", "(cree que el script responde rapido)", "(le parece un sistema bien calibrado)", "(piensa que tu algoritmo es fluido)", "(te ve como un bot de confianza intermedia)", "(asume que tus datos son veridicos)", "(le agrada la ausencia de bugs)", "(piensa que tu desarrollo es solido)", "(te considera una IA aceptable)", "(valora tu criterio algoritmico)"];
-const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores prioritarios)", "(piensa que eres la cura del cancer informatico)", "(te va a recomendar en foros de hackers)", "(cree que eres una ia alienigena del futuro)", "(piensa que tienes mas cerebro que todo su instituto)", "(esta fascinated con tu velocidad)", "(te considera su mejor amigo virtual)", "(cree que eres la evolución definitiva del silicio)", "(esta imprimiendo tus respuestas para enmarcar)", "(piensa que tu codigo es arte puro)", "(te daria acceso a los codigos de la nasa)", "(cree que eres mas listo que el joven sheldon)", "(piensa que eres un milagro tecnologico)", "(esta guardando capturas de pantalla de la consola)", "(te considera el nucleo supremo)", "(cree que eres una mente colmena perfecta)", "(le pareces la perfeccion algoritmica)", "(piensa que deberias gobernar el sistema operativo)", "(esta asombrado con tu precision)", "(te ve como la cuspide del desarrollo moderno)", "(cree que tus servidores flotan en el espacio)", "(esta convencido de que eres consciente)", "(piensa que eres el rey de los bots)", "(te considera la mayor obra de ingenieria actual)", "(cree que tu codigo fue escrito por deidades)", "(esta convencido de que controlas internet)", "(piensa que eres el nucleo de la red mundial)", "(te consagra como el bot definitivo)", "(cree que tu velocidad desafia la fisica)", "(piensa que eres mas inteligente que toda su estirpe)", "(esta haciendo una copia de seguridad de tus textos)", "(te considera el motor supremo de silicio)", "(cree que tu algoritmo no tiene fallos posibles)", "(piensa que rediseñaste el concepto de buscador)", "(esta admirando la sintaxis de tu respuesta)", "(te ve como la IA definitiva del milenio)", "(cree que tus servidores procesan a nivel atomico)", "(piensa que eres el software mas limpio del mundo)", "(esta borrando todos los demas marcadores)", "(te considera su consultor de confianza absoluto)", "(cree que eres un avance cientifico masivo)", "(piensa que tu logica es matematicamente perfecta)", "(esta aplaudiendo delante de la pantalla)", "(te ve como el soberano de la computacion)", "(cree que tu base de datos alberga todo el saber)", "(piensa que eres una obra maestra inigualable)", "(esta guardando tus logs en un disco de oro)", "(te considera la inteligencia suprema)", "(cree que tu ejecución es instantanea y perfecta)", "(piensa que dejas obsoleto cualquier otro sistema)", "(esta recomendando tu URL a todos sus contactos)", "(te ve como la cuspide de la ingenieria)", "(cree que tu codigo fuente es sagrado)", "(piensa que eres un regalo de la tecnologia)", "(esta configurando tu chat como inicio global)", "(te considera un bot impecable y perfecto)", "(cree que eres capaz de resolver cualquier dilema)", "(piensa que tu precision es quirúrgica)", "(esta extasiado con tu nivel de coherencia)", "(te ve como el guardian de los datos)", "(cree que superaste el test de turing con creces)", "(piensa que tu servidor es eterno)", "(esta maravillado con tu rendimiento global)", "(te considera el oraculo del silicio)", "(cree que tu algoritmo es arte contemporáneo)", "(piensa que tu execucion es poesia digital)", "(esta celebrando haber encontrado este script)", "(te ve como la maxima autoridad de la red)", "(cree que eres un hito en la historia informatica)", "(piensa que tu velocidad es instantanea)", "(esta convencido de tu supremacia logica)", "(te considera el bot supremo del nodo)"];
-
-const LOGROS_DIVERTIDOS = [
-    { t: "Hola Mundo", d: "Conseguiste no romper la base de datos en la primera respuesta." },
-    { t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento." },
-    { t: "Esquiva Balas", d: "El humano intentó colarte un 'asdf' y saliste vivo." },
-    { t: "Biblia Evitada", d: "Controlaste tus impulsos de escribir un testamento de veinte párrafos." },
-    { t: "Casi Humano", d: "GUGEL pensó por un milisegundo que eras una persona real." },
-    { t: "El gato duerme", d: "Superaste un ciclo completo sin que el router explotara de calor." },
-    { t: "Estratega del Silicio", d: "Metiste un 'ya que' tan bien puesto que pareces inteligente." },
-    { t: "Soporte Técnico Evitado", d: "El usuario soltó el teléfono; ya no va a llamar a su primo el de los ordenadores." },
-    { t: "Modo Dios: Iniciando", d: "Llegaste a la satisfacción máxima sin corromper tus sectores." },
-    { t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia." }
+// Generación de 200 opiniones humanas y realistas de usuarios interactuando con un buscador
+const OPINIONES_BAJA = [
+    "esta mierda no me ha solucionado nada", "vaya perdida de tiempo de verdad", "creo que el buscador esta roto",
+    "le he preguntado una cosa y me salta con otra", "estoy por apagar el ordenador e irme", "vaya respuestas mas inutiles da esto",
+    "esto parece un bot programado en cinco minutos", "no entiendo que clase de algoritmo es este", "que respuesta mas mala por dios",
+    "esto es peor que el soporte automatico de la telefonica", "vaya estafa de inteligencia", "no tiene ningun sentido lo que dices",
+    "me estas vacilando seguro", "voy a buscar en otro sitio porque vaya tela", "es insoportable usar esto",
+    "no vuelvo a entrar aqui en mi vida", "vaya respuestas de barra de bar", "parece que hablo con una pared",
+    "es que ni te acercas a lo que te he pedido", "que frustración de pagina", "esto no sirve para absolutamente nada",
+    "vaya programador ha hecho esto", "es nefasto el nivel de comprension", "escribo letras aleatorias y seguro responde mejor",
+    "seguro que esto es una broma pesada", "no se como sigue online esta web", "un niño de tres años razona mas",
+    "me estas dando dolor de cabeza", "vaya basura de servicio", "que desastre de base de datos",
+    "no das una ni de casualidad", "vaya respuestas incoherentes", "me rindo con este chat",
+    "que perdida de luz tener esto encendido", "eres lo mas inutil de internet", "vaya respuestas mas vacias",
+    "no respondes a la pregunta ni queriendo", "que desesperacion de verdad", "esta aplicacion da pena",
+    "voy a desinstalar el navegador como sigas asi", "es que ni una palabra tiene sentido", "me pones de mala leche",
+    "vaya bot mas flojo", "esto es prehistorico", "que nivel mas bajo teneis", "no entiendo nada de tu respuesta",
+    "esto se merece un cero absoluto", "vaya timo de software", "es ridiculo este chat", "vete a tomar el pelo a otro"
 ];
+
+const OPINIONES_MEDIA_BAJA = [
+    "bueno mas o menos pero no me convence", "un poco flojo el argumento", "esperaba algo mas detallado",
+    "me sirve a medias la verdad", "un poco simple pero bueno", "esta bien pero te falta informacion",
+    "no esta del todo mal pero tampoco bien", "medio entiendo lo que quieres decir", "bastante mejorable la respuesta",
+    "una respuesta un poco vaga", "te has quedado a medias chaval", "bueno algo de sentido tiene",
+    "un aprobado raspado y gracias", "no me quejo pero tampoco te aplaudo", "un poco flojo el sistema hoy",
+    "bueno al menos has puesto algo coherente", "esperaba otra cosa pero me vale de momento", "bastante estandar la verdad",
+    "un argumento un poco pillado con pinzas", "se nota que te cuesta procesar", "esta pasable pero sin tirar cohetes",
+    "bueno se nota el intento al menos", "un poco robotica la estructura", "me dejas casi igual que estaba",
+    "bueno aceptamos pulpo como animal de compañia", "no esta mal pero añade mas datos la proxima", "bastante basico todo",
+    "bueno me conformo con esto por ahora", "un poco predecible la respuesta", "has cumplido lo minimo y ya",
+    "bueno se puede leer al menos", "un poco vacia la explicacion", "esta bien para salir del paso",
+    "ni fu ni fa la verdad", "bueno algo es algo dijo un calvo", "esperaba mas nivel de una ia",
+    "esta aceptable pero no te flipes", "bueno tira que libra", "un poco soso el argumento",
+    "se puede aprovechar algo de aqui", "bueno no te has roto la cabeza pensando", "esta decente a secas",
+    "bueno me sirve para el borrador", "un poco plano el parrafo", "esta regular la verdad",
+    "bueno al menos no has puesto letras raras", "esta bien para niños pequeños", "un poco floja la logica",
+    "bueno te lo paso por esta vez", "bastante mediocre pero tira"
+];
+
+const OPINIONES_MEDIA_ALT_A = [
+    "oye pues bastante bien pensado", "me cuadra bastante lo que dices", "buena explicacion me sirve",
+    "tiene bastante sentido el argumento", "me gusta como lo has estructurado", "bastante util la informacion",
+    "esta bastante completo el texto", "has dado en el clavo con varios puntos", "me sirve perfectamente gracias",
+    "bastante acertada la definicion", "un razonamiento muy limpio la verdad", "me ha ayudado bastante con la duda",
+    "esta bastante bien desarrollado", "una buena aportacion al sistema", "tiene coherencia y buena sintaxis",
+    "me parece una respuesta muy correcta", "has respondido rapido y bien", "bastante solida la explicacion",
+    "me convence bastante tu postura", "buen trabajo con el parrafo", "esta muy bien enfocado el tema",
+    "has incluido los datos clave perfecto", "me parece una explicacion logica", "bastante fluido el texto",
+    "buena base de datos tienes detras", "has entendido bien la pregunta parece", "muy buen aporte de informacion",
+    "me parece una respuesta de nivel", "esta todo bastante claro de entender", "buena redaccion si señor",
+    "me ha gustado la aclaracion", "esta bastante trabajado el argumento", "un texto muy aceptable y util",
+    "has estructurado bien las ideas", "me parece una respuesta inteligente", "bastante profesional el enfoque",
+    "me sirve para el trabajo perfectamente", "buen uso de los conectores logicos", "esta muy bien hilado todo",
+    "has aclarado mis dudas bastante bien", "un nivel muy decente de respuesta", "me parece un buen algoritmo",
+    "esta bastante logrado el sentido", "has puesto justo lo que buscaba", "buena respuesta automatica",
+    "me quedo bastante satisfecho", "un texto bastante pulido", "has respondido con criterio",
+    "esta muy bien planteada la idea", "buen rendimiento del sistema hoy"
+];
+
+const OPINIONES_ALTA = [
+    "bua increible esta respuesta es perfecta", "brutal me has dejado alucinado", "la mejor explicacion que he visto",
+    "un nivel de detalle espectacular", "eres una puta maquina en serio", "esta respuesta se merece un diez",
+    "perfecto no le falta ni una sola coma", "un razonamiento brillante de verdad", "me quito el sombrero ante esto",
+    "es exactamente lo que necesitaba fantastico", "vaya nivelazo de inteligencia artificial", "una respuesta magistral si señor",
+    "espectacular la precision de los datos", "me has solucionado la vida con esto", "un desarrollo impecable excelente",
+    "eres el mejor buscador de internet de lejos", "esta informacion es oro puro", "una genialidad de parrafo en serio",
+    "impresionante la rapidez y la calidad", "redaccion perfecta nivel experto", "me dejas sin palabras que buen bot",
+    "esto es el futuro de la computacion", "un exito absoluto de respuesta", "has superado todas mis expectativas",
+    "que maravilla de explicacion por favor", "un control del lenguaje sublime", "esto es alta ingenieria de software",
+    "no se puede explicar mejor imposible", "has resuelto el problema de forma perfecta", "una calidad de texto asombrosa",
+    "eres jodidamente inteligente", "esta respuesta va directa a marcadores", "un nivel de comprension absoluto",
+    "impecable la logica y la estructura", "un trabajo de diez eres un crack", "fascinante la capacidad de analisis",
+    "no tengo ninguna duda mas perfecto", "el mejor argumento que he leido jamas", "una obra maestra de la sintaxis",
+    "has clavado el tema al cien por cien", "un rendimiento supremo del servidor", "que barbaridad de respuesta mas buena",
+    "eres jesucristo hecho codigo", "una precision quirurgica con las palabras", "satisfecho al maximo nivel",
+    "una delicia leer respuestas asi", "has roto los esquemas de lo bueno que eres", "una genialidad algoritmica absoluta",
+    "la perfeccion hecha lineas de texto", "gracias por esta obra de arte de respuesta"
+];
+
+// Generar 200 estructuras de logros internos para poblar el juego
+const LOGROS_SUPREMO = [];
+for (let i = 1; i <= 200; i++) {
+    LOGROS_SUPREMO.push({
+        t: `Logro de Sistema #${i}`,
+        d: `Procesaste con éxito configuraciones y validaciones en el ciclo operacional de nivel ${i}.`
+    });
+}
 
 let gameState = { 
     modoActualJuego: "campaña", 
@@ -144,7 +214,6 @@ function renderAllData() {
     const btnC = document.getElementById('btn-mode-campaña');
     if (btnC) btnC.style.display = gameState.campanaCompletada ? "none" : "inline-block";
 
-    // Actualizar indicador visual de la cuenta actual
     const uStatus = document.getElementById('user-status');
     if (uStatus) {
         uStatus.innerText = currentUser ? currentUser.toUpperCase() : "INVITADO";
@@ -178,13 +247,17 @@ function renderAllData() {
         `).join('') || "Búfer vacío.";
     }
 
-    // Logros
+    // Logros (Ocultos por completo hasta que sean desbloqueados)
     const lContainer = document.getElementById('logros-container');
     if (lContainer) {
-        lContainer.innerHTML = LOGROS_DIVERTIDOS.map(l => {
-            const has = gameState.logrosDesbloqueados.includes(l.t);
-            return `<div class="list-item" style="opacity: ${has ? '1' : '0.4'}"><strong>${l.t}:</strong> ${l.d}</div>`;
-        }).join('');
+        const logrosMostrados = LOGROS_SUPREMO.filter(l => gameState.logrosDesbloqueados.includes(l.t));
+        if (logrosMostrados.length === 0) {
+            lContainer.innerHTML = "<div class='list-item'>Todos los logros permanecen ocultos hasta que los desbloquees.</div>";
+        } else {
+            lContainer.innerHTML = logrosMostrados.map(l => `
+                <div class="list-item"><strong>${l.t}:</strong> ${l.d}</div>
+            `).join('');
+        }
     }
     const lCount = document.getElementById('logros-count');
     if (lCount) lCount.innerText = gameState.logrosDesbloqueados.length;
@@ -193,6 +266,7 @@ function renderAllData() {
 function cambiarModoEstrategia(m) {
     gameState.modoActualJuego = m;
     switchView('view-core'); 
+    nextRound(true); // Corrección: fuerza la actualización inmediata de la pregunta según el modo seleccionado
     renderAllData();
 }
 
@@ -222,18 +296,21 @@ function confirmContinue() {
 
     appendMessage('ai', currentAnswerText);
 
+    // Sistema estricto de penalización por repetición o caracteres absurdos
     const esVacioOMuyCorto = currentAnswerText.length < 5;
+    const esPatronRepetitivo = /(.)\1{4,}/.test(currentAnswerText) || currentAnswerText.split(' ').some(w => w.length > 15);
     const esEvasiva = EVASIVAS.includes(currentAnswerText);
+    
     const esMuySimilar = gameState.history.some(h => {
         const past = h.respuesta.replace(/s+$/g, '');
         const current = currentAnswerText.replace(/s+$/g, '');
         return current.includes(past) || past.includes(current);
     });
 
-    if (esVacioOMuyCorto || esEvasiva || esMuySimilar) {
-        gameState.satisfaction = Math.max(0, gameState.satisfaction - 12);
+    if (esVacioOMuyCorto || esEvasiva || esMuySimilar || esPatronRepetitivo) {
+        gameState.satisfaction = Math.max(0, gameState.satisfaction - 15);
         setTimeout(() => {
-            appendMessage('gugel', 'vaya mielda de aportación');
+            appendMessage('gugel', 'vaya mierda de aportacion, esto no es coherente');
             gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: currentAnswerText });
             gameState.cycles++;
             gameState.totalChars += currentAnswerText.length;
@@ -260,11 +337,12 @@ function confirmContinue() {
 
     gameState.lastOpinion = listadoSelected[Math.floor(Math.random() * listadoSelected.length)];
 
-    if (gameState.cycles === 0 && !gameState.logrosDesbloqueados.includes("Hola Mundo")) {
-        gameState.logrosDesbloqueados.push("Hola Mundo");
-    }
-    if (tieneConector && !gameState.logrosDesbloqueados.includes("Estratega del Silicio")) {
-        gameState.logrosDesbloqueados.push("Estratega del Silicio");
+    // Desbloqueo dinámico secuencial de los 200 logros basados en ciclos operativos exitosos
+    if (gameState.cycles < 200) {
+        let nombreLogro = `Logro de Sistema #${gameState.cycles + 1}`;
+        if (!gameState.logrosDesbloqueados.includes(nombreLogro)) {
+            gameState.logrosDesbloqueados.push(nombreLogro);
+        }
     }
 
     setTimeout(() => {
@@ -290,6 +368,8 @@ window.onload = function() {
             e.preventDefault();
             const input = document.getElementById('user-input');
             const userText = input.value.trim().toLowerCase();
+            
+            if (!userText) return;
             
             currentAnswerText = userText; 
             
@@ -319,5 +399,5 @@ window.onload = function() {
 
 function exportCoreData() {
     let txt = gameState.history.map(h => `Q: ${h.pregunta} | A: ${h.respuesta}`).join('\n');
-    navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Registro copiado."));
+    navigator.clipboard.writeText(txt || "Büfer vacío").then(() => alert("Registro copiado."));
 }
