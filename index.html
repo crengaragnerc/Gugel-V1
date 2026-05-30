@@ -9,37 +9,36 @@
 <body>
 
     <aside id="sidebar">
-        <div class="sidebar-title">GUGEL CORE</div>
+        <div class="sidebar-title" style="color: #00ff66; font-weight: bold; margin-bottom: 20px; text-align: center;">
+            GUGEL: SIMULADOR DE IA
+        </div>
         
         <div class="nav-group">
-            <span class="nav-group-title">Estrategias</span>
+            <span class="nav-group-title">📌 MODOS DE JUEGO</span>
             <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                Las 10 Campañas
+                📌 LAS 10 CAMPAÑAS
             </button>
             <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
-                Preguntas Infinitas
+                ∞ PREGUNTAS INFINITAS
             </button>
         </div>
 
-        <div class="nav-group">
-            <span class="nav-group-title">Sistema</span>
+        <div class="nav-group" style="margin-top: 20px;">
+            <span class="nav-group-title">🖥️ PANELES</span>
             <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core')">
-                Panel de Control
+                DATOS PERFIL
             </button>
             <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">
-                Registro de Logros
+                LOGROS SISTEMA
             </button>
             <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">
-                Búfer de Logs
+                CONVERSACIONES
             </button>
         </div>
 
-        <div class="nav-group">
-            <span class="nav-group-title">Entorno</span>
+        <div class="nav-group" style="margin-top: auto;">
             <select id="mode-select" onchange="changeSystemMode()">
-                <option value="default">Terminal Estándar</option>
-                <option value="matrix">Modo Matrix</option>
-                <option value="vintage">Modo IBM 1984</option>
+                <option value="default">Modo Hacker</option>
             </select>
         </div>
     </aside>
@@ -47,7 +46,14 @@
     <main id="main-content">
 
         <section id="view-core" class="content-panel active">
-            <h2 class="panel-title" id="panel-title-text">Interfaz Core - Campaña</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 class="panel-title" id="panel-title-text" style="margin: 0; border: none; padding: 0;">
+                    Interfaz Core - Campaña
+                </h2>
+                <select id="mode-select-top" onchange="changeSystemMode()" style="background: #141418; color: white; border: 1px solid #2a2a35; padding: 5px 10px; border-radius: 6px;">
+                    <option>Modo Hacker</option>
+                </select>
+            </div>
             
             <div class="stats-grid">
                 <div class="stat-card">
@@ -74,21 +80,19 @@
                 <form id="chat-form">
                     <input type="text" id="user-input" autocomplete="off" placeholder="Procesando entrada...">
                     <button type="submit" id="transmit-btn">Transmitir</button>
-                    <button type="button" id="continue-btn" style="display: none;" onclick="window.confirmContinue()">Continuar</button>
+                    <button type="button" id="continue-btn" style="display: none;" onclick="window.confirmContinue()">CONTINUAR</button>
                 </form>
             </div>
         </section>
 
         <section id="view-logros" class="content-panel">
             <h2 class="panel-title">Logros de Red (<span id="logros-count">0</span>)</h2>
-            <div id="logros-container">
-                </div>
+            <div id="logros-container"></div>
         </section>
 
         <section id="view-historial" class="content-panel">
             <h2 class="panel-title">Búfer de Logs (Historial)</h2>
-            <div id="history-list-container">
-                </div>
+            <div id="history-list-container"></div>
             <button class="action-btn" onclick="exportCoreData()">Exportar Registros al Portapapeles</button>
         </section>
 
