@@ -177,15 +177,20 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// CORRECCIÓN CLAVE: Sincroniza la selección de la barra lateral con las variables de generación de preguntas reales
 function cambiarModoEstrategia(modo) {
-    // Normalizamos el valor de la entrada para evitar errores sintácticos de strings
     const modoLimpio = (modo === 'campaña' || modo === 'campana') ? 'campaña' : 'infinito';
     
-    gameState.modoSeleccionadoSiguiente = modoLimpio;
-    gameState.modoActualJuego = modoLimpio; // Forzamos el cambio inmediato en la estructura lógica
+    // FILTRO DE SEGURIDAD: Si ya estamos en este modo y el panel activo es el del chat, no hacemos nada
+    const panelCore = document.getElementById('view-core');
+    const estaEnChat = panelCore && panelCore.classList.contains('active');
     
-    // Cambiamos el estado .active visual de los botones laterales de manera limpia
+    if (gameState.modoActualJuego === modoLimpio && estaEnChat) {
+        return; 
+    }
+    
+    gameState.modoSeleccionadoSiguiente = modoLimpio;
+    gameState.modoActualJuego = modoLimpio;
+    
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     
     if (modoLimpio === 'campaña') {
@@ -196,7 +201,6 @@ function cambiarModoEstrategia(modo) {
         if (btnI) btnI.classList.add('active');
     }
     
-    // Limpiamos el chat por completo y generamos la consulta del nuevo modo al pulsar la barra lateral
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) chatBox.innerHTML = "";
     
@@ -215,7 +219,6 @@ function switchView(viewId) {
     if (targetBtn) targetBtn.classList.add('active');
 }
 
-// CORRECCIÓN INTERNA: Lee estrictamente las variables modificadas por cambiarModoEstrategia
 function generarPregunta() {
     if (gameState.modoActualJuego === "campaña") {
         let q = PREGUNTAS_CAMPANA[gameState.campanaIndex];
