@@ -2,41 +2,37 @@
 // SISTEMA DE CUENTAS (CON PASSWORD)
 // ==========================================
 function ejecutarAccionCuenta() {
-    const userIn = prompt("Introduce tu nombre de usuario:");
+    const userIn = prompt("Introduce tu nombre de usuario para Registrarte/Iniciar Sesión:\n(Déjalo en blanco o cancela para seguir como invitado)");
     if (userIn === null) return;
     
     const userClean = userIn.trim().toLowerCase();
-    if (!userClean) { alert("El nombre no puede estar vacío."); return; }
+    if (!userClean) {
+        alert("El nombre de usuario no puede estar vacío.");
+        return;
+    }
 
-    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
 
-    if (db[userClean]) {
-        const passIn = prompt(`Usuario "${userClean}" encontrado. Introduce la contraseña:`);
-        if (passIn === db[userClean].pass) {
-            currentUser = userClean;
-            gameState = db[userClean].data || db[userClean]; 
-            alert(`Bienvenido de nuevo, ${userClean}.`);
-        } else {
-            alert("Contraseña incorrecta. Acceso denegado.");
-            return;
-        }
+    if (copiaUsuarios[userClean]) {
+        // Iniciar Sesión existente
+        currentUser = userClean;
+        gameState = copiaUsuarios[userClean];
+        alert(`Sesión iniciada correctamente. Bienvenido, ${userClean}.`);
     } else {
-        const passIn = prompt(`Usuario nuevo "${userClean}". Define tu contraseña de seguridad:`);
-        if (!passIn) { alert("Necesitas una contraseña para crear cuenta."); return; }
-        
-        if (gameState.cycles > 0) {
-            const migrar = confirm("¿Quieres vincular tus datos actuales de invitado a esta cuenta?");
+        // Registrar cuenta nueva de forma transparente e importar progreso actual si se desea
+        if (gameState.cycles > 0 || gameState.history.length > 0) {
+            const migrar = confirm("¿Quieres vincular tu partida actual de invitado a esta nueva cuenta?");
             if (!migrar) {
+                // Si no migra, inicializa desde cero para la cuenta nueva
                 gameState = { 
                     modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
                     satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", currentPregunta: "", history: [], logrosDesbloqueados: [] 
                 };
             }
         }
-        
         currentUser = userClean;
-        db[userClean] = { pass: passIn, data: gameState };
-        localStorage.setItem("gugel_users", JSON.stringify(db));
+        copiaUsuarios[userClean] = gameState;
+        localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
         alert(`Cuenta "${userClean}" creada con éxito.`);
     }
 
@@ -48,12 +44,10 @@ function ejecutarAccionCuenta() {
 }
 
 function guardarProgresoCuenta() {
-    if (!currentUser) return;
-    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
-    if (db[currentUser]) {
-        db[currentUser].data = gameState;
-        localStorage.setItem("gugel_users", JSON.stringify(db));
-    }
+    if (!currentUser) return; // Si es invitado, no hace nada de forma obligatoria
+    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    copiaUsuarios[currentUser] = gameState;
+    localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
 }
 const PREGUNTAS_CAMPANA = [
     "cagar verde normal",
@@ -287,58 +281,6 @@ let gameState = {
 let currentUser = null; // Almacena el usuario autenticado (null = sesión de invitado)
 
 const MAX_PALABRAS = 15;
-
-// ==========================================
-// SISTEMA DE CUENTAS (OPCIONAL)
-// ==========================================
-function ejecutarAccionCuenta() {
-    const userIn = prompt("Introduce tu nombre de usuario para Registrarte/Iniciar Sesión:\n(Déjalo en blanco o cancela para seguir como invitado)");
-    if (userIn === null) return;
-    
-    const userClean = userIn.trim().toLowerCase();
-    if (!userClean) {
-        alert("El nombre de usuario no puede estar vacío.");
-        return;
-    }
-
-    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
-
-    if (copiaUsuarios[userClean]) {
-        // Iniciar Sesión existente
-        currentUser = userClean;
-        gameState = copiaUsuarios[userClean];
-        alert(`Sesión iniciada correctamente. Bienvenido, ${userClean}.`);
-    } else {
-        // Registrar cuenta nueva de forma transparente e importar progreso actual si se desea
-        if (gameState.cycles > 0 || gameState.history.length > 0) {
-            const migrar = confirm("¿Quieres vincular tu partida actual de invitado a esta nueva cuenta?");
-            if (!migrar) {
-                // Si no migra, inicializa desde cero para la cuenta nueva
-                gameState = { 
-                    modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
-                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", currentPregunta: "", history: [], logrosDesbloqueados: [] 
-                };
-            }
-        }
-        currentUser = userClean;
-        copiaUsuarios[userClean] = gameState;
-        localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
-        alert(`Cuenta "${userClean}" creada con éxito.`);
-    }
-
-    actualizarBotonCuentaUI();
-    renderAllData();
-    const chatBox = document.getElementById('chat-messages');
-    if (chatBox) chatBox.innerHTML = "";
-    nextRound();
-}
-
-function guardarProgresoCuenta() {
-    if (!currentUser) return; // Si es invitado, no hace nada de forma obligatoria
-    let copiaUsuarios = JSON.parse(localStorage.getItem("gugel_users") || "{}");
-    copiaUsuarios[currentUser] = gameState;
-    localStorage.setItem("gugel_users", JSON.stringify(copiaUsuarios));
-}
 
 function actualizarBotonCuentaUI() {
     const btnCuentas = document.getElementById("btn-gestion-cuenta");
@@ -702,9 +644,6 @@ window.onload = function() {
     }
 
     // 3. Inicialización del resto de tu app
-    renderAllData();
-    if (typeof nextRound === 'function') nextRound();
-};
     actualizarBotonCuentaUI();
     renderAllData();
     nextRound();
