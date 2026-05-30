@@ -3,84 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL Core</title>
+    <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="modo-hacker">
     <div id="app-container">
-        <!-- Barra lateral de navegación -->
         <aside id="sidebar">
-            <div class="brand">GUGEL v2.0</div>
-            <nav>
-                <button id="btn-view-consultas" class="nav-btn active" onclick="switchView('view-consultas')">Consola de Tráfico</button>
-                <button id="btn-view-modulos" class="nav-btn" onclick="switchView('view-modulos')">Panel de Módulos</button>
-            </nav>
-            <div class="system-control">
-                <label for="mode-select">Estilo Interfaz:</label>
-                <select id="mode-select" onchange="changeSystemMode()">
-                    <option value="modo-hacker">Terminal Verde</option>
-                    <option value="modo-oscuro">Matriz Oscura</option>
-                    <option value="modo-retro">Monitor Ámbar</option>
-                </select>
+            <div class="brand">GUGEL: simulador de IA</div>
+            
+            <div class="menu-section">
+                <div class="section-title">🕹️ MODOS DE JUEGO</div>
+                <button id="btn-view-core" class="nav-btn active main-btn" onclick="seleccionarModoJuego('campaña')">
+                    📌 LAS 10 CAMPAÑAS
+                </button>
+                <button id="btn-view-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">
+                    ♾️ PREGUNTAS INFINITAS
+                </button>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-title">👤 PERFIL</div>
+                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-title">🏆 LOGROS</div>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-title">📁 HISTORIAL</div>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">CONVERSACIONES</button>
             </div>
         </aside>
 
-        <!-- Contenedor principal -->
         <main id="main-content">
             <header id="panel-header">
-                <h1 id="panel-title-text">GUGEL Core</h1>
+                <h2 id="panel-title-text">Interfaz Core - Campaña</h2>
+                <select id="mode-select" onchange="changeSystemMode()">
+                    <option value="modo-hacker">Modo Hacker</option>
+                    <option value="modo-claro">Modo Claro</option>
+                    <option value="modo-oscuro">Modo Oscuro</option>
+                </select>
             </header>
 
-            <!-- Vista 1: Consola de Consultas -->
-            <section id="view-consultas" class="content-panel active">
-                <div class="chat-wrapper">
-                    <div id="chat-messages"></div>
-                    <form id="chat-form" autocomplete="off">
+            <section id="view-core" class="content-panel active">
+                <div id="chat-messages"></div>
+                <form id="chat-form" autocomplete="off">
+                    <div class="input-container">
                         <input type="text" id="user-input" placeholder="introduce tu respuesta de ia..." required>
-                        <button type="submit" id="transmit-btn">Transmitir</button>
-                        <button type="button" id="continue-btn" style="display: none;" onclick="confirmContinue()">Siguiente Consulta</button>
-                    </form>
+                        <button type="submit" id="transmit-btn">TRANSMITIR</button>
+                    </div>
+                    <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
+                </form>
+            </section>
+
+            <section id="view-perfil" class="content-panel">
+                <div class="card">
+                    <h3>👤 Módulo: Estado del Humano</h3>
+                    <div class="opinion-box" id="opinion-container">
+                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
+                    </div>
+                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
+                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
+                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
                 </div>
             </section>
 
-            <!-- Vista 2: Panel de Módulos (Estadísticas, Historial, Logros) -->
-            <section id="view-modulos" class="content-panel">
-                <div class="modules-grid">
-                    <!-- Estado del Humano -->
-                    <div class="module-card">
-                        <h3>Módulo: Análisis del Humano</h3>
-                        <div class="data-group">
-                            <p><strong>Opinión interna:</strong> <span id="prof-opinion">analizando...</span></p>
-                            <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
-                            <p><strong>Estado general:</strong> <span id="prof-summary">esperando datos</span></p>
-                        </div>
-                    </div>
+            <section id="view-logros" class="content-panel">
+                <div class="card">
+                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
+                    <div id="logros-container" class="list-container"></div>
+                </div>
+            </section>
 
-                    <!-- Estadísticas Globales -->
-                    <div class="module-card">
-                        <h3>Módulo: Métricas del Núcleo</h3>
-                        <div class="data-group">
-                            <p><strong>Consultas totales:</strong> <span id="prof-cycles">0</span></p>
-                            <p><strong>Caracteres procesados:</strong> <span id="prof-chars">0</span></p>
-                            <button class="action-btn" onclick="exportCoreData()">Volcar Registro a Portapapeles</button>
-                        </div>
-                    </div>
-
-                    <!-- Logros -->
-                    <div class="module-card large">
-                        <h3>Módulo: Logros del Núcleo (<span id="logros-count">0</span>)</h3>
-                        <div id="logros-container" class="scroll-box"></div>
-                    </div>
-
-                    <!-- Archivo de Historial -->
-                    <div class="module-card large">
-                        <h3>Módulo: Archivo Temporal de Transmisiones</h3>
-                        <p id="fav-status">Sin marcas prioritarias.</p>
-                        <div id="history-list-container" class="scroll-box"></div>
-                    </div>
+            <section id="view-historial" class="content-panel">
+                <div class="card">
+                    <h3>📁 Historial de Conversaciones</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <div id="history-list-container" class="list-container"></div>
                 </div>
             </section>
         </main>
     </div>
+    <script src="script.js"></script>
 </body>
 </html>
