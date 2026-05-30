@@ -1,14 +1,3 @@
-// --- FILTRO ANTI-REPETICIÓN ---
-    const esMuySimilar = gameState.history.some(h => {
-        const past = h.respuesta.replace(/s+$/g, '');
-        const current = userText.replace(/s+$/g, '');
-        return current.includes(past) || past.includes(current);
-    });
-
-    if (esMuySimilar) {
-        alert("ya has dicho algo parecido, intenta ser más original.");
-    
-    // ------------------------------
 function exportCoreData() {
     let txt = gameState.history.map(h => `${h.respuesta}`).join('\n');
     navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Respuestas copiadas al portapapeles."));
