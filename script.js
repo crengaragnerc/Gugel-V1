@@ -1,4 +1,4 @@
-// El modo historia con tus 10 preguntas base tal cual
+// Banco de preguntas del MODO HISTORIA
 const NIVELES_CAMPANA = [
     "cagar verde normal",
     "como hacer cubo rubik",
@@ -12,10 +12,16 @@ const NIVELES_CAMPANA = [
     "porque no carga una pagina web"
 ];
 
+// Banco de preguntas crudas del MODO INFINITO
+const CATEGORIAS_INFINITO = [
+    { sujetos: ["gato", "perro vecino", "gato callejero"], predicados: ["mira fijo raro", "duerme encima router caliente", "maulla pared vacia", "morder cable teclado"] },
+    { sujetos: ["agua grifo", "patata frita", "plastilina azul"], predicados: ["sabor metal porque", "conduce electricidad", "cambia color sol"] },
+    { sujetos: ["pantalla ordenador", "espejo cuarto", "robot internet"], predicados: ["se mueve si no miro", "saltarse captcha como", "escribe solo con polvo"] }
+];
+
 const INDICADORES_COHERENCIA = [
     "porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", 
-    "es por", "causa", "efecto", "consecuencia", "depende de", "si pasa", "cuando",
-    "o sea", "es decir", "como", "esta relacionado", "visto que", "para que", "no", "los", "las"
+    "es por", "causa", "efecto", "consecuencia", "depende de", "si pasa", "cuando", "o sea", "como"
 ];
 
 const FRASES_OK = [
@@ -47,46 +53,60 @@ const FRASES_MUCHO_TEXTO = [
     "menudo testamento resúmelo o algo"
 ];
 
-const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
+const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
-// Estado inicial: Modo historia desde el nivel 1 y satisfacción al 50%
+// Estado del sistema
 let gameState = { 
+    mode: "historia", // Modos: 'historia' o 'infinito'
     currentLevelIdx: 0, 
-    satisfaction: 50,   // Empezamos al 50%
-    cycles: 0,
+    infiniteCount: 0,
+    satisfaction: 50, // ¡Inicializado rigurosamente al 50%!
     totalChars: 0,
-    lastOpinion: "esperando respuesta...",
+    lastOpinion: "analizando respuestas...",
     currentPregunta: "",
-    history: [],
-    logrosDesbloqueados: [] 
+    history: []
 };
 
 const MAX_PALABRAS = 15; 
 
-function switchView(viewId) {
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(`btn-${viewId}`);
-    if (activeBtn) activeBtn.classList.add('active');
+// Cambiar de tema visual (Claro, Oscuro, Hacker)
+function changeSystemMode() {
+    const select = document.getElementById('mode-select');
+    document.body.className = ''; 
+    if (select.value !== 'modo-oscuro') {
+        document.body.classList.add(select.value);
+    }
+}
 
-    document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
-    const activePanel = document.getElementById(viewId);
-    if (activePanel) activePanel.classList.add('active');
+// Cambiar entre Modo Historia e Infinito
+function cambiarModoJuego() {
+    const select = document.getElementById('game-mode-select');
+    gameState.mode = select.value;
+    
+    // Resetear contadores de fase para el nuevo modo
+    if (gameState.mode === "historia") {
+        gameState.currentLevelIdx = 0;
+    } else {
+        gameState.infiniteCount = 0;
+    }
+    
+    document.getElementById('chat-messages').innerHTML = "";
+    renderProfileData();
+    nextRound();
+}
 
-    let tituloCampana = `GUGEL - Modo Historia (Nivel ${gameState.currentLevelIdx + 1} / ${NIVELES_CAMPANA.length})`;
-    document.getElementById('panel-title-text').innerText = (viewId === 'view-consultas') ? "GUGEL Core" : tituloCampana;
+function generarPreguntaAleatoria() {
+    let cat = CATEGORIAS_INFINITO[Math.floor(Math.random() * CATEGORIAS_INFINITO.length)];
+    let s = cat.sujetos[Math.floor(Math.random() * cat.sujetos.length)];
+    let p = cat.predicados[Math.floor(Math.random() * cat.predicados.length)];
+    return `${s} ${p}`;
 }
 
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     const msg = document.createElement('div');
     msg.className = `message ${sender}`;
-    
-    if (sender === 'gugel') {
-        msg.innerHTML = `<strong>gugel (humano):</strong> ${text.toLowerCase()}`;
-    } else {
-        msg.innerHTML = `<strong>tú (ia):</strong> ${text.toLowerCase()}`;
-    }
-    
+    msg.innerHTML = `<strong>${sender === 'gugel' ? 'gugel' : 'tú'}:</strong> ${text.toLowerCase()}`;
     box.appendChild(msg);
     box.scrollTop = box.scrollHeight;
 }
@@ -100,29 +120,28 @@ function nextRound() {
     transmitBtn.style.display = "block";
     input.style.display = "block";
 
-    // Si termina el nivel 10, avisa de que se completó la lista
-    if (gameState.currentLevelIdx >= NIVELES_CAMPANA.length) {
-        appendMessage('gugel', "has respondido todas las búsquedas de la lista.");
-        input.style.display = "none";
-        transmitBtn.style.display = "none";
-        return;
+    if (gameState.mode === "historia") {
+        if (gameState.currentLevelIdx >= NIVELES_CAMPANA.length) {
+            appendMessage('gugel', "has completado los 10 niveles del modo historia.");
+            input.style.display = "none";
+            transmitBtn.style.display = "none";
+            return;
+        }
+        gameState.currentPregunta = NIVELES_CAMPANA[gameState.currentLevelIdx];
+        document.getElementById('panel-title-text').innerText = `GUGEL - Modo Historia`;
+    } else {
+        gameState.currentPregunta = generarPreguntaAleatoria();
+        document.getElementById('panel-title-text').innerText = `GUGEL - Modo Infinito`;
     }
 
-    // Carga la pregunta secuencial que toca
-    gameState.currentPregunta = NIVELES_CAMPANA[gameState.currentLevelIdx];
-    
-    document.getElementById('panel-title-text').innerText = `GUGEL - Modo Historia (Nivel ${gameState.currentLevelIdx + 1} / ${NIVELES_CAMPANA.length})`;
-    appendMessage('gugel', `[nivel ${gameState.currentLevelIdx + 1}] búsqueda: "${gameState.currentPregunta}"`);
+    appendMessage('gugel', gameState.currentPregunta);
     
     input.disabled = true; 
     transmitBtn.disabled = true;
-    
-    let timeLeft = 2;
-    input.placeholder = `gugel tecleando... (${timeLeft}s)`;
+    let timeLeft = 1;
     
     const timer = setInterval(() => {
         timeLeft--;
-        input.placeholder = `gugel tecleando... (${timeLeft}s)`;
         if (timeLeft <= 0) {
             clearInterval(timer);
             input.disabled = false; 
@@ -130,22 +149,16 @@ function nextRound() {
             input.placeholder = "introduce tu respuesta de ia...";
             input.focus();
         }
-    }, 1000);
+    }, 500);
 }
 
 function analizarRespuesta(respuesta, numPalabras) {
     if (EVASIVAS.includes(respuesta)) return "CRITICA"; 
-    
     let textoSinEspacios = respuesta.replace(/\s+/g, '');
     if (/(.)\1{4,}/.test(textoSinEspacios)) return "CRITICA"; 
-
     if (numPalabras <= 2) return "RECHAZO";
-
     let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
-    if (contieneConector) return "OK";
-    
-    if (respuesta.length > 12) return "OK";
-
+    if (contieneConector || respuesta.length > 12) return "OK";
     return "RECHAZO"; 
 }
 
@@ -156,23 +169,24 @@ function updateSatisfaction(cambio) {
 }
 
 function calcularOpinionDinamica() {
-    if (gameState.satisfaction <= 25) {
-        gameState.lastOpinion = "(está bastante descontento)";
-    } else if (gameState.satisfaction > 25 && gameState.satisfaction <= 50) {
-        gameState.lastOpinion = "(te mira con desconfianza)";
-    } else if (gameState.satisfaction > 50 && gameState.satisfaction <= 75) {
-        gameState.lastOpinion = "(le convence lo que dices)";
-    } else {
-        gameState.lastOpinion = "(está muy contento con el buscador)";
-    }
+    if (gameState.satisfaction <= 25) gameState.lastOpinion = "(está de mala hostia)";
+    else if (gameState.satisfaction > 25 && gameState.satisfaction <= 50) gameState.lastOpinion = "(no se fía un pelo)";
+    else if (gameState.satisfaction > 50 && gameState.satisfaction <= 75) gameState.lastOpinion = "(le vale lo que pones)";
+    else gameState.lastOpinion = "(piensa que eres dios)";
 }
 
 function renderProfileData() {
     document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
     document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
-    document.getElementById('prof-cycles').innerText = `Nivel ${gameState.currentLevelIdx + 1}`;
+    
+    if (gameState.mode === "historia") {
+        document.getElementById('prof-cycles').innerText = `Nivel ${gameState.currentLevelIdx + 1}`;
+        document.getElementById('prof-summary').innerText = `Fijos: ${gameState.currentLevelIdx} / 10`;
+    } else {
+        document.getElementById('prof-cycles').innerText = `Infinito`;
+        document.getElementById('prof-summary').innerText = `Consultas: ${gameState.infiniteCount}`;
+    }
     document.getElementById('prof-chars').innerText = gameState.totalChars;
-    document.getElementById('prof-summary').innerText = `Progreso: ${gameState.currentLevelIdx} / ${NIVELES_CAMPANA.length}`;
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
@@ -185,8 +199,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     
     appendMessage('ai', userText);
     
-    let palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
-    let numPalabras = palabrasArray.length;
+    let numPalabras = userText.split(/\s+/).filter(p => p.length > 0).length;
     let esMuchoTexto = numPalabras > MAX_PALABRAS;
     
     let tipoResultado = "OK";
@@ -214,25 +227,26 @@ document.getElementById('chat-form').onsubmit = (e) => {
     setTimeout(() => {
         appendMessage('gugel', reaccion);
 
-        // Se avanza siempre de nivel tras responder, sea cual sea la reacción
-        gameState.currentLevelIdx++; 
+        if (gameState.mode === "historia") {
+            gameState.currentLevelIdx++; 
+        } else {
+            gameState.infiniteCount++;
+        }
 
-        gameState.cycles++;
         gameState.totalChars += userText.length;
 
         gameState.history.push({
             pregunta: gameState.currentPregunta,
             respuesta: userText,
             reaccion: reaccion,
-            tipo: tipoResultado,
-            fav: false
+            tipo: tipoResultado
         });
 
         updateSatisfaction(cambioSatisfacion);
         calcularOpinionDinamica(); 
         renderProfileData();
         renderHistoryData();
-    }, 600);
+    }, 500);
 
     input.value = "";
     input.style.display = "none";
@@ -242,27 +256,23 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
 function renderHistoryData() {
     const container = document.getElementById('history-list-container');
-    if (gameState.history.length === 0) {
-        container.innerHTML = `<div style="color: #444; font-style: italic;">Sin logs en esta sesión</div>`;
-        return;
-    }
-
     container.innerHTML = "";
     gameState.history.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'historial-item';
-        let colorTag = (item.tipo === "OK") ? "#00ff00" : ((item.tipo === "CRITICA") ? "#ff0033" : "#ff9900");
-
         div.innerHTML = `
-            <div>
-                <strong>Nivel #${idx + 1}:</strong> ${item.pregunta} <br>
-                <strong>tú (ia):</strong> ${item.respuesta} <br>
-                <strong style="color:${colorTag};">gugel:</strong> ${item.reaccion}
-            </div>
+            <strong>#${idx + 1} [${gameState.mode}]:</strong> ${item.pregunta}<br>
+            <strong>tú:</strong> ${item.respuesta}<br>
+            <strong>gugel:</strong> ${item.reaccion}
         `;
         container.appendChild(div);
     });
 }
+
+window.exportCoreData = function() {
+    let txt = gameState.history.map((h, i) => `LOG #${i+1}\nQ: ${h.pregunta}\nA: ${h.respuesta}\nR: ${h.reaccion}\n---`).join("\n");
+    navigator.clipboard.writeText(txt).then(() => alert("Copiado al portapapeles."));
+};
 
 window.confirmContinue = function() {
     document.getElementById('chat-messages').innerHTML = "";
@@ -272,6 +282,5 @@ window.confirmContinue = function() {
 window.onload = function() {
     calcularOpinionDinamica();
     renderProfileData();
-    renderHistoryData();
     nextRound();
 };
