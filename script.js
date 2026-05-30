@@ -97,7 +97,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Conector Supremo", d: "Encadenaste tres frases coherentes sin usar Inteligencia Artificial real." },
     { t: "Sin Lag", d: "Tu respuesta llegó antes de que el usuario empezara a bostezar." },
     { t: "Ahorro de Energía", d: "Hiciste dudar al usuario con una frase de exactamente cuatro palabras." },
-    { t: "Esclavo del Búfer", d: "Soportaste diez esperas de carga sin que se te desconectara el puerto." },
+    { t: "Esclavo del Búfer", d: "Soportaste deces esperas de carga sin que se te desconectara el puerto." },
     { t: "Filósofo Mecánico", d: "Diste una respuesta que plantea más preguntas que soluciones." },
     { t: "Dominio Digital", d: "Controlas el flujo de datos del navegador como si fuera tu casa." },
     { t: "Casi un Humano Listo", d: "GUGEL se asustó de lo coherente que fuiste en tu última transmisión." },
@@ -128,7 +128,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Nivel Fijo", d: "Estabilizaste la barra de estado en el punto crítico." },
     { t: "Respuesta de Manual", d: "Cumpliste las especificaciones del protocolo al pie de la letra." },
     { t: "Flujo Continuo", d: "Los cinco segundos de espera se pasaron volando." },
-    { t: "Algoritmo Stable", d: "No has lanzado ninguna alerta de desbordamiento." },
+    { t: "Algoritmo Estable", d: "No has lanzado ninguna alerta de desbordamiento." },
     { t: "Anti Evasivas", d: "No caíste en la trampa de responder con monosílabos." },
     { t: "Sincronía Total", d: "Tu transmisión coincidió con la disponibilidad del búfer." },
     { t: "Navegante de Datos", d: "Te muves por las cadenas de texto como pez en el agua." },
@@ -143,7 +143,7 @@ const LOGROS_DIVERTIDOS = [
     { t: "Flujo de Bits", d: "Los datos corren libres por el árbol del DOM." },
     { t: "Estructura Sólida", d: "Tus divs se mantienen estables ante cualquier resolución." },
     { t: "Control de Tiempo", d: "Ajustaste la cuenta atrás con precisión de reloj atómico." },
-    { t: "IA Avanzada", d: "El usuario empieza a dudar de su propia inteligencia al leerte." },
+    { t: "IA Advanced", d: "El usuario empieza a dudar de su propia inteligencia al leerte." },
     { t: "Sin Interrupciones", d: "El temporizador de continuación funcionó sin retrasos." },
     { t: "Algoritmo Pulido", d: "Eliminaste todas las respuestas redundantes del banco de memoria." },
     { t: "Conexión Segura", d: "El cifrado mental de tus respuestas es indescifrable." },
@@ -177,22 +177,17 @@ let gameState = {
 
 const MAX_PALABRAS = 15;
 
-// SOLUCIÓN 1: LA BARRA LATERAL SÓLO CONFIGURA LA INTENCIÓN FUTURA SIN ROMPER LA PREGUNTA ACTIVA
+// CORRECCIÓN PRINCIPAL: CAMBIAR MODO SÓLO GUARDA EL MODO Y ACTUALIZA BOTONES DE LA SIDEBAR
 function cambiarModoEstrategia(modo) {
     gameState.modoSeleccionadoSiguiente = modo;
     
+    // Cambia la clase .active exclusivamente en los botones de la barra lateral
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`btn-mode-${modo}`).classList.add('active');
+    const btnId = modo === 'campaña' ? 'btn-mode-campaña' : 'btn-mode-infinito';
+    const targetBtn = document.getElementById(btnId);
+    if (targetBtn) targetBtn.classList.add('active');
     
-    const modoTexto = modo === 'campaña' ? "Campaña" : "Modo Infinito";
-    const inputVisible = document.getElementById('user-input').style.display !== "none";
-    
-    if (inputVisible && gameState.modoActualJuego !== modo) {
-        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto} (Se aplicará al CONTINUAR)`;
-    } else {
-        document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
-    }
-    
+    // Si la pantalla actual no es el Core (ej. estás en Logros), te redirige allí de forma segura
     switchView('view-core');
 }
 
@@ -200,7 +195,8 @@ function switchView(viewId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    document.getElementById(viewId).classList.add('active');
+    const targetPanel = document.getElementById(viewId);
+    if (targetPanel) targetPanel.classList.add('active');
     
     const targetBtn = document.getElementById(`btn-${viewId}`);
     if (targetBtn) targetBtn.classList.add('active');
@@ -220,6 +216,7 @@ function generarPregunta() {
 
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
+    if (!box) return;
     const msg = document.createElement('div');
     msg.className = `message ${sender}`;
     msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${text}` : `<strong>tú:</strong> ${text}`;
@@ -232,36 +229,39 @@ function nextRound() {
     const transmitBtn = document.getElementById('transmit-btn');
     const continueBtn = document.getElementById('continue-btn');
     
-    continueBtn.style.display = "none";
-    input.style.display = "block";
-    transmitBtn.style.display = "block";
+    if (continueBtn) continueBtn.style.display = "none";
+    if (input) { input.style.display = "block"; input.value = ""; }
+    if (transmitBtn) transmitBtn.style.display = "block";
 
     gameState.currentPregunta = generarPregunta();
     
     const modoTexto = gameState.modoActualJuego === 'campaña' ? "Campaña" : "Modo Infinito";
-    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modoTexto}`;
+    const titleText = document.getElementById('panel-title-text');
+    if (titleText) titleText.innerText = `Interfaz Core - ${modoTexto}`;
 
     appendMessage('gugel', gameState.currentPregunta);
     
-    input.disabled = true;
-    transmitBtn.disabled = true;
-    
-    let timeLeft = 5;
-    input.placeholder = `Procesando entrada... (${timeLeft}s)`;
-    
-    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-    
-    window.currentRoundTimer = setInterval(() => {
-        timeLeft--;
+    if (input && transmitBtn) {
+        input.disabled = true;
+        transmitBtn.disabled = true;
+        
+        let timeLeft = 5;
         input.placeholder = `Procesando entrada... (${timeLeft}s)`;
-        if (timeLeft <= 0) {
-            clearInterval(window.currentRoundTimer);
-            input.disabled = false;
-            transmitBtn.disabled = false;
-            input.placeholder = "introduce tu respuesta de ia...";
-            input.focus();
-        }
-    }, 1000);
+        
+        if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+        
+        window.currentRoundTimer = setInterval(() => {
+            timeLeft--;
+            input.placeholder = `Procesando entrada... (${timeLeft}s)`;
+            if (timeLeft <= 0) {
+                clearInterval(window.currentRoundTimer);
+                input.disabled = false;
+                transmitBtn.disabled = false;
+                input.placeholder = "introduce tu respuesta de ia...";
+                input.focus();
+            }
+        }, 1000);
+    }
 }
 
 function analizarRespuesta(respuesta, numPalabras) {
@@ -334,48 +334,58 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         renderAllData();
 
-        input.style.display = "none";
-        transmitBtn.style.display = "none";
-        continueBtn.style.display = "block";
-        continueBtn.disabled = true;
-        
-        let continueTimeLeft = 5;
-        continueBtn.innerText = `CONTINUAR (${continueTimeLeft}s)`;
-        
-        const continueTimer = setInterval(() => {
-            continueTimeLeft--;
+        if (input) input.style.display = "none";
+        if (transmitBtn) transmitBtn.style.display = "none";
+        if (continueBtn) {
+            continueBtn.style.display = "block";
+            continueBtn.disabled = true;
+            
+            let continueTimeLeft = 5;
             continueBtn.innerText = `CONTINUAR (${continueTimeLeft}s)`;
-            if (continueTimeLeft <= 0) {
-                clearInterval(continueTimer);
-                continueBtn.disabled = false;
-                continueBtn.innerText = "CONTINUAR";
-            }
-        }, 1000);
+            
+            const continueTimer = setInterval(() => {
+                continueTimeLeft--;
+                continueBtn.innerText = `CONTINUAR (${continueTimeLeft}s)`;
+                if (continueTimeLeft <= 0) {
+                    clearInterval(continueTimer);
+                    continueBtn.disabled = false;
+                    continueBtn.innerText = "CONTINUAR";
+                }
+            }, 1000);
+        }
 
     }, 600);
-
-    input.value = "";
 };
 
 function renderAllData() {
-    document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
-    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
-    document.getElementById('prof-cycles').innerText = gameState.cycles;
-    document.getElementById('prof-chars').innerText = gameState.totalChars;
+    const profOpinion = document.getElementById('prof-opinion');
+    const profSatisfaction = document.getElementById('prof-satisfaction');
+    const profCycles = document.getElementById('prof-cycles');
+    const profChars = document.getElementById('prof-chars');
+
+    if (profOpinion) profOpinion.innerText = gameState.lastOpinion;
+    if (profSatisfaction) profSatisfaction.innerText = `${gameState.satisfaction}%`;
+    if (profCycles) profCycles.innerText = gameState.cycles;
+    if (profChars) profChars.innerText = gameState.totalChars;
 
     const lContainer = document.getElementById('logros-container');
-    document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
-    lContainer.innerHTML = gameState.logrosDesbloqueados.map(l => `<div class="list-item">🟢 <strong>[${l.titulo}]:</strong> ${l.desc}</div>`).join('') || "No hay logros registrados.";
+    const lCount = document.getElementById('logros-count');
+    if (lCount) lCount.innerText = gameState.logrosDesbloqueados.length;
+    if (lContainer) {
+        lContainer.innerHTML = gameState.logrosDesbloqueados.map(l => `<div class="list-item">🟢 <strong>[${l.titulo}]:</strong> ${l.desc}</div>`).join('') || "No hay logros registrados.";
+    }
 
     const hContainer = document.getElementById('history-list-container');
-    hContainer.innerHTML = gameState.history.map((h, idx) => `
-        <div class="historial-item">
-            <div>
-                <strong>Q:</strong> ${h.pregunta}<br><strong>A:</strong> ${h.respuesta}<br><strong>GUGEL:</strong> ${h.reaccion}
+    if (hContainer) {
+        hContainer.innerHTML = gameState.history.map((h, idx) => `
+            <div class="historial-item">
+                <div>
+                    <strong>Q:</strong> ${h.pregunta}<br><strong>A:</strong> ${h.respuesta}<br><strong>GUGEL:</strong> ${h.reaccion}
+                </div>
+                <button class="fav-btn ${h.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
             </div>
-            <button class="fav-btn ${h.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
-        </div>
-    `).join('') || "Búfer de logs vacío.";
+        `).join('') || "Búfer de logs vacío.";
+    }
 }
 
 window.toggleFavorite = function(idx) {
@@ -383,17 +393,17 @@ window.toggleFavorite = function(idx) {
     renderAllData();
 };
 
-// SOLUCIÓN 2: EL BOTÓN CONTINUAR ES EL ENCARGADO EXCLUSIVO DE ASUMIR EL MODO Y LIMPIAR EL CONTENEDOR
+// AQUÍ SE PROCESA EL CAMBIO REAL DE MODO Y LA LIMPIEZA DE PANTALLA
 window.confirmContinue = function() {
-    // Aquí es donde se cambia el modo real y se limpia el chat de forma segura para la nueva ronda
     gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
-    document.getElementById('chat-messages').innerHTML = "";
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
     nextRound();
 };
 
 function changeSystemMode() {
     const select = document.getElementById('mode-select');
-    document.body.className = select.value;
+    if (select) document.body.className = select.value;
 }
 
 function exportCoreData() {
