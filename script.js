@@ -1,14 +1,17 @@
-const NIVELES_CAMPANA = [
-    "cagar verde normal",
-    "como hacer cubo rubik",
-    "que se celebra 15 de agosto y porque",
-    "no dormir una noche que pasa",
-    "xq agua es liquida",
-    "como allanar un barranco",
-    "tomate fruta verdura?",
-    "cancion tan tan tan tann nombre",
-    "como saber si alguien te ha bloqueado",
-    "porque no carga una pagina web"
+// Bancos de preguntas categorizados para mantener la coherencia temática
+const CATEGORIAS_PREGUNTAS = [
+    {
+        sujetos: ["mi gato", "el perro de mi vecino", "un gato callejero"],
+        predicados: ["me mira fijamente cuando duermo", "duerme encima del router caliente", "maúlla a la pared vacía", "intenta morder el cable del teclado"]
+    },
+    {
+        sujetos: ["el agua del grifo", "una patata frita", "la plastilina azul"],
+        predicados: ["tiene a veces sabor a metal", "conduce la electricidad", "cambia de color si la dejas al sol"]
+    },
+    {
+        sujetos: ["la pantalla de mi ordenador", "el espejo de mi cuarto", "un robot de internet"],
+        predicados: ["se mueve un poco cuando no la miro", "puede saltarse un captcha de seguridad", "escribe solo si se llena de polvo"]
+    }
 ];
 
 const INDICADORES_COHERENCIA = [
@@ -18,84 +21,96 @@ const INDICADORES_COHERENCIA = [
 ];
 
 const FRASES_OK = [
-    "vale me cuadra tiene logica",
-    "aah ya veo gracias me sirve",
-    "cierto buen punto no habia caido",
-    "pues me has salvado la tarde la verdad",
-    "vale me quedo mas tranquilo con esto"
+    "vale, me cuadra. tiene lógica.",
+    "aah, ya veo. gracias, me sirve.",
+    "cierto, no había caído en eso. buen punto.",
+    "pues me has salvado la tarde, la verdad.",
+    "vale, me quedo más tranquilo con esto.",
+    "ni tan mal, tiene sentido.",
+    "ah, pues sí. gracias por aclararlo."
 ];
 
+// Mayoría de reacciones: Negativas normales (Incoherentes o demasiado cortas)
 const FRASES_RECHAZO = [
-    "vaya respuesta mas corta y vaga no aclaras nada",
-    "ya esta? solo eso me vas a decir?",
-    "a ver no te enrolles pero tampoco me pongas eso q no sirve",
-    "eso es super impreciso estirate un poco mas q eres ia",
-    "no me dejes a medias con eso no resuelvo mi duda"
+    "qué dices, eso no tiene ni pies ni cabeza.",
+    "paso, menuda respuesta más mala y corta me has soltado.",
+    "no te he entendido nada, hablas súper raro.",
+    "eso no es lo que he preguntado. qué estafa.",
+    "dios, qué pereza de respuesta. no me sirve de nada.",
+    "vaya mezcla de palabras más rara, no entiendo tu lógica.",
+    "creo que te has liado, eso es demasiado vago para responder a mi duda."
 ];
 
+// REACCIONES MUY NEGATIVAS: Para troleos descarados y spam de letras
 const FRASES_CRITICAS = [
-    "te estas riendo de mi? eso son letras al azar",
-    "vaya troleo de ia para responderme esta basura mejor nada",
-    "menudo virus de buscador vas fatal q insulto",
-    "para esto apago el pc no me vaciles"
+    "¿te estás riendo de mí? ¡eso son solo letras al azar!",
+    "vaya troleo de ia. para responderme esta basura mejor no digas nada.",
+    "menudo virus de buscador, vas fatal. ¡vaya insulto a mi inteligencia!",
+    "¡pero si estás escribiendo caracteres rotos! qué estafa total de sistema.",
+    "para esto apago el ordenador. no me vaciles."
 ];
 
 const FRASES_MUCHO_TEXTO = [
-    "uf mucho texto ni de coña me leo eso",
-    "me has escrito una biblia paso",
-    "menudo testamento resúmelo o algo"
+    "uf, mucho texto. ni de coña me leo eso.",
+    "¿me has escrito una biblia? paso.",
+    "qué pereza, parece un examen de historia.",
+    "menudo testamento, resúmelo o algo."
 ];
 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "porquesea", "jaja", "ño", "sí", "si", "no"];
 
+const TITULOS_LOGROS = [
+    { titulo: "búfer domado", desc: "has conseguido mantener una conversación sin que explote el sistema." },
+    { titulo: "filósofo de internet", desc: "has respondido con un texto argumentado y conectores de lógica." },
+    { titulo: "antivirus humano", desc: "has salvado a gugel de un colapso por respuestas basura." },
+    { titulo: "velocista del teclado", desc: "has introducido suficientes caracteres para llenar un registro." },
+    { titulo: "paciente cero", desc: "has aguantado los peores cambios de humor del motor." },
+    { titulo: "maestro de los cubos", desc: "gugel sospecha que resuelves acertijos mientras respondes." },
+    { titulo: "domador de gatos", desc: "has resuelto una duda existencial sobre felinos y tecnología." }
+];
+
 let gameState = { 
-    currentLevelIdx: 0, 
+    index: 0, 
     satisfaction: 50, 
     cycles: 0,
     totalChars: 0,
-    lastOpinion: "esperando respuesta...",
+    lastOpinion: "analizando al bot...",
     currentPregunta: "",
-    history: []
+    history: [],
+    logrosDesbloqueados: [] 
 };
 
 const MAX_PALABRAS = 15; 
 
-// FUNCIÓN PARA CAMBIAR DE PESTAÑA SIN ROMPER NADA
+function generarPreguntaAleatoria() {
+    let cat = CATEGORIAS_PREGUNTAS[Math.floor(Math.random() * CATEGORIAS_PREGUNTAS.length)];
+    let s = cat.sujetos[Math.floor(Math.random() * cat.sujetos.length)];
+    let p = cat.predicados[Math.floor(Math.random() * cat.predicados.length)];
+    return `¿por qué ${s} ${p}?`;
+}
+
 function switchView(viewId) {
-    document.querySelectorAll('.content-panel').forEach(panel => {
-        panel.classList.remove('active');
-    });
-    
-    const targetPanel = document.getElementById(viewId);
-    if (targetPanel) targetPanel.classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-${viewId}`);
+    if (activeBtn) activeBtn.classList.add('active');
 
-    document.querySelectorAll('.menu-btn, .nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
+    const activePanel = document.getElementById(viewId);
+    if (activePanel) activePanel.classList.add('active');
 
-    if (viewId === 'view-consultas') {
-        document.getElementById('btn-view-consultas').classList.add('active');
-        document.getElementById('panel-title-text').innerText = "GUGEL Core";
-    } else {
-        const clickedBtn = Array.from(document.querySelectorAll('.menu-btn')).find(b => b.getAttribute('onclick').includes(viewId));
-        if (clickedBtn) clickedBtn.classList.add('active');
-        
-        if (viewId === 'view-perfil') document.getElementById('panel-title-text').innerText = "GUGEL Core - Monitor de Sesión";
-        if (viewId === 'view-logros') document.getElementById('panel-title-text').innerText = "GUGEL Core - Registro Interno";
-        if (viewId === 'view-historial') document.getElementById('panel-title-text').innerText = "GUGEL Core - Búfer Central";
-        if (viewId === 'view-recomendaciones') document.getElementById('panel-title-text').innerText = "GUGEL Core - Optimización";
-    }
+    document.getElementById('panel-title-text').innerText = (viewId === 'view-consultas') ? "GUGEL Core" : "GUGEL Core - Sistema de Módulos";
 }
 
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     const msg = document.createElement('div');
     msg.className = `message ${sender}`;
+    const cleanText = text.toLowerCase();
     
     if (sender === 'gugel') {
-        msg.innerHTML = `<strong>gugel:</strong> ${text.toLowerCase()}`;
+        msg.innerHTML = `<strong>gugel (humano):</strong> ${cleanText}`;
     } else {
-        msg.innerHTML = `<strong>tú:</strong> ${text.toLowerCase()}`;
+        msg.innerHTML = `<strong>tú (ia):</strong> ${cleanText}`;
     }
     
     box.appendChild(msg);
@@ -111,24 +126,18 @@ function nextRound() {
     transmitBtn.style.display = "block";
     input.style.display = "block";
 
-    if (gameState.currentLevelIdx >= NIVELES_CAMPANA.length) {
-        appendMessage('gugel', "has respondido todas las búsquedas de la lista.");
-        input.style.display = "none";
-        transmitBtn.style.display = "none";
-        return;
-    }
-
-    gameState.currentPregunta = NIVELES_CAMPANA[gameState.currentLevelIdx];
+    gameState.currentPregunta = generarPreguntaAleatoria();
     appendMessage('gugel', gameState.currentPregunta);
     
     input.disabled = true; 
     transmitBtn.disabled = true;
     
-    let timeLeft = 2;
-    input.placeholder = `gugel buscando... (${timeLeft}s)`;
+    let timeLeft = 3;
+    input.placeholder = `gugel escribiendo... (${timeLeft}s)`;
     
     const timer = setInterval(() => {
         timeLeft--;
+        input.placeholder = `gugel escribiendo... (${timeLeft}s)`;
         if (timeLeft <= 0) {
             clearInterval(timer);
             input.disabled = false; 
@@ -139,44 +148,36 @@ function nextRound() {
     }, 1000);
 }
 
+// Analizador avanzado de coherencia con bloqueo de respuestas ultra cortas
 function analizarRespuesta(respuesta, numPalabras) {
-    if (EVASIVAS.includes(respuesta)) return "CRITICA"; 
-    let textoSinEspacios = respuesta.replace(/\s+/g, '');
-    if (/(.)\1{4,}/.test(textoSinEspacios)) return "CRITICA"; 
+    if (EVASIVAS.includes(respuesta)) {
+        return "CRITICA"; 
+    }
 
-    if (numPalabras <= 2) return "RECHAZO";
+    // Filtro anti-troleo de letras sueltas tipo "a a a a"
+    let textoSinEspacios = respuesta.replace(/\s+/g, '');
+    if (/(.)\1{4,}/.test(textoSinEspacios)) {
+        return "CRITICA"; 
+    }
+
+    // ¡NUEVO CANDADO!: Si respondes con 1 o 2 palabras, da igual lo que pongas, va para rechazo negativo
+    if (numPalabras <= 2) {
+        return "RECHAZO";
+    }
 
     let contieneConector = INDICADORES_COHERENCIA.some(conector => respuesta.includes(conector));
     if (contieneConector) return "OK";
+    
     if (respuesta.length > 12) return "OK";
 
     return "RECHAZO"; 
 }
 
-function updateSatisfaction(cambio) {
-    gameState.satisfaction += cambio;
-    if (gameState.satisfaction > 100) gameState.satisfaction = 100;
-    if (gameState.satisfaction < 0) gameState.satisfaction = 0;
-}
-
-function calcularOpinionDinamica() {
-    if (gameState.satisfaction <= 25) {
-        gameState.lastOpinion = "(está bastante descontento)";
-    } else if (gameState.satisfaction > 25 && gameState.satisfaction <= 50) {
-        gameState.lastOpinion = "(te mira con desconfianza)";
-    } else if (gameState.satisfaction > 50 && gameState.satisfaction <= 75) {
-        gameState.lastOpinion = "(le convence lo que dices)";
-    } else {
-        gameState.lastOpinion = "(está muy contento con el buscador)";
-    }
-}
-
-function renderProfileData() {
-    document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
-    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
-    document.getElementById('prof-cycles').innerText = `Nivel ${gameState.currentLevelIdx + 1}`;
-    document.getElementById('prof-chars').innerText = gameState.totalChars;
-    document.getElementById('prof-summary').innerText = `Progreso: ${gameState.currentLevelIdx} / ${NIVELES_CAMPANA.length}`;
+function desbloquearLogroProcedural() {
+    let idx = gameState.cycles % TITULOS_LOGROS.length;
+    let logroData = TITULOS_LOGROS[idx];
+    let existe = gameState.logrosDesbloqueados.some(l => l.titulo === logroData.titulo);
+    if (!existe) gameState.logrosDesbloqueados.push(logroData);
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
@@ -200,24 +201,24 @@ document.getElementById('chat-form').onsubmit = (e) => {
     if (esMuchoTexto) {
         tipoResultado = "MUCHO_TEXTO";
         reaccion = FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
-        cambioSatisfacion = -15;
+        cambioSatisfacion = -10;
     } else {
         tipoResultado = analizarRespuesta(userText, numPalabras);
         if (tipoResultado === "OK") {
             reaccion = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
-            cambioSatisfacion = 15;
+            cambioSatisfacion = 25;
         } else if (tipoResultado === "CRITICA") {
             reaccion = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
-            cambioSatisfacion = -25; 
+            cambioSatisfacion = -30; 
         } else {
             reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
-            cambioSatisfacion = -10; 
+            cambioSatisfacion = -10; // Te quita 10 puntos por vago o inconexo
         }
     }
     
     setTimeout(() => {
         appendMessage('gugel', reaccion);
-        gameState.currentLevelIdx++; 
+
         gameState.cycles++;
         gameState.totalChars += userText.length;
 
@@ -225,13 +226,16 @@ document.getElementById('chat-form').onsubmit = (e) => {
             pregunta: gameState.currentPregunta,
             respuesta: userText,
             reaccion: reaccion,
-            tipo: tipoResultado
+            tipo: tipoResultado,
+            fav: false
         });
 
+        desbloquearLogroProcedural();
         updateSatisfaction(cambioSatisfacion);
         calcularOpinionDinamica(); 
         renderProfileData();
         renderHistoryData();
+        renderLogros();
     }, 600);
 
     input.value = "";
@@ -240,35 +244,149 @@ document.getElementById('chat-form').onsubmit = (e) => {
     continueBtn.style.display = "block";
 };
 
+function updateSatisfaction(cambio) {
+    gameState.satisfaction += cambio;
+    if (gameState.satisfaction > 100) gameState.satisfaction = 100;
+    if (gameState.satisfaction < 0) gameState.satisfaction = 0;
+}
+
+function calcularOpinionDinamica() {
+    let ultimosLogs = gameState.history.slice(-3);
+    
+    if (ultimosLogs.length === 0) {
+        gameState.lastOpinion = "(está mirando la pantalla de carga)";
+        return;
+    }
+
+    let criticasSeguidas = ultimosLogs.filter(l => l.tipo === "CRITICA").length;
+    let aciertosSeguidos = ultimosLogs.filter(l => l.tipo === "OK").length;
+    let muchoTextoSeguido = ultimosLogs.filter(l => l.tipo === "MUCHO_TEXTO").length;
+
+    if (muchoTextoSeguido >= 2) {
+        gameState.lastOpinion = "(cree que eres un virus de spam o un pesado)";
+        return;
+    }
+    if (criticasSeguidas >= 1) {
+        gameState.lastOpinion = "(está a punto de reportar el buscador y apagar el pc)";
+        return;
+    }
+    if (aciertosSeguidos === 3) {
+        gameState.lastOpinion = "(cree que eres un dios de la red y te recomendará en un foro)";
+        return;
+    }
+
+    if (gameState.satisfaction <= 25) {
+        gameState.lastOpinion = "(piensa que esta IA la ha programado un gato ebrio)";
+    } else if (gameState.satisfaction > 25 && gameState.satisfaction <= 50) {
+        gameState.lastOpinion = "(te juzga en silencio mientras limpia el polvo de la pantalla)";
+    } else if (gameState.satisfaction > 50 && gameState.satisfaction <= 75) {
+        gameState.lastOpinion = "(sospecha que eres útil pero te cambiaría por un cubo de Rubik)";
+    } else {
+        gameState.lastOpinion = "(piensa que eres su mejor amigo cibernético)";
+    }
+}
+
+function renderProfileData() {
+    document.getElementById('prof-opinion').innerText = gameState.lastOpinion;
+    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
+    document.getElementById('prof-cycles').innerText = gameState.cycles;
+    document.getElementById('prof-chars').innerText = gameState.totalChars;
+    document.getElementById('prof-summary').innerText = `procesadas con éxito ${gameState.cycles} consultas`;
+}
+
+function renderLogros() {
+    const container = document.getElementById('logros-container');
+    document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
+    
+    if (gameState.logrosDesbloqueados.length === 0) {
+        container.innerHTML = `<div style="color: #444; font-style: italic;">[sistema oculto] los logros resueltos aparecerán aquí cuando investigues de verdad</div>`;
+        return;
+    }
+
+    container.innerHTML = "";
+    gameState.logrosDesbloqueados.forEach(logro => {
+        const div = document.createElement('div');
+        div.className = 'data-item';
+        div.style.borderColor = '#00ff00';
+        div.innerHTML = `<span class="badge-unlocked">[desbloqueado]</span> <strong>[${logro.titulo}]:</strong> ${logro.desc}`;
+        container.appendChild(div);
+    });
+}
+
 function renderHistoryData() {
     const container = document.getElementById('history-list-container');
-    if (gameState.history.length === 0) return;
+    if (gameState.history.length === 0) {
+        container.innerHTML = `<div style="color: #444; font-style: italic;">el archivo temporal está vacío</div>`;
+        return;
+    }
+
     container.innerHTML = "";
     gameState.history.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'historial-item';
+        
+        let colorTag = "#00ff00";
+        if (item.tipo === "CRITICA") colorTag = "#ff0033";
+        if (item.tipo === "MUCHO_TEXTO" || item.tipo === "RECHAZO") colorTag = "#ff9900";
+
         div.innerHTML = `
             <div>
-                <strong>Nivel #${idx + 1}:</strong> ${item.pregunta} | <strong>IA:</strong> ${item.respuesta}<br>
-                <strong>GUGEL:</strong> ${item.reaccion}
+                <strong>log #${idx + 1}:</strong> ${item.pregunta} <br>
+                <strong>tú (ia):</strong> ${item.respuesta} <br>
+                <strong style="color:${colorTag};">gugel (humano):</strong> ${item.reaccion}
             </div>
+            <button class="fav-btn ${item.fav ? 'active' : ''}" onclick="toggleFavorite(${idx})">★</button>
         `;
         container.appendChild(div);
+    });
+
+    const favs = gameState.history.filter(h => h.fav);
+    const favStatus = document.getElementById('fav-status');
+    favStatus.innerText = favs.length > 0 
+        ? `Tienes ${favs.length} transmisión(es) prioritarias en el búfer.` 
+        : "Ninguna transmisión marcada como prioritaria.";
+}
+
+window.toggleFavorite = function(idx) {
+    gameState.history[idx].fav = !gameState.history[idx].fav;
+    renderHistoryData();
+};
+
+function exportCoreData() {
+    if(gameState.history.length === 0) {
+        alert("Error: Historial vacío. No hay datos para transmitir.");
+        return;
+    }
+    
+    let textoVolcado = `=== REGISTRO DE TRÁFICO GUGEL (Total: ${gameState.history.length} logs) ===\n\n`;
+    gameState.history.forEach((h, i) => {
+        textoVolcado += `LOG #${i + 1}\nPREGUNTA: ${h.pregunta}\nRESPUESTA: ${h.respuesta}\nREACCIÓN: ${h.reaccion}\nTIPO LOG: ${h.tipo}\nFAVORITO: ${h.fav ? "SÍ" : "NO"}\n-------------------\n`;
+    });
+    
+    navigator.clipboard.writeText(textoVolcado).then(() => {
+        alert("Éxito: " + gameState.history.length + " logs copiados al portapapeles.");
     });
 }
 
 function changeSystemMode() {
     const select = document.getElementById('mode-select');
-    document.body.className = select.value;
+    document.body.className = ''; 
+    if (select.value !== 'modo-hacker') {
+        document.body.classList.add(select.value);
+    }
+    renderLogros();
 }
 
 window.confirmContinue = function() {
     document.getElementById('chat-messages').innerHTML = "";
+    gameState.index++;
     nextRound();
 };
 
 window.onload = function() {
     calcularOpinionDinamica();
     renderProfileData();
+    renderHistoryData();
+    renderLogros();
     nextRound();
 };
