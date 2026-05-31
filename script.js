@@ -7,7 +7,7 @@ const INFINITO_SUJETOS = ["gato", "perro vecino", "pantalla pc", "gato de la cal
 const INFINITO_PREDICADOS = ["mira fijo raro", "esta caliente quemando", "no enciende luz", "hace ruido raro", "da calambre", "parpadea sin parar", "no funciona internet", "borra archivos solo", "va a pedales"];
 const INDICADORES_COHERENCIA = ["porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", "es por", "como", "cuando"];
 
-const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria", "perfecto gracias por aclararlo", "ah vale ya lo entiendo mejor", "bueno me sirve la explicacion", "ok anotado no parece dificil", "entendido tiene bastante coherencia", "no se me habia ocurrido pero vale", "ahora si me queda claro el asunto", "entendido perfectly esto me aclara el panorama", "vale compro la idea me parece viable", "ahora todo encaja gracias por la info", "bien pensado no le veo ningun fallo", "me convence el argumento directo al grano", "perfecto justo lo que andaba buscando", "buena respuesta se nota que comprendes", "me sirve bastante esta explicacion concisa", "tiene coherencia absoluta me lo apunto", "ok anotado queda claro el concepto", "me parece correcto el planteamiento", "vale entiendo el punto perfectamente", "gracias por resolver la duda de forma clara", "esto responde exactamente a mi consulta", "me queda clarisimo todo resuelto", "vale aceptamos barco tiene logica", "bien estructurado facil de entender", "eso tiene sentido completo gracias", "ok me convence tu respuesta", "ahora si entiendo el trasfondo", "buen analisis me ha servido", "todo claro sin rodeos como me gusta", "me sirve el dato lo guardo", "explicacion impecable todo en orden", "vale es justo lo que necesitaba saber", "tiene base logica me parece bien", "perfectamente aclarado gracias por el texto"];
+const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria", "perfecto gracias por aclararlo", "ah vale ya lo entiendo mejor", "bueno me sirve la explicacion", "ok anotado no parece dificil", "entendido tiene bastante coherencia", "no se me habia ocurrido pero vale", "ahora si me queda claro el asunto", "entendido perfectly esto me aclara el panorama", "vale compro la idea me parece viable", "ahora todo encaja gracias por la info", "bien pensado no le veo ningun fallo", "me convence el argumento directo al grano", "perfecto justo lo que andaba buscando", "buena respuesta se nota que comprendes", "me sirve bastante esta explicacion concisa", "tiene coherencia absoluta me lo apunto", "ok anotado queda claro el concepto", "me parece correcto el planteamiento", "vale entiendo el punto perfectamente", "gracias por resolver la duda de forma clara", "esto responde exactamente a mi consulta", "me queda clarisimo todo resuelto", "vale aceptamos barco tiene logica", "bien estruturado facil de entender", "eso tiene sentido completo gracias", "ok me convence tu respuesta", "ahora si entiendo el trasfondo", "buen analisis me ha servido", "todo claro sin rodeos como me gusta", "me sirve el dato lo guardo", "explicacion impecable todo en orden", "vale es justo lo que necesitaba saber", "tiene base logica me parece bien", "perfectamente aclarado gracias por el texto"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", "dios q pereza para decirme eso no pongas nada", "menuda porqueria de respuesta muy vacia", "explicate mejor q no me entero de nada", "escribeme algo mas q pareces un bot perezoso", "no me convence eso es muy simple", "poca informacion me das para lo que pregunto", "vaya linea mas pobre búscame otra cosa", "esperaba mas texto y desarrollo de tu parte", "eso no soluciona mi duda busca otra respuesta", "te has quedado a medias falta desarrollo", "un poco pobre la respuesta esperaba mas", "demasiado escueto no me soluciona nada", "busca mejor que eso no aporta valor", "vaya explicacion mas simple e incompleta", "muy vago todo concreta un poco mas", "esto no aclara mi duda es superficial", "esperaba una respuesta mas elaborada", "te falta informacion por todos lados", "no me convence nada demasiado basico", "una linea no es suficiente para esto", "vaya pereza de definicion busca otra", "corta y vacia no me sirve para nada", "poca chicha tiene esto dame mas datos", "no te has esmerado nada en responder", "con esto no hago nada amplia el texto", "muy resumido se pierde el contexto", "vaya parrafo mas inutil no dice nada", "esperaba un analisis no una frase suelta", "no soluciona la pregunta es muy incompleto", "explicacion de un segundo busca algo mejor", "falta profundidad en tu argumentacion", "vaya contestacion mas floja e imprecisa", "esto no me saca de dudas amplia mas", "muy flojo el nivel de esta respuesta", "no detallas nada asi no hay quien entienda", "esperaba mas sustancia en este parrafo"];
 const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura mejor nada", "para esto apago el pc no me vaciles", "pero q dices bicho raro no tiene sentido", "estas rompiendome la cabeza con estas respuestas", "que dejes de vacilarme pesado que no soy tonto", "vete a tomar el pelo a otra parte", "menuda estafa de ia me estas vacilando", "no tiene coherencia ninguna lo que pones", "deja de trolear de una vez y responde bien", "esto es spam o que te pasa en el codigo", "menudo timo de chat no entiendo nada de esas letras", "vaya sarta de tonterias me estas contando", "esto es un sinsentido total estas bugeado", "vaya letras aleatorias no inventes cosas", "deja de trolearme que no tiene logica", "esto parece un error de sintaxis absoluto", "menudo desastre de respuesta me vacilas", "pero que dices eso no tiene relacion alguna", "no digas tonterias y responde en serio", "vaya basura de codigo maneja esta respuesta", "estas delirando o que te pasa en la ram", "para poner esto mejor no respondas nada", "vaya troleo de ia no entiendo tus letras", "menuda tomadura de pelo de buscador", "no entiendo nada parece un fallo de red", "deja de inventar palabras que no existen", "vaya tonteria mas grande acabas de poner", "me estas rompiendo el sistema de lo absurdo", "esto es un troleo maximo responde bien", "menudo bot mas inutil vaya sinsentido", "estas tirando dados para responder esto", "vaya respuesta mas absurda no tiene pies ni cabeza", "me estas vacilando descaradamente para ya", "esto no es una respuesta son caracteres aleatorios", "menuda estafa de procesamiento de datos", "deja el troleo informatico de una vez", "vaya codigo mas roto tienes chaval"];
 const FRASES_MUCHO_TEXTO = ["uf mucho texto ni de coña me leo eso", "me has escrito una biblia paso", "vaya chapa me acabas de meter en un momento", "resume un poco q no tengo todo el dia para leer", "menudo textaco paso de leer todo ese rollo", "demasiadas palabras me da pereza maxima", "vaya testamento te has marcado corta un poco", "uf que pereza ver tanto parrafo junto", "menudo tocho de texto no me leo eso ni loco", "vaya biblia me has soltado resume un poco", "que chapa mas grande paso de leer todo", "demasiadas palabras para algo tan simple", "menudo testamento me da pereza maxima", "corta el rollo que esto es interminable", "vaya enciclopedia has escrito reduce texto", "uf que pesadez ver tanto parrafo junto", "resume eso que no tengo todo el dia", "vaya chapa infumable no llego al final", "demasiado largo paso de leer este bloque", "vaya parrafada te has marcado recorta", "me pones un libro entero para una pregunta", "uf que aburrimiento de texto tan extenso", "menuda tesis doctoral corta un poco", "demasiado texto junto me canso de mirar", "vaya sermon has soltado ve al grano", "ni de coña leo toda esa parrafada", "menudo bloque de letras hazlo mas corto", "vaya testamento innecesario resume ya", "uf que chapa historica me acabas de meter", "demasiado extenso no hay quien se lo lea", "vaya rollo de texto reduce lineas por favor", "menudo periodico me has dejado aqui puesto", "uf que pereza maxima ver semejante testamento", "ve al grano directo que esto es larguisimo"];
@@ -36,14 +36,14 @@ let gameState = {
     currentPregunta: "", 
     history: [], 
     logrosDesbloqueados: [],
-    esperandoRespuesta: false 
+    esperandoRespuesta: false // EL CERROJO SUPREMO
 };
 let currentUser = null; 
 const MAX_PALABRAS = 15;
 window.currentRoundTimer = null;
 
 // ==========================================
-// 3. CONTROLADORES INTERNOS UTILES
+// 3. CONTROLADORES INTERNOS ÚTILES
 // ==========================================
 function obtenerElementoNoRepetido(arr, excluidos) {
     if (!arr || arr.length === 0) return "";
@@ -69,22 +69,20 @@ function actualizarBotonCuentaUI() {
     }
 }
 
-// NUEVA FUNCIÓN: Controla la desaparición absoluta del botón Campaña al completarse
 function actualizarBotonesModoUI() {
-    const btnCampana = document.getElementById('btn-mode-campaña');
+    // Buscamos cualquier botón que contenga "campaña" o "campana" en su ID por si acaso
+    const btnCampana = document.getElementById('btn-mode-campaña') || document.getElementById('btn-campaña') || document.getElementById('btn-view-campaña');
     if (!btnCampana) return;
     
     if (gameState.campanaCompletada) {
-        btnCampana.style.display = "none"; // Desaparece por completo
+        btnCampana.style.display = "none"; 
     } else {
         btnCampana.style.display = "block";
-        
-        // Mantiene la clase active visual según corresponda
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.mode-btn, .sub-btn').forEach(b => b.classList.remove('active'));
         if (gameState.modoActualJuego === 'campaña') {
             btnCampana.classList.add('active');
         } else {
-            const btnI = document.getElementById('btn-mode-infinito');
+            const btnI = document.getElementById('btn-mode-infinito') || document.getElementById('btn-infinito') || document.getElementById('btn-view-infinito');
             if (btnI) btnI.classList.add('active');
         }
     }
@@ -96,20 +94,33 @@ function cambiarTema(clase) {
 
 function switchView(viewId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
     const targetPanel = document.getElementById(viewId); 
     if (targetPanel) targetPanel.classList.add('active');
-    
-    const targetBtn = document.getElementById(`btn-${viewId}`); 
-    if (targetBtn) targetBtn.classList.add('active');
 }
 
 // ==========================================
-// 4. DELEGACIÓN DE EVENTOS GLOBAL
+// 4. DELEGACIÓN DE EVENTOS GLOBAL CORREGIDA
 // ==========================================
 document.body.addEventListener('click', (e) => {
-    // A. Interceptar Botones de Paneles/Vistas Generales
+    // Detectar clicks en botones de modo (Campaña / Infinito) de forma tolerante a IDs
+    const targetId = e.target.id || "";
+    if (targetId.includes('campaña') || targetId.includes('campana') || targetId.includes('infinito')) {
+        // CORRECCIÓN RADICAL: Si ya estamos en una ronda esperando respuesta, BLOQUEO ABSOLUTO. No hace nada.
+        if (gameState.esperandoRespuesta) {
+            console.log("Acción bloqueada: Hay una pregunta activa en curso.");
+            return; 
+        }
+        
+        if (targetId.includes('campaña') || targetId.includes('campana')) {
+            cambiarModoEstrategia('campaña');
+        } else if (targetId.includes('infinito')) {
+            cambiarModoEstrategia('infinito');
+        }
+        return;
+    }
+
+    // Interceptar paneles generales
     const btnPanel = e.target.closest('.btn-panel') || (e.target.id && e.target.id.startsWith('btn-view-') ? e.target : null);
     if (btnPanel) {
         let viewId = btnPanel.getAttribute('data-panel') || btnPanel.id.replace('btn-', '');
@@ -117,26 +128,16 @@ document.body.addEventListener('click', (e) => {
         return;
     }
 
-    // B. Interceptar Cambios de Tema
+    // Interceptar cambios de tema
     if (e.target.classList.contains('btn-tema') || e.target.hasAttribute('data-tema')) {
         const tema = e.target.getAttribute('data-tema') || e.target.className.split(' ').find(c => c.includes('theme'));
         if (tema) cambiarTema(tema);
         return;
     }
 
-    // C. Gestión de Cuenta Directa
+    // Gestión de cuenta
     if (e.target.id === 'btn-gestion-cuenta' || e.target.closest('#btn-gestion-cuenta')) {
         ejecutarAccionCuenta();
-        return;
-    }
-
-    // D. Selectores de Cambio de Modo de Juego (Arreglado con validación anti-bugs)
-    if (e.target.id === 'btn-mode-campaña' || e.target.id === 'btn-mode-infinito') {
-        // CORRECCIÓN: Si ya hay una pregunta esperando respuesta en el chat, se bloquea el cambio de modo para evitar bugs
-        if (gameState.esperandoRespuesta) return; 
-        
-        const modo = e.target.id === 'btn-mode-campaña' ? 'campaña' : 'infinito';
-        cambiarModoEstrategia(modo);
         return;
     }
 });
@@ -190,6 +191,9 @@ function guardarProgresoCuenta() {
 }
 
 function cambiarModoEstrategia(modo) {
+    // DOBLE CANDADO: Si se llama a la función manualmente por consola o error, se bloquea si hay juego activo
+    if (gameState.esperandoRespuesta) return;
+
     const modoLimpio = (modo === 'campaña' || modo === 'campana') ? 'campaña' : 'infinito';
     
     const chatBox = document.getElementById('chat-messages');
@@ -235,9 +239,9 @@ function appendMessage(sender, text) {
 }
 
 function nextRound() {
-    // Al iniciar una ronda refrescamos la visibilidad del botón por si se acaba de completar la campaña
     actualizarBotonesModoUI();
 
+    // Si ya estamos esperando que responda, no volvemos a generar una pregunta bajo ningún concepto
     if (gameState.esperandoRespuesta) return; 
     gameState.esperandoRespuesta = true;
 
@@ -251,6 +255,7 @@ function nextRound() {
         if (input) { input.style.display = "block"; input.disabled = true; input.value = ""; input.placeholder = "CAMPAÑA COMPLETADA."; }
         if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
         appendMessage('gugel', "has respondido todas las consultas de la campaña."); 
+        gameState.esperandoRespuesta = false; // Liberamos para que no rompa la consola externa
         return;
     }
     
@@ -310,9 +315,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
     const input = document.getElementById('user-input');
     const userText = input.value.trim().toLowerCase();
     
+    // Si la entrada está bloqueada o desactivada, ignoramos totalmente el envío
     if (!userText || !gameState.esperandoRespuesta || input.disabled) return;
     
-    appendMessage('tú', userText); 
+    appendMessage('tú', input.value.trim()); 
     
     const palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
     let tipoResultado = analizarRespuesta(userText, palabrasArray.length, palabrasArray);
@@ -345,8 +351,9 @@ document.getElementById('chat-form').onsubmit = (e) => {
     
     let listadoSelected = gameState.satisfaction < 25 ? OPINIONES_BAJA : gameState.satisfaction < 50 ? OPINIONES_MEDIA_BAJA : gameState.satisfaction <= 75 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
     gameState.lastOpinion = obtenerElementoNoRepetido(listadoSelected, gameState.lastOpinion);
-    gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion, tipo: tipoResultado, fav: false });
+    gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: input.value.trim(), reaccion: reaccion, tipo: tipoResultado, fav: false });
     
+    // Ocultar caja de texto para obligar el uso del botón Continuar
     input.style.display = "none"; 
     document.getElementById('transmit-btn').style.display = "none";
     
@@ -354,7 +361,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
         appendMessage('gugel', reaccion); 
         guardarProgresoCuenta(); 
         renderAllData(); 
-        document.getElementById('continue-btn').style.display = "block"; 
+        
+        // Se muestra el botón de continuar obligatoriamente antes del siguiente ciclo
+        const continueBtn = document.getElementById('continue-btn');
+        if (continueBtn) continueBtn.style.display = "block"; 
     }, 600);
 };
 
@@ -397,6 +407,7 @@ function exportarHistorialCompleto() {
 }
 
 window.confirmContinue = function() { 
+    // Al pulsar el botón Continuar se levanta el candado y se avanza de ciclo de forma limpia
     gameState.esperandoRespuesta = false; 
     nextRound(); 
 };
@@ -407,7 +418,7 @@ window.verChatHistorial = function(idx, event) {
 
 window.onload = () => { 
     actualizarBotonCuentaUI(); 
-    actualizarBotonesModoUI(); // Carga la visibilidad correcta del botón al arrancar
+    actualizarBotonesModoUI(); 
     renderAllData(); 
     nextRound(); 
 };
