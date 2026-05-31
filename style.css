@@ -39,16 +39,29 @@
 }
 
 .modo-rosa {
-    --bg-main: #ffd1dc;
-    --bg-panel: #fff0f5;
-    --bg-inner: #ffe4e1;
-    --text-primary: #4a2c3a;
-    --text-muted: #a78b9b;
-    --accent-color: #ff69b4;
+    --bg-main: #fce4ec;
+    --bg-panel: #ffffff;
+    --bg-inner: #f8bbd0;
+    --text-primary: #880e4f;
+    --text-muted: #ad1457;
+    --accent-color: #ec407a;
     --accent-text: #ffffff;
-    --bubble-bg: #fff5f7;
-    --bubble-border: #ffb6c1;
-    --negative-color: #ff4500;
+    --bubble-bg: #fff5f8;
+    --bubble-border: #f48fb1;
+    --negative-color: #d32f2f;
+}
+
+.modo-espacial {
+    --bg-main: #0b0e14;
+    --bg-panel: #161b22;
+    --bg-inner: #21262d;
+    --text-primary: #c9d1d9;
+    --text-muted: #8b949e;
+    --accent-color: #8b5cf6;
+    --accent-text: #ffffff;
+    --bubble-bg: #30363d;
+    --bubble-border: #484f58;
+    --negative-color: #ff7b72;
 }
 
 body {
@@ -73,7 +86,7 @@ body {
     gap: 20px;
 }
 
-#sidebar {
+#app-sidebar {
     width: 280px;
     background-color: var(--bg-panel);
     border-radius: 12px;
@@ -278,7 +291,6 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
 .item-logro.negativo { border-left: 4px solid var(--negative-color); }
 
-/* Historial interactivo */
 .log-item-card {
     display: flex;
     justify-content: space-between;
