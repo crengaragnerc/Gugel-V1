@@ -63,7 +63,7 @@ const BASE_LOGROS = [
     { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el nuevo y reluciente Tema Rosa." },
     
     // NEGATIVOS
-    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
+    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una sequence incoherente sospechosa de spam." },
     { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
     { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
     { id: "LN4", tipo: "negativo", nombre: "Hundimiento del Sistema", desc: "La satisfacción del usuario cayó por debajo del 20%." },
@@ -80,10 +80,9 @@ const BASE_LOGROS = [
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
-let cuentaInvitadoVolatil = null; // Estructura local en RAM para el modo Invitado puro
+let cuentaInvitadoVolatil = null; 
 let esperandoRespuestaDeTurno = true; 
 
-// Cargar las cuentas reales guardadas (excluyendo siempre Invitado)
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
     if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
@@ -117,11 +116,9 @@ function asegurarEstructuraCuenta(nombre) {
     }
 }
 
-// Inicializar la sesión inicial como Invitado Volátil
 asegurarEstructuraCuenta(usuarioActivo);
 
 function salvarAStorage() {
-    // Solo se guardan en el disco duro del navegador los operadores registrados
     if (usuarioActivo !== "Invitado") {
         localStorage.setItem('gugel-multiverse-v4', JSON.stringify(baseCuentas));
     }
@@ -140,9 +137,6 @@ function getCuenta() {
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
-
-    // Verificación de dos palabras (nunca preguntar o validar cadenas vacías/cortas de forma errónea)
-    let totalPalabrasRespuesta = resp.split(/\s+/).filter(Boolean).length;
 
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
         desbloquearLogro("LN1");
@@ -362,10 +356,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
             c.campañaCompletada = true;
-            c.modo = "infinito";
             desbloquearLogro("L05");
-            desbloquearLogro("L14");
-            alert("¡Felicidades! Campaña completada en este perfil. Pasando al Modo Infinito.");
         }
 
         verificarLogrosDeEstado();
@@ -402,12 +393,12 @@ function nextRound() {
     document.getElementById('chat-actions-bar').style.display = "none";
 
     if (c.modo === "campaña") {
+        // Si ya completó la lista entera de campaña pero vuelve a forzar este modo, reseteamos el índice o le damos infinitas transitorias sin sacarlo del modo
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
             c.campanaIndex++;
         } else {
             c.campañaCompletada = true;
-            c.modo = "infinito";
             c.currentPregunta = generarPreguntaInfinita();
         }
     } else {
@@ -493,12 +484,17 @@ function cargarChatHistorico(index) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // Si la ronda actual está a mitad de responderse, se bloquea el cambio de forma silenciosa
+    // Si la ronda actual está a mitad de responderse, se ignora silenciosamente para no romper el flujo
     if (esperandoRespuestaDeTurno) {
         return;
     }
     
+    // CORRECCIÓN TOTAL: Cambia de modo con libertad absoluta sin importar si se ha completado la campaña o no.
     c.modo = nuevoModo;
+    if (nuevoModo === "infinito") {
+        desbloquearLogro("L14");
+    }
+
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
