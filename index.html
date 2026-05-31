@@ -7,6 +7,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
+
+    <header id="top-bar">
+        <div class="brand-top">GUGEL: simulador de IA</div>
+        <div class="theme-selector">
+            <label>TEMA:</label>
+            <select id="theme-select" onchange="cambiarTema(this.value)">
+                <option value="modo-hacker">HACKER</option>
+                <option value="modo-claro">CLARO</option>
+                <option value="modo-oscuro">OSCURO</option>
+            </select>
+        </div>
+    </header>
+
     <div id="app-container">
         <aside id="sidebar">
             <div class="brand">GUGEL: simulador de IA</div>
@@ -69,6 +82,7 @@
                 <div class="card">
                     <h3>📁 Historial de Conversaciones</h3>
                     <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
                     <div id="history-list-container" class="list-container"></div>
                 </div>
             </section>
