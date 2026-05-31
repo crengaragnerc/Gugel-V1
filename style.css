@@ -1,52 +1,67 @@
-.modo-hacker {
-    --bg-app: #121212;
-    --bg-sidebar: #1a1a1a;
-    --bg-card: #222222;
-    --bg-input: #2a2a2a;
-    --color-text: #ffffff;
+/* --- CONFIGURACIÓN ESTILO HACKER --- */
+:root {
+    --bg-app: #050505; /* Fondo negro profundo */
+    --bg-sidebar: #0d0d0d;
+    --bg-card: #121212;
+    --bg-input: #1a1a1a;
+    --color-text: #00ff00; /* Verde terminal */
     --color-gugel: #00ff00;
     --color-accent: #00ff00;
-    --color-accent-text: #000000;
-    --msg-gugel: #222222;
-    --msg-ai: #00ff00;
-    --msg-ai-text: #000000;
-    --border-radius: 14px;
+    --border-style: 1px solid #00ff00; /* Bordes pixel-perfect */
 }
 
-.modo-claro {
-    --bg-app: #f0f2f5;
-    --bg-sidebar: #ffffff;
-    --bg-card: #ffffff;
-    --bg-input: #f0f2f5;
-    --color-text: #1a1a1a;
-    --color-gugel: #222222;
-    --color-accent: #222222;
-    --color-accent-text: #ffffff;
-    --msg-gugel: #e4e6eb;
-    --msg-ai: #dbdbdb;
-    --msg-ai-text: #1a1a1a;
-    --border-radius: 14px;
+body {
+    background-color: var(--bg-app);
+    color: var(--color-text);
+    font-family: 'Courier New', Courier, monospace; /* Fuente de terminal */
+    margin: 0;
+    padding: 0;
 }
 
+/* Efecto de "ventana" en las tarjetas */
 .card {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+    background-color: var(--bg-card);
+    border: var(--border-style);
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
 }
 
-.opinion-box {
+/* Sidebar estilo consola */
+#sidebar {
+    background-color: var(--bg-sidebar);
+    border-right: var(--border-style);
+}
+
+/* Botones estilo terminal */
+button {
+    background: transparent;
+    border: var(--border-style);
+    color: var(--color-text);
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+    padding: 10px;
+}
+
+button:hover {
+    background: var(--color-text);
+    color: #000;
+}
+
+/* Input estilo prompt de comandos */
+input {
     background-color: var(--bg-input);
-    padding: 16px;
-    border-radius: 8px;
-    border-left: 4px solid var(--color-accent);
-    font-size: 1.1rem;
+    border: var(--border-style);
+    color: var(--color-text);
+    font-family: 'Courier New', Courier, monospace;
+    padding: 10px;
+    width: 90%;
 }
 
-.list-container {
-    max-height: 400px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
+/* Scrollbar estilo viejo */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-text);
 }
