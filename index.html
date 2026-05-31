@@ -2,13 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
     <div id="app-container">
-        <!-- Botón flotante para abrir menú en móvil -->
         <button id="mobile-menu-toggle" onclick="toggleMobileMenu()">☰ MENÚ GUGEL</button>
 
         <aside id="sidebar">
@@ -17,18 +16,17 @@
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE JUEGO</div>
                 <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña'); toggleMobileMenu();">
-                    定 MISIONES CAMPAÑA
+                    📌 MISIONES CAMPAÑA
                 </button>
                 <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito'); toggleMobileMenu();">
-                    ♾️ PREGUNTAS INFINITAS
+                    Anclaje INFINITO
                 </button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">🖥️ PANELES DE CONTROL</div>
-                <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core'); toggleMobileMenu();">PANTALLA NÚCLEO</button>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil'); toggleMobileMenu();">DATOS PERFIL</button>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros'); toggleMobileMenu();">LOGROS DIVERTIDOS</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros'); toggleMobileMenu();">LOGROS SECRETOS</button>
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial'); toggleMobileMenu();">HISTORIAL GENERAL</button>
             </div>
 
@@ -52,7 +50,10 @@
                 <div id="chat-container">
                     <div id="chat-header">
                         <span id="panel-title-text">Interfaz Core - Campaña</span>
-                        <span id="status-indicator" class="status-online">● en línea</span>
+                        <div class="header-right">
+                            <div id="countdown-timer">⏳ --s</div>
+                            <span id="status-indicator" class="status-online">● en línea</span>
+                        </div>
                     </div>
                     <div id="chat-messages"></div>
                     <form id="chat-form">
@@ -74,18 +75,20 @@
                         <span id="prof-opinion" style="font-style: italic; font-size: 1.1rem;">(esperando transmisiones...)</span>
                     </div>
                     <div class="stats-grid">
-                        <p><strong>Nivel:</strong> <span id="prof-level">1</span></p>
-                        <p><strong>Satisfacción:</strong> <span id="prof-satisfaction">50%</span></p>
-                        <p><strong>Consultas:</strong> <span id="prof-cycles">0</span></p>
-                        <p><strong>Datos:</strong> <span id="prof-chars">0 carac.</span></p>
+                        <p><strong>Nivel Algorítmico:</strong> <span id="prof-level">1</span></p>
+                        <p><strong>Satisfacción Humana:</strong> <span id="prof-satisfaction">50%</span></p>
+                        <p><strong>Consultas Procesadas:</strong> <span id="prof-cycles">0</span></p>
+                        <p><strong>Volumen Datos:</strong> <span id="prof-chars">0 carac.</span></p>
                     </div>
+                    <button class="action-btn" onclick="switchView('view-core')">Volver al Núcleo</button>
                 </div>
             </section>
 
             <section id="view-logros" class="content-panel">
                 <div class="card">
-                    <h3>🏆 Logros Desbloqueados (<span id="logros-count">0</span>)</h3>
+                    <h3>🏆 Logros Ocultos Desbloqueados (<span id="logros-count">0</span>)</h3>
                     <div id="logros-container" class="list-container"></div>
+                    <button class="action-btn" onclick="switchView('view-core')">Volver al Núcleo</button>
                 </div>
             </section>
 
@@ -94,6 +97,7 @@
                     <h3>📁 Historial de Conversaciones</h3>
                     <button class="action-btn" onclick="exportCoreData()">Copiar Logs Limpios</button>
                     <div id="history-list-container" class="list-container"></div>
+                    <button class="action-btn" onclick="switchView('view-core')">Volver al Núcleo</button>
                 </div>
             </section>
         </main>
