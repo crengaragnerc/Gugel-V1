@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -391,7 +391,7 @@ function generarPreguntaInfinita() {
 
 function clickBotonContinuar() {
     if (revisandoHistorial) {
-        // BUG 2 ARREGLADO: Regresar del historial al chat de forma segura sin avanzar turnos indeseados
+        // BUG 2 ARREGLADO: Volver al chat activo de forma segura sin consuming rondas
         revisandoHistorial = false;
         let c = getCuenta();
         
@@ -454,7 +454,7 @@ function nextRound() {
     tBtn.style.display = "block";
     tBtn.disabled = true;
 
-    // BUG 3 ARREGLADO: Desbloqueo seguro del input tras cambiar de ronda
+    // BUG 3 ARREGLADO: Sincronización asíncrona segura sin bloqueos aleatorios
     syncTimeout = setTimeout(() => {
         input.disabled = false;
         tBtn.disabled = false;
@@ -534,54 +534,38 @@ function seleccionarModoJuego(nuevoModo) {
     }
 
     revisandoHistorial = false;
+    document.getElementById('chat-messages').innerHTML = "";
 
-    // BUG 1 ARREGLADO: Ya no borra el chat actual ni sobreescribe si hay una pregunta en curso.
-    // Solo inicializa una pregunta si el sistema estaba completamente vacío por defecto.
-    if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || generarPreguntaInfinita();
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
-        }
+    // BUG 1 ARREGLADO: Generación inmediata y nativa del modo seleccionado al limpiar el chat
+    if (c.modo === "campaña") {
+        c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || generarPreguntaInfinita();
+    } else {
+        c.currentPregunta = generarPreguntaInfinita();
     }
 
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    // Redibujamos la interfaz actual en pantalla sin alterar los flujos cronológicos
-    document.getElementById('chat-messages').innerHTML = "";
     appendMessage('usuario', c.currentPregunta);
+    esperandoRespuestaDeTurno = true;
 
     const input = document.getElementById('user-input');
-    const tBtn = document.getElementById('transmit-btn');
+    input.value = "";
+    input.style.display = "block";
+    input.disabled = false;
+    input.placeholder = "Introduce tu respuesta...";
 
-    if (esperandoRespuestaDeTurno) {
-        input.style.display = "block";
-        input.disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
-        tBtn.style.display = "block";
-        tBtn.disabled = false;
-        document.getElementById('chat-actions-bar').style.display = "none";
-        document.getElementById('continue-btn').style.display = "none";
-    } else {
-        // Si el turno ya había terminado antes de pulsar el botón de modo, restauramos su estado visual estático
-        if (c.history.length > 0) {
-            let ultimo = c.history[c.history.length - 1];
-            appendMessage('gugel', ultimo.respuesta);
-            appendMessage('usuario', ultimo.reaccion);
-        }
-        input.style.display = "none";
-        tBtn.style.display = "none";
-        document.getElementById('chat-actions-bar').style.display = "block";
-        document.getElementById('continue-btn').style.display = "block";
-    }
+    const tBtn = document.getElementById('transmit-btn');
+    tBtn.style.display = "block";
+    tBtn.disabled = false;
+
+    document.getElementById('chat-actions-bar').style.display = "none";
+    document.getElementById('continue-btn').style.display = "none";
 
     salvarAStorage();
     renderAllData();
-    if (input.style.display !== "none") {
-        input.focus();
-    }
+    input.focus();
 }
 
 function cambiarTema(nuevoTema) {
@@ -668,7 +652,7 @@ function guardarNombreCuenta() {
     salvarAStorage();
     cerrarModalCuenta();
     
-    // Forzamos el reinicio visual del panel de chat para adaptarlo a la nueva sesión activa
+    // Forzamos reseteo visual del chat para el nuevo perfil cargado
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
