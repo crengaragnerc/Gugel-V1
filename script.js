@@ -636,3 +636,22 @@ window.addEventListener('DOMContentLoaded', () => {
     esperandoRespuestaDeTurno = true; 
     renderAllData();
 });
+
+// ==========================================
+// 10. CONTROL DE MENÚ DESPLEGABLE MÓVIL
+// ==========================================
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('mobile-open');
+    }
+}
+
+// Modificamos ligeramente switchView para que si se pulsa una opción en móvil, se cierre el menú automáticamente
+const originalSwitchView = switchView;
+switchView = function(viewId) {
+    originalSwitchView(viewId);
+    // Cierra el menú móvil al cambiar de sección
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+};
