@@ -38,7 +38,6 @@
     --negative-color: #dc3545;
 }
 
-/* TEMA ROSA */
 .modo-rosa {
     --bg-main: #ffd1dc;
     --bg-panel: #fff0f5;
@@ -100,6 +99,24 @@ body {
     margin-left: 8px;
 }
 
+#chat-mode-select {
+    width: 100%;
+    background-color: var(--bg-inner);
+    color: var(--text-primary);
+    border: 1px solid var(--bubble-border);
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+#chat-mode-select:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
 button {
     font-family: 'Courier New', monospace;
     font-weight: bold;
@@ -112,25 +129,13 @@ button {
     font-size: 0.85rem;
 }
 
-.main-action-btn {
-    background-color: var(--bg-inner);
-    color: var(--text-muted);
-    border: 1px solid transparent;
-}
-
-.main-action-btn.active {
-    background-color: var(--accent-color);
-    color: var(--accent-text);
-    box-shadow: 0 0 15px rgba(255, 105, 180, 0.2);
-}
-
 .sub-btn {
     background-color: var(--bg-inner);
     color: var(--text-primary);
     border: 1px solid var(--bubble-border);
 }
 
-.sub-btn:hover, .main-action-btn:hover:not(.active) {
+.sub-btn:hover {
     background-color: var(--bubble-border);
 }
 
@@ -233,8 +238,8 @@ button {
     border: 1px solid var(--bubble-border);
 }
 
-.message.gugel { align-self: flex-start; }
-.message.tú { align-self: flex-end; border-left: 3px solid var(--accent-color); }
+.message.gugel { align-self: flex-end; border-left: 3px solid var(--accent-color); }
+.message.usuario { align-self: flex-start; }
 .message strong { color: var(--accent-color); display: inline-block; margin-right: 5px; }
 
 .fav-btn {
