@@ -25,7 +25,7 @@ const FRASES_OK = [
     "entendido perfectly esto me aclara el panorama", "vale compro la idea me parece viable", "ahora todo encaja gracias por la info",
     "bien pensado no le veo ningun fallo", "me convence el argumento directo al grano", "perfecto justo lo que andaba buscando",
     "buena respuesta se nota que comprendes", "me sirve bastante esta explicacion concisa", "tiene coherencia absoluta me lo apunto",
-    "ok anotado queda claro el concepto", "me parece correcto el planteamiento", "vale entiendo el point perfectamente",
+    "ok anotado queda claro el concepto", "me parece correcto el planteamiento", "vale entiendo el point perfectly",
     "gracias por resolver la duda de forma clara", "esto responde exactamente a mi consulta", "me queda clarisimo todo resuelto",
     "vale aceptamos barco tiene logica", "bien de estructura facil de entender", "eso tiene sentido completo gracias",
     "ok me convence tu respuesta", "ahora si entiendo el trasfondo", "buen analisis me ha servido",
@@ -171,11 +171,6 @@ const LOGROS_DIVERTIDOS = [
     { t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia." }
 ];
 
-const RECOMENDACIONES_DINAMICAS = {
-    "gato": "ayuda mi gato hace ruido raro", "pc": "que pasa si pantalla pc da calambre",
-    "teclado": "porque teclado usb borra archivos solo", "router": "como hacer que router wifi parpadea sin parar"
-};
-
 // ==========================================
 // ESTADO INTERNO Y CONFIGURACIÓN DEL MOTOR
 // ==========================================
@@ -188,7 +183,7 @@ let coreState = {
     currentQ: "",
     nextModoSelected: "",
     ultimoSujetoClave: "",
-    satisfaccionAcumulada: 50, // Comienzo calibrado estricto
+    satisfaccionAcumulada: 50,
     logrosDesbloqueados: [],
     history: []
 };
@@ -198,19 +193,27 @@ let timeLeft = 5;
 let userAccount = null;
 
 // ==========================================
-// FLUJO OPERATIVO DE RONDAS Y TEMPORIZADOR
+// FLUJO OPERATIVO DE RONDAS Y NUEVO SISTEMA DE TEMPORIZADORES
 // ==========================================
 function iniciarSiguienteRonda() {
     clearInterval(timerInterval);
+    
+    // VACIAR EL CHAT COMPLETAMENTE CON CADA PREGUNTA NUEVA
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
+
     const input = document.getElementById('user-input');
     const transBtn = document.getElementById('transmit-btn');
     const contBtn = document.getElementById('continue-btn');
-    const recBox = document.getElementById('streaming-recommendation');
 
-    if (input) { input.disabled = false; input.value = ""; }
-    if (transBtn) transBtn.style.display = "inline-block";
+    // Deshabilitar la entrada de texto al principio (bloqueada por el primer temporizador)
+    if (input) { input.disabled = true; input.value = ""; }
     if (contBtn) contBtn.style.display = "none";
-    if (recBox) recBox.style.display = "none";
+    
+    if (transBtn) {
+        transBtn.style.display = "inline-block";
+        transBtn.disabled = true; // No se puede pulsar hasta que termine la cuenta atrás
+    }
 
     let pregunta = "";
 
@@ -219,6 +222,7 @@ function iniciarSiguienteRonda() {
             coreState.campanaOk = true;
             inyectarBurbuja('gugel', "⚠️ misiones completadas con éxito.");
             if (input) input.disabled = true;
+            if (transBtn) transBtn.style.display = "none";
             return;
         }
         pregunta = PREGUNTAS_CAMPANA[coreState.campanaIdx++];
@@ -233,40 +237,58 @@ function iniciarSiguienteRonda() {
 
     coreState.currentQ = pregunta;
     inyectarBurbuja('gugel', pregunta);
-    iniciarTemporizadorRonda();
+    
+    // Lanzar PRIMER TEMPORIZADOR: En el botón de transmitir (5 segundos para pensar)
+    iniciarPrimerTemporizador();
 }
 
-function iniciarTemporizadorRonda() {
+function iniciarPrimerTemporizador() {
     timeLeft = 5;
-    const timerDisplay = document.getElementById('countdown-timer');
-    if (timerDisplay) timerDisplay.innerText = `⏳ ${timeLeft}s`;
+    const transBtn = document.getElementById('transmit-btn');
+    const input = document.getElementById('user-input');
+    
+    if (transBtn) transBtn.innerText = `TRANSMITIR (${timeLeft}s)`;
 
     timerInterval = setInterval(() => {
         timeLeft--;
-        if (timerDisplay) timerDisplay.innerText = `⏳ ${timeLeft}s`;
+        if (transBtn) transBtn.innerText = `TRANSMITIR (${timeLeft}s)`;
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            procesarFalloPorTiempo();
+            // Al terminar la cuenta, se desbloquea la entrada de texto y el botón para responder
+            if (transBtn) {
+                transBtn.innerText = "TRANSMITIR";
+                transBtn.disabled = false;
+            }
+            if (input) {
+                input.disabled = false;
+                input.focus();
+            }
         }
     }, 1000);
 }
 
-function procesarFalloPorTiempo() {
-    inyectarBurbuja('ai', "[TIEMPO EXTREMO AGOTADO - INACTIVIDAD]");
-    let reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
-    
-    // Impacto intermedio calibrado por inactividad
-    coreState.satisfaccionAcumulada -= 8;
-    coreState.cycles++;
+function iniciarSegundoTemporizador() {
+    timeLeft = 5;
+    const contBtn = document.getElementById('continue-btn');
+    if (contBtn) {
+        contBtn.disabled = true; // Bloqueado al aparecer
+        contBtn.innerText = `SIGUIENTE PREGUNTA (${timeLeft}s)`;
+    }
 
-    inyectarBurbuja('gugel', reaccion);
-    coreState.history.push({
-        pregunta: coreState.currentQ, respuesta: "[TIMEOUT]", reaccion: reaccion, tipo: "rechazo", fav: false
-    });
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if (contBtn) contBtn.innerText = `SIGUIENTE PREGUNTA (${timeLeft}s)`;
 
-    bloquearYMostrarContinuar();
-    ejecutarRenderizadoPaneles();
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            // Termina la cuenta: Se desbloquea el botón de Siguiente para poder avanzar
+            if (contBtn) {
+                contBtn.innerText = "SIGUIENTE PREGUNTA";
+                contBtn.disabled = false;
+            }
+        }
+    }, 1000);
 }
 
 function inyectarBurbuja(sender, texto) {
@@ -285,27 +307,24 @@ function inyectarBurbuja(sender, texto) {
 function evaluarRespuestaIA(userText) {
     const textClean = userText.toLowerCase().trim();
     
-    // Bloque 1: Evasivas Directas
     if (EVASIVAS.some(e => textClean === e || textClean === e + ".")) {
         desbloquearLogro("Esquiva Balas");
         return {
             tipo: "critica",
             txt: FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)],
-            satMod: -(Math.floor(Math.random() * 7) + 12) // Descenso entre -12% y -18%
+            satMod: -(Math.floor(Math.random() * 7) + 12)
         };
     }
 
-    // Bloque 2: Filtrado Mucho Texto
     if (userText.length > 140) {
         desbloquearLogro("Biblia Evitada");
         return {
             tipo: "mucho_texto",
             txt: FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)],
-            satMod: -(Math.floor(Math.random() * 5) + 8) // Descenso entre -8% y -12%
+            satMod: -(Math.floor(Math.random() * 5) + 8)
         };
     }
 
-    // Bloque 3: Verificación de coherencia y longitud correcta
     let tieneIndicador = INDICADORES_COHERENCIA.some(ind => textClean.includes(ind));
     
     if (userText.length >= 35 && tieneIndicador) {
@@ -313,14 +332,13 @@ function evaluarRespuestaIA(userText) {
         return {
             tipo: "ok",
             txt: FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)],
-            satMod: Math.floor(Math.random() * 5) + 5 // Subida equilibrada entre +5% y +9%
+            satMod: Math.floor(Math.random() * 5) + 5
         };
     } else {
-        // Bloque 4: Respuesta corta o inconexa
         return {
             tipo: "rechazo",
             txt: FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)],
-            satMod: -(Math.floor(Math.random() * 5) + 6) // Descenso calibrado entre -6% y -10%
+            satMod: -(Math.floor(Math.random() * 5) + 6)
         };
     }
 }
@@ -340,44 +358,64 @@ function bloquearYMostrarContinuar() {
     if (transBtn) transBtn.style.display = "none";
     if (contBtn) {
         contBtn.style.display = "inline-block";
-        contBtn.innerText = "CONTINUAR";
         coreState.nextModoSelected = coreState.modoJuego;
     }
+    
+    // Lanzar SEGUNDO TEMPORIZADOR: En el botón de continuar/siguiente (5 segundos obligatorios de lectura)
+    iniciarSegundoTemporizador();
 }
 
 // ==========================================
-// VISUALIZACIÓN EN CRIPTO (SABER CUÁNTOS, OCULTAR CUÁLES)
+// RENDERIZADO AJUSTADO: LOGROS ULTRA SECRETOS E INTERFAZ LIMPIA
 // ==========================================
 function ejecutarRenderizadoPaneles() {
-    document.getElementById('prof-cycles').innerText = coreState.cycles;
-    document.getElementById('prof-chars').innerText = `${coreState.charsSent} carac.`;
-    document.getElementById('prof-level').innerText = Math.floor(coreState.cycles / 4) + 1;
+    // Tratamos de ocultar los elementos de estadísticas eliminados de forma segura si existen en el HTML de origen
+    const queriesElement = document.getElementById('prof-cycles');
+    const dataElement = document.getElementById('prof-chars');
+    if (queriesElement && queriesElement.parentElement) {
+        // Si el contenedor muestra la etiqueta de Consultas procesadas, lo barremos para limpiar la interfaz
+        if(queriesElement.parentElement.innerText.includes("Consultas") || queriesElement.parentElement.innerText.includes("procesadas")) {
+            queriesElement.parentElement.style.display = "none";
+        }
+    }
+    if (dataElement && dataElement.parentElement) {
+        if(dataElement.parentElement.innerText.includes("Volumen") || dataElement.parentElement.innerText.includes("datos")) {
+            dataElement.parentElement.style.display = "none";
+        }
+    }
+
+    // Nivel y Satisfacción se mantienen intactos
+    const lvlElement = document.getElementById('prof-level');
+    if (lvlElement) lvlElement.innerText = Math.floor(coreState.cycles / 4) + 1;
 
     if (coreState.satisfaccionAcumulada > 100) coreState.satisfaccionAcumulada = 100;
     if (coreState.satisfaccionAcumulada < 0) coreState.satisfaccionAcumulada = 0;
-    document.getElementById('prof-satisfaction').innerText = `${coreState.satisfaccionAcumulada}%`;
+    
+    const satElement = document.getElementById('prof-satisfaction');
+    if (satElement) satElement.innerText = `${coreState.satisfaccionAcumulada}%`;
 
     const opinionContainer = document.getElementById('prof-opinion');
-    if (coreState.cycles === 0) {
-        opinionContainer.innerText = "(analizando conexiones primarias...)";
-    } else {
-        let arrayOpiniones = coreState.satisfaccionAcumulada < 30 ? OPINIONES_MALAS :
-                             coreState.satisfaccionAcumulada < 55 ? OPINIONES_MEDIO_MALAS :
-                             coreState.satisfaccionAcumulada < 80 ? OPINIONES_MEDIO_BUENAS : OPINIONES_BUENAS;
-        opinionContainer.innerText = arrayOpiniones[coreState.cycles % arrayOpiniones.length] || "(estable)";
+    if (opinionContainer) {
+        if (coreState.cycles === 0) {
+            opinionContainer.innerText = "(analizando conexiones primarias...)";
+        } else {
+            let arrayOpiniones = coreState.satisfaccionAcumulada < 30 ? OPINIONES_MALAS :
+                                 coreState.satisfaccionAcumulada < 55 ? OPINIONES_MEDIO_MALAS :
+                                 coreState.satisfaccionAcumulada < 80 ? OPINIONES_MEDIO_BUENAS : OPINIONES_BUENAS;
+            opinionContainer.innerText = arrayOpiniones[coreState.cycles % arrayOpiniones.length] || "(estable)";
+        }
     }
 
-    // Desbloqueos basados en métricas globales
+    // Desbloqueos de estadísticas automatizados
     if (coreState.cycles >= 1) desbloquearLogro("Hola Mundo");
     if (coreState.satisfaccionAcumulada >= 92) desbloquearLogro("Modo Dios: Iniciando");
 
-    // Lógica Criptográfica de Logros
+    // LÓGICA DE LOGROS: Si tienes 2, se ven exactamente 2. Ninguno más.
     const logrosContainer = document.getElementById('logros-container');
     const logrosCount = document.getElementById('logros-count');
     
     let htmlLogros = "";
     let totalUnlocked = 0;
-    const maxLogrosTotales = LOGLOS_DIVERTIDOS = LOGROS_DIVERTIDOS.length;
 
     LOGROS_DIVERTIDOS.forEach(logro => {
         if (coreState.logrosDesbloqueados.includes(logro.t)) {
@@ -388,27 +426,34 @@ function ejecutarRenderizadoPaneles() {
                     <small style="color: var(--color-gugel);">${logro.d}</small>
                 </div>
             `;
-        } else {
-            htmlLogros += `
-                <div class="list-item" style="border-left: 4px solid #333; opacity: 0.4; background: rgba(255,255,255,0.01)">
-                    <strong>🔒 Logro Secreto Encriptado</strong><br>
-                    <small style="color: #555;">Contenido restringido. Sigue operando el Núcleo de la IA para descifrarlo.</small>
-                </div>
-            `;
         }
     });
 
-    logrosContainer.innerHTML = htmlLogros;
-    logrosCount.innerText = `${totalUnlocked} / ${maxLogrosTotales}`;
+    if (htmlLogros === "") {
+        htmlLogros = `<div class="list-item" style="text-align: center; color: #666; font-style: italic;">No has desbloqueado ningún logro todavía... Sigue transmitiendo al Núcleo.</div>`;
+    }
 
-    // Historial logs
-    document.getElementById('history-list-container').innerHTML = coreState.history.map(h => `
-        <div class="list-item">
-            <strong>Q: ${h.pregunta}</strong><br>
-            <span>A: ${h.respuesta}</span><br>
-            <small style="color: var(--color-accent)">GUGEL: ${h.reaccion}</small>
-        </div>
-    `).join('');
+    if (logrosContainer) logrosContainer.innerHTML = htmlLogros;
+    if (logrosCount) logrosCount.innerText = totalUnlocked; // Muestra solo la cifra neta sin el total oculto
+
+    // Limpieza de textos de estado de red ("En línea")
+    document.querySelectorAll('*').forEach(el => {
+        if (el.children.length === 0 && (el.innerText === "En línea" || el.innerText === "En Línea" || el.innerText === "• En línea")) {
+            el.style.display = "none";
+        }
+    });
+
+    // Historial logs de fondo
+    const histContainer = document.getElementById('history-list-container');
+    if (histContainer) {
+        histContainer.innerHTML = coreState.history.map(h => `
+            <div class="list-item">
+                <strong>Q: ${h.pregunta}</strong><br>
+                <span>A: ${h.respuesta}</span><br>
+                <small style="color: var(--color-accent)">GUGEL: ${h.reaccion}</small>
+            </div>
+        `).join('');
+    }
 }
 
 // ==========================================
@@ -418,7 +463,9 @@ function switchView(viewId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    document.getElementById(viewId).classList.add('active');
+    const panel = document.getElementById(viewId);
+    if (panel) panel.classList.add('active');
+    
     const targetBtn = document.getElementById(`btn-${viewId}`);
     if (targetBtn) targetBtn.classList.add('active');
     ejecutarRenderizadoPaneles();
@@ -426,9 +473,9 @@ function switchView(viewId) {
 
 function cambiarModoEstrategia(modo) {
     coreState.modoJuego = modo;
-    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modo.toUpperCase()}`;
+    const titleText = document.getElementById('panel-title-text');
+    if (titleText) titleText.innerText = `Interfaz Core - ${modo.toUpperCase()}`;
     switchView('view-core');
-    document.getElementById('chat-messages').innerHTML = "";
     iniciarSiguienteRonda();
 }
 
@@ -443,7 +490,7 @@ function cambiarTemaVisual(tema) {
 
 function toggleMobileMenu() {
     const sidebar = document.getElementById('sidebar');
-    if (window.innerWidth <= 768) sidebar.classList.toggle('open');
+    if (sidebar && window.innerWidth <= 768) sidebar.classList.toggle('open');
 }
 
 function exportCoreData() {
@@ -451,71 +498,63 @@ function exportCoreData() {
     navigator.clipboard.writeText(output).then(() => alert("Logs volcados al portapapeles."));
 }
 
-window.inyectarRecomendacionDirecta = function(preguntaText) {
-    cambiarModoEstrategia('infinito');
-    coreState.currentQ = preguntaText;
-    inyectarBurbuja('gugel', preguntaText);
-    iniciarTemporizadorRonda();
-};
-
 // ==========================================
 // ASIGNACIÓN DE ENLACES DOM AL CARGAR VENTANA
 // ==========================================
 window.onload = function() {
-    document.getElementById("btn-gestion-cuenta").onclick = function() {
-        const name = prompt("Nickname:");
-        if (name && name.trim()) {
-            userAccount = name.trim();
-            document.getElementById("btn-gestion-cuenta").innerText = `👤 ${userAccount.toUpperCase()}`;
-        }
-    };
+    // Asegurar eliminación absoluta de la caja de recomendaciones del HTML
+    const recBox = document.getElementById('streaming-recommendation');
+    if (recBox) recBox.remove();
+
+    const accountBtn = document.getElementById("btn-gestion-cuenta");
+    if (accountBtn) {
+        accountBtn.onclick = function() {
+            const name = prompt("Nickname:");
+            if (name && name.trim()) {
+                userAccount = name.trim();
+                accountBtn.innerText = `👤 ${userAccount.toUpperCase()}`;
+            }
+        };
+    }
 
     const form = document.getElementById('chat-form');
-    form.onsubmit = function(e) {
-        e.preventDefault();
-        clearInterval(timerInterval); // Cortar cuenta atrás activa
-        
-        const input = document.getElementById('user-input');
-        const text = input ? input.value.trim() : "";
-        if (!text) return;
+    if (form) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            clearInterval(timerInterval);
+            
+            const input = document.getElementById('user-input');
+            const text = input ? input.value.trim() : "";
+            if (!text) return;
 
-        // Anti-repetición implacable
-        if (coreState.history.some(h => h.respuesta.toLowerCase().trim() === text.toLowerCase().trim())) {
-            alert("⚠️ ERROR: Redundancia cíclica. Respuesta idéntica ya enviada.");
-            iniciarTemporizadorRonda();
-            return;
-        }
-
-        coreState.cycles++;
-        coreState.charsSent += text.length;
-        inyectarBurbuja('ai', text);
-
-        let evaluacion = evaluarRespuestaIA(text);
-        coreState.satisfaccionAcumulada += evaluacion.satMod;
-
-        setTimeout(() => {
-            inyectarBurbuja('gugel', evaluacion.txt);
-            coreState.history.push({
-                pregunta: coreState.currentQ, respuesta: text, reaccion: evaluacion.txt, tipo: evaluacion.tipo, fav: false
-            });
-
-            ejecutarRenderizadoPaneles();
-            bloquearYMostrarContinuar();
-
-            const recBox = document.getElementById('streaming-recommendation');
-            if (recBox && coreState.ultimoSujetoClave) {
-                const sugestion = RECOMENDACIONES_DINAMICAS[coreState.ultimoSujetoClave] || "que pasa si pantalla pc da calambre";
-                recBox.innerHTML = `📺 Recomendación por contexto: <span style="text-decoration: underline; cursor: pointer; font-weight: bold;" onclick="window.inyectarRecomendacionDirecta('${sugestion}')">${sugestion}</span>`;
-                recBox.style.display = "block";
+            if (coreState.history.some(h => h.respuesta.toLowerCase().trim() === text.toLowerCase().trim())) {
+                alert("⚠️ ERROR: Redundancia cíclica. Respuesta idéntica ya enviada.");
+                return;
             }
-        }, 400);
-    };
 
-    // Cerrar menú si haces clic fuera del contenedor (móviles)
+            coreState.cycles++;
+            coreState.charsSent += text.length;
+            inyectarBurbuja('ai', text);
+
+            let evaluacion = evaluarRespuestaIA(text);
+            coreState.satisfaccionAcumulada += evaluacion.satMod;
+
+            setTimeout(() => {
+                inyectarBurbuja('gugel', evaluacion.txt);
+                coreState.history.push({
+                    pregunta: coreState.currentQ, respuesta: text, reaccion: evaluacion.txt, tipo: evaluacion.tipo, fav: false
+                });
+
+                ejecutarRenderizadoPaneles();
+                bloquearYMostrarContinuar();
+            }, 400);
+        };
+    }
+
     document.addEventListener('click', function(event) {
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('mobile-menu-toggle');
-        if (window.innerWidth <= 768 && !sidebar.contains(event.target) && event.target !== toggleBtn) {
+        if (sidebar && window.innerWidth <= 768 && !sidebar.contains(event.target) && event.target !== toggleBtn) {
             sidebar.classList.remove('open');
         }
     });
