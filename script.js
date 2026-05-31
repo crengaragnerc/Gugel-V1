@@ -46,31 +46,29 @@ window.currentRoundTimer = null;
 // 3. CONTROLADORES Y NAVEGACIÓN CORREGIDOS
 // ==========================================
 
-// Sustituye tu función switchView por esta versión simplificada
+// Asegúrate de que esta sea la única definición de switchView
 function switchView(viewId) {
-    // 1. Ocultar todos los paneles de contenido
+    console.log("Cambiando a:", viewId); // Si ves esto en la consola (F12), el botón funciona
+    
+    // 1. Ocultar todos los paneles
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     
-    // 2. Quitar clase active de TODOS los botones del sidebar (sub-btns y modos)
+    // 2. Desactivar todos los botones (sub-btn y mode-btn)
     document.querySelectorAll('.sub-btn, .mode-btn').forEach(b => b.classList.remove('active'));
     
-    // 3. Mostrar el panel solicitado
+    // 3. Activar el panel
     const targetPanel = document.getElementById(viewId); 
     if (targetPanel) targetPanel.classList.add('active');
     
-    // 4. Marcar el botón específico como activo
-    // Buscamos el botón que tenga el onclick que coincida con el viewId
+    // 4. Activar el botón correspondiente
+    // Buscamos el botón que tiene el onclick con ese viewId
     const targetBtn = document.querySelector(`[onclick*="${viewId}"]`);
     if (targetBtn) targetBtn.classList.add('active');
 
-    // 5. Restaurar input si es la vista del chat
-    if (viewId === 'view-chat') {
-        const input = document.getElementById('user-input');
-        const btn = document.getElementById('transmit-btn');
-        if (gameState.esperandoRespuesta && input) {
-            input.style.display = "block";
-            if (btn) btn.style.display = "block";
-        }
+    // 5. Lógica especial para el chat
+    if (viewId === 'view-chat' && gameState.esperandoRespuesta) {
+        document.getElementById('user-input').style.display = "block";
+        document.getElementById('transmit-btn').style.display = "block";
     }
 }
 
