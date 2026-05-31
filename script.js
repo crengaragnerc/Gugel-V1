@@ -13,7 +13,7 @@ const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet"
 const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
+const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algorithm tiene un tornillo flojo)"];
 const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
@@ -47,13 +47,13 @@ const BASE_LOGROS = [
     { id: "L14", tipo: "positivo", nombre: "Consultor Infatigable", desc: "Entraste al Modo Infinito." },
     { id: "L15", tipo: "positivo", nombre: "Respuesta Detallada", desc: "Escribiste una respuesta de más de 60 caracteres." },
     { id: "L16", tipo: "positivo", nombre: "Lógica Impecable", desc: "Obtuviste 3 respuestas aceptadas tipo 'OK' seguidas." },
-    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del system." },
+    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del sistema." },
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -63,7 +63,7 @@ const BASE_LOGROS = [
     { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el nuevo y reluciente Tema Rosa." },
     
     // NEGATIVOS
-    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una sequence incoherente sospechosa de spam." },
+    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
     { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
     { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
     { id: "LN4", tipo: "negativo", nombre: "Hundimiento del Sistema", desc: "La satisfacción del usuario cayó por debajo del 20%." },
@@ -71,7 +71,7 @@ const BASE_LOGROS = [
     { id: "LN6", tipo: "negativo", nombre: "Mensaje Efímero", desc: "Escribiste una respuesta ridículamente corta (menos de 4 letras)." },
     { id: "LN7", tipo: "negativo", nombre: "Bucle Repetitivo", desc: "Intentaste enviar exactamente el mismo texto que el turno anterior." },
     { id: "LN8", tipo: "negativo", nombre: "Usuario Furioso", desc: "Recibiste una crítica severa de Gugel por troleo." },
-    { id: "LN9", tipo: "negativo", nombre: "Destrucción de Memoria", desc: "Usaste la opción de borrar todo el progreso." },
+    { id: "LN9", tipo: "negativo", nombre: "Destrucción de Memoria", desc: "Usaste la option de borrar todo el progreso." },
     { id: "LN10", tipo: "negativo", nombre: "Operador Sospechoso", desc: "Dejaste la contraseña vacía al registrarte." }
 ];
 
@@ -223,7 +223,7 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
+        let etiqueta = sender === 'humano' ? 'GUGEL (Humano)' : 'IA (Sistema)';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
@@ -283,7 +283,7 @@ function renderAllData() {
                         <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
                     </div>
                     <div class="log-item-action" onclick="event.stopPropagation();">
-                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
+                        <button type="button" class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
                     </div>
                 </div>
             `).join('');
@@ -315,7 +315,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     const userText = input.value.trim();
     if (!userText || input.disabled) return;
     
-    appendMessage('gugel', userText);
+    appendMessage('ia', userText);
     input.style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
 
@@ -346,7 +346,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
 
     setTimeout(() => {
-        appendMessage('usuario', reaccion);
+        appendMessage('humano', reaccion);
         c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
@@ -399,14 +399,14 @@ function nextRound() {
         c.currentPregunta = generarPreguntaInfinita();
     }
     
-    appendMessage('usuario', c.currentPregunta);
+    appendMessage('humano', c.currentPregunta);
     esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
     input.value = "";
     input.style.display = "block";
     input.disabled = true;
-    input.placeholder = "Sincronizando terminal...";
+    input.placeholder = "Sincronizando terminal core...";
     
     const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
@@ -415,7 +415,7 @@ function nextRound() {
     setTimeout(() => {
         input.disabled = false;
         tBtn.disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
+        input.placeholder = "Introduce tu respuesta como IA...";
         input.focus();
     }, 1200);
 }
@@ -460,9 +460,9 @@ function cargarChatHistorico(index) {
     switchView('view-chat');
 
     document.getElementById('chat-messages').innerHTML = "";
-    appendMessage('usuario', log.pregunta);
-    appendMessage('gugel', log.respuesta);
-    appendMessage('usuario', log.reaccion);
+    appendMessage('humano', log.pregunta);
+    appendMessage('ia', log.respuesta);
+    appendMessage('humano', log.reaccion);
 
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
@@ -471,7 +471,7 @@ function cargarChatHistorico(index) {
 }
 
 // ==========================================
-// 7. NAVEGACIÓN COMPLETA Y UNIFICADA (BUG FIX)
+// 7. NAVEGACIÓN COMPLETA Y UNIFICADA
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
@@ -566,7 +566,7 @@ function guardarNombreCuenta() {
     if (!c.currentPregunta) {
         nextRound();
     } else {
-        appendMessage('usuario', c.currentPregunta);
+        appendMessage('humano', c.currentPregunta);
         esperandoRespuestaDeTurno = true; 
     }
     
@@ -574,7 +574,7 @@ function guardarNombreCuenta() {
 }
 
 // ==========================================
-// 9. EXPORTACIONES MUESTRA
+// 9. EXPORTACIONES PROTEGIDAS (SIN REBOTES A GEMINI)
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
@@ -582,7 +582,7 @@ function exportCoreData() {
     let log = c.history.map((h, i) => `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`).join('\n');
     navigator.clipboard.writeText(log).then(() => {
         desbloquearLogro("L19");
-        alert("Logs copiados al portapapeles.");
+        alert("Logs copiados al portapapeles con éxito.");
     });
 }
 
@@ -591,16 +591,14 @@ function exportarHistorialCompleto() {
     if (c.history.length === 0) return alert("Búfer vacío.");
     let log = `=== GUGEL OPERATOR LOG ===\nUsuario: ${usuarioActivo}\n\n`;
     log += c.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
-    const blob = new Blob([log], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `logs_gugel_${usuarioActivo}_${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    desbloquearLogro("L20");
+    
+    // Cambiado para copiar de forma segura al portapapeles sin generar links ficticios que rompan el previsualizador
+    navigator.clipboard.writeText(log).then(() => {
+        desbloquearLogro("L20");
+        alert("¡Historial de sesión exportado y copiado al portapapeles con éxito y de forma segura!");
+    }).catch(() => {
+        alert("Error al acceder al portapapeles. Contenido de los logs:\n\n" + log);
+    });
 }
 
 // ==========================================
@@ -629,7 +627,7 @@ window.addEventListener('DOMContentLoaded', () => {
             c.currentPregunta = generarPreguntaInfinita();
         }
     }
-    appendMessage('usuario', c.currentPregunta);
+    appendMessage('humano', c.currentPregunta);
     esperandoRespuestaDeTurno = true; 
     renderAllData();
 });
