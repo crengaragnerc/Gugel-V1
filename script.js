@@ -157,7 +157,7 @@ document.getElementById('continue-btn').addEventListener('click', () => {
 });
 
 // ==========================================
-// 5. ANALIZADOR Y RENDER
+// 5. ANALIZADOR Y RENDER (SIN PARENTESIS)
 // ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
@@ -176,25 +176,9 @@ document.getElementById('chat-form').onsubmit = (e) => {
                    tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.recentReactions) :
                    obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions);
 
-    // Seleccionamos también una opinión (el "pensamiento" de fondo)
-    let opinion = (gameState.satisfaction < 30) ? obtenerElementoNoRepetido(OPINIONES_BAJA, gameState.recentReactions) :
-                  (gameState.satisfaction < 60) ? obtenerElementoNoRepetido(OPINIONES_MEDIA_BAJA, gameState.recentReactions) :
-                  (gameState.satisfaction < 85) ? obtenerElementoNoRepetido(OPINIONES_MEDIA_ALT_A, gameState.recentReactions) : 
-                  obtenerElementoNoRepetido(OPINIONES_ALTA, gameState.recentReactions);
-
     setTimeout(() => {
-        appendMessage('gugel', reaccion + " " + opinion);
+        appendMessage('gugel', reaccion);
         document.getElementById('continue-btn').style.display = "block";
         renderAllData();
     }, 500);
 };
-
-function renderAllData() {
-    const ids = ['prof-opinion', 'prof-satisfaction', 'prof-cycles', 'prof-chars', 'logros-count'];
-    ids.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.innerText = gameState[id.replace('prof-','')] || 0;
-    });
-}
-
-window.onload = () => { nextRound(); renderAllData(); };
