@@ -13,7 +13,7 @@ const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet"
 const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algorithm tiene un tornillo flojo)"];
+const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
 const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
@@ -80,36 +80,57 @@ const BASE_LOGROS = [
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
+let cuentaInvitadoVolatil = null; // Estructura local en RAM para el modo Invitado puro
 let esperandoRespuestaDeTurno = true; 
 
+// Cargar las cuentas reales guardadas (excluyendo siempre Invitado)
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
+    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
+}
+
+function crearEstructuraVacia() {
+    return {
+        modo: "campaña",
+        campanaIndex: 0,
+        satisfaction: 50,
+        history: [],
+        favorites: [],
+        logrosDesbloqueados: [],
+        recentReactions: [],
+        lastUserText: "",
+        password: "",
+        campañaCompletada: false,
+        currentPregunta: ""
+    };
 }
 
 function asegurarEstructuraCuenta(nombre) {
-    if (!baseCuentas[nombre]) {
-        baseCuentas[nombre] = {
-            modo: "campaña",
-            campanaIndex: 0,
-            satisfaction: 50,
-            history: [],
-            favorites: [],
-            logrosDesbloqueados: [],
-            recentReactions: [],
-            lastUserText: "",
-            password: "",
-            campañaCompletada: false,
-            currentPregunta: ""
-        };
+    if (nombre === "Invitado") {
+        if (!cuentaInvitadoVolatil) {
+            cuentaInvitadoVolatil = crearEstructuraVacia();
+        }
+    } else {
+        if (!baseCuentas[nombre]) {
+            baseCuentas[nombre] = crearEstructuraVacia();
+        }
     }
 }
+
+// Inicializar la sesión inicial como Invitado Volátil
 asegurarEstructuraCuenta(usuarioActivo);
 
 function salvarAStorage() {
-    localStorage.setItem('gugel-multiverse-v4', JSON.stringify(baseCuentas));
+    // Solo se guardan en el disco duro del navegador los operadores registrados
+    if (usuarioActivo !== "Invitado") {
+        localStorage.setItem('gugel-multiverse-v4', JSON.stringify(baseCuentas));
+    }
 }
 
 function getCuenta() {
+    if (usuarioActivo === "Invitado") {
+        return cuentaInvitadoVolatil;
+    }
     return baseCuentas[usuarioActivo];
 }
 
@@ -119,6 +140,9 @@ function getCuenta() {
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
+
+    // Verificación de dos palabras (nunca preguntar o validar cadenas vacías/cortas de forma errónea)
+    let totalPalabrasRespuesta = resp.split(/\s+/).filter(Boolean).length;
 
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
         desbloquearLogro("LN1");
@@ -171,7 +195,7 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            alert(`[LOGRO DESBLOQUEADO - CUENTA: ${usuarioActivo}] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
+            alert(`[LOGRO DESBLOQUEADO - OPERADOR: ${usuarioActivo}] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
         }
         salvarAStorage();
     }
@@ -226,15 +250,15 @@ function renderAllData() {
         c.recentReactions
     );
 
+    const warningInvitado = document.getElementById('warning-invitado');
+    if (usuarioActivo === "Invitado") {
+        warningInvitado.style.display = "block";
+    } else {
+        warningInvitado.style.display = "none";
+    }
+
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
-
-    if (c.campañaCompletada) {
-        btnCamp.style.display = "none";
-        c.modo = "infinito";
-    } else {
-        btnCamp.style.display = "block";
-    }
 
     btnCamp.classList.remove('active');
     btnInfi.classList.remove('active');
@@ -246,7 +270,7 @@ function renderAllData() {
     if (logrosContainer) {
         const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
         if (unlockedLogros.length === 0) {
-            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado ningún registro en esta cuenta.</p>`;
+            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado registros en este perfil.</p>`;
         } else {
             logrosContainer.innerHTML = unlockedLogros.map(logro => `
                 <div class="item-logro ${logro.tipo}">
@@ -267,10 +291,10 @@ function renderAllData() {
                     <div class="log-item-info">
                         <strong>Q:</strong> ${h.pregunta}<br>
                         <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
-                        <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción del Sistema:</strong> "${h.reaccion}"</span>
+                        <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
                     </div>
                     <div class="log-item-action" onclick="event.stopPropagation();">
-                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Marcar</button>
+                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
                     </div>
                 </div>
             `).join('');
@@ -280,7 +304,7 @@ function renderAllData() {
     const favContainer = document.getElementById('favorites-list-container');
     if (favContainer) {
         if (c.favorites.length === 0) {
-            favContainer.innerHTML = "<p style='color:var(--text-muted);'>No hay favoritos en esta cuenta.</p>";
+            favContainer.innerHTML = "<p style='color:var(--text-muted);'>No hay marcadores guardados.</p>";
         } else {
             favContainer.innerHTML = c.favorites.map(f => `
                 <div style="margin-bottom:10px; border-left:2px solid #ffd700; padding-left:10px; background: rgba(255,215,0,0.03); padding:8px; border-radius:4px;">
@@ -341,7 +365,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
             c.modo = "infinito";
             desbloquearLogro("L05");
             desbloquearLogro("L14");
-            alert("¡Felicidades! Campaña completada en esta cuenta. Conmutando de forma permanente al Modo Infinito.");
+            alert("¡Felicidades! Campaña completada en este perfil. Pasando al Modo Infinito.");
         }
 
         verificarLogrosDeEstado();
@@ -376,15 +400,13 @@ function nextRound() {
     document.getElementById('chat-messages').innerHTML = "";
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
-    
-    if (c.campañaCompletada) c.modo = "infinito";
 
     if (c.modo === "campaña") {
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
             c.campanaIndex++;
         } else {
-            c.campaignCompletada = true;
+            c.campañaCompletada = true;
             c.modo = "infinito";
             c.currentPregunta = generarPreguntaInfinita();
         }
@@ -399,7 +421,7 @@ function nextRound() {
     input.value = "";
     input.style.display = "block";
     input.disabled = true;
-    input.placeholder = "Estableciendo conexión interna...";
+    input.placeholder = "Sincronizando terminal...";
     
     const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
@@ -471,12 +493,10 @@ function cargarChatHistorico(index) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // CORRECCIÓN SILENCIOSA: Si hay una consulta en curso, no salta aviso flotante pero frena la ejecución por completo
+    // Si la ronda actual está a mitad de responderse, se bloquea el cambio de forma silenciosa
     if (esperandoRespuestaDeTurno) {
         return;
     }
-
-    if (nuevoModo === "campaña" && c.campañaCompletada) return;
     
     c.modo = nuevoModo;
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
@@ -557,7 +577,7 @@ function guardarNombreCuenta() {
     document.getElementById('chat-messages').innerHTML = "";
     renderAllData();
     
-    alert(`Sesión validada. Datos cargados para el operador: ${usuarioActivo}`);
+    alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
     
     if (!c.currentPregunta) {
         nextRound();
@@ -605,8 +625,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
-    renderAllData();
-
     let c = getCuenta();
     if (!c.currentPregunta) {
         if (c.modo === "campaña") {
@@ -618,4 +636,5 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     appendMessage('usuario', c.currentPregunta);
     esperandoRespuestaDeTurno = true; 
+    renderAllData();
 });
