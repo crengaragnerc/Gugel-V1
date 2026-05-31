@@ -202,8 +202,20 @@ function nextRound() {
     if (input) { input.style.display = "block"; input.value = ""; input.disabled = true; }
     if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
     
+// Asegúrate de que este bloque esté DENTRO de tu función nextRound()
+
     let q = generarPregunta();
-    if (!q) { gameState.esperandoRespuesta = false; nextRound(); return; }
+    
+    // Validamos la existencia de q
+    if (!q) { 
+        gameState.esperandoRespuesta = false; 
+        nextRound(); 
+    } else {
+        // Solo ejecutamos el resto si hay una pregunta válida
+        gameState.currentPregunta = q;
+        appendMessage('gugel', gameState.currentPregunta);
+        // ... resto de tu lógica ...
+    }
     
     gameState.currentPregunta = q;
     appendMessage('gugel', gameState.currentPregunta);
