@@ -71,10 +71,9 @@ function actualizarBotonCuentaUI() {
 }
 
 function actualizarBotonesModoUI() {
-    const btnCampana = document.getElementById('btn-mode-campaña') || document.getElementById('btn-campaña') || document.getElementById('btn-view-campaña') || document.querySelector('.mode-btn[id*="campa"]');
-    const btnI = document.getElementById('btn-mode-infinito') || document.getElementById('btn-infinito') || document.getElementById('btn-view-infinito') || document.querySelector('[id*="infinit"]');
+    const btnCampana = document.getElementById('btn-mode-campaña');
+    const btnI = document.getElementById('btn-mode-infinito');
     
-    // Si la campaña ya se ha completado, blindamos la interfaz para que desaparezca el modo campaña
     if (gameState.campanaCompletada) {
         if (btnCampana) btnCampana.style.display = "none";
         if (gameState.modoActualJuego === 'campaña') {
@@ -82,10 +81,10 @@ function actualizarBotonesModoUI() {
             gameState.modoSeleccionadoSiguiente = 'infinito';
         }
     } else {
-        if (btnCampana) btnCampana.style.display = "block";
+        if (btnCampana) btnCampana.style.display = "inline-block";
     }
 
-    document.querySelectorAll('.mode-btn, .sub-btn, [id*="preguntas"]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     
     if (gameState.modoActualJuego === 'campaña' && btnCampana) {
         btnCampana.classList.add('active');
@@ -100,49 +99,52 @@ function cambiarTema(clase) {
 
 function switchView(viewId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.btn-panel').forEach(b => b.classList.remove('active'));
+    
     const targetPanel = document.getElementById(viewId); 
     if (targetPanel) targetPanel.classList.add('active');
+    
+    const targetBtn = document.querySelector(`.btn-panel[data-panel="${viewId}"]`);
+    if (targetBtn) targetBtn.classList.add('active');
 }
 
 // ==========================================
-// 4. DELEGACIÓN DE EVENTOS GLOBAL BLINDADA
+// 4. DELEGACIÓN DE EVENTOS GLOBAL CORREGIDA
 // ==========================================
 document.body.addEventListener('click', (e) => {
     const targetElement = e.target.closest('button, .mode-btn, .sub-btn') || e.target;
+    if (!targetElement) return;
+    
     const targetId = targetElement.id || "";
     const targetText = targetElement.innerText ? targetElement.innerText.toLowerCase() : "";
 
-    if (targetId.includes('campaña') || targetId.includes('campana') || targetId.includes('infinito') || targetText.includes('infinit') || targetText.includes('campa')) {
-        const modoDeseado = (targetId.includes('campaña') || targetId.includes('campana') || targetText.includes('campa')) ? 'campaña' : 'infinito';
-        
-        // SOLUCIÓN AL BUG DE SALTOS: Si hay una pregunta activa esperando respuesta, NO permitimos alterar el estado
-        if (gameState.esperandoRespuesta) {
+    // Detección de Modos de Juego
+    if (targetId === 'btn-mode-campaña' || targetId === 'btn-mode-infinito') {
+        const modoDeseado = (targetId === 'btn-mode-campaña') ? 'campaña' : 'infinito';
+        if (gameState.esperandoRespuesta && procesamientoBloqueado) {
             switchView('view-chat');
             return;
         }
-
-        if (procesamientoBloqueado) return; 
-        
         cambiarModoEstrategia(modoDeseado);
         return;
     }
 
-    const btnPanel = e.target.closest('.btn-panel') || (e.target.id && e.target.id.startsWith('btn-view-') ? e.target : null);
+    // Navegación de Paneles (Vistas de la APP)
+    const btnPanel = e.target.closest('.btn-panel');
     if (btnPanel) {
-        let viewId = btnPanel.getAttribute('data-panel') || btnPanel.id.replace('btn-', '');
-        if (viewId === 'view-campaña' || viewId === 'view-infinito' || viewId === 'chat') {
-            viewId = 'view-chat';
-        }
+        let viewId = btnPanel.getAttribute('data-panel');
         switchView(viewId);
         return;
     }
 
+    // Cambio de Temas (PARCHE DE CORCHETE ARREGLADO AQUÍ)
     if (e.target.classList.contains('btn-tema') || e.target.hasAttribute('data-tema')) {
-        const tema = e.target.getAttribute('data-tema'] || e.target.className.split(' ').find(c => c.includes('theme'));
+        const tema = e.target.getAttribute('data-tema') || e.target.className.split(' ').find(c => c.includes('theme'));
         if (tema) cambiarTema(tema);
         return;
     }
 
+    // Gestión de cuenta
     if (e.target.id === 'btn-gestion-cuenta' || e.target.closest('#btn-gestion-cuenta')) {
         ejecutarAccionCuenta();
         return;
@@ -184,7 +186,7 @@ function ejecutarAccionCuenta() {
         alert(`Cuenta "${userClean}" creada con éxito.`);
     }
     actualizarBotonCuentaUI(); 
-    actualizarBotonesModoUI(); // Forzar actualización de la UI del menú nada más loguearse
+    actualizarBotonesModoUI(); 
     renderAllData(); 
     const chatBox = document.getElementById('chat-messages'); 
     if (chatBox) chatBox.innerHTML = ""; 
@@ -205,14 +207,8 @@ function guardarProgresoCuenta() {
 }
 
 function cambiarModoEstrategia(modo) {
-    if (gameState.esperandoRespuesta) {
-        switchView('view-chat');
-        return;
-    }
-
     const modoLimpio = modo === 'campaña' ? 'campaña' : 'infinito';
     
-    // Eliminada la reasignación de "campanaCompletada = false" que hacía resucitar las campañas completadas
     if (modoLimpio === 'campaña' && gameState.campanaCompletada) {
         cambiarModoEstrategia('infinito');
         return;
@@ -275,11 +271,7 @@ function nextRound() {
     const continueBtn = document.getElementById('continue-btn');
     
     if (continueBtn) continueBtn.style.display = "none";
-    
-    const chatBox = document.getElementById('chat-messages');
-    if (chatBox) chatBox.innerHTML = "";
 
-    // CORRECCIÓN DE CAMPAÑA INFINITA: Si se completó la campaña, cerramos el ciclo visual elegantemente
     if (gameState.modoActualJuego === "campaña" && (gameState.campanaCompletada || gameState.campanaIndex > PREGUNTAS_CAMPANA.length)) {
         gameState.campanaCompletada = true;
         actualizarBotonesModoUI();
@@ -336,7 +328,7 @@ function nextRound() {
 }
 
 // ==========================================
-// 7. ANALIZADOR DE TEXTO Y REACCIONES (DESCONGELADO TOTAL)
+// 7. ANALIZADOR DE TEXTO Y REACCIONES
 // ==========================================
 function analizarRespuesta(respuesta, numPalabras, palabrasArray) {
     if (EVASIVAS.includes(respuesta)) return "CRITICA";
@@ -351,77 +343,6 @@ function analizarRespuesta(respuesta, numPalabras, palabrasArray) {
     let contieneConector = INDICADORES_COHERENCIA.some(c => respuesta.includes(c));
     return contieneConector || respuesta.length > 12 ? "OK" : "RECHAZO";
 }
-
-document.getElementById('chat-form').onsubmit = (e) => {
-    e.preventDefault();
-    
-    if (procesamientoBloqueado) return false;
-
-    const input = document.getElementById('user-input');
-    const userText = input.value.trim().toLowerCase();
-    
-    if (!userText || !gameState.esperandoRespuesta || input.disabled) return false;
-    
-    procesamientoBloqueado = true;
-    input.disabled = true;
-    
-    const transmitBtn = document.getElementById('transmit-btn');
-    if (transmitBtn) transmitBtn.disabled = true;
-    
-    appendMessage('tú', input.value.trim()); 
-    
-    const palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
-    let tipoResultado = analizarRespuesta(userText, palabrasArray.length, palabrasArray);
-    let reaccion = ""; 
-    let cambioSatisfacion = 0;
-    
-    if (tipoResultado === "CRITICA") { reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.recentReactions); cambioSatisfacion = -15; }
-    else if (tipoResultado === "RECHAZO") { reaccion = obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.recentReactions); cambioSatisfacion = -5; }
-    else { 
-        if (palabrasArray.length > MAX_PALABRAS) { 
-            reaccion = obtenerElementoNoRepetido(FRASES_MUCHO_TEXTO, gameState.recentReactions); 
-            cambioSatisfacion = -5; 
-        } else { 
-            reaccion = obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions); 
-            cambioSatisfacion = 10; 
-        } 
-    }
-    
-    gameState.recentReactions.push(reaccion); 
-    if (gameState.recentReactions.length > 2) gameState.recentReactions.shift();
-    
-    gameState.cycles++; 
-    gameState.totalChars += userText.length; 
-    gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + cambioSatisfacion));
-    
-    if (gameState.logrosDesbloqueados.length < LOGROS_DIVERTIDOS.length) { 
-        let nLogro = LOGROS_DIVERTIDOS[gameState.logrosDesbloqueados.length]; 
-        gameState.logrosDesbloqueados.push({ titulo: nLogro.t, desc: nLogro.d }); 
-    }
-    
-    let listadoSelected = gameState.satisfaction < 25 ? OPINIONES_BAJA : gameState.satisfaction < 50 ? OPINIONES_MEDIA_BAJA : gameState.satisfaction <= 75 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
-    gameState.lastOpinion = obtenerElementoNoRepetido(listadoSelected, gameState.lastOpinion);
-    gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: input.value.trim(), reaccion: reaccion, tipo: tipoResultado, fav: false });
-    
-    if (input) input.style.display = "none"; 
-    if (transmitBtn) transmitBtn.style.display = "none";
-    
-    // Optimizamos el renderizado visual antes del retardo
-    renderAllData(); 
-    
-    // SOLUCIÓN AL CONGELAMIENTO EN CUENTAS: Pintamos la respuesta primero y guardamos al final de la pila asíncrona
-    setTimeout(() => { 
-        appendMessage('gugel', reaccion); 
-        
-        const continueBtn = document.getElementById('continue-btn');
-        if (continueBtn) {
-            continueBtn.style.display = "block"; 
-        }
-        
-        // El guardado masivo en LocalStorage se relega aquí para liberar el hilo principal del DOM
-        guardarProgresoCuenta();
-    }, 600);
-};
 
 // ==========================================
 // 8. RENDERIZACIÓN Y ENLACES FINALES
@@ -440,9 +361,8 @@ function renderAllData() {
     
     const containerHistorial = document.getElementById('history-list-container');
     if (containerHistorial) {
-        // OPTIMIZACIÓN ANTI-LAG: Limitamos la visualización en el DOM a las últimas 25 interacciones
         const visualHistory = gameState.history.slice(-25);
-        containerHistorial.innerHTML = visualHistory.map((h, idx) => `<div class="historial-item" onclick="verChatHistorial(${idx}, event)"><strong>Q:</strong> ${h.pregunta}<br><strong>A:</strong> ${h.respuesta}<br><strong>GUGEL:</strong> ${h.reaccion}</div>`).join('');
+        containerHistorial.innerHTML = visualHistory.map((h, idx) => `<div class="historial-item"><strong>Q:</strong> ${h.pregunta}<br><strong>A:</strong> ${h.respuesta}<br><strong>GUGEL:</strong> ${h.reaccion}</div>`).join('');
     }
 }
 
@@ -469,11 +389,75 @@ window.confirmContinue = function() {
     nextRound(); 
 };
 
-window.verChatHistorial = function(idx, event) {
-    console.log("Inspeccionando elemento del historial:", idx);
-};
-
+// Vinculación segura de formularios una vez cargado el DOM
 window.onload = () => { 
+    const form = document.getElementById('chat-form');
+    if(form) {
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            
+            if (procesamientoBloqueado) return false;
+
+            const input = document.getElementById('user-input');
+            const userText = input.value.trim().toLowerCase();
+            
+            if (!userText || !gameState.esperandoRespuesta || input.disabled) return false;
+            
+            procesamientoBloqueado = true;
+            input.disabled = true;
+            
+            const transmitBtn = document.getElementById('transmit-btn');
+            if (transmitBtn) transmitBtn.disabled = true;
+            
+            appendMessage('tú', input.value.trim()); 
+            
+            const palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
+            let tipoResultado = analizarRespuesta(userText, palabrasArray.length, palabrasArray);
+            let reaccion = ""; 
+            let cambioSatisfacion = 0;
+            
+            if (tipoResultado === "CRITICA") { reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.recentReactions); cambioSatisfacion = -15; }
+            else if (tipoResultado === "RECHAZO") { reaccion = obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.recentReactions); cambioSatisfacion = -5; }
+            else { 
+                if (palabrasArray.length > MAX_PALABRAS) { 
+                    reaccion = obtenerElementoNoRepetido(FRASES_MUCHO_TEXTO, gameState.recentReactions); 
+                    cambioSatisfacion = -5; 
+                } else { 
+                    reaccion = obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions); 
+                    cambioSatisfacion = 10; 
+                } 
+            }
+            
+            gameState.recentReactions.push(reaccion); 
+            if (gameState.recentReactions.length > 2) gameState.recentReactions.shift();
+            
+            gameState.cycles++; 
+            gameState.totalChars += userText.length; 
+            gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + cambioSatisfacion));
+            
+            if (gameState.logrosDesbloqueados.length < LOGROS_DIVERTIDOS.length) { 
+                let nLogro = LOGROS_DIVERTIDOS[gameState.logrosDesbloqueados.length]; 
+                gameState.logrosDesbloqueados.push({ titulo: nLogro.t, desc: nLogro.d }); 
+            }
+            
+            let listadoSelected = gameState.satisfaction < 25 ? OPINIONES_BAJA : gameState.satisfaction < 50 ? OPINIONES_MEDIA_BAJA : gameState.satisfaction <= 75 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
+            gameState.lastOpinion = obtenerElementoNoRepetido(listadoSelected, gameState.lastOpinion);
+            gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: input.value.trim(), reaccion: reaccion, tipo: tipoResultado, fav: false });
+            
+            if (input) input.style.display = "none"; 
+            if (transmitBtn) transmitBtn.style.display = "none";
+            
+            renderAllData(); 
+            
+            setTimeout(() => { 
+                appendMessage('gugel', reaccion); 
+                const continueBtn = document.getElementById('continue-btn');
+                if (continueBtn) continueBtn.style.display = "block"; 
+                guardarProgresoCuenta();
+            }, 600);
+        };
+    }
+
     actualizarBotonCuentaUI(); 
     actualizarBotonesModoUI(); 
     renderAllData(); 
