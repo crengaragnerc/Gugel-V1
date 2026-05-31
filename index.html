@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -22,31 +21,18 @@
 
     <div id="app-container">
         <aside id="sidebar">
-            <div class="brand">GUGEL: simulador de IA</div>
-            
-            <div class="menu-section">
-                <div class="section-title">🎨 TEMA</div>
-                <button class="sub-btn" onclick="cicloTema()">CAMBIAR TEMA</button>
-            </div>
-
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE JUEGO</div>
-                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                    📌 LAS 10 CAMPAÑAS
-                </button>
-                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
-                    ♾️ PREGUNTAS INFINITAS
-                </button>
+                <button id="btn-mode-campaña" class="mode-btn" onclick="cambiarPanel('view-chat')">CAMPANA</button>
+                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarPanel('view-chat')">INFINITO</button>
             </div>
-
             <div class="menu-section">
                 <div class="section-title">🖥️ PANELES</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
+                <button class="sub-btn" onclick="cambiarPanel('view-chat')">CHAT</button>
+                <button class="sub-btn" onclick="cambiarPanel('view-perfil')">PERFIL</button>
+                <button class="sub-btn" onclick="cambiarPanel('view-logros')">LOGROS</button>
+                <button class="sub-btn" onclick="cambiarPanel('view-historial')">HISTORIAL</button>
             </div>
-
-            <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN DE CUENTA</button>
         </aside>
 
         <main id="chat-area">
@@ -55,36 +41,21 @@
                 <form id="chat-form">
                     <input type="text" id="user-input" placeholder="Escribe tu respuesta..." required>
                     <button type="submit" id="transmit-btn">ENVIAR</button>
-                    <button type="button" id="continue-btn" onclick="confirmContinue()" style="display:none;">CONTINUAR</button>
+                    <button type="button" id="continue-btn" style="display:none;">CONTINUAR</button>
                 </form>
             </section>
-
             <section id="view-perfil" class="content-panel">
-                <div class="card">
-                    <h3>📊 Datos de Usuario</h3>
-                    <div class="opinion-box" id="opinion-container">
-                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
-                    </div>
-                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
-                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
-                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
-                </div>
+                <h3>📊 Datos de Usuario</h3>
+                <p>Opinión: <span id="prof-opinion">Analizando...</span></p>
+                <p>Satisfacción: <span id="prof-satisfaction">50%</span></p>
             </section>
-
             <section id="view-logros" class="content-panel">
-                <div class="card">
-                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
-                    <div id="logros-container" class="list-container"></div>
-                </div>
+                <h3>🏆 Logros (<span id="logros-count">0</span>)</h3>
+                <div id="logros-container"></div>
             </section>
-
             <section id="view-historial" class="content-panel">
-                <div class="card">
-                    <h3>📁 Historial de Conversaciones</h3>
-                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
-                    <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
-                    <div id="history-list-container" class="list-container"></div>
-                </div>
+                <h3>📁 Historial</h3>
+                <div id="history-list-container"></div>
             </section>
         </main>
     </div>
