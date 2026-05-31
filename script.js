@@ -66,7 +66,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -149,13 +149,17 @@ function getCuenta() {
 }
 
 // ==========================================
-// 3. MOTOR DE COHERENCIA
+// 3. MOTOR DE COHERENCIA Y DETECTOR DE SPAM
 // ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
 
-    if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
+    // Filtro robusto anti-gibberish/aporreo para evitar cadenas sin sentido (Infinito o Campaña)
+    let palabras = resp.split(/\s+/).filter(p => p.length > 0);
+    let contienePalabraBasura = palabras.some(p => p.length > 2 && !/[aeiouáéíóúü]/i.test(p));
+
+    if (contienePalabraBasura || /[bcdfghjklmnñpqrstvwxyz]{4,}/i.test(resp) || /([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp)) {
         desbloquearLogro("LN1");
         return "CRITICA";
     }
@@ -240,7 +244,8 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        let etiqueta = sender === 'humano' ? 'GUGEL (Humano)' : 'IA (Sistema)';
+        // Identidades actualizadas: Usuario (Sujeto Humano) y Gugel (Sistema de IA)
+        let etiqueta = sender === 'humano' ? 'Usuario' : 'Gugel';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
@@ -264,10 +269,19 @@ function renderAllData() {
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
 
+    // Desaparición estricta del botón campaña si ya fue completado
+    if (btnCamp) {
+        if (c.campañaCompletada) {
+            btnCamp.style.display = 'none';
+        } else {
+            btnCamp.style.display = 'block';
+        }
+    }
+
     if (document.getElementById('view-chat').classList.contains('active')) {
-        btnCamp.classList.remove('active');
+        if (btnCamp) btnCamp.classList.remove('active');
         btnInfi.classList.remove('active');
-        if (c.modo === "campaña") btnCamp.classList.add('active');
+        if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
         if (c.modo === "infinito") btnInfi.classList.add('active');
     }
 
@@ -373,9 +387,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         verificarLogrosDeEstado();
         salvarAStorage();
+        
+        esperandoRespuestaDeTurno = false; // El turno ha sido respondido con éxito
         renderAllData();
         
-        esperandoRespuestaDeTurno = false; 
         document.getElementById('chat-actions-bar').style.display = "block";
         
         // TEMPORIZADOR DE REACCIÓN (5 SEGUNDOS ANTES DE PODER CONTINUAR)
@@ -424,7 +439,6 @@ function nextRound() {
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
 
-    // Selección estricta del modo para aniquilar el bug de mezcla
     if (c.modo === "campaña") {
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
@@ -438,7 +452,7 @@ function nextRound() {
     }
     
     appendMessage('humano', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; 
+    esperandoRespuestaDeTurno = true; // Se levanta el muro de bloqueo de la ronda activa
     
     const input = document.getElementById('user-input');
     const tBtn = document.getElementById('transmit-btn');
@@ -529,6 +543,12 @@ function cargarChatHistorico(index) {
 // 7. NAVEGACIÓN Y CONFIGURACIÓN DE MODO
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
+    // Candado de seguridad de la consulta: No se puede cambiar de modo ni relanzar hasta responder
+    if (esperandoRespuestaDeTurno) {
+        alert("🔒 Acceso bloqueado: No puedes alterar el transcurso de la consulta ni cambiar de modo hasta haber respondido a la pregunta activa de la ronda.");
+        return;
+    }
+
     let c = getCuenta();
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
@@ -537,7 +557,6 @@ function seleccionarModoJuego(nuevoModo) {
     salvarAStorage();
     switchView('view-chat');
     
-    // Solución del bug: Al cambiar de modo, limpiamos contadores obsoletos y forzamos refresco directo
     if (cronometroPregunta) clearInterval(cronometroPregunta);
     if (cronometroReaccion) clearInterval(cronometroReaccion);
     
@@ -579,7 +598,7 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 8. CONTROL DEL DIÁLOGO EMERGENTE (MODAL ACCUE)
+// 8. CONTROL DEL DIÁLOGO EMERGENTE (MODAL)
 // ==========================================
 function abrirModalCuenta() {
     const modal = document.getElementById('modal-cuenta');
