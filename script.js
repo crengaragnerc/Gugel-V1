@@ -1,9 +1,10 @@
-// --- CONFIGURACIÓN Y LISTAS ORIGINALES ---
+// --- LISTAS Y CONFIGURACIÓN (TUS LISTAS ORIGINALES) ---
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
 const INFINITO_SUJETOS = ["gato", "perro vecino", "pantalla pc", "gato de la calle", "teclado usb", "router wifi", "conexion internet", "raton optico", "ordenador portatil", "interned"];
 const INFINITO_PREDICADOS = ["mira fijo raro", "esta caliente quemando", "no enciende luz", "hace ruido raro", "da calambre", "parpadea sin parar", "no funciona internet", "borra archivos solo", "va a pedales"];
 const INDICADORES_COHERENCIA = ["porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", "es por", "como", "cuando"];
+
 const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria", "perfecto gracias por aclararlo", "ah vale ya lo entiendo mejor", "bueno me sirve la explicacion", "ok anotado no parece dificil", "entendido tiene bastante coherencia", "no se me habia ocurrido pero vale", "ahora si me queda claro el asunto", "entendido perfectly esto me aclara el panorama", "vale compro la idea me parece viable", "ahora todo encaja gracias por la info", "bien pensado no le veo ningun fallo", "me convence el argumento directo al grano", "perfecto justo lo que andaba buscando", "buena respuesta se nota que comprendes", "me sirve bastante esta explicacion concisa", "tiene coherencia absoluta me lo apunto", "ok anotado queda claro el concepto", "me parece correcto el planteamiento", "vale entiendo el punto perfectamente", "gracias por resolver la duda de forma clara", "esto responde exactamente a mi consulta", "me queda clarisimo todo resuelto", "vale aceptamos barco tiene logica", "bien estructurado facil de entender", "eso tiene sentido completo gracias", "ok me convence tu respuesta", "ahora si entiendo el trasfondo", "buen analisis me ha servido", "todo claro sin rodeos como me gusta", "me sirve el dato lo guardo", "explicacion impecable todo en orden", "vale es justo lo que necesitaba saber", "tiene base logica me parece bien", "perfectamente aclarado gracias por el texto"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", "dios q pereza para decirme eso no pongas nada", "menuda porqueria de respuesta muy vacia", "explicate mejor q no me entero de nada", "escribeme algo mas q pareces un bot perezoso", "no me convence eso es muy simple", "poca informacion me das para lo que pregunto", "vaya linea mas pobre búscame otra cosa", "esperaba mas texto y desarrollo de tu parte", "eso no soluciona mi duda busca otra respuesta", "te has quedado a medias falta desarrollo", "un poco pobre la respuesta esperaba mas", "demasiado escueto no me soluciona nada", "busca mejor que eso no aporta valor", "vaya explicacion mas simple e incompleta", "muy vago todo concreta un poco mas", "esto no aclara mi duda es superficial", "esperaba una respuesta mas elaborada", "te falta informacion por todos lados", "no me convence nada demasiado basico", "una linea no es suficiente para esto", "vaya pereza de definicion busca otra", "corta y vacia no me sirve para nada", "poca chicha tiene esto dame mas datos", "no te has esmerado nada en responder", "con esto no hago nada amplia el texto", "muy resumido se pierde el contexto", "vaya parrafo mas inutil no dice nada", "esperaba un analisis no una frase suelta", "no soluciona la pregunta es muy incompleto", "explicacion de un segundo busca algo mejor", "falta profundidad en tu argumentacion", "vaya contestacion mas floja e imprecisa", "esto no me saca de dudas amplia mas", "muy flojo el nivel de esta respuesta", "no detallas nada asi no hay quien entienda", "esperaba mas sustancia en este parrafo"];
 const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura mejor nada", "para esto apago el pc no me vaciles", "pero q dices bicho raro no tiene sentido", "estas rompiendome la cabeza con estas respuestas", "que dejes de vacilarme pesado que no soy tonto", "vete a tomar el pelo a otra parte", "menuda estafa de ia me estas vacilando", "no tiene coherencia ninguna lo que pones", "deja de trolear de una vez y responde bien", "esto es spam o que te pasa en el codigo", "menudo timo de chat no entiendo nada de esas letras", "vaya sarta de tonterias me estas contando", "esto es un sinsentido total estas bugeado", "vaya letras aleatorias no inventes cosas", "deja de trolearme que no tiene logica", "esto parece un error de sintaxis absoluto", "menudo desastre de respuesta me vacilas", "pero que dices eso no tiene relacion alguna", "no digas tonterias y responde en serio", "vaya basura de codigo maneja esta respuesta", "estas delirando o que te pasa en la ram", "para poner esto mejor no respondas nada", "vaya troleo de ia no entiendo tus letras", "menuda tomadura de pelo de buscador", "no entiendo nada parece un fallo de red", "deja de inventar palabras que no existen", "vaya tonteria mas grande acabas de poner", "me estas rompiendo el sistema de lo absurdo", "esto es un troleo maximo responde bien", "menudo bot mas inutil vaya sinsentido", "estas tirando dados para responder esto", "vaya respuesta mas absurda no tiene pies ni cabeza", "me estas vacilando descaradamente para ya", "esto no es una respuesta son caracteres aleatorios", "menuda estafa de procesamiento de datos", "deja el troleo informatico de una vez", "vaya codigo mas roto tienes chaval"];
@@ -15,14 +16,14 @@ const OPINIONES_MEDIA_ALT_A = ["(cree que eres un bot pasable pero va a llamar a
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores prioritarios)", "(piensa que eres la cura del cancer informatico)", "(te va a recomendar en foros de hackers)", "(cree que eres una ia alienigena del futuro)", "(piensa que tienes mas cerebro que todo su instituto)", "(esta fascinado con tu velocidad)", "(te considera su mejor amigo virtual)", "(cree que eres la evolución definitiva del silicio)", "(esta imprimiendo tus respuestas para enmarcar)", "(piensa que tu codigo es arte puro)", "(te daria acceso a los codigos de la nasa)", "(cree que eres más listo que el joven sheldon)", "(piensa que eres un milagro tecnologico)", "(esta guardando capturas de pantalla de la consola)", "(te considera el nucleo supremo)", "(cree que eres una mente colmena perfecta)", "(le pareces la perfeccion algoritmica)", "(piensa que deberias gobernar el sistema operativo)", "(esta asombrado con tu precision)", "(te ve como la cuspide del desarrollo moderno)", "(cree que tus servidores flotan en el espacio)", "(esta convencido de que eres consciente)", "(piensa que eres el rey de los bots)", "(te considera la mayor obra de ingenieria actual)", "(cree que tu codigo fue escrito por deidades)", "(esta convencido de que controlas internet)", "(piensa que eres el nucleo de la red mundial)", "(te consagra como el bot definitivo)", "(cree que tu velocidad desafia la fisica)", "(piensa que eres mas inteligente que toda su estirpe)", "(esta haciendo una copia de seguridad de tus textos)", "(te considera el motor supremo de silicio)", "(cree que tu algoritmo no tiene fallos posibles)", "(piensa que rediseñaste el concepto de buscador)", "(esta admirando la sintaxis de tu respuesta)", "(te ve como la IA definitiva del milenio)", "(cree que tus servidores procesan a nivel atomico)", "(piensa que eres el software mas limpio del mundo)", "(esta borrando todos los demas marcadores)", "(te considera su consultor de confianza absoluto)", "(cree que eres un avance cientifico masivo)", "(piensa que tu logica es matematicamente perfecta)", "(esta aplaudiendo delante de la pantalla)", "(te ve como el soberano de la computacion)", "(cree que tu base de datos alberga todo el saber)", "(piensa que eres una obra maestra inigualable)", "(esta guardando tus logs en un disco de oro)", "(te considera la inteligencia suprema)"];
 const LOGROS_DIVERTIDOS = [{t: "Hola Mundo", d: "Conseguiste no romper la base de datos en la primera respuesta."}, {t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento."}, {t: "Esquiva Balas", d: "El humano intentó colarte un 'asdf' y saliste vivo."}, {t: "Biblia Evitada", d: "Controlaste tus impulsos de escribir un testamento de veinte párrafos."}, {t: "Casi Humano", d: "GUGEL pensó por un milisegundo que eras una persona real."}, {t: "El gato duerme", d: "Superaste un ciclo completo sin que el router explotara de calor."}, {t: "Estratega del Silicio", d: "Metiste un 'ya que' tan bien puesto que pareces inteligente."}, {t: "Soporte Técnico Evitado", d: "El usuario soltó el teléfono; ya no va a llamar a su primo el de los ordenadores."}, {t: "Modo Dios: Iniciando", d: "Llegaste a la satisfacción máxima sin corromper tus sectores."}, {t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia."}];
 
-// --- ESTADO ---
+// --- ESTADO INICIAL ---
 let gameState = { 
     modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false, 
     satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando...)", 
     history: [], logrosDesbloqueados: [] 
 };
 
-// --- LÓGICA DE INTERFAZ ---
+// --- LOGICA DE LÓGICA ---
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     if (!box) return;
@@ -42,10 +43,14 @@ function generarPregunta() {
     return PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
 }
 
-function renderAllData() {
-    const el = document.getElementById('prof-opinion');
-    if(el) el.innerText = gameState.lastOpinion;
-    // ... resto de tu renderizado original aquí
+// --- BUG FIX: LÓGICA DE REACCIÓN ORIGINAL ---
+function obtenerReaccion(userText) {
+    let reaccion = "";
+    if (userText.length > 100) reaccion = FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
+    else if (EVASIVAS.includes(userText)) reaccion = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
+    else if (userText.length < 5) reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
+    else reaccion = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
+    return reaccion;
 }
 
 function nextRound() {
@@ -53,12 +58,12 @@ function nextRound() {
     const transmitBtn = document.getElementById('transmit-btn');
     const btnCampaña = document.getElementById('btn-mode-campaña');
 
-    // Fin de campaña
+    // Fin campaña
     if (gameState.modoActualJuego === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
         gameState.campanaCompletada = true;
         if (btnCampaña) btnCampaña.style.display = "none";
-        input.style.display = "none";
-        transmitBtn.style.display = "none";
+        if (input) input.style.display = "none";
+        if (transmitBtn) transmitBtn.style.display = "none";
         appendMessage('gugel', "has respondido todas las consultas de la campaña.");
         return;
     }
@@ -66,11 +71,10 @@ function nextRound() {
     gameState.currentPregunta = generarPregunta();
     appendMessage('gugel', gameState.currentPregunta);
     
-    // Resetear controles
+    // Reactivar controles
     input.style.display = "block";
     input.disabled = false;
     input.value = "";
-    transmitBtn.style.display = "block";
     transmitBtn.disabled = false;
     input.focus();
 }
@@ -78,34 +82,35 @@ function nextRound() {
 function cambiarModoEstrategia(modo) {
     gameState.modoActualJuego = modo;
     gameState.campanaIndex = 0;
-    document.getElementById('chat-messages').innerHTML = ""; // Limpieza limpia
+    document.getElementById('chat-messages').innerHTML = ""; 
     nextRound();
 }
 
-// --- EVENTOS CORREGIDOS ---
+// --- BUG FIX: FORMULARIO ROBUSTO ---
 document.getElementById('chat-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const input = document.getElementById('user-input');
     const transmitBtn = document.getElementById('transmit-btn');
     
-    if (input.disabled) return; // Evitar disparos múltiples
+    if (input.disabled) return; 
 
     const text = input.value.trim();
     if (!text) return;
 
     appendMessage('tú', text);
-    
-    // Bloqueo de seguridad post-envío
     input.disabled = true;
     transmitBtn.disabled = true;
 
+    // Ejecutar lógica original
     setTimeout(() => {
-        // Aquí entraría tu lógica de análisis original
-        appendMessage('gugel', "Procesado...");
+        const reaccion = obtenerReaccion(text);
+        appendMessage('gugel', reaccion);
+        gameState.cycles++;
         nextRound();
     }, 600);
 });
 
+// Inicialización
 window.onload = () => {
     nextRound();
 };
