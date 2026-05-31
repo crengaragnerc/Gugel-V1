@@ -393,7 +393,6 @@ function nextRound() {
     document.getElementById('chat-actions-bar').style.display = "none";
 
     if (c.modo === "campaña") {
-        // Si ya completó la lista entera de campaña pero vuelve a forzar este modo, reseteamos el índice o le damos infinitas transitorias sin sacarlo del modo
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
             c.campanaIndex++;
@@ -484,23 +483,20 @@ function cargarChatHistorico(index) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // Si la ronda actual está a mitad de responderse, se ignora silenciosamente para no romper el flujo
-    if (esperandoRespuestaDeTurno) {
-        return;
-    }
-    
-    // CORRECCIÓN TOTAL: Cambia de modo con libertad absoluta sin importar si se ha completado la campaña o no.
+    // CORRECCIÓN RADICAL: Eliminamos el bloqueo "if (esperandoRespuestaDeTurno)".
+    // Ahora puedes pulsar el modo cuando quieras. Forzamos un reinicio de ronda inmediato.
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
+    // Asegurar que la pantalla de chat vuelve al frente y se activa el botón visual correcto
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
     salvarAStorage();
-    nextRound();
+    nextRound(); // Genera inmediatamente la pregunta del modo correspondiente y limpia el chat viejo
     renderAllData();
 }
 
