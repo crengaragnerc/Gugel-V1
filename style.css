@@ -20,10 +20,13 @@ input { padding: 15px; border-radius: 5px; border: 1px solid var(--text); backgr
 button { padding: 10px; cursor: pointer; background: var(--panel); color: var(--text); border: 1px solid var(--text); border-radius: 4px; }
 #sidebar {
     position: relative;
-    z-index: 100; /* Asegura que el sidebar esté por encima de todo */
+    z-index: 100;
 }
-
 button {
     cursor: pointer;
-    pointer-events: auto; /* Fuerza que el botón reciba clics */
+    pointer-events: auto;
 }
+.list-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+.card { background: var(--panel); padding: 20px; border-radius: var(--border-radius); border: 1px solid var(--text); }
+.action-btn { margin-right: 10px; margin-bottom: 15px; }
+.mode-btn.active { background: var(--accent); color: var(--bg); font-weight: bold; }
