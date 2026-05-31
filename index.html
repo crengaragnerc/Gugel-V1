@@ -12,10 +12,11 @@
         <!-- MENÚ LATERAL IZQUIERDO -->
         <aside id="sidebar">
             <div class="menu-section">
+                <div class="section-title">🕹️ MODOS DE ESTRATEGIA</div>
                 <button id="btn-mode-campaña" class="mode-btn main-action-btn active" onclick="cambiarModoEstrategia('campaña')">
                     💭 PANEL DE CONSULTAS
                 </button>
-                <button id="btn-mode-infinito" class="mode-btn main-action-btn" onclick="cambiarModoEstrategia('infinito')" style="display:none;">
+                <button id="btn-mode-infinito" class="mode-btn main-action-btn" onclick="cambiarModoEstrategia('infinito')">
                     ♾️ CONSULTAS INFINITAS
                 </button>
             </div>
@@ -109,7 +110,7 @@
                     </div>
                 </section>
 
-                <!-- VISTA PANEL: GESTIÓN DE CUENTA (IGUAL QUE LOGROS) -->
+                <!-- VISTA PANEL: GESTIÓN DE CUENTA -->
                 <section id="view-cuenta" class="content-panel">
                     <div class="card">
                         <h3>⚙️ Autenticación Central de Operadores</h3>
@@ -126,7 +127,6 @@
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
                                 <button class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text);">ACCEDER / REGISTRAR CUENTA</button>
-                                <button class="danger-btn" onclick="resetearProgresoJuego()" style="text-align: center;">DESTRUIR BÚFER Y PROGRESO</button>
                             </div>
                         </div>
                     </div>
