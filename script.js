@@ -2,7 +2,20 @@
 // 1. CONSTANTES, PLANTILLAS Y DICCIONARIOS
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
-const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
+
+// Lista de preguntas de campaña fijas solicitadas de forma canónica
+const PREGUNTAS_CAMPANA = [
+    "cagar verde normal", 
+    "como hacer cubo rubik", 
+    "que se celebra 15 de agosto y porque", 
+    "no dormir una noche que pasa", 
+    "xq agua es liquida", 
+    "como allanar un barranco", 
+    "tomate fruta verdura?", 
+    "cancion tan tan tan tann nombre", 
+    "como saber si alguien te ha bloqueado", 
+    "porque no carga una pagina web"
+];
 
 const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "explicate mejor q no me entero de nada"];
@@ -82,6 +95,10 @@ let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
 let esperandoRespuestaDeTurno = true; 
+
+// Controladores globales de temporizadores para evitar solapamientos
+let cronometroPregunta = null;
+let cronometroReaccion = null;
 
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
@@ -306,7 +323,7 @@ function renderAllData() {
 }
 
 // ==========================================
-// 5. FLUJO DEL CHAT Y RONDAS
+// 5. FLUJO DEL CHAT Y TEMPORIZADORES
 // ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
@@ -360,7 +377,27 @@ document.getElementById('chat-form').onsubmit = (e) => {
         
         esperandoRespuestaDeTurno = false; 
         document.getElementById('chat-actions-bar').style.display = "block";
-        document.getElementById('continue-btn').style.display = "block";
+        
+        // TEMPORIZADOR DE REACCIÓN (5 SEGUNDOS ANTES DE PODER CONTINUAR)
+        const continueBtn = document.getElementById('continue-btn');
+        continueBtn.style.display = "block";
+        continueBtn.disabled = true;
+        
+        let segReaccion = 5;
+        continueBtn.innerText = `SIGUIENTE CONSULTA (${segReaccion}s)`;
+        
+        if (cronometroReaccion) clearInterval(cronometroReaccion);
+        cronometroReaccion = setInterval(() => {
+            segReaccion--;
+            if (segReaccion > 0) {
+                continueBtn.innerText = `SIGUIENTE CONSULTA (${segReaccion}s)`;
+            } else {
+                clearInterval(cronometroReaccion);
+                continueBtn.disabled = false;
+                continueBtn.innerText = "SIGUIENTE CONSULTA";
+            }
+        }, 1000);
+
     }, 500);
 };
 
@@ -387,6 +424,7 @@ function nextRound() {
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
 
+    // Selección estricta del modo para aniquilar el bug de mezcla
     if (c.modo === "campaña") {
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
@@ -403,21 +441,31 @@ function nextRound() {
     esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
+    const tBtn = document.getElementById('transmit-btn');
+    
     input.value = "";
     input.style.display = "block";
     input.disabled = true;
-    input.placeholder = "Sincronizando terminal core...";
-    
-    const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
     tBtn.disabled = true;
-
-    setTimeout(() => {
-        input.disabled = false;
-        tBtn.disabled = false;
-        input.placeholder = "Introduce tu respuesta como IA...";
-        input.focus();
-    }, 1200);
+    
+    // TEMPORIZADOR DE PREGUNTA (5 SEGUNDOS ANTES DE PODER ESCRIBIR)
+    let segPregunta = 5;
+    input.placeholder = `Procesando matriz cuántica: ${segPregunta}s...`;
+    
+    if (cronometroPregunta) clearInterval(cronometroPregunta);
+    cronometroPregunta = setInterval(() => {
+        segPregunta--;
+        if (segPregunta > 0) {
+            input.placeholder = `Procesando matriz cuántica: ${segPregunta}s...`;
+        } else {
+            clearInterval(cronometroPregunta);
+            input.disabled = false;
+            tBtn.disabled = false;
+            input.placeholder = "Introduce tu respuesta como IA...";
+            input.focus();
+        }
+    }, 1000);
 }
 
 // ==========================================
@@ -457,6 +505,9 @@ function cargarChatHistorico(index) {
     let log = c.history[index];
     if (!log) return;
 
+    if (cronometroPregunta) clearInterval(cronometroPregunta);
+    if (cronometroReaccion) clearInterval(cronometroReaccion);
+
     switchView('view-chat');
 
     document.getElementById('chat-messages').innerHTML = "";
@@ -467,11 +518,15 @@ function cargarChatHistorico(index) {
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
-    document.getElementById('continue-btn').style.display = "block";
+    
+    const continueBtn = document.getElementById('continue-btn');
+    continueBtn.style.display = "block";
+    continueBtn.disabled = false;
+    continueBtn.innerText = "SIGUIENTE CONSULTA";
 }
 
 // ==========================================
-// 7. NAVEGACIÓN COMPLETA Y UNIFICADA
+// 7. NAVEGACIÓN Y CONFIGURACIÓN DE MODO
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
@@ -481,9 +536,12 @@ function seleccionarModoJuego(nuevoModo) {
     }
     salvarAStorage();
     switchView('view-chat');
-    if (!esperandoRespuestaDeTurno) {
-        nextRound();
-    }
+    
+    // Solución del bug: Al cambiar de modo, limpiamos contadores obsoletos y forzamos refresco directo
+    if (cronometroPregunta) clearInterval(cronometroPregunta);
+    if (cronometroReaccion) clearInterval(cronometroReaccion);
+    
+    nextRound();
 }
 
 function cambiarTema(nuevoTema) {
@@ -517,20 +575,28 @@ function switchView(viewId) {
         if (viewId === "view-perfil") desbloquearLogro("L17");
         if (viewId === "view-historial") desbloquearLogro("L18");
     }
-
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.remove('mobile-open');
-    
-    if (viewId === 'view-cuenta') {
-        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-        document.getElementById('account-password').value = getCuenta().password || "";
-    }
     renderAllData();
 }
 
 // ==========================================
-// 8. LOGICA GESTIÓN DE CUENTA AISLADA
+// 8. CONTROL DEL DIÁLOGO EMERGENTE (MODAL ACCUE)
 // ==========================================
+function abrirModalCuenta() {
+    const modal = document.getElementById('modal-cuenta');
+    if (modal) {
+        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
+        document.getElementById('account-password').value = getCuenta().password || "";
+        modal.classList.add('active');
+    }
+}
+
+function cerrarModalCuenta() {
+    const modal = document.getElementById('modal-cuenta');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
 function guardarNombreCuenta() {
     const userIn = document.getElementById('account-username').value.trim();
     const passIn = document.getElementById('account-password').value;
@@ -557,24 +623,22 @@ function guardarNombreCuenta() {
     }
 
     salvarAStorage();
+    cerrarModalCuenta();
     
     document.getElementById('chat-messages').innerHTML = "";
     renderAllData();
     
     alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
     
-    if (!c.currentPregunta) {
-        nextRound();
-    } else {
-        appendMessage('humano', c.currentPregunta);
-        esperandoRespuestaDeTurno = true; 
-    }
+    if (cronometroPregunta) clearInterval(cronometroPregunta);
+    if (cronometroReaccion) clearInterval(cronometroReaccion);
     
+    nextRound();
     switchView('view-chat');
 }
 
 // ==========================================
-// 9. EXPORTACIONES PROTEGIDAS (SIN REBOTES A GEMINI)
+// 9. EXPORTACIONES PROTEGIDAS
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
@@ -592,25 +656,16 @@ function exportarHistorialCompleto() {
     let log = `=== GUGEL OPERATOR LOG ===\nUsuario: ${usuarioActivo}\n\n`;
     log += c.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
     
-    // Cambiado para copiar de forma segura al portapapeles sin generar links ficticios que rompan el previsualizador
     navigator.clipboard.writeText(log).then(() => {
         desbloquearLogro("L20");
-        alert("¡Historial de sesión exportado y copiado al portapapeles con éxito y de forma segura!");
+        alert("¡Historial de sesión exportado y copiado al portapapeles de forma segura!");
     }).catch(() => {
         alert("Error al acceder al portapapeles. Contenido de los logs:\n\n" + log);
     });
 }
 
 // ==========================================
-// 10. MENÚ MÓVIL EVENTO
-// ==========================================
-function toggleMobileMenu() {
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.toggle('mobile-open');
-}
-
-// ==========================================
-// 11. EVENTO INICIAL DE CARGA
+// 10. EVENTO INICIAL DE CARGA
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
@@ -619,15 +674,5 @@ window.addEventListener('DOMContentLoaded', () => {
     if (s) s.value = temaGuardado;
     
     let c = getCuenta();
-    if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
-            c.campanaIndex++;
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
-        }
-    }
-    appendMessage('humano', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; 
-    renderAllData();
+    nextRound();
 });
