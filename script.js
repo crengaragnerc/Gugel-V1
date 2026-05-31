@@ -66,7 +66,9 @@ function cambiarModoEstrategia(modo) {
     const modoLimpio = (modo === 'campaña' || modo === 'campana') ? 'campaña' : 'infinito';
     if (gameState.modoActualJuego === modoLimpio) { switchView('view-chat'); return; }
     
-    // Limpiamos el chat antes de cambiar
+    // Limpiamos el historial de juego al cambiar de modo
+    gameState.history = [];
+    
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) chatBox.innerHTML = ""; 
 
@@ -112,12 +114,20 @@ function nextRound() {
     const input = document.getElementById('user-input');
     const transmitBtn = document.getElementById('transmit-btn');
     const continueBtn = document.getElementById('continue-btn');
+    const btnCampaña = document.getElementById('btn-mode-campaña'); 
+
     if (continueBtn) continueBtn.style.display = "none";
+    
     if (gameState.modoActualJuego === "campaña" && gameState.campanaCompletada) {
         if (input) { input.style.display = "block"; input.disabled = true; input.value = ""; input.placeholder = "CAMPAÑA COMPLETADA."; }
         if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
+        
+        // Ocultar botón al terminar campaña
+        if (btnCampaña) btnCampaña.style.display = "none";
+        
         appendMessage('gugel', "has respondido todas las consultas de la campaña."); return;
     }
+    
     if (input) { input.style.display = "block"; input.value = ""; }
     if (transmitBtn) { transmitBtn.style.display = "block"; }
     let q = generarPregunta();
@@ -182,8 +192,6 @@ function renderAllData() {
 
 window.confirmContinue = function() { nextRound(); document.getElementById('continue-btn').style.display = "none"; };
 window.onload = () => { document.getElementById("btn-gestion-cuenta").onclick = ejecutarAccionCuenta; actualizarBotonCuentaUI(); renderAllData(); nextRound(); };
-
-// --- FUNCIONES DE TEMA Y EXPORTACIÓN ---
 
 function cambiarTema(clase) {
     document.body.className = clase;
