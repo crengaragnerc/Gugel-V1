@@ -6,32 +6,31 @@
     <title>GUGEL: Simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-verde-neon">
+<body class="modo-hacker">
 
-    <!-- BARRA LATERAL -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="app-sidebar">
         <div class="sidebar-header">
             <h2>GUGEL v4.0</h2>
-            <span class="badge">Invitado</span>
+            <span class="badge" id="sidebar-user-display">Invitado</span>
         </div>
 
         <nav class="menu">
             <p class="menu-label">Modos de Simulación</p>
-            <button id="btn-campana" class="menu-item active" onclick="cambiarModo('campana')">
+            <button id="btn-modo-campaña" class="menu-item active" onclick="seleccionarModoJuego('campaña')">
                 <span class="icon">📢</span> Panel de Campaña
             </button>
-            <button id="btn-infinitas" class="menu-item" onclick="cambiarModo('infinitas')">
+            <button id="btn-modo-infinito" class="menu-item" onclick="seleccionarModoJuego('infinito')">
                 <span class="icon">♾️</span> Consultas Infinitas
             </button>
 
             <p class="menu-label">Datos y Registros</p>
-            <button class="menu-item">
+            <button id="btn-view-perfil" class="menu-item" onclick="switchView('view-perfil')">
                 <span class="icon">📊</span> Estado Analítico
             </button>
-            <button class="menu-item">
+            <button id="btn-view-historial" class="menu-item" onclick="switchView('view-historial')">
                 <span class="icon">📁</span> Búfer de Logs
             </button>
-            <button class="menu-item">
+            <button id="btn-view-cuenta" class="menu-item" onclick="switchView('view-cuenta')">
                 <span class="icon">🔑</span> Perfil de Operador
             </button>
         </nav>
@@ -39,28 +38,82 @@
         <div class="sidebar-footer">
             <label for="theme-select">Interfaz:</label>
             <select id="theme-select" onchange="cambiarTema(this.value)">
-                <option value="theme-verde-neon">Verde Neón</option>
-                <option value="theme-espacial">Espacial</option>
+                <option value="modo-hacker">Hacker (Verde)</option>
+                <option value="modo-claro">Tema Claro</option>
+                <option value="modo-oscuro">Tema Oscuro</option>
+                <option value="modo-rosa">Tema Rosa</option>
+                <option value="modo-espacial">Tema Espacial ✨</option>
             </select>
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
-        <div class="banner-alerta">
+        <div class="banner-alerta" id="warning-invitado">
             ⚠️ Sesión de Invitado: los logs se autodestruirán al cerrar el navegador. Regístrate en el Perfil de Operador.
         </div>
 
-        <!-- ÁREA DEL CHAT -->
-        <section class="chat-container">
-            <div id="chat-box" class="chat-box">
-                <!-- Los mensajes del usuario simulado (Gugel) e IA aparecerán aquí -->
-            </div>
+        <section id="view-chat" class="chat-container content-panel active">
+            <div id="chat-messages" class="chat-box">
+                </div>
 
-            <!-- ENTRADA DE RESPUESTA -->
-            <div class="input-container">
-                <input type="text" id="input-respuesta" placeholder="Introduce tu respuesta..." onkeydown="evaluarEnter(event)">
-                <button id="btn-transmitir" onclick="transmitirRespuesta()">TRANSMITIR</button>
+            <form id="chat-form" class="input-container">
+                <input type="text" id="user-input" placeholder="Introduce tu respuesta..." autocomplete="off">
+                <button type="submit" id="transmit-btn">TRANSMITIR</button>
+            </form>
+
+            <div id="chat-actions-bar" style="display: none; margin-top: 10px;">
+                <button class="mini-fav-btn" onclick="marcarActualComoFavorito()">⭐ Guardar en Favoritos</button>
+                <button class="mini-fav-btn" onclick="exportCoreData()">📋 Copiar Log Actual</button>
+            </div>
+            
+            <button id="continue-btn" style="display: none; width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; font-family: inherit;" onclick="nextRound()">
+                SIGUIENTE CONSULTA >>
+            </button>
+        </section>
+
+        <section id="view-perfil" class="content-panel" style="display: none;">
+            <h2>Módulo de Diagnóstico del Operador</h2>
+            <div style="margin: 20px 0; padding: 15px; border: 1px dashed currentColor;">
+                <p><strong>Identificador:</strong> <span id="prof-usuario">Invitado</span></p>
+                <p><strong>Satisfacción Promedio de Gugel:</strong> <span id="prof-satisfaction">50%</span></p>
+                <p><strong>Estado Mental de Gugel:</strong> <span id="prof-opinion">(Cargando...)</span></p>
+                <p><strong>Registros Desbloqueados:</strong> <span id="logros-count">0</span> / 40</p>
+            </div>
+            <h3>Registro Histórico de Logros</h3>
+            <div id="logros-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; max-height: 300px; overflow-y: auto;">
+                </div>
+        </section>
+
+        <section id="view-historial" class="content-panel" style="display: none;">
+            <h2>Búfer Central de Logs</h2>
+            <div style="margin-bottom: 15px;">
+                <button onclick="exportarHistorialCompleto()" style="padding: 5px 10px; font-family: inherit; cursor: pointer;">📥 Descargar Fichero .TXT</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3>Chats Guardados en Sesión</h3>
+                    <div id="history-list-container" style="max-height: 400px; overflow-y: auto; margin-top: 10px;"></div>
+                </div>
+                <div>
+                    <h3>Marcadores Favoritos (⭐)</h3>
+                    <div id="favorites-list-container" style="max-height: 400px; overflow-y: auto; margin-top: 10px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-cuenta" class="content-panel" style="display: none;">
+            <h2>Consola de Gestión de Identidad</h2>
+            <p style="margin-bottom: 20px; opacity: 0.8;">Configura tus credenciales locales para aislar tus búferes de datos de simulación.</p>
+            <div style="display: flex; flex-direction: column; gap: 15px; max-width: 400px;">
+                <div>
+                    <label style="display:block; margin-bottom:5px;">Código de Operador (Usuario):</label>
+                    <input type="text" id="account-username" style="width:100%; padding:10px; font-family:inherit; background:transparent; color:inherit; border:1px solid currentColor;">
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom:5px;">Clave de Enlace (Contraseña):</label>
+                    <input type="password" id="account-password" style="width:100%; padding:10px; font-family:inherit; background:transparent; color:inherit; border:1px solid currentColor;">
+                </div>
+                <button onclick="guardarNombreCuenta()" style="padding:12px; font-family:inherit; cursor:pointer; font-weight:bold;">ESTABLECER ENLACE</button>
             </div>
         </section>
     </main>
