@@ -196,6 +196,18 @@ document.getElementById('continue-btn').addEventListener('click', () => {
 // ==========================================
 // 5. ANALIZADOR Y RENDER (SIN PARENTESIS)
 // ==========================================
+
+document.getElementById('chat-form').onsubmit = (e) => {
+    e.preventDefault();
+    // ... (tu lógica actual de obtener reaccion)
+    
+    setTimeout(() => {
+        appendMessage('gugel', reaccion);
+        verificarLogros(); // Comprobamos logros
+        renderAllData();   // Actualiza el contador de logros
+    }, 500);
+};
+
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
