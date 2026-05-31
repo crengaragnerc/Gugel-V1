@@ -312,7 +312,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* ESTRUCTURA DE LA VENTANITA MODAL (CUENTA FLOTANTE) */
+/* ESTRUCTURA DE LA VENTANITA MODAL DE CUENTA (FLOTANTE) */
 .modal-overlay {
     position: fixed;
     top: 0;
