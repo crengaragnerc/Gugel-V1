@@ -107,6 +107,7 @@ function generarPregunta() {
     return PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
 }
 
+// Añade esto a tu función appendMessage existente (Sección 4)
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     if (box) {
@@ -116,6 +117,18 @@ function appendMessage(sender, text) {
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
     }
+    // NUEVA LÍNEA: Guardar en el historial
+    gameState.history.push({ sender, text, timestamp: new Date().toLocaleTimeString() });
+}
+
+// NUEVA FUNCIÓN: Para renderizar el historial en su panel
+function renderHistorial() {
+    const histPanel = document.getElementById('view-historial'); // Asegúrate que este sea el ID de tu panel de historial
+    if (!histPanel) return;
+    histPanel.innerHTML = "<h3>Historial de la sesión</h3>";
+    gameState.history.forEach(m => {
+        histPanel.innerHTML += `<p><strong>${m.sender}:</strong> ${m.text} <small>(${m.timestamp})</small></p>`;
+    });
 }
 
 // ==========================================
