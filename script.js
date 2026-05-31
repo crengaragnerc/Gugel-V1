@@ -256,17 +256,26 @@ document.getElementById('chat-form').onsubmit = (e) => {
 };
 
 // ==========================================
-// 8. RENDERIZACIÓN
+// 8. RENDERIZACIÓN Y ARRANQUE FORZADO
 // ==========================================
+
 function renderAllData() {
     const ids = ['prof-opinion', 'prof-satisfaction', 'prof-cycles', 'prof-chars', 'logros-count'];
     ids.forEach(id => {
         const el = document.getElementById(id);
-        if(el) el.innerText = gameState[id.replace('prof-','').replace('logros-count','logrosDesbloqueados')].length || gameState[id.replace('prof-','')] || "";
+        if(el) {
+            // Ajuste para evitar errores si no encuentra el elemento
+            const val = gameState[id.replace('prof-','').replace('logros-count','logrosDesbloqueados')];
+            el.innerText = Array.isArray(val) ? val.length : val || 0;
+        }
     });
     const hist = document.getElementById('history-list-container');
     if (hist) hist.innerHTML = gameState.history.map(h => `<div>${h.pregunta} -> ${h.reaccion}</div>`).join('');
 }
 
-window.confirmContinue = () => { gameState.esperandoRespuesta = false; nextRound(); };
-window.onload = () => { renderAllData(); nextRound(); };
+// ARRANQUE SEGURO
+window.onload = () => {
+    console.log("GUGEL inicializando...");
+    renderAllData();
+    nextRound();
+};
