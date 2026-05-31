@@ -38,6 +38,20 @@
     --negative-color: #dc3545;
 }
 
+/* NUEVO TEMA ROSA */
+.modo-rosa {
+    --bg-main: #ffd1dc;
+    --bg-panel: #fff0f5;
+    --bg-inner: #ffe4e1;
+    --text-primary: #4a2c3a;
+    --text-muted: #a78b9b;
+    --accent-color: #ff69b4;
+    --accent-text: #ffffff;
+    --bubble-bg: #fff5f7;
+    --bubble-border: #ffb6c1;
+    --negative-color: #ff4500;
+}
+
 body {
     background-color: var(--bg-main);
     color: var(--text-primary);
@@ -107,7 +121,7 @@ button {
 .main-action-btn.active {
     background-color: var(--accent-color);
     color: var(--accent-text);
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.2);
 }
 
 .sub-btn {
@@ -118,6 +132,11 @@ button {
 
 .sub-btn:hover, .main-action-btn:hover:not(.active) {
     background-color: var(--bubble-border);
+}
+
+.sub-btn.active {
+    border-color: var(--accent-color);
+    background-color: var(--bubble-bg);
 }
 
 .menu-section-footer {
@@ -138,15 +157,7 @@ button {
 
 .account-btn {
     width: 100%;
-    background-color: transparent;
-    color: var(--text-muted);
-    border: 1px dashed var(--text-muted);
     text-align: center;
-}
-
-.account-btn:hover {
-    color: var(--text-primary);
-    border-color: var(--text-primary);
 }
 
 #main-content {
@@ -270,7 +281,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 }
 
 .card h3 { margin-top: 0; color: var(--accent-color); border-bottom: 1px dashed var(--bubble-border); padding-bottom: 12px; }
-.opinion-box { margin: 15px 0; padding: 12px; background: rgba(0, 0, 0, 0.2); border-left: 3px solid var(--text-muted); }
+.opinion-box { margin: 15px 0; padding: 12px; background: rgba(0, 0, 0, 0.05); border-left: 3px solid var(--text-muted); }
 .action-bar { margin-bottom: 20px; display: flex; gap: 10px; }
 .action-btn { background-color: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--bubble-border); text-align: center; }
 
@@ -279,26 +290,11 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .item-logro { padding: 12px; border-radius: 6px; background: var(--bg-panel); border: 1px solid var(--bubble-border); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
 .item-logro.negativo { border-left: 4px solid var(--negative-color); }
-.item-logro.bloqueado { opacity: 0.4; border-left: 4px solid var(--text-muted); }
+.item-logro.bloqueado { opacity: 0.5; border-left: 4px solid var(--text-muted); background: rgba(0,0,0,0.02); }
 
-#bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.1); display: flex; justify-content: center; }
-#continue-btn { width: 100%; background-color: #ffffff; color: #000000; text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
-#continue-btn:hover { background-color: #e5e5e5; }
+#bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
+#continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
+#continue-btn:hover { opacity: 0.9; }
 
-/* MODAL / VENTANA ESTILO LOGROS */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 200;
-}
-.modal-overlay.active { display: flex; }
-.modal-content {
-    background: var(--bg-panel); border: 1px solid var(--accent-color); padding: 30px; border-radius: 12px; max-width: 450px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;
-}
-.account-status-banner { background: var(--bg-inner); padding: 10px; border-radius: 6px; text-align: center; border: 1px dashed var(--bubble-border); }
-.modal-inputs label { font-size: 0.8rem; color: var(--text-muted); font-weight: bold; }
-.modal-inputs input { width: 100%; margin-top: 5px; margin-bottom: 12px; }
-.modal-actions { display: flex; flex-direction: column; gap: 8px; }
-.modal-actions button { text-align: center; padding: 12px; }
-.close-btn { background: var(--bg-inner); color: var(--text-primary); border: 1px solid var(--bubble-border); }
-.danger-btn { border: 1px solid var(--negative-color); color: var(--negative-color); background: transparent; }
+.danger-btn { border: 1px solid var(--negative-color); color: var(--negative-color); background: transparent; border-radius: 8px; padding: 14px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; }
 .danger-btn:hover { background: var(--negative-color); color: #fff; }
