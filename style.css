@@ -18,3 +18,12 @@ body { background-color: var(--bg); color: var(--text); font-family: 'Courier Ne
 .content-panel.active { display: block; }
 input { padding: 15px; border-radius: 5px; border: 1px solid var(--text); background: transparent; color: var(--text); width: 100%; box-sizing: border-box; }
 button { padding: 10px; cursor: pointer; background: var(--panel); color: var(--text); border: 1px solid var(--text); border-radius: 4px; }
+#sidebar {
+    position: relative;
+    z-index: 100; /* Asegura que el sidebar esté por encima de todo */
+}
+
+button {
+    cursor: pointer;
+    pointer-events: auto; /* Fuerza que el botón reciba clics */
+}
