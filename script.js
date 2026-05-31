@@ -51,7 +51,7 @@ const BASE_LOGROS = [
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
-    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
+    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias unique." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
     { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
@@ -81,7 +81,7 @@ const BASE_LOGROS = [
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
-let esperandoRespuestaDeTurno = true; 
+let esperandoRespuestaDeTurno = true; // Controla si el usuario está escribiendo su respuesta
 
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
@@ -363,7 +363,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
         salvarAStorage();
         renderAllData();
         
-        esperandoRespuestaDeTurno = false; 
+        esperandoRespuestaDeTurno = false; // Ha terminado el turno, ya no se está respondiendo la actual
         document.getElementById('chat-actions-bar').style.display = "block";
         document.getElementById('continue-btn').style.display = "block";
     }, 500);
@@ -405,7 +405,7 @@ function nextRound() {
     }
     
     appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; 
+    esperandoRespuestaDeTurno = true; // Empieza una nueva ronda, volvemos a esperar respuesta
     
     const input = document.getElementById('user-input');
     input.value = "";
@@ -483,21 +483,27 @@ function cargarChatHistorico(index) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // CORRECCIÓN RADICAL: Eliminamos el bloqueo "if (esperandoRespuestaDeTurno)".
-    // Ahora puedes pulsar el modo cuando quieras. Forzamos un reinicio de ronda inmediato.
+    // Cambiamos el modo del sistema inmediatamente (¡Sin bloqueos!)
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
-    // Asegurar que la pantalla de chat vuelve al frente y se activa el botón visual correcto
+    // Aseguramos que el panel visual del chat esté activo al pulsar las pestañas
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
     salvarAStorage();
-    nextRound(); // Genera inmediatamente la pregunta del modo correspondiente y limpia el chat viejo
-    renderAllData();
+
+    // SOLUCIÓN DEFINITIVA SIMULTÁNEA:
+    // ¿El usuario está a mitad de responder? Mantenemos lo que tiene en pantalla intacto.
+    // ¿El usuario ya terminó su turno y estaba en la pantalla de "Siguiente Consulta"? Generamos la nueva de su nuevo modo.
+    if (!esperandoRespuestaDeTurno) {
+        nextRound();
+    } else {
+        renderAllData(); // Si está a mitad, solo redibujamos botones visuales activos sin romper su pregunta actual.
+    }
 }
 
 function cambiarTema(nuevoTema) {
