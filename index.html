@@ -8,15 +8,12 @@
 </head>
 <body class="modo-hacker">
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <div class="app-container">
         
-        <!-- SIDEBAR / MENÚ LATERAL -->
         <aside class="sidebar" id="app-sidebar">
             <div class="sidebar-header">
                 <h2>GUGEL v4.0</h2>
                 <span class="user-badge" id="sidebar-user-display">Invitado</span>
-                <!-- Botón para cerrar el menú en móviles -->
                 <button class="close-sidebar-btn" onclick="toggleMobileMenu()">✕</button>
             </div>
             
@@ -44,32 +41,26 @@
             </div>
         </aside>
 
-        <!-- CONTENIDO PRINCIPAL -->
         <main class="main-content">
             
-            <!-- CABECERA PARA MÓVILES -->
             <header class="mobile-header">
                 <button class="menu-toggle-btn" onclick="toggleMobileMenu()">☰ Menú</button>
                 <h1>GUGEL SIM</h1>
                 <div class="mobile-user-badge" id="panel-user-status">Invitado</div>
             </header>
 
-            <!-- AVISO VOLÁTIL -->
             <div id="warning-invitado" class="alert-banner">
                 ⚠️ Sesión de Invitado: Los logs se autodestruirán al cerrar el navegador. Regístrate en el Perfil de Operador.
             </div>
 
-            <!-- PANEL: CONSOLA DE CHAT (PRINCIPAL) -->
             <section id="view-chat" class="content-panel active">
                 <div class="chat-wrapper">
                     <div class="chat-messages" id="chat-messages"></div>
                     
-                    <!-- ZONA DE ACCIONES POST-TURNO -->
                     <div class="chat-actions-bar" id="chat-actions-bar" style="display: none;">
                         <button class="action-btn fav" onclick="marcarActualComoFavorito()">⭐ Guardar en Favoritos</button>
                     </div>
 
-                    <!-- CONTROL DE ENTRADA -->
                     <div class="chat-input-area">
                         <form id="chat-form" autocomplete="off">
                             <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required>
@@ -80,7 +71,6 @@
                 </div>
             </section>
 
-            <!-- PANEL: ESTADO ANALÍTICO -->
             <section id="view-perfil" class="content-panel">
                 <div class="panel-card">
                     <h3>Módulo Analítico del Sistema</h3>
@@ -102,7 +92,6 @@
                 </div>
             </section>
 
-            <!-- PANEL: BÚFER DE LOGS -->
             <section id="view-historial" class="content-panel">
                 <div class="panel-card">
                     <h3>Búfer de Logs (Historial de Sesión)</h3>
@@ -119,7 +108,6 @@
                 </div>
             </section>
 
-            <!-- PANEL: PERFIL DE OPERADOR -->
             <section id="view-cuenta" class="content-panel">
                 <div class="panel-card">
                     <h3>Autenticación del Operador</h3>
