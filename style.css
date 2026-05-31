@@ -64,7 +64,7 @@
     --negative-color: #ff4a74;
 }
 
-/* REGLAS ESPECÍFICAS PARA HACER EL MODO ESPACIAL MÁS CÓSMICO */
+/* REGLAS ESPECÍFICAS PARA EL MODO ESPACIAL */
 body.modo-espacial {
     background-image: radial-gradient(circle at 50% 50%, #111235 0%, #03030c 85%);
     position: relative;
@@ -362,7 +362,7 @@ input:disabled { opacity: 0.5; cursor: not-allowed; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover:not(:disabled) { opacity: 0.9; }
 
-/* ESTRUCTURA DE LA VENTANA EMERGENTE (MODAL) */
+/* ESTILOS DE LA VENTANA EMERGENTE (MODAL) */
 .modal-overlay {
     display: none;
     position: fixed;
