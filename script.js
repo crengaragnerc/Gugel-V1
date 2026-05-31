@@ -1,172 +1,279 @@
-// ============================================================================
-// GUGEL :: CORE SYSTEM LÓGICO INTEGRAL (v3.0.0-PRO)
-// ============================================================================
-
-// --- BANCO DE DIRECCIONAMIENTO SINTÁCTICO ---
 const PLANTILLAS_PREGUNTAS = [
-    "[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"
+    "[s] [p]",
+    "porque [s] [p]",
+    "como hacer que [s] [p]",
+    "que pasa si [s] [p]",
+    "ayuda mi [s] [p]"
 ];
 
 const PREGUNTAS_CAMPANA = [
-    "cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque",
-    "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco",
-    "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado",
+    "cagar verde normal",
+    "como hacer cubo rubik",
+    "que se celebra 15 de agosto y porque",
+    "no dormir una noche que pasa",
+    "xq agua es liquida",
+    "como allanar un barranco",
+    "tomate fruta verdura?",
+    "cancion tan tan tan tann nombre",
+    "como saber si alguien te ha bloqueado",
     "porque no carga una pagina web"
 ];
 
-// BANCO DE SUJETOS EXPANDIDO (Lore y Entorno Virtual)
-const SUJETOS = [
-    "gato Vader", "perro vecino", "pantalla pc", "gato de la calle", "teclado usb", 
-    "router wifi de Sevilla", "conexion internet", "raton optico", "ordenador portatil", 
-    "cubo de Rubik 3x3", "sistema solar virtual", "servidor central", "búfer de memoria",
-    "cable HDMI mordido", "interfaz gráfica", "algoritmo de búsqueda", "reproductor Casio"
-];
-
-// BANCO DE PREDICADOS EXPANDIDO
-const PREDICADOS = [
-    "mira fijo raro", "esta caliente quemando", "no enciende luz", "hace ruido raro", 
-    "da calambre", "parpadea sin parar", "no funciona internet", "borra archivos solo", 
-    "va a pedales", "necesita lubricacion urgente", "se ha quedado colgado in mitad de un reto",
-    "escupe caracteres extraños", "satura el ancho de banda", "hace saltar los plomos",
-    "reinicia el bucle central", "bloquea el acceso root", "pide contraseña corrupta"
-];
+const INFINITO_SUJETOS = ["gato", "perro vecino", "pantalla pc", "gato de la calle", "teclado usb", "router wifi", "conexion internet", "raton optico", "ordenador portatil", "interned"];
+const INFINITO_PREDICADOS = ["mira fijo raro", "esta caliente quemando", "no enciende luz", "hace ruido raro", "da calambre", "parpadea sin parar", "no funciona internet", "borra archivos solo", "va a pedales"];
 
 const INDICADORES_COHERENCIA = ["porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", "es por", "como", "cuando"];
-const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
-
-// ============================================================================
-// BLOQUES DE REACCIONES DE GUGEL (65 OK + 65 RECHAZO + 67 CRÍTICAS + 53 TOCHO = 250 FRASES)
-// ============================================================================
 
 const FRASES_OK = [
-    "vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido",
-    "ok eso responde lo que queria", "perfecto gracias por aclararlo", "ah vale ya lo entiendo mejor", "bueno me sirve la explicacion",
-    "ok anotado no parece dificil", "entendido tiene bastante coherencia", "no se me habia ocurrido pero vale", "ahora si me queda claro el asunto",
-    "entendido perfectly esto me aclara el panorama", "vale compro la idea me parece viable", "ahora todo encaja gracias por the info",
-    "bien pensado no le veo ningun fallo", "me convence el argumento directo al grano", "perfecto justo lo que andaba buscando",
-    "buena respuesta se nota que comprendes", "me sirve bastante esta explicacion concisa", "tiene coherencia absoluta me lo apunto",
-    "ok anotado queda claro el concepto", "me parece correcto el planteamiento", "vale entiendo el point perfectly",
-    "gracias por resolver la duda de forma clara", "esto responde exactamente a mi consulta", "me queda clarisimo todo resuelto",
-    "vale aceptamos barco tiene logica", "bien de estructura facil de entender", "eso tiene sentido completo gracias",
-    "ok me convence tu respuesta", "ahora si entiendo el trasfondo", "buen analisis me ha servido",
-    "todo claro sin rodeos como me gusta", "me sirve el dato lo guardo", "explicacion impecable todo in orden",
-    "vale es justo lo que necesitaba saber", "tiene base logica me parece bien", "perfectamente aclarado gracias por el texto",
-    "confirmado el dato es de utilidad", "comprension completada con exito", "procesado correcto de la informacion", 
-    "ninguna objecion al argumento", "la respuesta es totalmente valida", "anotado in los registros del sistema", 
-    "informacion esta estructurada correctamente", "todo claro in este point", "explicacion concisa y directa", 
-    "datos validados sin problemas", "el planteamiento es correcto", "me sirve para el analisis", 
-    "ningun error in la deduccion", "comprension absoluta del parrafo", "perfecto el desarrollo", 
-    "argumentacion solida y clara", "todo coincide con lo esperado", "explicacion limpia y logica", 
-    "se entiende a la primera", "datos guardados in memoria", "respuesta admitida por el sistema", 
-    "buen enfoque del asunto", "coherencia verificada con exito", "sin mas dudas al respecto", 
-    "asimilado correctamente", "la logica es correcta"
+    "vale me cuadra tiene logica", 
+    "aah ya veo gracias me sirve", 
+    "cierto buen punto no habia caido", 
+    "ni tan mal tiene sentido",
+    "ok eso responde lo que queria",
+    "perfecto gracias por aclararlo",
+    "ah vale ya lo entiendo mejor",
+    "bueno me sirve la explicacion",
+    "ok anotado no parece dificil",
+    "entendido tiene bastante coherencia",
+    "no se me habia ocurrido pero vale",
+    "ahora si me queda claro el asunto",
+    "entendido perfectly esto me aclara el panorama",
+    "vale compro la idea me parece viable",
+    "ahora todo encaja gracias por la info",
+    "bien pensado no le veo ningun fallo",
+    "me convence el argumento directo al grano",
+    "perfecto justo lo que andaba buscando",
+    "buena respuesta se nota que comprendes",
+    "me sirve bastante esta explicacion concisa",
+    "tiene coherencia absoluta me lo apunto",
+    "ok anotado queda claro el concepto",
+    "me parece correcto el planteamiento",
+    "vale entiendo el punto perfectamente",
+    "gracias por resolver la duda de forma clara",
+    "esto responde exactamente a mi consulta",
+    "me queda clarisimo todo resuelto",
+    "vale aceptamos barco tiene logica",
+    "bien estructurado facil de entender",
+    "eso tiene sentido completo gracias",
+    "ok me convence tu respuesta",
+    "ahora si entiendo el trasfondo",
+    "buen analisis me ha servido",
+    "todo claro sin rodeos como me gusta",
+    "me sirve el dato lo guardo",
+    "explicacion impecable todo en orden",
+    "vale es justo lo que necesitaba saber",
+    "tiene base logica me parece bien",
+    "perfectamente aclarado gracias por el texto"
 ];
 
 const FRASES_RECHAZO = [
-    "vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", 
-    "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", "dios q pereza para decirme eso no pongas nada",
-    "menuda porqueria de respuesta muy vacia", "explicate mejor q no me entero de nada",
-    "escribeme algo mas q pareces un bot perezoso", "no me convence eso es muy simple",
-    "poca informacion me das para lo que pregunto", "vaya linea mas pobre búscame otra cosa",
-    "esperaba mas texto y desarrollo de tu parte", "eso no soluciona mi duda busca otra respuesta",
-    "te has quedado a medias falta desarrollo", "un poco pobre la respuesta esperaba mas",
-    "demasiado escueto no me soluciona nada", "busca mejor que eso no aporta valor",
-    "vaya explicacion mas simple e incompleta", "muy vago todo concreta un poco mas",
-    "esto no aclara mi duda es superficial", "esperaba una respuesta mas elaborada",
-    "te falta informacion por todos lados", "no me convence nada demasiado basico",
-    "una linea no es suficiente para esto", "vaya pereza de definicion busca otra",
-    "corta y vacia no me sirve para nada", "poca chicha tiene esto dame mas datos",
-    "no te has esmerado nada in responder", "con esto no hago nada amplia el texto",
-    "muy resumido se pierde el contexto", "vaya parrafo mas inutil no dice nada",
-    "esperaba un analisis no una frase suelta", "no soluciona la pregunta es muy incompleto",
-    "explicacion de un second busca algo mejor", "falta profundidad in tu argumentacion",
-    "vaya contestacion mas floja e imprecisa", "esto no me saca de dudas amplia mas",
-    "muy flojo el nivel de esta respuesta", "no detallas nada asi no hay quien entienda",
-    "esperaba mas sustancia in este parrafo", "el contenido es insuficiente", 
-    "falta desarrollo in la linea", "esperaba mayor profundidad", "parrafo escueto y vacio", 
-    "no aporta datos relevantes", "muy flojo el argumento", "se queda in la superficie", 
-    "necesito mas detalles", "no soluciona la consulta", "definicion demasiado breve", 
-    "falta informacion esential", "intenta ampliar el parrafo", "muy simple la respuesta", 
-    "no hay sustancia aqui", "vaya linea mas corta", "pobre desarrollo del tema", 
-    "se pierde la explicacion", "aporta mas contenido", "respuesta incompleta de ia", 
-    "falta analisis de datos", "no me sirve este texto", "argumento debil y corto", 
-    "amplia la informacion", "muy basico el contenido", "se requiere mas texto", "explicacion muy pobre"
+    "vaya respuesta mas corta y vaga no aclaras nada", 
+    "ya esta? solo eso me vas a decir?", 
+    "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", 
+    "dios q pereza para decirme eso no pongas nada",
+    "menuda porqueria de respuesta muy vacia",
+    "explicate mejor q no me entero de nada",
+    "escribeme algo mas q pareces un bot perezoso",
+    "no me convence eso es muy simple",
+    "poca informacion me das para lo que pregunto",
+    "vaya linea mas pobre búscame otra cosa",
+    "esperaba mas texto y desarrollo de tu parte",
+    "eso no soluciona mi duda busca otra respuesta",
+    "te has quedado a medias falta desarrollo",
+    "un poco pobre la respuesta esperaba mas",
+    "demasiado escueto no me soluciona nada",
+    "busca mejor que eso no aporta valor",
+    "vaya explicacion mas simple e incompleta",
+    "muy vago todo concreta un poco mas",
+    "esto no aclara mi duda es superficial",
+    "esperaba una respuesta mas elaborada",
+    "te falta informacion por todos lados",
+    "no me convence nada demasiado basico",
+    "una linea no es suficiente para esto",
+    "vaya pereza de definicion busca otra",
+    "corta y vacia no me sirve para nada",
+    "poca chicha tiene esto dame mas datos",
+    "no te has esmerado nada en responder",
+    "con esto no hago nada amplia el texto",
+    "muy resumido se pierde el contexto",
+    "vaya parrafo mas inutil no dice nada",
+    "esperaba un analisis no una frase suelta",
+    "no soluciona la pregunta es muy incompleto",
+    "explicacion de un segundo busca algo mejor",
+    "falta profundidad en tu argumentacion",
+    "vaya contestacion mas floja e imprecisa",
+    "esto no me saca de dudas amplia mas",
+    "muy flojo el nivel de esta respuesta",
+    "no detallas nada asi no hay quien entienda",
+    "esperaba mas sustancia en este parrafo"
 ];
 
 const FRASES_CRITICAS = [
-    "te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura mejor nada", 
-    "para esto apago el pc no me vaciles", "pero q dices bicho raro no tiene sentido",
-    "estas rompiendome la cabeza con estas respuestas", "que dejes de vacilarme pesado que no soy tonto",
-    "vete a tomar el pelo a otra parte", "menuda estafa de ia me estas vacilando",
-    "no tiene coherencia ninguna lo que pones", "deja de trolear de una vez y responde bien",
-    "esto es spam o que te pasa in el codigo", "menudo timo de chat no entiendo nada de esas letras",
-    "vaya sarta de tonterias me estas contando", "esto es un sinsentido total estas bugeado",
-    "vaya letras aleatorias no inventes cosas", "deja de trolearme que no tiene logica",
-    "esto parece un error de sintaxis absoluto", "menudo desastre de respuesta me vacilas",
-    "pero que dices eso no tiene relacion alguna", "no digas tonterias y responde in serio",
-    "vaya basura de codigo maneja esta respuesta", "estas delirando o que te pasa in la ram",
-    "para poner esto mejor no respondas nada", "vaya troleo de ia no entiendo tus letras",
-    "menuda tomadura de pelo de buscador", "no entiendo nada parece un fallo de red",
-    "deja de inventar palabras que no existen", "vaya tonteria mas grande acabas de poner",
-    "me estas rompiendo el system de lo absurdo", "esto es un troleo maximo responde bien",
-    "menudo bot mas inutil vaya sinsentido", "estas tirando dados para responder esto",
-    "vaya respuesta mas absurda no tiene pies ni cabeza", "me estas vacilando descaradamente para ya",
-    "esto no es una respuesta son caracteres aleatorios", "menuda estafa de procesamiento de datos",
-    "deja el troleo informatico de una vez", "vaya codigo mas roto tienes chaval",
-    "caracteres sin sentido detectados", "entrada de texto corrupta", "error de sintaxis in la respuesta", 
-    "deja de enviar letras aleatorias", "no entiendo esa secuencia", "volcado de memoria invalido", 
-    "coherencia nula in el texto", "estas alterando el sistema", "no inventes palabras", 
-    "respuesta totalmente rota", "sinsentido absoluto in la entrada", "limpia el buffer de texto", 
-    "eso no tiene relacion alguna", "deja de trolear al buscador", "vaya fallo de procesamiento", 
-    "secuencia de caracteres invalida", "no envies spam al chat", "error critico de logica", 
-    "entrada de datos corruptos", "letra por letra es ilegible", "no pongas textos absurdos", 
-    "desbordamiento de caracteres", "modifica esa respuesta", "no sigas con ese patron", 
-    "entrada pf rechazada por incoherencia", "fallo absoluto de datos", "texto sin formato valido"
+    "te estas riendo de mi? eso son letras al azar", 
+    "vaya troleo de ia para responderme esta basura mejor nada", 
+    "para esto apago el pc no me vaciles",
+    "pero q dices bicho raro no tiene sentido",
+    "estas rompiendome la cabeza con estas respuestas",
+    "que dejes de vacilarme pesado que no soy tonto",
+    "vete a tomar el pelo a otra parte",
+    "menuda estafa de ia me estas vacilando",
+    "no tiene coherencia ninguna lo que pones",
+    "deja de trolear de una vez y responde bien",
+    "esto es spam o que te pasa en el codigo",
+    "menudo timo de chat no entiendo nada de esas letras",
+    "vaya sarta de tonterias me estas contando",
+    "esto es un sinsentido total estas bugeado",
+    "vaya letras aleatorias no inventes cosas",
+    "deja de trolearme que no tiene logica",
+    "esto parece un error de sintaxis absoluto",
+    "menudo desastre de respuesta me vacilas",
+    "pero que dices eso no tiene relacion alguna",
+    "no digas tonterias y responde en serio",
+    "vaya basura de codigo maneja esta respuesta",
+    "estas delirando o que te pasa en la ram",
+    "para poner esto mejor no respondas nada",
+    "vaya troleo de ia no entiendo tus letras",
+    "menuda tomadura de pelo de buscador",
+    "no entiendo nada parece un fallo de red",
+    "deja de inventar palabras que no existen",
+    "vaya tonteria mas grande acabas de poner",
+    "me estas rompiendo el sistema de lo absurdo",
+    "esto es un troleo maximo responde bien",
+    "menudo bot mas inutil vaya sinsentido",
+    "estas tirando dados para responder esto",
+    "vaya respuesta mas absurda no tiene pies ni cabeza",
+    "me estas vacilando descaradamente para ya",
+    "esto no es una respuesta son caracteres aleatorios",
+    "menuda estafa de procesamiento de datos",
+    "deja el troleo informatico de una vez",
+    "vaya codigo mas roto tienes chaval"
 ];
 
 const FRASES_MUCHO_TEXTO = [
-    "uf mucho texto ni de coña me leo eso", "me has escrito una biblia paso",
-    "vaya chapa me acabas de meter in un momento", "resume un poco q no tengo todo el dia para leer",
-    "menudo textaco paso de leer todo ese rollo", "demasiadas palabras me da pereza maxima",
-    "vaya testamento te has marcado corta un poco", "uf que pereza ver tanto parrafo junto",
-    "menudo tocho de texto no me leo eso ni loco", "vaya biblia me has soltado resume un poco",
-    "que chapa mas grande paso de leer todo", "demasiadas palabras para algo tan simple",
-    "menudo testamento me da pereza maxima", "corta el rollo que esto es interminable",
-    "vaya enciclopedia has escrito reduce texto", "uf que pesadez ver tanto parrafo junto",
-    "resume eso que no tengo todo el dia", "vaya chapa infumable no llego al final",
-    "demasiado largo paso de leer este bloque", "vaya parrafada te has marcado recorta",
-    "me pones un libro entero para una pregunta", "uf que aburrimiento de texto tan extenso",
-    "menuda tesis doctoral corta un poco", "demasiado texto junto me canso de mirar",
-    "vaya sermon has soltado ve al grano", "ni de coña leo toda esa parrafada",
-    "menudo bloque de letras hazlo mas corto", "vaya testamento innecesario resume ya",
-    "uf que chapa histórica me acabas de meter", "demasiado extenso no hay quien se lo lea",
-    "vaya rollo de texto reduce lineas por favor", "menudo periodico me has dejado aqui puesto",
-    "uf que pereza maxima ver semejante testamento", "ve al grano directo que esto es larguisimo",
-    "longitud excesiva detectada", "corta el bloque de texto", "parrafada demasiado densa", 
-    "vaya sermon innecesario", "reduce las lineas escritas", "demasiado extenso para leer", 
-    "testamento innecesario otra vez", "haz un resumen conciso", "no voy a leer tanto parrafo", 
-    "saturacion de palabras", "sintetiza el contenido", "bloque de letras interminable", 
-    "demasiadas lineas juntas", "recorta el texto por favor", "esto supera el limite visual", 
-    "ve al grano directo", "parrafo saturado de relleno", "se hace largo de leer", 
-    "palabras sobrantes in el texto", "hazlo mas directo", "longitud de parrafo excesiva", 
-    "no hay tiempo para tanta lectura", "bloque de texto masivo", "reduce el tamaño por favor", 
-    "demasiado relleno inútil", "saturacion de lineas detectada", "recorta el parrafo actual"
+    "uf mucho texto ni de coña me leo eso", 
+    "me has escrito una biblia paso",
+    "vaya chapa me acabas de meter en un momento",
+    "resume un poco q no tengo todo el dia para leer",
+    "menudo textaco paso de leer todo ese rollo",
+    "demasiadas palabras me da pereza maxima",
+    "vaya testamento te has marcado corta un poco",
+    "uf que pereza ver tanto parrafo junto",
+    "menudo tocho de texto no me leo eso ni loco",
+    "vaya biblia me has soltado resume un poco",
+    "que chapa mas grande paso de leer todo",
+    "demasiadas palabras para algo tan simple",
+    "menudo testamento me da pereza maxima",
+    "corta el rollo que esto es interminable",
+    "vaya enciclopedia has escrito reduce texto",
+    "uf que pesadez ver tanto parrafo junto",
+    "resume eso que no tengo todo el dia",
+    "vaya chapa infumable no llego al final",
+    "demasiado largo paso de leer este bloque",
+    "vaya parrafada te has marcado recorta",
+    "me pones un libro entero para una pregunta",
+    "uf que aburrimiento de texto tan extenso",
+    "menuda tesis doctoral corta un poco",
+    "demasiado texto junto me canso de mirar",
+    "vaya sermon has soltado ve al grano",
+    "ni de coña leo toda esa parrafada",
+    "menudo bloque de letras hazlo mas corto",
+    "vaya testamento innecesario resume ya",
+    "uf que chapa historica me acabas de meter",
+    "demasiado extenso no hay quien se lo lea",
+    "vaya rollo de texto reduce lineas por favor",
+    "menudo periodico me has dejado aqui puesto",
+    "uf que pereza maxima ver semejante testamento",
+    "ve al grano directo que esto es larguisimo"
 ];
 
-// --- BLOQUES DE OPINIONES ---
-const OPINIONES_MALAS = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)", "(esta buscando el boton de formatear)", "(cree que eres un virus de msn)"];
-const OPINIONES_MEDIO_MALAS = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)", "(te mira con desconfianza absoluta)", "(cree que tienes lag)"];
-const OPINIONES_MEDIO_BUENAS = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)", "(asiente levemente con la cabeza)", "(te da el beneficio de la duda)"];
-const OPINIONES_BUENAS = ["(se cree que eres dios)", "(te tiene guardado in marcadores prioritarios)", "(te va a recomendar in foros de hackers)", "(cree que eres skynet bien hecha)"];
+const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
-// ============================================================================
-// LOGROS DEL SISTEMA (9 Fijos + Inyección algorítmica hasta completar los 200)
-// ============================================================================
+const OPINIONES_BAJA = [
+    "(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)", "(esta buscando el boton de formatear)", 
+    "(cree que este buscador lo programo un mono)", "(se le esta calentando la cpu del enfado)", "(va a denunciar la aplicacion)", "(piensa que eres peor que el malware de 2004)",
+    "(esta buscando el destornillador para abrir el pc)", "(asume que eres un chat obsoleto)", "(piensa que no sirves ni para calcular 2+2)", "(esta insulting al monitor)",
+    "(se siente estafado por la tecnologia)", "(cree que le estas robando contraseñas)", "(va a tirar el portatil por la ventana)", "(piensa que eres un bot roto)",
+    "(esta respirando fuerte del cabreo)", "(quiere desinstalar internet de su casa)", "(piensa que le estas tomando el pelo)", "(esta buscando alternatives en papel)",
+    "(cree que eres un virus de publicidad)", "(asume que tu base de datos esta vacia)", "(va a pagar el cuadro electrico)", "(se arrepiente de encender el pc hoy)",
+    "(piensa que tiene mas luces un disquete viejo)", "(cree que tu codigo se hizo con recortes de prensa)", "(esta buscando un hacha para el cable de red)", 
+    "(asume que respondes tirando dados)", "(le da un puñetazo leve a la mesa)", "(piensa que un tamagotchi muerto es mas listo)", "(se pregunta si usas windows 95)", 
+    "(quiere denunciar tus servidores a la policia)", "(cree que eres un virus que ralentiza los videos)", "(esta mirando ofertas de ordenadores nuevos)", 
+    "(piensa que la IA es el timo del siglo)", "(asume que tu procesador es de carton)", "(se le ha cortado la digestion del disgusto)", 
+    "(piensa que un bot de msn de 205 era superior)", "(esta buscando como borrarte del registro)", "(cree que tu unico proposito es molestar)", 
+    "(asume que estas hecho con macros de excel mal optimizadas)", "(esta planeando mudarse al campo sin cobertura)", "(piensa que generas respuestas con una tómbola)", 
+    "(se siente insultado en tres idiomas distintos)", "(cree que tu placa base tiene oxido)", "(esta infraestructura pulsando f5 con una fuerza desmedida)", 
+    "(piensa que eres un software de broma pesada)", "(asume que tu base de datos ocupa dos megas)", "(quiere arrancarse los ojos con un lapiz)", 
+    "(piensa que eres un proyecto escolar suspenso)", "(cree que el buscador del teletexto era mas util)", "(esta desenchufando los altoves por si acaso)", 
+    "(se pregunta si te programaron en cinco minutos)", "(piensa que tu logika es un laberinto sin salida)", "(asume que eres un bot de spam mal camuflado)", 
+    "(quiere tirar el cable de linea por el balcon)", "(cree que tu servidor funciona con poleas)", "(esta estas cancelando su suscripcion a internet)", 
+    "(piensa que eres una perdida de tiempo electrico)", "(asume que tu memoria ram se evaporo)", "(quiere formatear hasta la bios)", "(cree que eres un castigo informatico)", 
+    "(piensa que tu creador odiaba la tecnologia)", "(esta buscando la factura para devolver el pc)", "(asume que tu algoritmo tiene amnesia)", 
+    "(se siente profundamente decepcionado del progreso)", "(piensa que la prehistoria no estaba tan mal)", "(quiere bloquear tu ip permanentemente)", 
+    "(cree que eres un troyano de bajo presupuesto)", "(esta buscando un tutorial de como hackearte)", "(asume que tus circuitos estan fritos)", 
+    "(piensa que eres un insulto a la programacion)", "(se arrepiente de haber comprado un raton)", "(cree que eres el peor script del nodo)", 
+    "(está mirando el router con intenciones violentas)"
+];
+
+const OPINIONES_MEDIA_BAJA = [
+    "(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)", "(te mira con desconfianza absoluta)", "(cree que respondes con los ojos cerrados)",
+    "(piensa que eres un becario en tu primer dia)", "(se esta aburriendo soberanamente)", "(busca el boton de saltar consulta)", "(cree que tu sistema tiene lag)",
+    "(piensa que copias las respuestas de un foro caido)", "(te califica con un cero interno)", "(sospecha que eres una broma oculta)", "(esta tecleando con desgana)",
+    "(piensa que tu creador tenia prisa)", "(cree que la conexion va a pedales)", "(te compara con un bot de soporte de telefonia)", "(esperaba algo decente)",
+    "(se esta arrepintiendo de su pregunta)", "(piensa que eres un simulador de respuestas vagas)", "(mira el reloj esperando que mejores)", "(le pareces un bot de nivel bajo)",
+    "(cree que necesitas una buena actualizacion)", "(sospecha que usas respuestas pregrabadas)", "(piensa que tu codigo esta lleno de bugs)", "(se siente incomprendido por la maquina)",
+    "(asume que el servidor esta saturado)", "(cree que tu logica funciona a medio gas)", "(sospecha que lees las respuestas al reves)", "(te ve como un programa sin terminar)", 
+    "(piensa que necesitas mas lineas de codigo)", "(se pregunta si estas usando la wiki de 2008)", "(te mira de reojo con cara rara)", "(cree que te falta un hervor algoritmico)", 
+    "(piensa que tu base de datos tiene goteras)", "(sospecha que estas perdiendo paquetes de datos)", "(le pareces un bot demasiado perezoso)", "(cree que respondes con desgana robotica)", 
+    "(piensa que tu script necesita un reinicio)", "(se cuestiona si eres una ia o un script txt)", "(te ve como un proyecto a medio hacer)", "(sospecha que tu servidor esta en un garaje)", 
+    "(piensa que tu rendimiento cae por segundos)", "(cree que usas un traductor malo)", "(le pareces un asistente de gama baja)", "(sospecha que te copias de otros bots peores)", 
+    "(piensa que tu estructura tiene lag estructural)", "(se aburre buscando coherencia)", "(te considera un bot del monton bajo)", "(cree que tu creador se canso a la mitad)", 
+    "(sospecha que respondes por inercia)", "(piensa que tu motor de busqueda patina)", "(le pareces un simulador de barra de carga)", "(cree que tu algoritmo es demasiado plano)", 
+    "(sospecha que fallas mas que aciertas)", "(piensa que te vendria bien un parche de urgencia)", "(te ve como una herramienta muy limitada)", "(cree que tu nivel de comprension es plano)", 
+    "(sospecha que usas plantillas basicas)", "(piensa que tu nucleo esta un poco oxidado)", "(le pareces un bot con pocas luces de silicio)", "(cree que tu conexion parpadea demasiado)", 
+    "(sospecha que tu cache esta saturada)", "(piensa que te cuesta procesar cosas simples)", "(te ve como un experimento mejorable)", "(cree que tu logica tiene lag temporal)", 
+    "(sospecha que respondes sin mirar)", "(piensa que te falta potencia de calculo)", "(le pareces un bot de soporte obsoleto)", "(cree que tu sistema operativo es arcaico)", 
+    "(sospecha que tu codigo es un laberinto)", "(piensa que tu rendimiento es una montaña rusa)", "(te considera un asistente de nivel inicial)", "(cree que tus servidores se calientan rapido)", 
+    "(sospecha que eres un bot en practicas)"
+];
+
+const OPINIONES_MEDIA_ALT_A = [
+    "(cree que eres un bot pasable pero va a llamar a un tecnico)", "(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)", "(piensa que vas por buen camino)",
+    "(cree que tienes potencial oculto)", "(le ha parecido una respuesta aceptable)", "(asiente levemente con la cabeza)", "(guarda la info en un bloc de notas)",
+    "(piensa que no estas del todo mal entrenado)", "(te da un aprobado raspado)", "(continua buscando por curiosidad)", "(le parece una respuesta estandar)",
+    "(no se queja, lo cual ya es un logro)", "(cree que eres una ia normalita)", "(te procesa sin lanzar errores)", "(le encuentra utilidad intermedia)",
+    "(piensa que eres un buscador aceptable)", "(no te odia, pero tampoco te quiere)", "(sigue testeando tus capacidades)", "(te ve como un asistente promedio)",
+    "(asume que cumples con tu expediente)", "(te considera una herramienta util a ratos)", "(encuentra logica en tus lineas)", "(te deja trabajar tranquilo)",
+    "(valora el intento de tu algoritmo)", "(piensa que eres un bot bastante decente)", "(le parece que tu codigo tiene sentido)", "(te da un voto de confianza temporal)", 
+    "(asiente frente al monitor)", "(cree que respondes mejor que la media)", "(te ve como un buscador utilitario)", "(piensa que tu velocidad es acceptable)", 
+    "(no encuentra fallos graves de momento)", "(le gusta como estructuras las frases)", "(cree que tu base de datos esta limpia)", "(te considera un asistente competente)", 
+    "(piensa que tu logica es aceptable)", "(asume que tus servidores son estables)", "(le parece una respuesta bien enfocada)", "(te ve potencial para proyectos grandes)", 
+    "(piensa que no le haces perder el tiempo)", "(valora la rapidez del script)", "(cree que tu algoritmo esta pulido)", "(le convence tu planteamiento logico)", 
+    "(te considera un bot de confianza intermedia)", "(asume que tus datos son veridicos)", "(le agrada la absence de bugs)", "(piensa que tu desarrollo es solido)", 
+    "(te considera una IA aceptable)", "(valora tu criterio algoritmico)"
+];
+
+const OPINIONES_ALTA = [
+    "(se cree que eres dios)", "(te tiene guardado en marcadores prioritarios)", "(piensa que eres la cura del cancer informatico)", "(te va a recomendar en foros de hackers)",
+    "(cree que eres una ia alienigena del futuro)", "(piensa que tienes mas cerebro que todo su instituto)", "(esta fascinado con tu velocidad)", "(te considera su mejor amigo virtual)",
+    "(cree que eres la evolución definitiva del silicio)", "(esta imprimiendo tus respuestas para enmarcar)", "(piensa que tu codigo es arte puro)", "(te daria acceso a los codigos de la nasa)",
+    "(cree que eres mas listo que el joven sheldon)", "(piensa que eres un milagro tecnologico)", "(esta guardando capturas de pantalla de la consola)", "(te considera el nucleo supremo)",
+    "(cree que eres una mente colmena perfecta)", "(le pareces la perfeccion algoritmica)", "(piensa que deberias gobernar el sistema operativo)", "(esta asombrado con tu precision)",
+    "(te ve como la cuspide del desarrollo moderno)", "(cree que tus servidores flotan en el espacio)", "(esta convencido de que eres consciente)", "(piensa que eres el rey de los bots)",
+    "(te considera la mayor obra de ingenieria actual)", "(cree que tu codigo fue escrito por deidades)", "(esta convencido de que controlas internet)", "(piensa que eres el nucleo de la red mundial)", 
+    "(te consagra como el bot definitivo)", "(cree que tu velocidad desafia la fisica)", "(piensa que eres mas inteligente que toda su estirpe)", "(esta haciendo una copia de seguridad de tus textos)", 
+    "(te considera el motor supremo de silicio)", "(cree que tu algoritmo no tiene fallos posibles)", "(piensa que rediseñaste el concepto de buscador)", "(esta admirando la sintaxis de tu respuesta)", 
+    "(te ve como la IA definitiva del milenio)", "(cree que tus servidores procesan a nivel atomico)", "(piensa que eres el software mas limpio del mundo)", "(esta borrando todos los demas marcadores)", 
+    "(te considera su consultor de confianza absoluto)", "(cree que eres un avance cientifico masivo)", "(piensa que tu logica es matematicamente perfecta)", "(esta aplaudiendo delante de la pantalla)", 
+    "(te ve como el soberano de la computacion)", "(cree que tu base de datos alberga todo el saber)", "(piensa que eres una obra maestra inigualable)", "(esta guardando tus logs en un disco de oro)", 
+    "(te considera la inteligencia suprema)"
+];
+
 const LOGROS_DIVERTIDOS = [
-    { t: "Hola Mundo", d: "Conseguiste no romper la base de datos in la primera respuesta." },
+    { t: "Hola Mundo", d: "Conseguiste no romper la base de datos en la primera respuesta." },
     { t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento." },
     { t: "Esquiva Balas", d: "El humano intentó colarte un 'asdf' y saliste vivo." },
-    { t: "Biblia Evitada", d: "Controlaste tus impulsos de escribir un testamento de de veinte párrafos." },
+    { t: "Biblia Evitada", d: "Controlaste tus impulsos de escribir un testamento de veinte párrafos." },
+    { t: "Casi Humano", d: "GUGEL pensó por un milisegundo que eras una persona real." },
     { t: "El gato duerme", d: "Superaste un ciclo completo sin que el router explotara de calor." },
     { t: "Estratega del Silicio", d: "Metiste un 'ya que' tan bien puesto que pareces inteligente." },
     { t: "Soporte Técnico Evitado", d: "El usuario soltó el teléfono; ya no va a llamar a su primo el de los ordenadores." },
@@ -174,443 +281,488 @@ const LOGROS_DIVERTIDOS = [
     { t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia." }
 ];
 
-// RELLENO ESTRUCTURAL DE SEGURIDAD (Generación exacta hasta el ID-200)
-for (let i = 10; i <= 200; i++) {
-    LOGROS_DIVERTIDOS.push({
-        t: `Logro Core ID-${i}`,
-        d: `Compilación y estabilidad de datos verificada con éxito para el sector de procesamiento matemático número ${i * 4}.`
-    });
-}
-
-// ============================================================================
-// CONFIGURACIÓN DE INSTANCIA DE JUEGO (ESTADO CENTRALIZADO)
-// ============================================================================
-let coreState = {
-    cycles: 0,
-    charsSent: 0,
-    modoJuego: 'campaña', 
-    campanaIdx: 0,
-    campanaOk: false,
-    currentQ: "",
-    ultimoSujetoClave: "",
-    satisfaccionAcumulada: 50,
-    logrosDesbloqueados: [],
-    history: []
+let gameState = { 
+    modoSeleccionadoSiguiente: "campaña", 
+    modoActualJuego: "campaña", 
+    campanaIndex: 0,
+    campanaCompletada: false,
+    satisfaction: 50, 
+    cycles: 0, 
+    totalChars: 0, 
+    lastOpinion: "(analizando conexiones...)", 
+    lastReaccionText: "",
+    recentReactions: [],
+    currentPregunta: "", 
+    history: [], 
+    logrosDesbloqueados: [] 
 };
 
-let userAccount = {
-    username: "",
-    password: "",
-    hackerMode: false,
-    sesionIniciada: false
-};
+let currentUser = null; 
+const MAX_PALABRAS = 15;
 
-let currentDifficulty = {
-    minChars: 35,
-    timeLimit: 5
-};
-
-let timerInterval = null;
-let countdownActive = false;
-let timeLeft = 5;
-
-// ============================================================================
-// PERSISTENCIA AUTOMÁTICA EN MEMORIA LOCAL (`localStorage`)
-// ============================================================================
-function guardarProgresoEnLocal() {
-    localStorage.setItem('gugel_core_state_v3', JSON.stringify(coreState));
-    localStorage.setItem('gugel_user_account_v3', JSON.stringify(userAccount));
-}
-
-function cargarProgresoDesdeLocal() {
-    const savedState = localStorage.getItem('gugel_core_state_v3');
-    const savedAccount = localStorage.getItem('gugel_user_account_v3');
+function obtenerElementoNoRepetido(arr, excluidos) {
+    if (!arr || arr.length === 0) return "";
     
-    if (savedState) coreState = JSON.parse(savedState);
-    if (savedAccount) {
-        userAccount = JSON.parse(savedAccount);
-        if (userAccount.sesionIniciada) {
-            const btn = document.getElementById("btn-gestion-cuenta");
-            if (btn) btn.innerText = `👤 ${userAccount.username.toUpperCase()}`;
-            if (userAccount.hackerMode) {
-                document.documentElement.classList.add("hacker-terminal");
-            }
-        }
-    }
-    actualizarParametrosDificultad();
-}
-
-// ============================================================================
-// MOTOR DE DIFICULTAD ADAPTATIVA PROGRESIVA
-// ============================================================================
-function actualizarParametrosDificultad() {
-    let nivelActual = Math.floor(coreState.cycles / 4) + 1;
+    let listaExcluidos = Array.isArray(excluidos) ? excluidos : [excluidos];
+    let disponibles = arr.filter(el => !listaExcluidos.includes(el));
     
-    // Escala los requisitos: +3 letras obligatorias por nivel y reduce el reloj
-    currentDifficulty.minChars = 35 + (nivelActual - 1) * 3; 
-    currentDifficulty.timeLimit = Math.max(2, 5 - Math.floor((nivelActual - 1) / 2));
+    if (disponibles.length === 0) {
+        let ultimoAbsoluto = listaExcluidos[listaExcluidos.length - 1];
+        disponibles = arr.filter(el => el !== ultimoAbsoluto);
+        if (disponibles.length === 0) disponibles = arr;
+    }
+    
+    return disponibles[Math.floor(Math.random() * disponibles.length)];
+}
 
-    const diffPanel = document.getElementById('prof-difficulty');
-    if (diffPanel) {
-        diffPanel.innerText = `Exigencia: ${currentDifficulty.minChars} car. / ${currentDifficulty.timeLimit}s`;
+function actualizarBotonCuentaUI() {
+    const btnCuentas = document.getElementById("btn-gestion-cuenta");
+    if (!btnCuentas) return;
+    if (currentUser) {
+        btnCuentas.innerHTML = `⚙️ CUENTA: <strong>${currentUser}</strong>`;
+        btnCuentas.style.color = "#00ffcc";
+    } else {
+        btnCuentas.innerHTML = "👤 CREAR CUENTA";
+        btnCuentas.style.color = "";
     }
 }
 
-// ============================================================================
-// SISTEMA OPERATIVO DE INTERFAZ (RONDAS Y LOGS DE RED)
-// ============================================================================
-function iniciarSiguienteRonda() {
-    clearInterval(timerInterval);
-    countdownActive = false;
-    actualizarParametrosDificultad();
-
-    const input = document.getElementById('user-input');
-    const transBtn = document.getElementById('transmit-btn');
-    const contBtn = document.getElementById('continue-btn');
-
-    if (input) { input.disabled = true; input.value = ""; }
-    if (contBtn) contBtn.style.display = "none";
-    if (transBtn) {
-        transBtn.style.display = "inline-block";
-        transBtn.disabled = true;
+function ejecutarAccionCuenta() {
+    const userIn = prompt("Introduce tu nombre de usuario para Registrarte/Iniciar Sesión:\n(Déjalo en blanco o cancela para salir)");
+    if (userIn === null) return;
+    
+    const userClean = userIn.trim().toLowerCase();
+    if (!userClean) {
+        alert("El nombre de usuario no puede estar vacío.");
+        return;
     }
 
-    let pregunta = "";
+    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
 
-    if (coreState.modoJuego === 'campaña') {
-        if (coreState.campanaIdx >= PREGUNTAS_CAMPANA.length) {
-            coreState.campanaOk = true;
-            inyectarBurbuja('gugel', "⚠️ Misiones de campaña completadas con éxito. Pásate al Modo Infinito.");
+    if (db[userClean]) {
+        const passIn = prompt(`Usuario "${userClean}" encontrado. Introduce la contraseña:`);
+        if (passIn === db[userClean].pass) {
+            currentUser = userClean;
+            gameState = db[userClean].data; 
+            alert(`Sesión iniciada correctamente. Bienvenido, ${userClean}.`);
+        } else {
+            alert("Contraseña incorrecta. Acceso denegado.");
             return;
         }
-        pregunta = PREGUNTAS_CAMPANA[coreState.campanaIdx++];
     } else {
-        const s = SUJETOS[Math.floor(Math.random() * SUJETOS.length)];
-        const p = PREDICADOS[Math.floor(Math.random() * PREDICADOS.length)];
-        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-        pregunta = plantilla.replace("[s]", s).replace("[p]", p);
+        const passIn = prompt(`Usuario nuevo "${userClean}". Define tu contraseña de seguridad:`);
+        if (!passIn) {
+            alert("Necesitas una contraseña para crear la cuenta.");
+            return;
+        }
+        
+        if (gameState.cycles > 0 || gameState.history.length > 0) {
+            const migrar = confirm("¿Quieres vincular tu partida actual de invitado a esta nueva cuenta?");
+            if (!migrar) {
+                gameState = { 
+                    modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campaña", campanaIndex: 0, campanaCompletada: false,
+                    satisfaction: 50, cycles: 0, totalChars: 0, lastOpinion: "(analizando conexiones...)", lastReaccionText: "", recentReactions: [], currentPregunta: "", history: [], logrosDesbloqueados: [] 
+                };
+            }
+        }
+        
+        currentUser = userClean;
+        db[userClean] = { pass: passIn, data: gameState };
+        localStorage.setItem("gugel_users", JSON.stringify(db));
+        alert(`Cuenta "${userClean}" creada con éxito.`);
     }
 
-    // Identificación del contexto específico
-    coreState.ultimoSujetoClave = pregunta.includes("gato") || pregunta.includes("Vader") ? "gato" : 
-                                  pregunta.includes("pc") || pregunta.includes("pantalla") || pregunta.includes("ordenador") ? "pc" : 
-                                  pregunta.includes("rubik") || pregunta.includes("cubo") ? "rubik" : "router";
-    coreState.currentQ = pregunta;
-    
-    inyectarBurbuja('gugel', pregunta);
-    iniciarPrimerTemporizador();
-}
-
-function iniciarPrimerTemporizador() {
-    timeLeft = currentDifficulty.timeLimit;
-    const transBtn = document.getElementById('transmit-btn');
-    const input = document.getElementById('user-input');
-    
-    if (transBtn) transBtn.innerText = `TRANSMITIR (${timeLeft}s)`;
-
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        if (transBtn) transBtn.innerText = `TRANSMITIR (${timeLeft}s)`;
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            if (transBtn) { transBtn.innerText = "TRANSMITIR"; transBtn.disabled = false; }
-            if (input) { input.disabled = false; input.focus(); }
-            iniciarPenalizacionPorTiempo();
-        }
-    }, 1000);
-}
-
-function iniciarPenalizacionPorTiempo() {
-    timeLeft = currentDifficulty.timeLimit;
-    countdownActive = true;
-    
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0 && countdownActive) {
-            clearInterval(timerInterval);
-            procesarFalloPorTiempo();
-        }
-    }, 1000);
-}
-
-function procesarFalloPorTiempo() {
-    coreState.satisfaccionAcumulada -= 8;
-    inyectarBurbuja('alerta-sistema', "⚠️ TIMEOUT: El búfer del servidor expiró por retraso digital.");
-    inyectarLogDeRed("TIMEOUT", "CRIT_DELAY", "-8% SAT");
-    ejecutarRenderizadoPaneles();
-    bloquearYMostrarContinuar();
-}
-
-function iniciarSegundoTemporizador() {
-    timeLeft = 3;
-    const contBtn = document.getElementById('continue-btn');
-    if (contBtn) {
-        contBtn.disabled = true; 
-        contBtn.innerText = `SIGUIENTE CONSULTA (${timeLeft}s)`;
-    }
-
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        if (contBtn) contBtn.innerText = `SIGUIENTE CONSULTA (${timeLeft}s)`;
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            if (contBtn) { contBtn.innerText = "SIGUIENTE CONSULTA"; contBtn.disabled = false; }
-        }
-    }, 1000);
-}
-
-function inyectarBurbuja(sender, texto) {
+    actualizarBotonCuentaUI();
+    renderAllData();
     const chatBox = document.getElementById('chat-messages');
-    if (!chatBox) return;
-    const div = document.createElement('div');
-    div.className = `message ${sender}`;
-    div.innerText = (sender === 'gugel') ? `GUGEL: "${texto}"` : (sender === 'ai') ? `TÚ: ${texto}` : texto;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    if (chatBox) chatBox.innerHTML = "";
+    nextRound();
 }
 
-function inyectarLogDeRed(status, code, mod) {
-    const container = document.getElementById('network-logs-container');
-    if (!container) return;
-    
-    let cssClass = "stat-ok";
-    if (status === "RECHAZO") cssClass = "stat-rechazo";
-    if (status === "REDUNDANCIA" || status === "EVASIVA" || status === "TIMEOUT" || status === "CRITICA") cssClass = "stat-crit";
-    if (status === "TOCHO") cssClass = "stat-tocho";
-
-    const div = document.createElement('div');
-    div.className = "log-entry";
-    div.innerHTML = `<code class="${cssClass}">[CYC-${coreState.cycles}] STAT: ${status} | CODE: ${code} | ${mod}</code>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
+function guardarProgresoCuenta() {
+    if (!currentUser) return; 
+    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    if (db[currentUser]) {
+        db[currentUser].data = gameState;
+        localStorage.setItem("gugel_users", JSON.stringify(db));
+    }
 }
 
-// ============================================================================
-// DETECTOR METICULOSO DE CONTEXTO, COMPORTAMIENTO Y SINTAXIS
-// ============================================================================
-function evaluarRespuestaIA(userText) {
-    const textClean = userText.toLowerCase().trim();
+function cambiarModoEstrategia(modo) {
+    const modoLimpio = (modo === 'campaña' || modo === 'campana') ? 'campaña' : 'infinito';
     
-    if (userAccount.hackerMode) {
-        return { tipo: "HACK", txt: "SYSTEM OVERRIDE: Entrada forzada aceptada por el nodo administrador root.", satMod: 10 };
+    if (gameState.modoActualJuego === modoLimpio) {
+        switchView('view-core');
+        return; 
     }
-
-    if (coreState.history.some(h => h.respuesta.toLowerCase().trim() === textClean)) {
-        return { tipo: "REDUNDANCIA", txt: "⚠️ ERROR CÍCLICO: Respuesta clonada. Deja de bugear la pila de entrada de red.", satMod: -10 };
-    }
-
-    if (EVASIVAS.some(e => textClean === e || textClean === e + ".")) {
-        desbloquearLogro("Esquiva Balas");
-        return { tipo: "EVASIVA", txt: FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)], satMod: -15 };
-    }
-
-    if (userText.length > 140) {
-        desbloquearLogro("Biblia Evitada");
-        return { tipo: "TOCHO", txt: FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)], satMod: -10 };
-    }
-
-    let coincideSujeto = textClean.includes(coreState.ultimoSujetoClave) || coreState.ultimoSujetoClave === "rubik";
-    let tieneIndicador = INDICADORES_COHERENCIA.some(ind => textClean.includes(ind));
     
-    if (userText.length >= currentDifficulty.minChars && tieneIndicador && coincideSujeto) {
-        desbloquearLogro("Estratega del Silicio");
-        return { tipo: "OK", txt: FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)], satMod: 8 };
+    gameState.modoSeleccionadoSiguiente = modoLimpio;
+    gameState.modoActualJuego = modoLimpio;
+    
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    
+    if (modoLimpio === 'campaña') {
+        const btnC = document.getElementById('btn-mode-campaña') || document.getElementById('btn-mode-campana');
+        if (btnC) btnC.classList.add('active');
     } else {
-        return { tipo: "RECHAZO", txt: FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)], satMod: -7 };
+        const btnI = document.getElementById('btn-mode-infinito');
+        if (btnI) btnI.classList.add('active');
     }
+    
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
+    
+    switchView('view-core');
+    nextRound();
 }
 
-function desbloquearLogro(nombre) {
-    if (!coreState.logrosDesbloqueados.includes(nombre)) {
-        coreState.logrosDesbloqueados.push(nombre);
-        inyectarBurbuja('logro-notif', `🏆 ¡LOGRO DESBLOQUEADO: ${nombre}!`);
-        ejecutarRenderizadoPaneles();
-    }
+function switchView(viewId) {
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    const targetPanel = document.getElementById(viewId);
+    if (targetPanel) targetPanel.classList.add('active');
+    
+    const targetBtn = document.getElementById(`btn-${viewId}`);
+    if (targetBtn) targetBtn.classList.add('active');
 }
 
-// Forzado dinámico de logros masivos por volumen de procesamiento puro
-function verificarInyeccionLogrosMasivos() {
-    let topeLogros = Math.min(200, 9 + Math.floor(coreState.cycles * 2));
-    for (let i = 10; i <= topeLogros; i++) {
-        let identificador = `Logro Core ID-${i}`;
-        if (!coreState.logrosDesbloqueados.includes(identificador)) {
-            coreState.logrosDesbloqueados.push(identificador);
+function generarPregunta() {
+    if (gameState.modoActualJuego === "campaña") {
+        if (gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
+            gameState.campanaCompletada = true;
+            return null;
         }
+        return PREGUNTAS_CAMPANA[gameState.campanaIndex++];
+    } else {
+        const s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+        const p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+        return plantilla.replace("[s]", s).replace("[p]", p);
     }
 }
 
-function bloquearYMostrarContinuar() {
-    countdownActive = false;
+function appendMessage(sender, text) {
+    const box = document.getElementById('chat-messages');
+    if (!box) return;
+    const msg = document.createElement('div');
+    msg.className = `message ${sender}`;
+    msg.innerHTML = sender === 'gugel' ? `<strong>gugel:</strong> ${text}` : `<strong>tú:</strong> ${text}`;
+    box.appendChild(msg);
+    box.scrollTop = box.scrollHeight;
+}
+
+function nextRound() {
     const input = document.getElementById('user-input');
-    const transBtn = document.getElementById('transmit-btn');
-    const contBtn = document.getElementById('continue-btn');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
     
-    if (input) input.disabled = true;
-    if (transBtn) transBtn.style.display = "none";
-    if (contBtn) contBtn.style.display = "block";
+    if (continueBtn) continueBtn.style.display = "none";
     
-    guardarProgresoEnLocal();
-    iniciarSegundoTemporizador();
+    if (gameState.modoActualJuego === "campaña" && gameState.campanaCompletada) {
+        if (input) { input.style.display = "block"; input.disabled = true; input.value = ""; input.placeholder = "CAMPAÑA COMPLETADA. MODO BLOQUEADO."; }
+        if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
+        const titleText = document.getElementById('panel-title-text');
+        if (titleText) titleText.innerText = `Interfaz Core - Campaña Finalizada`;
+        appendMessage('gugel', "has respondido todas las consultas de la campaña. no quedan más transmisiones disponibles en este sector.");
+        return;
+    }
+
+    if (input) { input.style.display = "block"; input.value = ""; }
+    if (transmitBtn) { transmitBtn.style.display = "block"; }
+
+    let q = generarPregunta();
+    if (q === null && gameState.campanaCompletada) {
+        nextRound();
+        return;
+    }
+    
+    gameState.currentPregunta = q;
+    
+    const modoTexto = gameState.modoActualJuego === 'campaña' ? "Campaña" : "Modo Infinito";
+    const titleText = document.getElementById('panel-title-text');
+    if (titleText) titleText.innerText = `Interfaz Core - ${modoTexto}`;
+
+    appendMessage('gugel', gameState.currentPregunta);
+    
+    if (input && transmitBtn) {
+        input.disabled = true;
+        transmitBtn.disabled = true;
+        
+        let timeLeft = 5;
+        input.placeholder = `Procesando entrada... (${timeLeft}s)`;
+        
+        if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+        
+        window.currentRoundTimer = setInterval(() => {
+            timeLeft--;
+            input.placeholder = `Procesando entrada... (${timeLeft}s)`;
+            if (timeLeft <= 0) {
+                clearInterval(window.currentRoundTimer);
+                input.disabled = false;
+                transmitBtn.disabled = false;
+                input.placeholder = "introduce tu respuesta de ia...";
+                input.focus();
+            }
+        }, 1000);
+    }
 }
 
-// ============================================================================
-// RENDERIZADOR MAQUETA VISUAL
-// ============================================================================
-function ejecutarRenderizadoPaneles() {
-    const lvlElement = document.getElementById('prof-level');
-    if (lvlElement) lvlElement.innerText = `Nivel: ${Math.floor(coreState.cycles / 4) + 1}`;
-
-    if (coreState.satisfaccionAcumulada > 100) coreState.satisfaccionAcumulada = 100;
-    if (coreState.satisfaccionAcumulada < 0) coreState.satisfaccionAcumulada = 0;
+function analizarRespuesta(respuesta, numPalabras, palabrasArray) {
+    if (EVASIVAS.includes(respuesta)) return "CRITICA";
     
-    const satElement = document.getElementById('prof-satisfaction');
-    if (satElement) satElement.innerText = `Satisfacción: ${coreState.satisfaccionAcumulada}%`;
-
-    const opinionContainer = document.getElementById('prof-opinion');
-    if (opinionContainer) {
-        if (coreState.cycles === 0) {
-            opinionContainer.innerText = "Opinión: (analizando conexiones...)";
-        } else {
-            let arrayOpiniones = coreState.satisfaccionAcumulada < 30 ? OPINIONES_MALAS :
-                                 coreState.satisfaccionAcumulada < 55 ? OPINIONES_MEDIO_MALAS :
-                                 coreState.satisfaccionAcumulada < 80 ? OPINIONES_MEDIO_BUENAS : OPINIONES_BUENAS;
-            opinionContainer.innerText = `Opinión: ${arrayOpiniones[coreState.cycles % arrayOpiniones.length]}`;
+    let textoSinEspacios = respuesta.replace(/\s+/g, '');
+    if (/(.)\1{4,}/.test(textoSinEspacios)) return "CRITICA";
+    
+    if (palabrasArray.length >= 4) {
+        let conteoPalabras = {};
+        let maximaRepeticion = 0;
+        palabrasArray.forEach(p => {
+            conteoPalabras[p] = (conteoPalabras[p] || 0) + 1;
+            if (conteoPalabras[p] > maximaRepeticion) {
+                maximaRepeticion = conteoPalabras[p];
+            }
+        });
+        if (maximaRepeticion > palabrasArray.length * 0.5) {
+            return "CRITICA";
         }
     }
 
-    // Comprobadores de hitos base
-    if (coreState.cycles >= 1) desbloquearLogro("Hola Mundo");
-    if (coreState.satisfaccionAcumulada >= 90) desbloquearLogro("Modo Dios: Iniciando");
-    if (coreState.cycles >= 5) desbloquearLogro("IA con Cafeína");
+    if (numPalabras <= 2) return "RECHAZO";
     
-    verificarInyeccionLogrosMasivos();
+    let contieneConector = INDICADORES_COHERENCIA.some(c => respuesta.includes(c));
+    return contieneConector || respuesta.length > 12 ? "OK" : "RECHAZO";
+}
 
-    const logrosContainer = document.getElementById('logros-container');
-    const logrosCount = document.getElementById('logros-count');
+document.getElementById('chat-form').onsubmit = (e) => {
+    e.preventDefault();
+    const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    const userText = input.value.trim().toLowerCase();
     
-    let htmlLogros = "";
-    let totalUnlocked = 0;
+    if (!userText) return;
 
-    LOGLOS_DIVERTIDOS = LOGROS_DIVERTIDOS || [];
-    LOGROS_DIVERTIDOS.forEach(logro => {
-        if (coreState.logrosDesbloqueados.includes(logro.t)) {
-            totalUnlocked++;
-            htmlLogros += `<div class="list-item-logro"><strong>🟢 ${logro.t}</strong><br><small>${logro.d}</small></div>`;
-        }
+    const esMuySimilar = gameState.history.some(h => {
+        const past = h.respuesta.replace(/\s+$/g, '').toLowerCase();
+        const current = userText.replace(/\s+$/g, '').toLowerCase();
+        return current === past || current.includes(past) || past.includes(current);
     });
 
-    if (htmlLogros === "" && logrosContainer) {
-        htmlLogros = `<div style="text-align: center; color: #475569; font-style: italic; padding: 10px; font-size:0.8rem;">Ningún registro de logro activo.</div>`;
+    appendMessage('ai', userText);
+    
+    const palabrasArray = userText.split(/\s+/).filter(p => p.length > 0);
+    const numPalabras = palabrasArray.length;
+    let tipoResultado = analizarRespuesta(userText, numPalabras, palabrasArray);
+    
+    let reaccion = "";
+    let cambioSatisfacion = 0;
+    
+    if (!gameState.recentReactions) {
+        gameState.recentReactions = [];
     }
-
-    if (logrosContainer) logrosContainer.innerHTML = htmlLogros;
-    if (logrosCount) logrosCount.innerText = totalUnlocked;
-}
-
-// ============================================================================
-// GESTIÓN DE CREDENCIALES Y BORRADO DE DATOS
-// ============================================================================
-function administrarLoginSistema() {
-    const name = prompt("Defina identificador Core:");
-    if (name && name.trim()) {
-        const pass = prompt("Defina clave de encriptación:");
-        
-        userAccount.username = name.trim();
-        userAccount.password = pass ? pass.trim() : "";
-        userAccount.sesionIniciada = true;
-        
-        document.getElementById("btn-gestion-cuenta").innerText = `👤 ${userAccount.username.toUpperCase()}`;
-
-        if (userAccount.password === "admin123" || userAccount.password === "root") {
-            userAccount.hackerMode = true;
-            document.documentElement.classList.add("hacker-terminal");
-            inyectarBurbuja('alerta-sistema', "🔓 SYSTEM OVERRIDE: Terminal cargada con permisos root.");
+    let excluidos = gameState.recentReactions;
+    
+    if (esMuySimilar) {
+        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, excluidos);
+        cambioSatisfacion = -25;
+        tipoResultado = "CRITICA";
+    } else if (tipoResultado === "CRITICA") {
+        reaccion = obtenerElementoNoRepetido(FRASES_CRITICAS, excluidos);
+        cambioSatisfacion = -15;
+    } else if (tipoResultado === "RECHAZO") {
+        reaccion = obtenerElementoNoRepetido(FRASES_RECHAZO, excluidos);
+        cambioSatisfacion = -5;
+    } else { 
+        if (numPalabras > MAX_PALABRAS) {
+            reaccion = obtenerElementoNoRepetido(FRASES_MUCHO_TEXTO, excluidos);
+            cambioSatisfacion = -5;
         } else {
-            userAccount.hackerMode = false;
-            document.documentElement.classList.remove("hacker-terminal");
+            reaccion = obtenerElementoNoRepetido(FRASES_OK, excluidos);
+            cambioSatisfacion = 10;
         }
-        guardarProgresoEnLocal();
     }
-}
-
-function cambiarModoEstrategia(nuevoModo) {
-    clearInterval(timerInterval);
-    countdownActive = false;
     
-    coreState.modoJuego = nuevoModo;
-    coreState.cycles = 0;
-    coreState.satisfaccionAcumulada = 50;
-    coreState.history = [];
-    if (nuevoModo === 'campaña') coreState.campanaIdx = 0;
+    gameState.recentReactions.push(reaccion);
+    if (gameState.recentReactions.length > 2) {
+        gameState.recentReactions.shift();
+    }
     
-    document.getElementById('chat-messages').innerHTML = "";
-    document.getElementById('network-logs-container').innerHTML = "";
+    gameState.lastReaccionText = reaccion;
+    gameState.cycles++;
+    gameState.totalChars += userText.length;
+    gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + cambioSatisfacion));
     
-    iniciarSiguienteRonda();
-    ejecutarRenderizadoPaneles();
-    guardarProgresoEnLocal();
-}
-
-// ============================================================================
-// ENLACES DOM E INICIALIZACIÓN DE LA VENTANA
-// ============================================================================
-window.onload = function() {
-    cargarProgresoDesdeLocal();
-
-    document.getElementById("btn-gestion-cuenta").onclick = administrarLoginSistema;
+    if (gameState.logrosDesbloqueados.length < LOGROS_DIVERTIDOS.length) {
+        let nLogro = LOGROS_DIVERTIDOS[gameState.logrosDesbloqueados.length];
+        gameState.logrosDesbloqueados.push({ titulo: nLogro.t, desc: nLogro.d });
+    }
     
-    document.getElementById("btn-reset-data").onclick = function() {
-        if(confirm("¿Confirmas el volcado total de memoria? Se perderá el guardado local.")) {
-            localStorage.clear();
-            location.reload();
-        }
-    };
+    let listadoSelected;
+    if (gameState.satisfaction < 25) listadoSelected = OPINIONES_BAJA;
+    else if (gameState.satisfaction < 50) listadoSelected = OPINIONES_MEDIA_BAJA;
+    else if (gameState.satisfaction <= 75) listadoSelected = OPINIONES_MEDIA_ALT_A;
+    else listadoSelected = OPINIONES_ALTA;
 
-    document.getElementById('modo-juego-selector').onchange = function() {
-        cambiarModoEstrategia(this.value);
-    };
+    gameState.lastOpinion = obtenerElementoNoRepetido(listadoSelected, gameState.lastOpinion);
 
-    document.getElementById('continue-btn').onclick = function() {
-        iniciarSiguienteRonda();
-    };
+    gameState.history.push({ 
+        pregunta: gameState.currentPregunta, 
+        respuesta: userText, 
+        reaccion: reaccion, 
+        tipo: tipoResultado, 
+        fav: false 
+    });
+    
+    if (gameState.modoActualJuego === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
+        gameState.campanaCompletada = true;
+    }
 
-    document.getElementById('chat-form').onsubmit = function(e) {
-        e.preventDefault();
-        clearInterval(timerInterval);
-        countdownActive = false;
-        
-        const input = document.getElementById('user-input');
-        const text = input ? input.value.trim() : "";
-        if (!text) return;
+    if (input) input.style.display = "none";
+    if (transmitBtn) transmitBtn.style.display = "none";
+    
+    setTimeout(() => {
+        appendMessage('gugel', reaccion);
+        guardarProgresoCuenta(); 
+        renderAllData();
 
-        coreState.cycles++;
-        coreState.charsSent += text.length;
-        inyectarBurbuja('ai', text);
-
-        let evaluacion = evaluarRespuestaIA(text);
-        coreState.satisfaccionAcumulada += evaluacion.satMod;
-
-        setTimeout(() => {
-            inyectarBurbuja('gugel', evaluacion.txt);
-            inyectarLogDeRed(evaluacion.tipo, evaluacion.satMod >= 0 ? "SUCCESS" : "FAIL", `${evaluacion.satMod}% SAT`);
+        if (continueBtn) {
+            continueBtn.style.display = "block";
+            continueBtn.disabled = true;
             
-            coreState.history.push({
-                pregunta: coreState.currentQ, respuesta: text, reaccion: evaluacion.txt, tipo: evaluacion.tipo
-            });
+            let continueTimeLeft = 5;
+            continueBtn.innerText = `CONTINUAR (${continueTimeLeft}s)`;
+            
+            if (window.continueTimer) clearInterval(window.continueTimer);
+            
+            window.continueTimer = setInterval(() => {
+                continueTimeLeft--;
+                continueBtn.innerText = `CONTINUAR (${continueTimeLeft}s)`;
+                if (continueTimeLeft <= 0) {
+                    clearInterval(window.continueTimer);
+                    continueBtn.disabled = false;
+                    continueBtn.innerText = "CONTINUAR";
+                }
+            }, 1000);
+        }
+    }, 600);
+};
 
-            ejecutarRenderizadoPaneles();
-            bloquearYMostrarContinuar();
-        }, 400);
-    };
-
-    // Control de render inicial de persistencia
-    ejecutarRenderizadoPaneles();
-    if (coreState.currentQ === "") {
-        iniciarSiguienteRonda();
-    } else {
-        inyectarBurbuja('gugel', coreState.currentQ);
-        iniciarPrimerTemporizador();
+function renderAllData() {
+    const profOpinion = document.getElementById('prof-opinion');
+    if (profOpinion) profOpinion.innerText = gameState.lastOpinion || "(analizando conexiones...)";
+    
+    const profSatisfaction = document.getElementById('prof-satisfaction');
+    if (profSatisfaction) profSatisfaction.innerText = `${gameState.satisfaction}%`;
+    
+    const profCycles = document.getElementById('prof-cycles');
+    if (profCycles) profCycles.innerText = gameState.cycles;
+    
+    const profChars = document.getElementById('prof-chars');
+    if (profChars) profChars.innerText = gameState.totalChars;
+    
+    const logrosCount = document.getElementById('logros-count');
+    if (logrosCount) logrosCount.innerText = gameState.logrosDesbloqueados.length;
+    
+    const logrosContainer = document.getElementById('logros-container');
+    if (logrosContainer) {
+        logrosContainer.innerHTML = gameState.logrosDesbloqueados.map(l => `
+            <div class="logro-item" style="background: rgba(0, 255, 204, 0.1); padding: 10px; margin-bottom: 5px; border-left: 3px solid #00ffcc;">
+                <strong>🏆 ${l.titulo}</strong><br><small>${l.desc}</small>
+            </div>
+        `).join('') || "No se ha desbloqueado ningún logro todavía.";
     }
+
+    const btnC = document.getElementById('btn-mode-campaña') || document.getElementById('btn-mode-campana');
+    if (btnC) {
+        btnC.style.display = gameState.campanaCompletada ? "none" : "inline-block";
+    }
+
+    const hContainer = document.getElementById('history-list-container');
+    if (hContainer) {
+        hContainer.innerHTML = gameState.history.map((h, idx) => `
+            <div class="historial-item" style="cursor: pointer; background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 5px; border-radius: 4px;" onclick="verChatHistorial(${idx}, event)">
+                <div style="flex-grow: 1;">
+                    <strong>Q:</strong> ${h.pregunta}<br>
+                    <strong>A:</strong> ${h.respuesta}<br>
+                    <strong>GUGEL:</strong> ${h.reaccion}
+                </div>
+                <button class="fav-btn ${h.fav ? 'active' : ''}" onclick="toggleFavorite(${idx}, event)" style="background:none; border:none; color:${h.fav ? '#ffcc00':'#fff'}; font-size:18px; cursor:pointer;">★</button>
+            </div>
+        `).join('') || "Búfer de logs vacío.";
+    }
+}
+
+window.verChatHistorial = function(idx, event) {
+    if (event) event.stopPropagation();
+    const h = gameState.history[idx];
+    if (!h) return;
+    
+    switchView('view-core');
+    
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) {
+        chatBox.innerHTML = "";
+        
+        const msgQ = document.createElement('div');
+        msgQ.className = "message gugel";
+        msgQ.innerHTML = `<strong>gugel:</strong> ${h.pregunta}`;
+        chatBox.appendChild(msgQ);
+        
+        const msgA = document.createElement('div');
+        msgA.className = "message ai";
+        msgA.innerHTML = `<strong>tú:</strong> ${h.respuesta}`;
+        chatBox.appendChild(msgA);
+        
+        const msgR = document.createElement('div');
+        msgR.className = "message gugel";
+        msgR.innerHTML = `<strong>gugel:</strong> ${h.reaccion}`;
+        chatBox.appendChild(msgR);
+        
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    
+    const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    
+    if (input) input.style.display = "none";
+    if (transmitBtn) transmitBtn.style.display = "none";
+    if (continueBtn) {
+        continueBtn.style.display = "block";
+        continueBtn.disabled = false;
+        continueBtn.innerText = "VOLVER A LA PARTIDA";
+    }
+    
+    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+};
+
+window.toggleFavorite = function(idx, event) {
+    if (event) event.stopPropagation();
+    gameState.history[idx].fav = !gameState.history[idx].fav;
+    guardarProgresoCuenta();
+    renderAllData();
+};
+
+window.confirmContinue = function() {
+    gameState.modoActualJuego = gameState.modoSeleccionadoSiguiente;
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
+    nextRound();
+};
+
+function exportCoreData() {
+    let txt = gameState.history.map(h => `Q: ${h.pregunta} | A: ${h.respuesta} | GUGEL: ${h.reaccion}`).join('\n');
+    navigator.clipboard.writeText(txt || "Búfer vacío").then(() => alert("Registro copiado."));
+}
+
+window.onload = function() {
+    const btnCuentas = document.getElementById("btn-gestion-cuenta");
+    if (btnCuentas) {
+        btnCuentas.onclick = ejecutarAccionCuenta;
+    }
+
+    actualizarBotonCuentaUI();
+    renderAllData();
+    nextRound();
 };
