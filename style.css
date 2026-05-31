@@ -1,4 +1,4 @@
-/* PALETAS DE COLORES SEGÚN EL TEMA */
+c/* PALETAS DE COLORES SEGÚN EL TEMA */
 .modo-hacker {
     --bg-main: #0a0a0a;
     --bg-panel: #111111;
@@ -52,18 +52,49 @@
 }
 
 .modo-espacial {
-    --bg-main: #0b0e14;
-    --bg-panel: #161b22;
-    --bg-inner: #21262d;
-    --text-primary: #c9d1d9;
-    --text-muted: #8b949e;
-    --accent-color: #8b5cf6;
-    --accent-text: #ffffff;
-    --bubble-bg: #30363d;
-    --bubble-border: #484f58;
-    --negative-color: #ff7b72;
+    --bg-main: #03030c;
+    --bg-panel: #090a16;
+    --bg-inner: #121424;
+    --text-primary: #c2d6ff;
+    --text-muted: #495678;
+    --accent-color: #00f2ff;
+    --accent-text: #03030c;
+    --bubble-bg: #151632;
+    --bubble-border: #242b5c;
+    --negative-color: #ff4a74;
 }
 
+/* REGLAS ESPECÍFICAS PARA HACER EL MODO ESPACIAL MÁS CÓSMICO */
+body.modo-espacial {
+    background-image: radial-gradient(circle at 50% 50%, #111235 0%, #03030c 85%);
+    position: relative;
+}
+body.modo-espacial #app-container {
+    border: 2px solid #2d3875;
+    box-shadow: 0 0 35px rgba(0, 242, 255, 0.25), inset 0 0 20px rgba(36, 43, 92, 0.4);
+}
+body.modo-espacial .card, 
+body.modo-espacial #app-sidebar, 
+body.modo-espacial #main-content,
+body.modo-espacial .modal-card {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(0, 242, 255, 0.15);
+}
+body.modo-espacial .message.ia {
+    border-right: 4px solid var(--accent-color);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
+}
+body.modo-espacial .message.humano {
+    border-left: 4px solid #b63fff;
+    box-shadow: 0 0 15px rgba(182, 63, 255, 0.15);
+}
+body.modo-espacial button:hover {
+    box-shadow: 0 0 12px var(--accent-color);
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+/* ESTILOS ESTRUCTURALES BASE */
 body {
     background-color: var(--bg-main);
     color: var(--text-primary);
@@ -124,13 +155,18 @@ button {
     font-size: 0.85rem;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .sub-btn {
     background-color: var(--bg-inner);
     color: var(--text-primary);
     border: 1px solid var(--bubble-border);
 }
 
-.sub-btn:hover {
+.sub-btn:hover:not(:disabled) {
     background-color: var(--bubble-border);
 }
 
@@ -256,6 +292,8 @@ button {
     border-radius: 6px;
     font-size: 0.8rem;
     cursor: pointer;
+    width: 100%;
+    text-align: center;
 }
 .fav-btn:hover { background: #ffd700; color: #000; }
 
@@ -274,6 +312,7 @@ input[type="text"], input[type="password"] {
 }
 
 input:focus { outline: none; border-color: var(--accent-color); }
+input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 #transmit-btn {
     background-color: var(--bg-inner);
@@ -282,7 +321,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
     padding: 0 24px;
 }
 
-#transmit-btn:hover { background-color: var(--accent-color); color: var(--accent-text); }
+#transmit-btn:hover:not(:disabled) { background-color: var(--accent-color); color: var(--accent-text); }
 
 .card {
     background-color: var(--bg-inner);
@@ -313,28 +352,65 @@ input:focus { outline: none; border-color: var(--accent-color); }
     cursor: pointer;
     transition: border-color 0.2s;
 }
-.log-item-card:hover {
-    border-color: var(--accent-color);
-}
-.log-item-info {
-    flex-grow: 1;
-}
-.log-item-action {
-    margin-left: 15px;
-}
-.mini-fav-btn {
-    background: none;
-    border: 1px solid #ffd700;
-    color: #ffd700;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-}
-.mini-fav-btn:hover {
-    background: #ffd700;
-    color: #000;
-}
+.log-item-card:hover { border-color: var(--accent-color); }
+.log-item-info { flex-grow: 1; }
+.log-item-action { margin-left: 15px; }
+.mini-fav-btn { background: none; border: 1px solid #ffd700; color: #ffd700; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; }
+.mini-fav-btn:hover { background: #ffd700; color: #000; }
 
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
-#continue-btn:hover { opacity: 0.9; }
+#continue-btn:hover:not(:disabled) { opacity: 0.9; }
+
+/* ESTRUCTURA DE LA VENTANA EMERGENTE (MODAL) */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.modal-overlay.active {
+    display: flex;
+}
+.modal-card {
+    width: 100%;
+    max-width: 440px;
+    background-color: var(--bg-inner);
+    border: 2px solid var(--accent-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+.modal-card h3 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px dashed var(--bubble-border);
+    padding-bottom: 12px;
+}
+.modal-form-gap {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+.modal-buttons button {
+    flex: 1;
+    text-align: center;
+}
+.modal-save-btn {
+    background: var(--accent-color);
+    color: var(--accent-text);
+}
