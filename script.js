@@ -532,6 +532,16 @@ function cargarChatHistorico(index) {
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
+    
+    // SOLUCIÓN TRIPLE:
+    // 1. Si haces clic en el botón del modo en el que YA ESTÁS jugando, solo te lleva al chat de vuelta.
+    //    ¡No se borra la pregunta actual ni se salta de ronda de forma accidental!
+    if (c.modo === nuevoModo && c.currentPregunta) {
+        switchView('view-chat');
+        return;
+    }
+    
+    // 2. Si realmente estás CAMBIANDO el modo de juego de forma intencionada a mitad de ronda:
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
@@ -539,33 +549,13 @@ function seleccionarModoJuego(nuevoModo) {
     salvarAStorage();
     switchView('view-chat');
     
-    // ARREGLADO: Solo se llama a nextRound() si la pregunta actual está vacía.
-    // Si ya hay una ronda en curso, se preserva por completo y no se borra nada al clicar.
-    if (!c.currentPregunta) {
-        if (cronometroPregunta) clearInterval(cronometroPregunta);
-        if (cronometroReaccion) clearInterval(cronometroReaccion);
-        nextRound();
-    } else {
-        // Redibujamos la interfaz con la pregunta existente intacta
-        renderAllData();
-        
-        // Si el chat tiene mensajes, asegurarse de pintar el historial visual en vez de dejarlo en blanco
-        const box = document.getElementById('chat-messages');
-        if (box && box.children.length === 0) {
-            appendMessage('humano', c.currentPregunta);
-            if (c.lastUserText && c.history.length > 0) {
-                let ultimoLog = c.history[c.history.length - 1];
-                if (ultimoLog.pregunta === c.currentPregunta) {
-                    appendMessage('ia', ultimoLog.respuesta);
-                    appendMessage('humano', ultimoLog.reaccion);
-                    document.getElementById('chat-actions-bar').style.display = "block";
-                    document.getElementById('continue-btn').style.display = "block";
-                    document.getElementById('user-input').style.display = "none";
-                    document.getElementById('transmit-btn').style.display = "none";
-                }
-            }
-        }
-    }
+    // 3. Matamos fantasmas visuales: Limpiamos por completo la pantalla y los hilos de tiempo 
+    //    anteriores para que no se mezclen textos de campaña en el modo infinito.
+    if (cronometroPregunta) clearInterval(cronometroPregunta);
+    if (cronometroReaccion) clearInterval(cronometroReaccion);
+    
+    document.getElementById('chat-messages').innerHTML = ""; 
+    nextRound(); 
 }
 
 function cambiarTema(nuevoTema) {
@@ -606,10 +596,8 @@ function switchView(viewId) {
 // 8. CONTROL DE AUTENTICACIÓN CON DIÁLOGO NATIVO
 // ==========================================
 function gestionarCuentaNativa() {
-    // ARREGLADO: Ahora se usan ventanas nativas (prompt) exactamente iguales al diseño de sistema de la foto.
     let userIn = prompt("⚙️ AUTENTICACIÓN CENTRAL GUGEL\n\nIntroduce tu Código o Alias de Operador:", usuarioActivo === "Invitado" ? "" : usuarioActivo);
     
-    // Si el usuario da a Cancelar (null), no hacemos nada
     if (userIn === null) return;
     
     userIn = userIn.trim();
@@ -625,7 +613,7 @@ function gestionarCuentaNativa() {
     
     let passIn = prompt(`🔐 SEGURIDAD DE TERMINAL\n\nOperador detectado: "${userIn}"\nIntroduce la contraseña de acceso (deja en blanco si es una cuenta nueva o libre):`, currentPass);
     
-    if (passIn === null) return; // Cancelado
+    if (passIn === null) return; 
 
     usuarioActivo = userIn;
     asegurarEstructuraCuenta(usuarioActivo);
