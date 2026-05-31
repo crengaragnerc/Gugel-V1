@@ -13,128 +13,282 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* PALETA DE COLORES: THEME VERDE NEÓN */
-body.theme-verde-neon {
+/* ==========================================
+   PALETAS DE COLORES PARA LOS 5 THEMES
+   ========================================== */
+
+/* 1. THEME HACKER (Verde Neón Original) */
+body.modo-hacker {
     background-color: #050c05;
     color: #39ff14;
+    --accent-color: #39ff14;
+    --text-muted: #1b8a1b;
 }
-body.theme-verde-neon .sidebar {
+body.modo-hacker .sidebar {
     background-color: #020602;
     border-right: 2px solid #145214;
 }
-body.theme-verde-neon .menu-item {
-    color: #1b8a1b;
-}
-body.theme-verde-neon .menu-item:hover, 
-body.theme-verde-neon .menu-item.active {
+body.modo-hacker .menu-item { color: #1b8a1b; }
+body.modo-hacker .menu-item:hover, 
+body.modo-hacker .menu-item.active {
     background-color: #145214;
     color: #39ff14;
 }
-body.theme-verde-neon .banner-alerta {
+body.modo-hacker .banner-alerta {
     background-color: rgba(212, 175, 55, 0.1);
     border: 1px solid #d4af37;
     color: #d4af37;
 }
-body.theme-verde-neon .chat-box {
+body.modo-hacker .chat-box {
     background-color: #030803;
     border: 2px solid #145214;
 }
-body.theme-verde-neon .bubble-usuario {
-    background-color: rgba(57, 255, 20, 0.1);
-    border: 1px solid #39ff14;
-    color: #39ff14;
+body.modo-hacker .message.gugel {
+    background-color: rgba(57, 255, 20, 0.05);
+    border-left: 4px solid #39ff14;
+    padding: 10px;
+    margin-bottom: 10px;
 }
-body.theme-verde-neon .input-container input {
+body.modo-hacker .message.usuario {
+    background-color: rgba(57, 255, 20, 0.15);
+    border-left: 4px solid #1b8a1b;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-hacker input, body.modo-hacker button {
     background-color: #020602;
     border: 2px solid #145214;
     color: #39ff14;
 }
-body.theme-verde-neon #btn-transmitir {
+body.modo-hacker #transmit-btn, body.modo-hacker #continue-btn {
     background-color: #39ff14;
     color: #020602;
+    font-weight: bold;
 }
 
-/* PALETA DE COLORES: THEME ESPACIAL ✨ */
-body.theme-espacial {
+/* 2. THEME CLARO */
+body.modo-claro {
+    background-color: #f5f5f5;
+    color: #222222;
+    --accent-color: #0066cc;
+    --text-muted: #666666;
+}
+body.modo-claro .sidebar {
+    background-color: #e0e0e0;
+    border-right: 2px solid #b5b5b5;
+}
+body.modo-claro .menu-item { color: #444444; }
+body.modo-claro .menu-item:hover, 
+body.modo-claro .menu-item.active {
+    background-color: #b5b5b5;
+    color: #000000;
+}
+body.modo-claro .banner-alerta {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+body.modo-claro .chat-box {
+    background-color: #ffffff;
+    border: 2px solid #b5b5b5;
+}
+body.modo-claro .message.gugel {
+    background-color: #f1f1f1;
+    border-left: 4px solid #666666;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-claro .message.usuario {
+    background-color: #e3f2fd;
+    border-left: 4px solid #0066cc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-claro input, body.modo-claro button {
+    background-color: #ffffff;
+    border: 2px solid #b5b5b5;
+    color: #222222;
+}
+body.modo-claro #transmit-btn, body.modo-claro #continue-btn {
+    background-color: #0066cc;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* 3. THEME OSCURO */
+body.modo-oscuro {
+    background-color: #121212;
+    color: #e0e0e0;
+    --accent-color: #bb86fc;
+    --text-muted: #888888;
+}
+body.modo-oscuro .sidebar {
+    background-color: #1e1e1e;
+    border-right: 2px solid #333333;
+}
+body.modo-oscuro .menu-item { color: #aaaaaa; }
+body.modo-oscuro .menu-item:hover, 
+body.modo-oscuro .menu-item.active {
+    background-color: #333333;
+    color: #bb86fc;
+}
+body.modo-oscuro .banner-alerta {
+    background-color: rgba(255, 152, 0, 0.1);
+    border: 1px solid #ff9800;
+    color: #ff9800;
+}
+body.modo-oscuro .chat-box {
+    background-color: #181818;
+    border: 2px solid #333333;
+}
+body.modo-oscuro .message.gugel {
+    background-color: #252525;
+    border-left: 4px solid #888888;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-oscuro .message.usuario {
+    background-color: rgba(187, 134, 252, 0.1);
+    border-left: 4px solid #bb86fc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-oscuro input, body.modo-oscuro button {
+    background-color: #1e1e1e;
+    border: 2px solid #333333;
+    color: #e0e0e0;
+}
+body.modo-oscuro #transmit-btn, body.modo-oscuro #continue-btn {
+    background-color: #bb86fc;
+    color: #121212;
+    font-weight: bold;
+}
+
+/* 4. THEME ROSA */
+body.modo-rosa {
+    background-color: #fff0f5;
+    color: #ff1493;
+    --accent-color: #ff69b4;
+    --text-muted: #db7093;
+}
+body.modo-rosa .sidebar {
+    background-color: #ffe4e1;
+    border-right: 2px solid #ffb6c1;
+}
+body.modo-rosa .menu-item { color: #db7093; }
+body.modo-rosa .menu-item:hover, 
+body.modo-rosa .menu-item.active {
+    background-color: #ffb6c1;
+    color: #fff0f5;
+}
+body.modo-rosa .banner-alerta {
+    background-color: rgba(219, 112, 147, 0.1);
+    border: 1px solid #db7093;
+    color: #db7093;
+}
+body.modo-rosa .chat-box {
+    background-color: #ffffff;
+    border: 2px solid #ffb6c1;
+}
+body.modo-rosa .message.gugel {
+    background-color: #fff5f5;
+    border-left: 4px solid #db7093;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-rosa .message.usuario {
+    background-color: rgba(255, 105, 180, 0.15);
+    border-left: 4px solid #ff1493;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-rosa input, body.modo-rosa button {
+    background-color: #ffffff;
+    border: 2px solid #ffb6c1;
+    color: #ff1493;
+}
+body.modo-rosa #transmit-btn, body.modo-rosa #continue-btn {
+    background-color: #ff1493;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* 5. THEME ESPACIAL ✨ */
+body.modo-espacial {
     background-color: #0b091a;
     color: #9d8df1;
+    --accent-color: #df99f7;
+    --text-muted: #63569c;
 }
-body.theme-espacial .sidebar {
+body.modo-espacial .sidebar {
     background-color: #05040d;
     border-right: 2px solid #3a2e6b;
 }
-body.theme-espacial .menu-item {
-    color: #63569c;
-}
-body.theme-espacial .menu-item:hover, 
-body.theme-espacial .menu-item.active {
+body.modo-espacial .menu-item { color: #63569c; }
+body.modo-espacial .menu-item:hover, 
+body.modo-espacial .menu-item.active {
     background-color: #24194e;
     color: #df99f7;
     box-shadow: 0 0 8px rgba(223, 153, 247, 0.4);
 }
-body.theme-espacial .banner-alerta {
+body.modo-espacial .banner-alerta {
     background-color: rgba(255, 107, 107, 0.1);
     border: 1px solid #ff6b6b;
     color: #ff6b6b;
 }
-body.theme-espacial .chat-box {
+body.modo-espacial .chat-box {
     background-color: #070612;
     border: 2px solid #3a2e6b;
     background-image: radial-gradient(white 1%, transparent 1%);
     background-size: 50px 50px;
 }
-body.theme-espacial .bubble-usuario {
-    background-color: rgba(157, 141, 241, 0.1);
-    border: 1px solid #9d8df1;
-    color: #df99f7;
+body.modo-espacial .message.gugel {
+    background-color: rgba(99, 86, 156, 0.2);
+    border-left: 4px solid #63569c;
+    padding: 10px;
+    margin-bottom: 10px;
 }
-body.theme-espacial .input-container input {
+body.modo-espacial .message.usuario {
+    background-color: rgba(157, 141, 241, 0.15);
+    border-left: 4px solid #9d8df1;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+body.modo-espacial input, body.modo-espacial button {
     background-color: #05040d;
     border: 2px solid #3a2e6b;
     color: #df99f7;
 }
-body.theme-espacial .input-container input:focus {
-    border-color: #df99f7;
-    outline: none;
-}
-body.theme-espacial #btn-transmitir {
+body.modo-espacial #transmit-btn, body.modo-espacial #continue-btn {
     background-color: #df99f7;
     color: #05040d;
     font-weight: bold;
     box-shadow: 0 0 12px #df99f7;
 }
 
-/* ESTRUCTURA DE LA BARRA LATERAL */
+/* ==========================================
+   ESTRUCTURA DE COMPONENTES DE INTERFAZ
+   ========================================== */
 .sidebar {
     width: 260px;
     display: flex;
     flex-direction: column;
     padding: 20px;
 }
-
-.sidebar-header {
-    margin-bottom: 30px;
-}
-
-.sidebar-header h2 {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
+.sidebar-header { margin-bottom: 30px; }
+.sidebar-header h2 { font-size: 1.5rem; margin-bottom: 5px; }
 .badge {
     font-size: 0.8rem;
     padding: 2px 6px;
     border: 1px solid currentColor;
     border-radius: 3px;
 }
-
 .menu {
     display: flex;
     flex-direction: column;
     gap: 8px;
     flex-grow: 1;
 }
-
 .menu-label {
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -143,7 +297,6 @@ body.theme-espacial #btn-transmitir {
     margin-bottom: 5px;
     opacity: 0.7;
 }
-
 .menu-item {
     background: none;
     border: none;
@@ -158,13 +311,11 @@ body.theme-espacial #btn-transmitir {
     width: 100%;
     transition: all 0.2s;
 }
-
 .sidebar-footer {
     margin-top: auto;
     padding-top: 15px;
     font-size: 0.85rem;
 }
-
 .sidebar-footer select {
     background: black;
     color: inherit;
@@ -174,30 +325,26 @@ body.theme-espacial #btn-transmitir {
     cursor: pointer;
     margin-left: 5px;
 }
-
-/* CONTENIDO PRINCIPAL Y CHAT */
 .main-content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     padding: 20px;
     gap: 20px;
+    overflow-y: auto;
 }
-
 .banner-alerta {
     padding: 12px;
     border-radius: 4px;
     font-size: 0.85rem;
     text-align: center;
 }
-
 .chat-container {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
-
 .chat-box {
     flex-grow: 1;
     padding: 20px;
@@ -206,37 +353,52 @@ body.theme-espacial #btn-transmitir {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    min-height: 250px;
 }
-
-.bubble-usuario {
-    padding: 12px 16px;
-    border-radius: 4px;
-    max-width: 80%;
-    align-self: flex-start;
-    line-height: 1.4;
-}
-
 .input-container {
     display: flex;
     gap: 10px;
 }
-
 .input-container input {
     flex-grow: 1;
     padding: 15px;
     border-radius: 4px;
     font-family: inherit;
 }
-
-#btn-transmitir {
+#transmit-btn {
     border: none;
     padding: 0 25px;
     border-radius: 4px;
     cursor: pointer;
     font-family: inherit;
-    transition: transform 0.1s, filter 0.2s;
 }
-
-#btn-transmitir:active {
-    transform: scale(0.98);
+.content-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.item-logro {
+    padding: 10px;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+}
+.item-logro.negativo {
+    opacity: 0.8;
+    background: rgba(255, 0, 0, 0.05);
+}
+.log-item-card {
+    border: 1px solid currentColor;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.log-item-card:hover {
+    background: rgba(255,255,255,0.05);
+}
+.mini-fav-btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-right: 5px;
 }
