@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONSTANTES Y PERSONALIDAD DE GUGEL
+// 1. CONSTANTES, FRASES Y LOGROS (LISTAS COMPLETAS)
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
@@ -32,32 +32,21 @@ const LOGROS_DIVERTIDOS = [
 ];
 
 // ==========================================
-// 2. ESTADO INICIAL CENTRALIZADO
+// 2. ESTADO GLOBAL Y LÓGICA DE CUENTAS
 // ==========================================
 let gameState = { 
-    modoSeleccionadoSiguiente: "campaña", 
     modoActualJuego: "campaña", 
     campanaIndex: 0, 
-    campanaCompletada: false, 
     satisfaction: 50, 
-    cycles: 0, 
-    totalChars: 0, 
-    lastOpinion: "(analizando conexiones...)", 
-    lastReaccionText: "", 
-    recentReactions: [], 
-    currentPregunta: "", 
     history: [], 
     logrosDesbloqueados: [],
-    esperandoRespuesta: false 
+    esperandoRespuesta: false,
+    currentPregunta: "",
+    recentReactions: []
 };
-
 let currentUser = null; 
-const MAX_PALABRAS = 15;
 window.currentRoundTimer = null;
 
-// ==========================================
-// 3. FUNCIONES AUXILIARES
-// ==========================================
 function obtenerElementoNoRepetido(lista, historial) {
     let opciones = lista.filter(item => !historial.includes(item));
     if (opciones.length === 0) opciones = lista;
@@ -68,15 +57,13 @@ function obtenerElementoNoRepetido(lista, historial) {
 }
 
 // ==========================================
-// 4. CONTROLADORES Y NAVEGACIÓN
+// 3. CONTROLADORES Y NAVEGACIÓN
 // ==========================================
 function switchView(viewId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn, .mode-btn').forEach(b => b.classList.remove('active'));
-    
-    const targetPanel = document.getElementById(viewId); 
+    const targetPanel = document.getElementById(viewId);
     if (targetPanel) targetPanel.classList.add('active');
-    
     const targetBtn = document.querySelector(`[onclick*="${viewId}"]`);
     if (targetBtn) targetBtn.classList.add('active');
 }
@@ -89,126 +76,125 @@ function cambiarModoEstrategia(modo) {
     nextRound();
 }
 
-function appendMessage(sender, text) {
-    const box = document.getElementById('chat-messages');
-    if (!box) return;
-    const msg = document.createElement('div');
-    msg.className = `message ${sender}`;
-    msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-    box.appendChild(msg); 
-    box.scrollTop = box.scrollHeight;
+function ejecutarAccionCuenta() {
+    const userIn = prompt("Introduce tu nombre de usuario:");
+    if (!userIn) return;
+    const userClean = userIn.trim().toLowerCase();
+    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
+    if (db[userClean]) {
+        const passIn = prompt("Introduce la contraseña:");
+        if (passIn === db[userClean].pass) { currentUser = userClean; gameState = db[userClean].data; } else { alert("Error."); return; }
+    } else {
+        const passIn = prompt("Crea contraseña:");
+        if (!passIn) return;
+        currentUser = userClean; 
+        db[userClean] = { pass: passIn, data: gameState }; 
+        localStorage.setItem("gugel_users", JSON.stringify(db)); 
+    }
+    renderAllData();
+    nextRound();
 }
 
 // ==========================================
-// 5. MOTOR DE CONSULTAS Y LÓGICA (CORREGIDO)
+// 4. MOTOR DE JUEGO Y TEMPORIZADOR (5s)
 // ==========================================
 function generarPregunta() {
     if (gameState.modoActualJuego === "campaña") {
-        if (gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) { 
-            gameState.campanaCompletada = true; 
-            return null; 
-        }
-        return PREGUNTAS_CAMPANA[gameState.campanaIndex++];
-    } else {
-        const s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-        const p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-        return PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
+        return gameState.campanaIndex < PREGUNTAS_CAMPANA.length ? PREGUNTAS_CAMPANA[gameState.campanaIndex++] : null;
+    }
+    const s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+    const p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+    return PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
+}
+
+function appendMessage(sender, text) {
+    const box = document.getElementById('chat-messages');
+    if (box) {
+        const msg = document.createElement('div');
+        msg.className = `message ${sender}`;
+        msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        box.appendChild(msg);
+        box.scrollTop = box.scrollHeight;
     }
 }
 
 function nextRound() {
-    if (gameState.esperandoRespuesta) return; 
+    if (gameState.esperandoRespuesta) return;
     gameState.esperandoRespuesta = true;
 
-    const chatBox = document.getElementById('chat-messages');
-    if (chatBox) chatBox.innerHTML = ""; 
+    document.getElementById('chat-messages').innerHTML = "";
+    document.getElementById('continue-btn').style.display = "none";
+    
+    let q = generarPregunta();
+    if (!q) { gameState.campanaIndex = 0; q = generarPregunta(); }
+    
+    gameState.currentPregunta = q;
+    appendMessage('gugel', q);
 
     const input = document.getElementById('user-input');
     const transmitBtn = document.getElementById('transmit-btn');
-    const continueBtn = document.getElementById('continue-btn');
-    
-    if (continueBtn) continueBtn.style.display = "none";
-    
-    if (input) { input.style.display = "block"; input.value = ""; input.disabled = true; }
-    if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
-    
-    let q = generarPregunta();
-    
-    // CORRECCIÓN SINTÁCTICA: Estructura segura sin retornos ilegales
-    if (!q) { 
-        gameState.esperandoRespuesta = false; 
-        appendMessage('gugel', "Fin de la campaña. Reiniciando...");
-        setTimeout(() => { gameState.campanaIndex = 0; nextRound(); }, 2000);
-    } else {
-        gameState.currentPregunta = q;
-        appendMessage('gugel', gameState.currentPregunta);
-        
-        let timeLeft = 3; 
+    input.disabled = true;
+    transmitBtn.disabled = true;
+
+    let timeLeft = 5; // 5 SEGUNDOS
+    input.placeholder = `Procesando... (${timeLeft}s)`;
+    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+    window.currentRoundTimer = setInterval(() => {
+        timeLeft--;
         input.placeholder = `Procesando... (${timeLeft}s)`;
-        if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-        window.currentRoundTimer = setInterval(() => { 
-            timeLeft--; 
-            input.placeholder = `Procesando... (${timeLeft}s)`; 
-            if (timeLeft <= 0) { 
-                clearInterval(window.currentRoundTimer); 
-                input.disabled = false; 
-                transmitBtn.disabled = false; 
-                input.placeholder = "Introduce tu respuesta..."; 
-            } 
-        }, 1000);
-    }
+        if (timeLeft <= 0) {
+            clearInterval(window.currentRoundTimer);
+            input.disabled = false;
+            transmitBtn.disabled = false;
+            input.placeholder = "Introduce tu respuesta...";
+        }
+    }, 1000);
 }
 
+document.getElementById('continue-btn').addEventListener('click', () => {
+    gameState.esperandoRespuesta = false;
+    nextRound();
+});
+
 // ==========================================
-// 6. ANALIZADOR
+// 5. ANALIZADOR Y RENDER
 // ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
     const userText = input.value.trim().toLowerCase();
-    if (!userText || !gameState.esperandoRespuesta) return;
+    if (!userText) return;
     
     appendMessage('tú', userText);
-    const palabras = userText.split(/\s+/).filter(p => p.length > 0);
-    
-    let tipo = EVASIVAS.includes(userText) || /(.)\1{4,}/.test(userText.replace(/\s+/g, '')) ? "CRITICA" : 
-               (palabras.length <= 2 ? "RECHAZO" : (INDICADORES_COHERENCIA.some(c => userText.includes(c)) || userText.length > 12 ? "OK" : "RECHAZO"));
+    input.style.display = "none";
+    document.getElementById('transmit-btn').style.display = "none";
+
+    const palabras = userText.split(/\s+/);
+    let tipo = EVASIVAS.includes(userText) ? "CRITICA" : (palabras.length <= 2 ? "RECHAZO" : "OK");
     
     let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.recentReactions) :
                    tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.recentReactions) :
-                   (palabras.length > MAX_PALABRAS ? obtenerElementoNoRepetido(FRASES_MUCHO_TEXTO, gameState.recentReactions) : obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions));
-    
-    gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction + (tipo === "OK" && palabras.length <= MAX_PALABRAS ? 10 : -5)));
-    gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion });
-    
-    input.style.display = "none";
-    document.getElementById('transmit-btn').style.display = "none";
-    
-    setTimeout(() => { 
-        appendMessage('gugel', reaccion); 
+                   obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions);
+
+    // Seleccionamos también una opinión (el "pensamiento" de fondo)
+    let opinion = (gameState.satisfaction < 30) ? obtenerElementoNoRepetido(OPINIONES_BAJA, gameState.recentReactions) :
+                  (gameState.satisfaction < 60) ? obtenerElementoNoRepetido(OPINIONES_MEDIA_BAJA, gameState.recentReactions) :
+                  (gameState.satisfaction < 85) ? obtenerElementoNoRepetido(OPINIONES_MEDIA_ALT_A, gameState.recentReactions) : 
+                  obtenerElementoNoRepetido(OPINIONES_ALTA, gameState.recentReactions);
+
+    setTimeout(() => {
+        appendMessage('gugel', reaccion + " " + opinion);
         document.getElementById('continue-btn').style.display = "block";
         renderAllData();
-    }, 600);
+    }, 500);
 };
 
-// ==========================================
-// 7. RENDERIZACIÓN Y ARRANQUE
-// ==========================================
 function renderAllData() {
     const ids = ['prof-opinion', 'prof-satisfaction', 'prof-cycles', 'prof-chars', 'logros-count'];
     ids.forEach(id => {
         const el = document.getElementById(id);
-        if(el) {
-            const val = gameState[id.replace('prof-','').replace('logros-count','logrosDesbloqueados')];
-            el.innerText = Array.isArray(val) ? val.length : val || 0;
-        }
+        if(el) el.innerText = gameState[id.replace('prof-','')] || 0;
     });
-    const hist = document.getElementById('history-list-container');
-    if (hist) hist.innerHTML = gameState.history.map(h => `<div>${h.pregunta} -> ${h.reaccion}</div>`).join('');
 }
 
-window.onload = () => {
-    console.log("GUGEL inicializado.");
-    renderAllData();
-    nextRound();
-};
+window.onload = () => { nextRound(); renderAllData(); };
