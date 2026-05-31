@@ -9,12 +9,12 @@
 <body class="modo-hacker">
     <div id="app-container">
         <aside id="sidebar">
-            <div class="brand">GUGEL: simulador de IA</div>
+            <div class="brand">🧠 GUGEL: SIMULADOR DE IA</div>
             
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE JUEGO</div>
                 <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                    📌 LAS 10 CAMPAÑAS
+                    📌 MISIONES CAMPAÑA
                 </button>
                 <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
                     ♾️ PREGUNTAS INFINITAS
@@ -22,23 +22,23 @@
             </div>
 
             <div class="menu-section">
-                <div class="section-title">🖥️ PANELES</div>
+                <div class="section-title">🖥️ PANELES DE CONTROL</div>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DIVERTIDOS</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL GENERAL</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">👤 USUARIO</div>
-                <button id="btn-gestion-cuenta">👤 CREAR CUENTA</button>
+                <div class="section-title">👤 SISTEMA CUENTAS</div>
+                <button id="btn-gestion-cuenta" class="account-btn">👤 PERFIL PERSISTENTE</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">🎨 INTERFAZ</div>
+                <div class="section-title">🎨 ENTORNO VISUAL</div>
                 <select id="tema-select" onchange="cambiarTemaVisual(this.value)">
-                    <option value="modo-hacker">Modo Hacker</option>
-                    <option value="modo-oscuro">Modo Oscuro</option>
-                    <option value="modo-claro">Modo Claro</option>
+                    <option value="modo-hacker">Modo Hacker (Terminal)</option>
+                    <option value="modo-oscuro">Modo Oscuro (Blue)</option>
+                    <option value="modo-claro">Modo Claro (System)</option>
                 </select>
             </div>
         </aside>
@@ -52,9 +52,9 @@
                     </div>
                     <div id="chat-messages"></div>
                     <form id="chat-form">
-                        <input type="text" id="user-input" placeholder="introduce tu respuesta de ia..." autocomplete="off">
+                        <input type="text" id="user-input" placeholder="introduce tu respuesta de ia explicativa..." autocomplete="off">
                         <div class="input-container">
-                            <button type="submit" id="transmit-btn">TRANSMITIR</button>
+                            <button type="submit" id="transmit-btn">TRANSMITIR DATOS</button>
                             <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
                         </div>
                     </form>
@@ -64,28 +64,31 @@
 
             <section id="view-perfil" class="content-panel">
                 <div class="card">
-                    <h3>📊 Datos de Usuario</h3>
+                    <h3>📊 Análisis de Rendimiento de la IA</h3>
                     <div class="opinion-box" id="opinion-container">
-                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
+                        <strong>REACCIÓN PSICOLÓGICA DEL HUMANO:</strong> <br>
+                        <span id="prof-opinion" style="font-style: italic; font-size: 1.2rem;">(esperando transmisiones...)</span>
                     </div>
-                    <p><strong>Nivel del Sistema:</strong> <span id="prof-level">1</span></p>
-                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
-                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
-                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
+                    <div class="stats-grid">
+                        <p><strong>Nivel Algorítmico:</strong> <span id="prof-level">1</span></p>
+                        <p><strong>Satisfacción Promedio:</strong> <span id="prof-satisfaction">50%</span></p>
+                        <p><strong>Consultas Procesadas:</strong> <span id="prof-cycles">0</span></p>
+                        <p><strong>Volumen Datos Enviados:</strong> <span id="prof-chars">0 caracteres</span></p>
+                    </div>
                 </div>
             </section>
 
             <section id="view-logros" class="content-panel">
                 <div class="card">
-                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
+                    <h3>🏆 Logros Divertidos Desbloqueados (<span id="logros-count">0</span>)</h3>
                     <div id="logros-container" class="list-container"></div>
                 </div>
             </section>
 
             <section id="view-historial" class="content-panel">
                 <div class="card">
-                    <h3>📁 Historial de Conversaciones</h3>
-                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <h3>📁 Historial de Conversaciones Realizadas</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs en Formato Limpio</button>
                     <div id="history-list-container" class="list-container"></div>
                 </div>
             </section>
