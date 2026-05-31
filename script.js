@@ -35,7 +35,7 @@ const BASE_LOGROS = [
     { id: "L02", tipo: "positivo", nombre: "IA Comprensiva", desc: "Alcanzaste el 60% de satisfacción del usuario." },
     { id: "L03", tipo: "positivo", nombre: "Empatía Algorítmica", desc: "Alcanzaste el 80% de satisfacción." },
     { id: "L04", tipo: "positivo", nombre: "Deidad Binaria", desc: "Llegaste al 100% de satisfacción máxima." },
-    { id: "L05", tipo: "positivo", merge: true, nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
+    { id: "L05", tipo: "positivo", nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
     { id: "L06", tipo: "positivo", nombre: "Guardado Seguro", desc: "Añadiste tu primera consulta a Favoritos." },
     { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
     { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
@@ -47,7 +47,7 @@ const BASE_LOGROS = [
     { id: "L14", tipo: "positivo", nombre: "Consultor Infatigable", desc: "Entraste al Modo Infinito." },
     { id: "L15", tipo: "positivo", nombre: "Respuesta Detallada", desc: "Escribiste una respuesta de más de 60 caracteres." },
     { id: "L16", tipo: "positivo", nombre: "Lógica Impecable", desc: "Obtuviste 3 respuestas aceptadas tipo 'OK' seguidas." },
-    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del system." },
+    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del sistema." },
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
@@ -60,10 +60,10 @@ const BASE_LOGROS = [
     { id: "L27", tipo: "positivo", nombre: "IA de Confianza", desc: "Gugel te tiene guardado en marcadores mentales." },
     { id: "L28", tipo: "positivo", nombre: "Vocabulario Rico", desc: "Evitaste usar palabras repetitivas en tus envíos." },
     { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rondas totales combinadas." },
-    { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el nuevo y reluciente Tema Rosa." },
+    { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el reluciente Tema Rosa." },
     
     // NEGATIVOS
-    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una sequence incoherente sospechosa de spam." },
+    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
     { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
     { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
     { id: "LN4", tipo: "negativo", nombre: "Hundimiento del Sistema", desc: "La satisfacción del usuario cayó por debajo del 20%." },
@@ -71,7 +71,6 @@ const BASE_LOGROS = [
     { id: "LN6", tipo: "negativo", nombre: "Mensaje Efímero", desc: "Escribiste una respuesta ridículamente corta (menos de 4 letras)." },
     { id: "LN7", tipo: "negativo", nombre: "Bucle Repetitivo", desc: "Intentaste enviar exactamente el mismo texto que el turno anterior." },
     { id: "LN8", tipo: "negativo", nombre: "Usuario Furioso", desc: "Recibiste una crítica severa de Gugel por troleo." },
-    { id: "LN9", tipo: "negativo", nombre: "Destrucción de Memoria", desc: "Usaste la opción de borrar todo el progreso." },
     { id: "LN10", tipo: "negativo", nombre: "Operador Sospechoso", desc: "Dejaste la contraseña vacía al registrarte." }
 ];
 
@@ -189,7 +188,7 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            alert(`[LOGRO DESBLOQUEADO - OPERADOR: ${usuarioActivo}] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
+            alert(`[LOGRO DESBLOQUEADO] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
         }
         salvarAStorage();
     }
@@ -223,7 +222,7 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
+        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'IA (TÚ)';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
@@ -235,7 +234,6 @@ function renderAllData() {
 
     document.getElementById('sidebar-user-display').innerText = usuarioActivo;
     document.getElementById('prof-usuario').innerText = usuarioActivo;
-    document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
     document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
         c.satisfaction < 35 ? OPINIONES_BAJA : 
@@ -245,31 +243,30 @@ function renderAllData() {
     );
 
     const warningInvitado = document.getElementById('warning-invitado');
-    if (usuarioActivo === "Invitado") {
-        warningInvitado.style.display = "block";
-    } else {
-        warningInvitado.style.display = "none";
+    if (warningInvitado) {
+        warningInvitado.style.display = (usuarioActivo === "Invitado") ? "block" : "none";
     }
 
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
-
-    btnCamp.classList.remove('active');
-    btnInfi.classList.remove('active');
-    if (c.modo === "campaña") btnCamp.classList.add('active');
-    if (c.modo === "infinito") btnInfi.classList.add('active');
+    if(btnCamp && btnInfi) {
+        btnCamp.classList.remove('active');
+        btnInfi.classList.remove('active');
+        if (c.modo === "campaña") btnCamp.classList.add('active');
+        if (c.modo === "infinito") btnInfi.classList.add('active');
+    }
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
         const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
         if (unlockedLogros.length === 0) {
-            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado registros en este perfil.</p>`;
+            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic; grid-column: 1 / span 2;">No has desbloqueado registros en este perfil.</p>`;
         } else {
             logrosContainer.innerHTML = unlockedLogros.map(logro => `
                 <div class="item-logro ${logro.tipo}">
                     <strong>${logro.tipo === 'negativo' ? '⚠️ ' : '🏆 '}${logro.nombre}</strong><br>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${logro.desc}</span>
+                    <span style="font-size:0.8rem; opacity:0.7;">${logro.desc}</span>
                 </div>
             `).join('');
         }
@@ -282,12 +279,12 @@ function renderAllData() {
         } else {
             histContainer.innerHTML = c.history.map((h, index) => `
                 <div class="log-item-card" onclick="cargarChatHistorico(${index})">
-                    <div class="log-item-info">
+                    <div>
                         <strong>Q:</strong> ${h.pregunta}<br>
                         <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
-                        <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
+                        <span style="font-size:0.8rem; opacity:0.7; font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
                     </div>
-                    <div class="log-item-action" onclick="event.stopPropagation();">
+                    <div style="margin-top:5px;" onclick="event.stopPropagation();">
                         <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
                     </div>
                 </div>
@@ -301,7 +298,7 @@ function renderAllData() {
             favContainer.innerHTML = "<p style='color:var(--text-muted);'>No hay marcadores guardados.</p>";
         } else {
             favContainer.innerHTML = c.favorites.map(f => `
-                <div style="margin-bottom:10px; border-left:2px solid #ffd700; padding-left:10px; background: rgba(255,215,0,0.03); padding:8px; border-radius:4px;">
+                <div style="margin-bottom:10px; border-left:2px solid gold; padding-left:10px; background: rgba(255,215,0,0.03); padding:8px; border-radius:4px;">
                     <strong>⭐ Q:</strong> ${f.pregunta}<br>
                     <strong>A:</strong> ${f.respuesta}
                 </div>
@@ -311,7 +308,7 @@ function renderAllData() {
 }
 
 // ==========================================
-// 5. FLUJO DEL CHAT Y RONDAS (CORREGIDO BIEN)
+// 5. FLUJO DEL CHAT Y RONDAS
 // ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
@@ -320,7 +317,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     const userText = input.value.trim();
     if (!userText || input.disabled) return;
     
-    appendMessage('gugel', userText);
+    appendMessage('usuario', userText);
     input.style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
 
@@ -351,7 +348,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
 
     setTimeout(() => {
-        appendMessage('usuario', reaccion);
+        appendMessage('gugel', reaccion);
         c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
@@ -392,8 +389,6 @@ function nextRound() {
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
 
-    // EXPLICACIÓN DEL CAMBIO: Fijamos bien que avance la campaña si corresponde, 
-    // y si no, que genere una aleatoria real sin quedarse congelada en la última guardada.
     if (c.modo === "campaña") {
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
@@ -406,7 +401,7 @@ function nextRound() {
         c.currentPregunta = generarPreguntaInfinita();
     }
     
-    appendMessage('usuario', c.currentPregunta);
+    appendMessage('gugel', c.currentPregunta);
     esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
@@ -424,7 +419,7 @@ function nextRound() {
         tBtn.disabled = false;
         input.placeholder = "Introduce tu respuesta...";
         input.focus();
-    }, 1200);
+    }, 1000);
 }
 
 // ==========================================
@@ -464,14 +459,12 @@ function cargarChatHistorico(index) {
     let log = c.history[index];
     if (!log) return;
 
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    switchView('view-chat');
 
     document.getElementById('chat-messages').innerHTML = "";
-    appendMessage('usuario', log.pregunta);
-    appendMessage('gugel', log.respuesta);
-    appendMessage('usuario', log.reaccion);
+    appendMessage('gugel', log.pregunta);
+    appendMessage('usuario', log.respuesta);
+    appendMessage('gugel', log.reaccion);
 
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
@@ -484,25 +477,14 @@ function cargarChatHistorico(index) {
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
-    
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
-
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
+    switchView('view-chat');
     salvarAStorage();
-
-    // Si no está a mitad de responder, lanzamos la nueva pregunta del nuevo modo.
-    // Si estaba a mitad, se conserva la pregunta activa para no machacarla por error.
-    if (!esperandoRespuestaDeTurno) {
-        nextRound();
-    } else {
-        renderAllData(); 
-    }
+    nextRound();
 }
 
 function cambiarTema(nuevoTema) {
@@ -515,23 +497,33 @@ function cambiarTema(nuevoTema) {
 }
 
 function switchView(viewId) {
-    const panelObjetivo = document.getElementById(viewId);
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    // Escondemos todos los paneles
+    document.querySelectorAll('.content-panel').forEach(panel => {
+        panel.style.display = 'none';
+        panel.classList.remove('active');
+    });
 
-    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
+    // Desactivamos estilos activos del menú lateral
+    document.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
+
+    // Mostramos el panel elegido
+    const panelObjetivo = document.getElementById(viewId);
+    if (panelObjetivo) {
+        panelObjetivo.style.display = 'flex';
+        panelObjetivo.classList.add('active');
+    }
+
+    // Vinculamos el botón activo del menú correspondiente
+    if (viewId === 'view-chat') {
+        let c = getCuenta();
+        let idBoton = c.modo === "campaña" ? "btn-modo-campaña" : "btn-modo-infinito";
+        document.getElementById(idBoton).classList.add('active');
     } else {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        if (panelObjetivo) {
-            panelObjetivo.classList.add('active');
-            let btnId = viewId === 'view-cuenta' ? 'btn-view-cuenta' : `btn-${viewId}`;
-            const btnPulsado = document.getElementById(btnId);
-            if (btnPulsado) btnPulsado.classList.add('active');
-            
-            if (viewId === "view-perfil") desbloquearLogro("L17");
-            if (viewId === "view-historial") desbloquearLogro("L18");
-        }
+        const btnPulsado = document.getElementById(`btn-${viewId}`);
+        if (btnPulsado) btnPulsado.classList.add('active');
+        
+        if (viewId === "view-perfil") desbloquearLogro("L17");
+        if (viewId === "view-historial") desbloquearLogro("L18");
     }
     
     if (viewId === 'view-cuenta') {
@@ -570,20 +562,14 @@ function guardarNombreCuenta() {
     }
 
     salvarAStorage();
-    
-    document.getElementById('chat-messages').innerHTML = "";
     renderAllData();
-    
     alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
     
-    if (!c.currentPregunta) {
-        nextRound();
-    } else {
-        appendMessage('usuario', c.currentPregunta);
-        esperandoRespuestaDeTurno = true; 
-    }
+    c.currentPregunta = ""; 
+    c.campanaIndex = 0;
     
     switchView('view-chat');
+    nextRound();
 }
 
 // ==========================================
@@ -592,10 +578,11 @@ function guardarNombreCuenta() {
 function exportCoreData() {
     let c = getCuenta();
     if (c.history.length === 0) return alert("Búfer vacío.");
-    let log = c.history.map((h, i) => `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`).join('\n');
+    let ultimo = c.history[c.history.length - 1];
+    let log = `Consulta: ${ultimo.pregunta}\nRespuesta: ${ultimo.respuesta}\nReacción: ${ultimo.reaccion}`;
     navigator.clipboard.writeText(log).then(() => {
         desbloquearLogro("L19");
-        alert("Logs copiados al portapapeles.");
+        alert("Último log copiado al portapapeles.");
     });
 }
 
@@ -608,7 +595,7 @@ function exportarHistorialCompleto() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `logs_gugel_${usuarioActivo}_${Date.now()}.txt`;
+    a.download = `logs_gugel_${usuarioActivo}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -617,23 +604,7 @@ function exportarHistorialCompleto() {
 }
 
 // ==========================================
-// 10. CONTROL INTERACTIVO DE MENÚ MÓVIL
-// ==========================================
-function toggleMobileMenu() {
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.toggle('mobile-open');
-}
-
-// Interceptamos la navegación para cerrar el menú si se hace clic desde móvil
-const originalSwitchView = switchView;
-switchView = function(viewId) {
-    originalSwitchView(viewId);
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.remove('mobile-open');
-};
-
-// ==========================================
-// 11. EVENTO INICIAL DE CARGA
+// 10. EVENTO INICIAL DE CARGA
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
@@ -643,14 +614,10 @@ window.addEventListener('DOMContentLoaded', () => {
     
     let c = getCuenta();
     if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
-            c.campanaIndex++;
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
-        }
+        c.currentPregunta = PREGUNTAS_CAMPANA[0];
+        c.campanaIndex = 1;
     }
-    appendMessage('usuario', c.currentPregunta);
+    appendMessage('gugel', c.currentPregunta);
     esperandoRespuestaDeTurno = true; 
     renderAllData();
 });
