@@ -3,7 +3,7 @@
     --bg-main: #0a0a0a;
     --bg-panel: #111111;
     --bg-inner: #161616;
-    --text-primary: #ffffff;
+    --text-primary: #00ff00;
     --text-muted: #555555;
     --accent-color: #00ff00;
     --accent-text: #000000;
@@ -51,7 +51,6 @@
     --negative-color: #ff4500;
 }
 
-/* NUEVO MODO ESPACIAL COSMIC RETRO */
 .modo-espacial {
     --bg-main: #050515;
     --bg-panel: #0b0c24;
@@ -292,7 +291,6 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
 .item-logro.negativo { border-left: 4px solid var(--negative-color); }
 
-/* Historial interactivo */
 .log-item-card {
     display: flex;
     justify-content: space-between;
@@ -304,33 +302,17 @@ input:focus { outline: none; border-color: var(--accent-color); }
     cursor: pointer;
     transition: border-color 0.2s;
 }
-.log-item-card:hover {
-    border-color: var(--accent-color);
-}
-.log-item-info {
-    flex-grow: 1;
-}
-.log-item-action {
-    margin-left: 15px;
-}
-.mini-fav-btn {
-    background: none;
-    border: 1px solid #ffd700;
-    color: #ffd700;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-}
-.mini-fav-btn:hover {
-    background: #ffd700;
-    color: #000;
-}
+.log-item-card:hover { border-color: var(--accent-color); }
+.log-item-info { flex-grow: 1; }
+.log-item-action { margin-left: 15px; }
+.mini-fav-btn { background: none; border: 1px solid #ffd700; color: #ffd700; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; }
+.mini-fav-btn:hover { background: #ffd700; color: #000; }
 
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* ESTRUCTURA DE LA VENTANITA MODAL (CUENTA) */
+/* ESTRUCTURA DE LA VENTANITA MODAL (CUENTA FLOTANTE) */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -365,18 +347,6 @@ input:focus { outline: none; border-color: var(--accent-color); }
     padding-bottom: 10px;
     margin-bottom: 15px;
 }
-.modal-header h3 {
-    margin: 0;
-    color: var(--accent-color);
-}
-.close-modal-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0 5px;
-}
-.close-modal-btn:hover {
-    color: var(--negative-color);
-}
+.modal-header h3 { margin: 0; color: var(--accent-color); }
+.close-modal-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 0 5px; }
+.close-modal-btn:hover { color: var(--negative-color); }
