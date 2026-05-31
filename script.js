@@ -260,9 +260,76 @@ function appendMessage(sender, text) {
 }
 
 function nextRound() {
+    // BUG FIX: Si ya estamos esperando respuesta, no lanzar otra pregunta
+    if (gameState.esperandoRespuesta) {
+        console.log("Ya hay una pregunta activa, ignorando llamada.");
+        return;
+    }
+
     if (gameState.campanaCompletada && gameState.modoActualJuego === 'campaña') {
         gameState.modoActualJuego = 'infinito';
     }
+
+    actualizarBotonesModoUI();
+
+    const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    
+    if (continueBtn) continueBtn.style.display = "none";
+
+    // Lógica de fin de campaña
+    if (gameState.modoActualJuego === "campaña" && (gameState.campanaCompletada || gameState.campanaIndex >= PREGUNTAS_CAMPANA.length)) {
+        gameState.campanaCompletada = true;
+        actualizarBotonesModoUI();
+        if (input) { input.style.display = "none"; input.value = ""; }
+        if (transmitBtn) { transmitBtn.style.display = "none"; }
+        appendMessage('gugel', "has respondido todas las consultas de la campaña. ¡Felicidades, has domado a Gugel!"); 
+        gameState.esperandoRespuesta = false; 
+        procesamientoBloqueado = false;
+        guardarProgresoCuenta();
+        return;
+    }
+    
+    gameState.esperandoRespuesta = true; // Bloqueamos entrada
+    procesamientoBloqueado = false; 
+
+    if (input) { input.style.display = "block"; input.value = ""; }
+    if (transmitBtn) { transmitBtn.style.display = "block"; }
+    
+    let q = generarPregunta();
+    
+    if (q === null) { 
+        gameState.campanaCompletada = true;
+        gameState.esperandoRespuesta = false; 
+        actualizarBotonesModoUI();
+        return; 
+    }
+    
+    gameState.currentPregunta = q;
+    appendMessage('gugel', gameState.currentPregunta); 
+    
+    // Timer de seguridad
+    if (input && transmitBtn) {
+        input.disabled = true; 
+        transmitBtn.disabled = true; 
+        let timeLeft = 3; // Reducido a 3s para mayor agilidad
+        input.placeholder = `Procesando... (${timeLeft}s)`;
+        
+        if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+        window.currentRoundTimer = setInterval(() => { 
+            timeLeft--; 
+            input.placeholder = `Procesando... (${timeLeft}s)`; 
+            if (timeLeft <= 0) { 
+                clearInterval(window.currentRoundTimer); 
+                input.disabled = false; 
+                transmitBtn.disabled = false; 
+                input.placeholder = "Introduce tu respuesta..."; 
+                input.focus(); 
+            } 
+        }, 1000);
+    }
+}
 
     actualizarBotonesModoUI();
 
