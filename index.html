@@ -2,30 +2,34 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
     <div id="app-container">
+        <!-- Botón flotante para abrir menú en móvil -->
+        <button id="mobile-menu-toggle" onclick="toggleMobileMenu()">☰ MENÚ GUGEL</button>
+
         <aside id="sidebar">
             <div class="brand">🧠 GUGEL: SIMULADOR DE IA</div>
             
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE JUEGO</div>
-                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                    📌 MISIONES CAMPAÑA
+                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña'); toggleMobileMenu();">
+                    定 MISIONES CAMPAÑA
                 </button>
-                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
+                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito'); toggleMobileMenu();">
                     ♾️ PREGUNTAS INFINITAS
                 </button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">🖥️ PANELES DE CONTROL</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DIVERTIDOS</button>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL GENERAL</button>
+                <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core'); toggleMobileMenu();">PANTALLA NÚCLEO</button>
+                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil'); toggleMobileMenu();">DATOS PERFIL</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros'); toggleMobileMenu();">LOGROS DIVERTIDOS</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial'); toggleMobileMenu();">HISTORIAL GENERAL</button>
             </div>
 
             <div class="menu-section">
@@ -52,9 +56,9 @@
                     </div>
                     <div id="chat-messages"></div>
                     <form id="chat-form">
-                        <input type="text" id="user-input" placeholder="introduce tu respuesta de ia explicativa..." autocomplete="off">
+                        <input type="text" id="user-input" placeholder="Introduce tu respuesta de IA..." autocomplete="off">
                         <div class="input-container">
-                            <button type="submit" id="transmit-btn">TRANSMITIR DATOS</button>
+                            <button type="submit" id="transmit-btn">TRANSMITIR</button>
                             <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
                         </div>
                     </form>
@@ -66,29 +70,29 @@
                 <div class="card">
                     <h3>📊 Análisis de Rendimiento de la IA</h3>
                     <div class="opinion-box" id="opinion-container">
-                        <strong>REACCIÓN PSICOLÓGICA DEL HUMANO:</strong> <br>
-                        <span id="prof-opinion" style="font-style: italic; font-size: 1.2rem;">(esperando transmisiones...)</span>
+                        <strong>REACCIÓN PSICOLÓGICA:</strong> <br>
+                        <span id="prof-opinion" style="font-style: italic; font-size: 1.1rem;">(esperando transmisiones...)</span>
                     </div>
                     <div class="stats-grid">
-                        <p><strong>Nivel Algorítmico:</strong> <span id="prof-level">1</span></p>
-                        <p><strong>Satisfacción Promedio:</strong> <span id="prof-satisfaction">50%</span></p>
-                        <p><strong>Consultas Procesadas:</strong> <span id="prof-cycles">0</span></p>
-                        <p><strong>Volumen Datos Enviados:</strong> <span id="prof-chars">0 caracteres</span></p>
+                        <p><strong>Nivel:</strong> <span id="prof-level">1</span></p>
+                        <p><strong>Satisfacción:</strong> <span id="prof-satisfaction">50%</span></p>
+                        <p><strong>Consultas:</strong> <span id="prof-cycles">0</span></p>
+                        <p><strong>Datos:</strong> <span id="prof-chars">0 carac.</span></p>
                     </div>
                 </div>
             </section>
 
             <section id="view-logros" class="content-panel">
                 <div class="card">
-                    <h3>🏆 Logros Divertidos Desbloqueados (<span id="logros-count">0</span>)</h3>
+                    <h3>🏆 Logros Desbloqueados (<span id="logros-count">0</span>)</h3>
                     <div id="logros-container" class="list-container"></div>
                 </div>
             </section>
 
             <section id="view-historial" class="content-panel">
                 <div class="card">
-                    <h3>📁 Historial de Conversaciones Realizadas</h3>
-                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs en Formato Limpio</button>
+                    <h3>📁 Historial de Conversaciones</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs Limpios</button>
                     <div id="history-list-container" class="list-container"></div>
                 </div>
             </section>
