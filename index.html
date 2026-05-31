@@ -3,86 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL: simulador de IA</title>
+    <title>GUGEL: Simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="modo-hacker">
+<body class="theme-dark">
 
-    <header id="top-bar">
-        <div class="brand-top">GUGEL: simulador de IA</div>
-        <div class="theme-selector">
-            <label>TEMA:</label>
-            <select id="theme-select" onchange="cambiarTema(this.value)">
-                <option value="modo-hacker">HACKER</option>
-                <option value="modo-claro">CLARO</option>
-                <option value="modo-oscuro">OSCURO</option>
-            </select>
+    <header class="main-header">
+        <div class="logo-zone">
+            <h1>GUGEL <span class="subtitle">simulador de ia</span></h1>
+        </div>
+        <div class="account-zone">
+            <button id="btn-gestion-cuenta">👤 CREAR CUENTA</button>
         </div>
     </header>
 
-    <div id="app-container">
-        <aside id="sidebar">
-            <div class="brand">GUGEL: simulador de IA</div>
-            
-            <div class="menu-section">
-                <div class="section-title">🕹️ MODOS DE JUEGO</div>
-                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
-                    📌 LAS 10 CAMPAÑAS
-                </button>
-                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
-                    ♾️ PREGUNTAS INFINITAS
-                </button>
-            </div>
+    <nav class="nav-bar">
+        <div class="nav-modes">
+            <button id="btn-mode-campaña" class="mode-btn active">📊 Modo Campaña</button>
+            <button id="btn-mode-infinito" class="mode-btn">♾️ Modo Infinito</button>
+        </div>
+        <div class="nav-views">
+            <button class="btn-panel active" data-panel="view-chat">💬 Terminal</button>
+            <button class="btn-panel" data-panel="view-perfil">👤 Estado Humano</button>
+            <button class="btn-panel" data-panel="view-logros">🏆 Matriz de Logros</button>
+            <button class="btn-panel" data-panel="view-historial">📜 Registros</button>
+        </div>
+        <div class="nav-themes">
+            <button class="btn-tema" data-tema="theme-dark">🌙 Oscuro</button>
+            <button class="btn-tema" data-tema="theme-light">☀️ Claro</button>
+        </div>
+    </nav>
 
-            <div class="menu-section">
-                <div class="section-title">🖥️ PANELES</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
-            </div>
+    <main class="game-container">
 
-            <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN DE CUENTA</button>
-        </aside>
-
-        <main id="chat-area">
-            <section id="view-chat" class="content-panel active">
-                <div id="chat-messages"></div>
-                <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="Escribe tu respuesta..." required>
-                    <button type="submit" id="transmit-btn">ENVIAR</button>
-                    <button type="button" id="continue-btn" onclick="confirmContinue()" style="display:none;">CONTINUAR</button>
-                </form>
-            </section>
-
-            <section id="view-perfil" class="content-panel">
-                <div class="card">
-                    <h3>📊 Datos de Usuario</h3>
-                    <div class="opinion-box" id="opinion-container">
-                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
+        <section id="view-chat" class="content-panel active">
+            <div class="chat-wrapper">
+                <div id="chat-messages" class="chat-box">
                     </div>
-                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
-                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
-                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
-                </div>
-            </section>
+                
+                <form id="chat-form" class="control-form">
+                    <input type="text" id="user-input" placeholder="Iniciando protocolos..." autocomplete="off" disabled>
+                    <button type="submit" id="transmit-btn" disabled>TRANSMITIR</button>
+                </form>
+                
+                <button id="continue-btn" class="action-btn" onclick="confirmContinue()" style="display: none;">
+                    AVANZAR AL SIGUIENTE CICLO ➡️
+                </button>
+            </div>
+        </section>
 
-            <section id="view-logros" class="content-panel">
-                <div class="card">
-                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
-                    <div id="logros-container" class="list-container"></div>
+        <section id="view-perfil" class="content-panel">
+            <div class="panel-card">
+                <h2>Estado del Usuario Humano</h2>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Pensamiento del Humano:</span>
+                        <span id="prof-opinion" class="stat-value">(analizando conexiones...)</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Satisfacción General:</span>
+                        <span id="prof-satisfaction" class="stat-value">50%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Ciclos Procesados:</span>
+                        <span id="prof-cycles" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Caracteres Tecleados:</span>
+                        <span id="prof-chars" class="stat-value">0</span>
+                    </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section id="view-historial" class="content-panel">
-                <div class="card">
-                    <h3>📁 Historial de Conversaciones</h3>
-                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
-                    <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
-                    <div id="history-list-container" class="list-container"></div>
+        <section id="view-logros" class="content-panel">
+            <div class="panel-card">
+                <h2>Logros en el Sistema (<span id="logros-count">0</span>/10)</h2>
+                <p class="info-text">Los logros permanecen ocultos encriptados hasta que tus respuestas los liberen de la memoria flash.</p>
+                <div id="logros-container" class="logros-grid">
+                    </div>
+            </div>
+        </section>
+
+        <section id="view-historial" class="content-panel">
+            <div class="panel-card">
+                <h2>Registros de Datos Indexados</h2>
+                <div class="action-bar">
+                    <button class="action-btn" onclick="exportarHistorialCompleto()">💾 Exportar Copia de Seguridad (.JSON)</button>
                 </div>
-            </section>
-        </main>
-    </div>
-    <script src="script.js"></script>
+                <div id="history-list-container" class="history-list">
+                    </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js" defer></script>
 </body>
 </html>
