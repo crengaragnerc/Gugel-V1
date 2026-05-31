@@ -515,32 +515,24 @@ function cambiarTema(nuevoTema) {
 }
 
 function switchView(viewId) {
-    // 1. Resetear TODOS los botones (los desmarca)
+    const panelObjetivo = document.getElementById(viewId);
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
 
-    // 2. Resetear TODOS los paneles (los oculta)
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-
-    // 3. Activar el panel seleccionado
-    const panelObjetivo = document.getElementById(viewId);
-    if (panelObjetivo) {
-        panelObjetivo.classList.add('active');
-        
-        // Marcar el botón correspondiente como activo
-        // (Asegúrate de que tus botones en el HTML tengan el ID: btn-view-nombreDelPanel)
-        const btnId = `btn-${viewId}`;
-        const btnPulsado = document.getElementById(btnId);
-        if (btnPulsado) btnPulsado.classList.add('active');
-        
-        // Logros específicos que tenías
-        if (viewId === "view-perfil") desbloquearLogro("L17");
-        if (viewId === "view-historial") desbloquearLogro("L18");
+    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('view-chat').classList.add('active');
+    } else {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        if (panelObjetivo) {
+            panelObjetivo.classList.add('active');
+            let btnId = viewId === 'view-cuenta' ? 'btn-view-cuenta' : `btn-${viewId}`;
+            const btnPulsado = document.getElementById(btnId);
+            if (btnPulsado) btnPulsado.classList.add('active');
+            
+            if (viewId === "view-perfil") desbloquearLogro("L17");
+            if (viewId === "view-historial") desbloquearLogro("L18");
+        }
     }
-
-    // 4. Asegurar que el menú móvil se cierre al navegar
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.remove('mobile-open');
-}
     
     if (viewId === 'view-cuenta') {
         document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
@@ -632,47 +624,13 @@ function toggleMobileMenu() {
     if (sidebar) sidebar.classList.toggle('mobile-open');
 }
 
-// ==========================================
-// 10. CONTROL INTERACTIVO DE NAVEGACIÓN Y MENÚ
-// ==========================================
-function toggleMobileMenu() {
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.toggle('mobile-open');
-}
-
-function switchView(viewId) {
-    // 1. Resetear TODOS los botones y paneles
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-
-    // 2. Activar el panel seleccionado
-    const panelObjetivo = document.getElementById(viewId);
-    if (panelObjetivo) {
-        panelObjetivo.classList.add('active');
-        
-        // 3. Marcar botón correspondiente (asegúrate que tus IDs sean btn-view-perfil, btn-view-logros, etc)
-        const btnId = `btn-${viewId}`;
-        const btnPulsado = document.getElementById(btnId);
-        if (btnPulsado) btnPulsado.classList.add('active');
-        
-        // Logros de navegación
-        if (viewId === "view-perfil") desbloquearLogro("L17");
-        if (viewId === "view-historial") desbloquearLogro("L18");
-    }
-
-    // 4. Cerrar menú móvil al navegar
+// Interceptamos la navegación para cerrar el menú si se hace clic desde móvil
+const originalSwitchView = switchView;
+switchView = function(viewId) {
+    originalSwitchView(viewId);
     const sidebar = document.getElementById('app-sidebar');
     if (sidebar) sidebar.classList.remove('mobile-open');
-}
-
-function cambiarTema(nuevoTema) {
-    document.body.className = nuevoTema;
-    localStorage.setItem('gugel-tema', nuevoTema);
-    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
-    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
-    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
-    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
-}
+};
 
 // ==========================================
 // 11. EVENTO INICIAL DE CARGA
