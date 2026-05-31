@@ -3,10 +3,13 @@
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
-const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
+const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen point no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "explicate mejor q no me entero de nada"];
-const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura"];
+const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura", "deja de repetirme lo mismo pesado"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no"];
+
+const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet", "raton", "portatil", "vecino", "coche", "llave", "cafetera", "ventilador", "pantalla", "cable"];
+const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
 const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
@@ -17,11 +20,14 @@ const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcad
 // 2. ESTADO GLOBAL
 // ==========================================
 let gameState = { 
+    modo: "campaña",
     campanaIndex: 0, 
     satisfaction: 50,
     history: [], 
     logrosDesbloqueados: [],
-    recentReactions: [] 
+    recentReactions: [],
+    lastUserText: "",
+    totalChars: 0
 };
 
 // ==========================================
@@ -37,115 +43,179 @@ function obtenerElementoNoRepetido(lista, historial) {
 }
 
 function calcularOpinion() {
-    let lista = (gameState.satisfaction < 30) ? OPINIONES_BAJA :
-                (gameState.satisfaction < 60) ? OPINIONES_MEDIA_BAJA :
-                (gameState.satisfaction < 85) ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
+    let lista = (gameState.satisfaction < 35) ? OPINIONES_BAJA :
+                (gameState.satisfaction < 55) ? OPINIONES_MEDIA_BAJA :
+                (gameState.satisfaction < 80) ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
     return obtenerElementoNoRepetido(lista, gameState.recentReactions);
 }
-
-// Corregido: Inicialización del tema guardado al cargar la página
-window.addEventListener('DOMContentLoaded', () => {
-    const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
-    document.body.className = temaGuardado;
-    const select = document.getElementById('theme-select');
-    if (select) select.value = temaGuardado;
-});
 
 function verificarLogros() {
     if (gameState.history.length >= 5 && !gameState.logrosDesbloqueados.includes("IA con Cafeína")) {
         gameState.logrosDesbloqueados.push("IA con Cafeína");
         alert("¡Logro desbloqueado: IA con Cafeína!");
     }
+    if (gameState.satisfaction >= 100 && !gameState.logrosDesbloqueados.includes("Perfeccionista")) {
+        gameState.logrosDesbloqueados.push("Perfeccionista");
+        alert("¡Logro desbloqueado: Perfeccionista!");
+    }
 }
 
 // ==========================================
-// 4. MOTOR DE JUEGO (REFORZADO)
+// 4. MOTOR DE JUEGO
 // ==========================================
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        msg.innerHTML = `<strong>${sender === 'tú' ? 'TÚ' : 'GUGEL'}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
     }
-    gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: text });
 }
 
 function renderAllData() {
-    // Historial
+    // Historial panel
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
-        histContainer.innerHTML = gameState.history.map(h => `<div><strong>${h.pregunta}:</strong> ${h.respuesta}</div>`).join('');
+        histContainer.innerHTML = gameState.history.map(h => 
+            `<div style="margin-bottom:10px; border-bottom:1px dashed var(--text); padding-bottom:5px;">
+                <strong>PREGUNTA:</strong> ${h.pregunta}<br>
+                <strong>RESPUESTA:</strong> ${h.respuesta}<br>
+                <strong>REACCIÓN:</strong> ${h.reaccion}
+            </div>`
+        ).join('');
     }
-    // Opinión en perfil
+    
+    // Perfil panel
     const opEl = document.getElementById('prof-opinion');
     if (opEl) opEl.innerText = calcularOpinion();
-    // Logros
+    
+    const satEl = document.getElementById('prof-satisfaction');
+    if (satEl) satEl.innerText = `${gameState.satisfaction}%`;
+    
+    const cycEl = document.getElementById('prof-cycles');
+    if (cycEl) cycEl.innerText = gameState.history.length;
+    
+    const chEl = document.getElementById('prof-chars');
+    if (chEl) chEl.innerText = gameState.totalChars;
+
+    // Logros panel
     const logEl = document.getElementById('logros-count');
     if (logEl) logEl.innerText = gameState.logrosDesbloqueados.length;
+    
+    const logContainer = document.getElementById('logros-container');
+    if (logContainer) {
+        logContainer.innerHTML = gameState.logrosDesbloqueados.length > 0 
+            ? gameState.logrosDesbloqueados.map(l => `<div class="message gugel">🏆 <strong>${l}</strong> - Desbloqueado con éxito.</div>`).join('')
+            : "<div>Ningún logro desbloqueado todavía.</div>";
+    }
 }
 
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
-    const userText = input.value.trim().toLowerCase();
+    const userText = input.value.trim();
     if (!userText) return;
     
+    let textProcesado = userText.toLowerCase();
     appendMessage('tú', userText);
+    
+    gameState.totalChars += userText.length;
     input.style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
 
-    let tipo = EVASIVAS.includes(userText) ? "CRITICA" : (userText.length <= 15 ? "RECHAZO" : "OK");
+    let tipo = "OK";
+    
+    // Control Anti-Spam de repetición exacta
+    if (textProcesado === gameState.lastUserText) {
+        tipo = "CRITICA";
+    } else if (EVASIVAS.includes(textProcesado)) {
+        tipo = "CRITICA";
+    } else if (userText.length <= 15) {
+        tipo = "RECHAZO";
+    }
+
+    gameState.lastUserText = textProcesado;
+
     let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.recentReactions) :
                    tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.recentReactions) :
                    obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions);
 
-    gameState.satisfaction += (tipo === "OK" ? 5 : -10);
+    if (tipo === "OK") {
+        gameState.satisfaction += 10;
+    } else {
+        gameState.satisfaction -= 15;
+    }
+    
+    gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction));
 
     setTimeout(() => {
-        appendMessage('gugel', reaccion); // Respuesta limpia en chat
+        appendMessage('gugel', reaccion);
+        
+        gameState.history.push({ 
+            pregunta: gameState.currentPregunta, 
+            respuesta: userText, 
+            reaccion: reaccion 
+        });
+
         verificarLogros();
-        renderAllData(); // Esto actualiza el perfil y los logros en los paneles
+        renderAllData();
         document.getElementById('continue-btn').style.display = "block";
     }, 500);
 };
 
+function generarPreguntaInfinita() {
+    let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+    let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+    let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+    return plantilla.replace("[s]", sujeto).replace("[p]", predicado);
+}
+
 function nextRound() {
     document.getElementById('chat-messages').innerHTML = "";
     document.getElementById('continue-btn').style.display = "none";
-    gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex++ % PREGUNTAS_CAMPANA.length];
+    
+    if (gameState.modo === "campaña") {
+        gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex % PREGUNTAS_CAMPANA.length];
+        gameState.campanaIndex++;
+    } else {
+        gameState.currentPregunta = generarPreguntaInfinita();
+    }
+    
     appendMessage('gugel', gameState.currentPregunta);
     
     const input = document.getElementById('user-input');
+    input.value = "";
     input.style.display = "block";
     input.disabled = true;
     input.placeholder = "Procesando...";
-    document.getElementById('transmit-btn').style.display = "block";
-    document.getElementById('transmit-btn').disabled = true;
+    
+    const tBtn = document.getElementById('transmit-btn');
+    tBtn.style.display = "block";
+    tBtn.disabled = true;
 
     setTimeout(() => {
         input.disabled = false;
-        document.getElementById('transmit-btn').disabled = false;
+        tBtn.disabled = false;
         input.placeholder = "Introduce tu respuesta...";
-    }, 5000);
+        input.focus();
+    }, 2000); // Reducido un poco para agilizar testeo, cámbialo a 5000 si deseas simulación más lenta
 }
 
-document.getElementById('continue-btn').onclick = nextRound;
-window.onload = nextRound;
+window.onload = () => {
+    nextRound();
+    renderAllData();
+};
 
 // ==========================================
-// 5. NUEVAS FUNCIONES DE ARREGLO DE BUGS
+// 5. NAVEGACIÓN Y CONFIGURACIÓN
 // ==========================================
-
-// Corregido: Añadida función para cambiar temas mediante el select y guardar la preferencia
 function cambiarTema(nuevoTema) {
     document.body.className = nuevoTema;
     localStorage.setItem('gugel-tema', nuevoTema);
 }
 
-// Corregido: Añadida función cicloTema para el botón "CAMBIAR TEMA" de la sección 🎨 TEMA
 function cicloTema() {
     const temas = ["modo-hacker", "modo-claro", "modo-oscuro"];
     let actual = document.body.className;
@@ -159,30 +229,75 @@ function cicloTema() {
     if (select) select.value = nuevoTema;
 }
 
-// Corregido: Añadida función para manejar el cambio entre paneles (perfil, logros, historial) y volver al chat
 function switchView(viewId) {
-    // Si pulsas sobre el panel que ya está activo, volvemos a la pantalla del chat
     const panelObjetivo = document.getElementById(viewId);
     if (panelObjetivo && panelObjetivo.classList.contains('active')) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
     } else {
-        // En caso contrario cambiamos al panel seleccionado
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         if (panelObjetivo) panelObjetivo.classList.add('active');
     }
+    renderAllData();
 }
 
-// Corregido: Añadida función para cambiar los modos de juego en el menú izquierdo
 function cambiarModoEstrategia(modo) {
-    // Quitar estado activo de los botones de modo
+    gameState.modo = modo;
     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
     
-    // Activar el botón correspondiente
     const btnActivo = document.getElementById(`btn-mode-${modo}`);
     if (btnActivo) btnActivo.classList.add('active');
     
-    // Al cambiar de modo de juego forzamos el regreso a la ventana del chat
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
+    
+    // Reinicia ronda para aplicar el nuevo set de preguntas inmediatamente
+    nextRound();
 }
+
+// --- FUNCIONES DE EXPORTACIÓN MEJORADAS ---
+function exportCoreData() {
+    if (gameState.history.length === 0) {
+        alert("No hay registros en el historial para copiar.");
+        return;
+    }
+    let textoLog = gameState.history.map((h, i) => 
+        `RONDA ${i + 1}\nPregunta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n------------------------`
+    ).join('\n');
+    
+    navigator.clipboard.writeText(textoLog).then(() => {
+        alert("Logs copiados al portapapeles con formato limpio.");
+    });
+}
+
+function exportarHistorialCompleto() {
+    if (gameState.history.length === 0) {
+        alert("Historial vacío.");
+        return;
+    }
+    let textoLog = `=== GUGEL SIMULADOR IA - EXPORTACIÓN COMPLETA ===\n`;
+    textoLog += `Satisfacción Final: ${gameState.satisfaction}%\n`;
+    textoLog += `Logros Desbloqueados: ${gameState.logrosDesbloqueados.join(', ') || 'Ninguno'}\n`;
+    textoLog += `================================================\n\n`;
+    
+    textoLog += gameState.history.map((h, i) => 
+        `[Log #${i + 1}]\n-> PREGUNTA: ${h.pregunta}\n-> RESPUESTA: ${h.respuesta}\n-> REACCIÓN: ${h.reaccion}\n`
+    ).join('\n');
+
+    const blob = new Blob([textoLog], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `gugel_sesion_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
+    document.body.className = temaGuardado;
+    const select = document.getElementById('theme-select');
+    if (select) select.value = temaGuardado;
+});
