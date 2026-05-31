@@ -13,12 +13,96 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* PALETAS DE COLORES - 5 TEMAS */
-.modo-hacker { --bg-main: #0a0a0a; --bg-panel: #111111; --bg-inner: #161616; --text-primary: #ffffff; --text-muted: #555555; --accent-color: #00ff00; --accent-text: #000000; --bubble-bg: #181818; --bubble-border: #252525; --negative-color: #ff3333; }
-.modo-oscuro { --bg-main: #1a1b26; --bg-panel: #24283b; --bg-inner: #1f2335; --text-primary: #a9b1d6; --text-muted: #565f89; --accent-color: #7aa2f7; --accent-text: #1a1b26; --bubble-bg: #292e42; --bubble-border: #3b4261; --negative-color: #f7768e; }
-.modo-claro { --bg-main: #eaeded; --bg-panel: #ffffff; --bg-inner: #f4f6f6; --text-primary: #2c3e50; --text-muted: #7f8c8d; --accent-color: #3498db; --accent-text: #ffffff; --bubble-bg: #ffffff; --bubble-border: #bdc3c7; --negative-color: #e74c3c; }
-.modo-rosa { --bg-main: #fce4ec; --bg-panel: #ffffff; --bg-inner: #f8bbd0; --text-primary: #880e4f; --text-muted: #ad1457; --accent-color: #ec407a; --accent-text: #ffffff; --bubble-bg: #fff5f8; --bubble-border: #f48fb1; --negative-color: #d32f2f; }
-.modo-espacial { --bg-main: #0b0e14; --bg-panel: #161b22; --bg-inner: #21262d; --text-primary: #c9d1d9; --text-muted: #8b949e; --accent-color: #8b5cf6; --accent-text: #ffffff; --bubble-bg: #30363d; --bubble-border: #484f58; --negative-color: #ff7b72; }
+/* PALETA DE COLORES: THEME VERDE NEÓN */
+body.theme-verde-neon {
+    background-color: #050c05;
+    color: #39ff14;
+}
+body.theme-verde-neon .sidebar {
+    background-color: #020602;
+    border-right: 2px solid #145214;
+}
+body.theme-verde-neon .menu-item {
+    color: #1b8a1b;
+}
+body.theme-verde-neon .menu-item:hover, 
+body.theme-verde-neon .menu-item.active {
+    background-color: #145214;
+    color: #39ff14;
+}
+body.theme-verde-neon .banner-alerta {
+    background-color: rgba(212, 175, 55, 0.1);
+    border: 1px solid #d4af37;
+    color: #d4af37;
+}
+body.theme-verde-neon .chat-box {
+    background-color: #030803;
+    border: 2px solid #145214;
+}
+body.theme-verde-neon .bubble-usuario {
+    background-color: rgba(57, 255, 20, 0.1);
+    border: 1px solid #39ff14;
+    color: #39ff14;
+}
+body.theme-verde-neon .input-container input {
+    background-color: #020602;
+    border: 2px solid #145214;
+    color: #39ff14;
+}
+body.theme-verde-neon #btn-transmitir {
+    background-color: #39ff14;
+    color: #020602;
+}
+
+/* PALETA DE COLORES: THEME ESPACIAL ✨ */
+body.theme-espacial {
+    background-color: #0b091a;
+    color: #9d8df1;
+}
+body.theme-espacial .sidebar {
+    background-color: #05040d;
+    border-right: 2px solid #3a2e6b;
+}
+body.theme-espacial .menu-item {
+    color: #63569c;
+}
+body.theme-espacial .menu-item:hover, 
+body.theme-espacial .menu-item.active {
+    background-color: #24194e;
+    color: #df99f7;
+    box-shadow: 0 0 8px rgba(223, 153, 247, 0.4);
+}
+body.theme-espacial .banner-alerta {
+    background-color: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+}
+body.theme-espacial .chat-box {
+    background-color: #070612;
+    border: 2px solid #3a2e6b;
+    background-image: radial-gradient(white 1%, transparent 1%);
+    background-size: 50px 50px;
+}
+body.theme-espacial .bubble-usuario {
+    background-color: rgba(157, 141, 241, 0.1);
+    border: 1px solid #9d8df1;
+    color: #df99f7;
+}
+body.theme-espacial .input-container input {
+    background-color: #05040d;
+    border: 2px solid #3a2e6b;
+    color: #df99f7;
+}
+body.theme-espacial .input-container input:focus {
+    border-color: #df99f7;
+    outline: none;
+}
+body.theme-espacial #btn-transmitir {
+    background-color: #df99f7;
+    color: #05040d;
+    font-weight: bold;
+    box-shadow: 0 0 12px #df99f7;
+}
 
 /* ESTRUCTURA DE LA BARRA LATERAL */
 .sidebar {
