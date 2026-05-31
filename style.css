@@ -1,6 +1,97 @@
-body { font-family: sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
-.panel { border: 2px solid #444; padding: 20px; border-radius: 8px; background: #222; }
-#stats { font-size: 1.2em; color: #00ff00; margin-bottom: 10px; font-family: monospace; }
-#mensajes { height: 300px; overflow-y: auto; border: 1px solid #555; margin: 10px 0; padding: 10px; }
-input { width: 70%; padding: 10px; }
-button { padding: 10px; cursor: pointer; }
+/* --- VARIABLES DE TEMA --- */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --accent-color: #333333;
+    --border-style: 1px solid #333;
+}
+
+/* TEMA OSCURO */
+.oscuro {
+    --bg-color: #1a1a1a;
+    --text-color: #f0f0f0;
+    --accent-color: #444444;
+    --border-style: 1px solid #555;
+}
+
+/* TEMA HACKER (Canónico) */
+.hacker {
+    --bg-color: #0d0d0d;
+    --text-color: #00ff41;
+    --accent-color: #00ff41;
+    --border-style: 2px solid #00ff41;
+}
+
+/* --- BASE ESTRUCTURAL --- */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Courier New', Courier, monospace;
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
+.panel {
+    border: var(--border-style);
+    padding: 25px;
+    margin-bottom: 25px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* --- INTERFAZ DE USUARIO --- */
+#stats {
+    font-size: 1.3em;
+    font-weight: bold;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#mensajes, #lista-historial {
+    height: 350px;
+    overflow-y: auto;
+    border: 1px solid var(--accent-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    background: rgba(0,0,0,0.1);
+}
+
+/* --- ELEMENTOS DE FORMULARIO --- */
+button {
+    background: var(--accent-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+}
+
+button:hover { opacity: 0.8; }
+
+input {
+    padding: 12px;
+    width: 65%;
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--accent-color);
+}
+
+/* --- COMPONENTES ESPECÍFICOS --- */
+#output-infinito {
+    font-size: 2em;
+    padding: 40px;
+    text-align: center;
+    border: 2px dashed var(--accent-color);
+    margin: 20px 0;
+}
+
+.logro-item {
+    padding: 5px;
+    border-bottom: 1px dotted var(--accent-color);
+}
