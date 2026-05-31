@@ -9,14 +9,11 @@
 <body class="modo-hacker">
 
     <div id="app-container">
-        <!-- MENÚ LATERAL IZQUIERDO -->
         <aside id="sidebar">
-            <div class="menu-section" id="selector-chats-container">
-                <div class="section-title">💬 SELECCIONAR CHAT</div>
-                <select id="chat-mode-select" onchange="cambiarModoEstrategia(this.value)">
-                    <option value="campaña">Panel de Consultas (Campaña)</option>
-                    <option value="infinito">Consultas Infinitas</option>
-                </select>
+            <div class="menu-section">
+                <div class="section-title">🕹️ MODOS DE CONSULTA</div>
+                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">📌 Panel de Campaña</button>
+                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
             </div>
 
             <div class="menu-section">
@@ -40,7 +37,6 @@
             </div>
         </aside>
 
-        <!-- AREA CENTRAL DE LA INTERFAZ -->
         <main id="main-content">
             <header id="top-bar">
                 <div class="brand-top">GUGEL Core</div>
@@ -55,7 +51,6 @@
             </header>
 
             <div id="display-workspace">
-                <!-- VISTA PRINCIPAL: CHAT -->
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
                     <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
@@ -63,13 +58,12 @@
                     </div>
                     <form id="chat-form">
                         <div class="input-wrapper">
-                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required>
+                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                             <button type="submit" id="transmit-btn">ENVIAR</button>
                         </div>
                     </form>
                 </section>
 
-                <!-- VISTA PANEL: PERFIL -->
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
                         <h3>📊 Estado Analítico del Operador</h3>
@@ -81,7 +75,6 @@
                     </div>
                 </section>
 
-                <!-- VISTA PANEL: LOGROS -->
                 <section id="view-logros" class="content-panel">
                     <div class="card">
                         <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
@@ -89,7 +82,6 @@
                     </div>
                 </section>
 
-                <!-- VISTA PANEL: HISTORIAL (LOGS) -->
                 <section id="view-historial" class="content-panel">
                     <div class="card">
                         <h3>📁 Búfer de Logs y Favoritos</h3>
@@ -99,16 +91,13 @@
                         </div>
                         
                         <h4>⭐ MARCADORES FAVORITOS</h4>
-                        <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;">
-                            <p style="color:var(--text-muted);">No hay consultas marcadas en favoritos.</p>
-                        </div>
+                        <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
 
-                        <h4>📜 HISTORIAL DE CONSULTAS GENERAL</h4>
+                        <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
                         <div id="history-list-container" class="list-container"></div>
                     </div>
                 </section>
 
-                <!-- VISTA PANEL: GESTIÓN DE CUENTA -->
                 <section id="view-cuenta" class="content-panel">
                     <div class="card">
                         <h3>⚙️ Autenticación Central de Operadores</h3>
@@ -117,7 +106,7 @@
                         <div class="account-form-block" style="max-width: 400px; display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
                             <div>
                                 <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Código/Alias de Operador:</label>
-                                <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;">
+                                <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;" autocomplete="off">
                             </div>
                             <div>
                                 <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
@@ -131,7 +120,6 @@
                 </section>
             </div>
 
-            <!-- BOTÓN INFERIOR DE CONTINUACIÓN -->
             <footer id="bottom-bar">
                 <button id="continue-btn" onclick="nextRound()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
