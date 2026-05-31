@@ -43,78 +43,61 @@ const MAX_PALABRAS = 15;
 window.currentRoundTimer = null;
 
 // ==========================================
-// 3. CONTROLADORES
+// 3. CONTROLADORES Y NAVEGACIÓN CORREGIDOS
 // ==========================================
-function obtenerElementoNoRepetido(arr, excluidos) {
-    if (!arr || arr.length === 0) return "";
-    let listaExcluidos = Array.isArray(excluidos) ? excluidos : [excluidos];
-    let disponibles = arr.filter(el => !listaExcluidos.includes(el));
-    if (disponibles.length === 0) disponibles = arr;
-    return disponibles[Math.floor(Math.random() * disponibles.length)];
-}
-
-function actualizarBotonCuentaUI() {
-    const btnCuentas = document.getElementById("btn-gestion-cuenta");
-    if (!btnCuentas) return;
-    if (currentUser) { 
-        btnCuentas.innerHTML = `⚙️ CUENTA: <strong>${currentUser}</strong>`; 
-        btnCuentas.style.color = "#00ffcc"; 
-    } else { 
-        btnCuentas.innerHTML = "👤 CREAR CUENTA"; 
-        btnCuentas.style.color = ""; 
-    }
-}
-
-function cambiarTema(clase) {
-    document.body.className = clase;
-}
 
 function switchView(viewId) {
-    // 1. Ocultar todos los paneles de contenido
+    // Ocultar paneles
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    // 2. Mostrar el panel solicitado
+    // Quitar clase active de botones del sidebar
+    document.querySelectorAll('.sub-btn, .mode-btn').forEach(b => b.classList.remove('active'));
+    
+    // Mostrar panel
     const targetPanel = document.getElementById(viewId); 
     if (targetPanel) targetPanel.classList.add('active');
     
-    // 3. Resaltar botón en sidebar
-    const targetBtn = document.getElementById(`btn-${viewId}`); 
+    // Marcar botón como activo (buscamos por ID o data-panel)
+    const targetBtn = document.querySelector(`[data-panel="${viewId}"], #btn-${viewId}`);
     if (targetBtn) targetBtn.classList.add('active');
 
-    // 4. LÓGICA DE RECUPERACIÓN: 
-    // Si volvemos al "chat" (o donde esté tu área de juego), restauramos los controles si estamos esperando respuesta
-    if (viewId === 'view-chat' || viewId === 'chat-area') { // Ajusta 'view-chat' según tu HTML
+    // Restauración de controles si volvemos al chat
+    if (viewId === 'view-chat') {
         const input = document.getElementById('user-input');
         const btn = document.getElementById('transmit-btn');
-        
-        if (gameState.esperandoRespuesta) {
-            if (input) input.style.display = "block";
+        if (gameState.esperandoRespuesta && input) {
+            input.style.display = "block";
             if (btn) btn.style.display = "block";
         }
     }
 }
 
 // ==========================================
-// 4. DELEGACIÓN DE EVENTOS
+// 4. DELEGACIÓN DE EVENTOS REFORZADA
 // ==========================================
-document.body.addEventListener('click', (e) => {
-    if (e.target.closest('.btn-panel') || (e.target.id && e.target.id.startsWith('btn-view-'))) {
-        let btn = e.target.closest('.btn-panel') || e.target;
-        let viewId = btn.getAttribute('data-panel') || btn.id.replace('btn-', '');
-        switchView(viewId);
-    }
-    if (e.target.classList.contains('btn-tema') || e.target.hasAttribute('data-tema')) {
-        cambiarTema(e.target.getAttribute('data-tema'));
-    }
-    if (e.target.id === 'btn-gestion-cuenta' || e.target.closest('#btn-gestion-cuenta')) {
-        ejecutarAccionCuenta();
-    }
-    if (e.target.id === 'btn-mode-campaña' || e.target.id === 'btn-mode-infinito') {
-        cambiarModoEstrategia(e.target.id === 'btn-mode-campaña' ? 'campaña' : 'infinito');
+document.addEventListener('DOMContentLoaded', () => {
+    // Delegación universal en el sidebar
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            // Navegación por paneles
+            if (btn.hasAttribute('data-panel')) {
+                switchView(btn.getAttribute('data-panel'));
+            } 
+            // Acciones de cuenta
+            else if (btn.id === 'btn-gestion-cuenta') {
+                ejecutarAccionCuenta();
+            }
+            // Modos de juego
+            else if (btn.id === 'btn-mode-campaña' || btn.id === 'btn-mode-infinito') {
+                cambiarModoEstrategia(btn.id === 'btn-mode-campaña' ? 'campaña' : 'infinito');
+            }
+        });
     }
 });
-
 // ==========================================
 // 5. GESTIÓN DE CUENTA
 // ==========================================
