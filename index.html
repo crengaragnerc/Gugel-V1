@@ -12,6 +12,11 @@
             <div class="brand">GUGEL: simulador de IA</div>
             
             <div class="menu-section">
+                <div class="section-title">🎨 TEMA</div>
+                <button class="sub-btn" onclick="cicloTema()">CAMBIAR TEMA</button>
+            </div>
+
+            <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE JUEGO</div>
                 <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
                     📌 LAS 10 CAMPAÑAS
@@ -32,11 +37,12 @@
         </aside>
 
         <main id="chat-area">
-            <section id="view-chat" class="content-panel">
+            <section id="view-chat" class="content-panel active">
                 <div id="chat-messages"></div>
                 <form id="chat-form">
                     <input type="text" id="user-input" placeholder="Escribe tu respuesta..." required>
-                    <button type="submit">ENVIAR</button>
+                    <button type="submit" id="transmit-btn">ENVIAR</button>
+                    <button type="button" id="continue-btn" onclick="confirmContinue()" style="display:none;">CONTINUAR</button>
                 </form>
             </section>
 
