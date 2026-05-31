@@ -632,13 +632,47 @@ function toggleMobileMenu() {
     if (sidebar) sidebar.classList.toggle('mobile-open');
 }
 
-// Interceptamos la navegación para cerrar el menú si se hace clic desde móvil
-const originalSwitchView = switchView;
-switchView = function(viewId) {
-    originalSwitchView(viewId);
+// ==========================================
+// 10. CONTROL INTERACTIVO DE NAVEGACIÓN Y MENÚ
+// ==========================================
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+}
+
+function switchView(viewId) {
+    // 1. Resetear TODOS los botones y paneles
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+
+    // 2. Activar el panel seleccionado
+    const panelObjetivo = document.getElementById(viewId);
+    if (panelObjetivo) {
+        panelObjetivo.classList.add('active');
+        
+        // 3. Marcar botón correspondiente (asegúrate que tus IDs sean btn-view-perfil, btn-view-logros, etc)
+        const btnId = `btn-${viewId}`;
+        const btnPulsado = document.getElementById(btnId);
+        if (btnPulsado) btnPulsado.classList.add('active');
+        
+        // Logros de navegación
+        if (viewId === "view-perfil") desbloquearLogro("L17");
+        if (viewId === "view-historial") desbloquearLogro("L18");
+    }
+
+    // 4. Cerrar menú móvil al navegar
     const sidebar = document.getElementById('app-sidebar');
     if (sidebar) sidebar.classList.remove('mobile-open');
-};
+}
+
+function cambiarTema(nuevoTema) {
+    document.body.className = nuevoTema;
+    localStorage.setItem('gugel-tema', nuevoTema);
+    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
+    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
+    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
+    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
+}
 
 // ==========================================
 // 11. EVENTO INICIAL DE CARGA
