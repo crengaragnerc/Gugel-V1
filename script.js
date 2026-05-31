@@ -3,7 +3,6 @@
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 
-// Lista de preguntas de campaña fijas solicitadas de forma canónica
 const PREGUNTAS_CAMPANA = [
     "cagar verde normal", 
     "como hacer cubo rubik", 
@@ -66,14 +65,14 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
     { id: "L27", tipo: "positivo", nombre: "IA de Confianza", desc: "Gugel te tiene guardado en marcadores mentales." },
     { id: "L28", tipo: "positivo", nombre: "Vocabulario Rico", desc: "Evitaste usar palabras repetitivas en tus envíos." },
     { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rondas totales combinadas." },
-    { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el nuevo y reluciente Tema Rosa." },
+    { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el nuevo Tema Rosa." },
     
     // NEGATIVOS
     { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
@@ -84,19 +83,17 @@ const BASE_LOGROS = [
     { id: "LN6", tipo: "negativo", nombre: "Mensaje Efímero", desc: "Escribiste una respuesta ridículamente corta (menos de 4 letras)." },
     { id: "LN7", tipo: "negativo", nombre: "Bucle Repetitivo", desc: "Intentaste enviar exactamente el mismo texto que el turno anterior." },
     { id: "LN8", tipo: "negativo", nombre: "Usuario Furioso", desc: "Recibiste una crítica severa de Gugel por troleo." },
-    { id: "LN9", tipo: "negativo", nombre: "Destrucción de Memoria", desc: "Usaste la option de borrar todo el progreso." },
+    { id: "LN9", tipo: "negativo", nombre: "Destrucción de Memoria", desc: "Usaste la opción de borrar todo el progreso." },
     { id: "LN10", tipo: "negativo", nombre: "Operador Sospechoso", desc: "Dejaste la contraseña vacía al registrarte." }
 ];
 
 // ==========================================
-// 2. SISTEMA MULTICUENTA DE DATOS AISLADOS
+// 2. SISTEMA DE PERFILES DE DATOS
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
-let esperandoRespuestaDeTurno = true; 
 
-// Controladores globales de temporizadores para evitar solapamientos
 let cronometroPregunta = null;
 let cronometroReaccion = null;
 
@@ -155,7 +152,6 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
 
-    // Filtro robusto anti-gibberish/aporreo para evitar cadenas sin sentido (Infinito o Campaña)
     let palabras = resp.split(/\s+/).filter(p => p.length > 0);
     let contienePalabraBasura = palabras.some(p => p.length > 2 && !/[aeiouáéíóúü]/i.test(p));
 
@@ -244,7 +240,6 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        // Identidades actualizadas: Usuario (Sujeto Humano) y Gugel (Sistema de IA)
         let etiqueta = sender === 'humano' ? 'Usuario' : 'Gugel';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
@@ -269,7 +264,6 @@ function renderAllData() {
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
 
-    // Desaparición estricta del botón campaña si ya fue completado
     if (btnCamp) {
         if (c.campañaCompletada) {
             btnCamp.style.display = 'none';
@@ -387,13 +381,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         verificarLogrosDeEstado();
         salvarAStorage();
-        
-        esperandoRespuestaDeTurno = false; // El turno ha sido respondido con éxito
         renderAllData();
         
         document.getElementById('chat-actions-bar').style.display = "block";
         
-        // TEMPORIZADOR DE REACCIÓN (5 SEGUNDOS ANTES DE PODER CONTINUAR)
         const continueBtn = document.getElementById('continue-btn');
         continueBtn.style.display = "block";
         continueBtn.disabled = true;
@@ -407,6 +398,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
             if (segReaccion > 0) {
                 continueBtn.innerText = `SIGUIENTE CONSULTA (${segReaccion}s)`;
             } else {
+                clearInterval(cronouter);
                 clearInterval(cronometroReaccion);
                 continueBtn.disabled = false;
                 continueBtn.innerText = "SIGUIENTE CONSULTA";
@@ -452,7 +444,6 @@ function nextRound() {
     }
     
     appendMessage('humano', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; // Se levanta el muro de bloqueo de la ronda activa
     
     const input = document.getElementById('user-input');
     const tBtn = document.getElementById('transmit-btn');
@@ -463,7 +454,6 @@ function nextRound() {
     tBtn.style.display = "block";
     tBtn.disabled = true;
     
-    // TEMPORIZADOR DE PREGUNTA (5 SEGUNDOS ANTES DE PODER ESCRIBIR)
     let segPregunta = 5;
     input.placeholder = `Procesando matriz cuántica: ${segPregunta}s...`;
     
@@ -543,12 +533,7 @@ function cargarChatHistorico(index) {
 // 7. NAVEGACIÓN Y CONFIGURACIÓN DE MODO
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
-    // Candado de seguridad de la consulta: No se puede cambiar de modo ni relanzar hasta responder
-    if (esperandoRespuestaDeTurno) {
-        alert("🔒 Acceso bloqueado: No puedes alterar el transcurso de la consulta ni cambiar de modo hasta haber respondido a la pregunta activa de la ronda.");
-        return;
-    }
-
+    // ELIMINADO EL CANADO DE RONDAS: Ahora puedes cambiar libremente sin alertas molestas
     let c = getCuenta();
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
