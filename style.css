@@ -1,112 +1,16 @@
-/* --- CONFIGURACIÓN DE VARIABLES POR MODO --- */
-
-/* Variables para los 3 temas */
 :root { --border-radius: 12px; }
-
 .modo-hacker { --bg: #121212; --text: #00ff00; --panel: #1e1e1e; --accent: #00ff00; }
 .modo-claro { --bg: #ffffff; --text: #333333; --panel: #f0f0f0; --accent: #007bff; }
 .modo-oscuro { --bg: #1a1b26; --text: #a9b1d6; --panel: #24283b; --accent: #7aa2f7; }
-
 body { background-color: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; transition: 0.3s; }
-
-/* Layout: Sidebar (izquierda) + Chat (derecha) */
 #app-container { display: flex; height: 100vh; }
 #sidebar { width: 250px; background: var(--panel); padding: 20px; border-right: 1px solid var(--text); display: flex; flex-direction: column; gap: 20px; }
 #chat-area { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; max-width: 800px; margin: auto; }
-
-/* Chat y Botones */
 #chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
 .message { padding: 10px; border-radius: 8px; border-left: 3px solid var(--accent); }
 .gugel { background: rgba(0,0,0,0.1); }
 .user { align-self: flex-end; background: var(--accent); color: var(--bg); }
-
-input { padding: 15px; border-radius: 5px; border: 1px solid var(--text); background: transparent; color: var(--text); }
+.content-panel { display: none; }
+.content-panel.active { display: block; }
+input { padding: 15px; border-radius: 5px; border: 1px solid var(--text); background: transparent; color: var(--text); width: 100%; box-sizing: border-box; }
 button { padding: 10px; cursor: pointer; background: var(--panel); color: var(--text); border: 1px solid var(--text); border-radius: 4px; }
-
-/* 1. MODO HACKER (Verde Neón) */
-.modo-hacker {
-    --bg-app: #121212;
-    --bg-sidebar: #1a1a1a;
-    --bg-card: #222222;
-    --bg-input: #2a2a2a;
-    --color-text: #ffffff;
-    --color-gugel: #00ff00;
-    --color-accent: #00ff00;
-    --color-accent-text: #000000;
-    --msg-gugel: #222222;
-    --msg-ai: #00ff00;
-    --msg-ai-text: #000000;
-    --border-radius: 14px;
-}
-
-/* 2. MODO CLARO */
-.modo-claro {
-    --bg-app: #f0f2f5;
-    --bg-sidebar: #ffffff;
-    --bg-card: #ffffff;
-    --bg-input: #f0f2f5;
-    --color-text: #1a1a1a;
-    --color-gugel: #222222;
-    --color-accent: #222222;
-    --color-accent-text: #ffffff;
-    --msg-gugel: #e4e6eb;
-    --msg-ai: #dbdbdb;
-    --msg-ai-text: #1a1a1a;
-    --border-radius: 14px;
-}
-
-/* 3. MODO OSCURO (Slate Azulado) */
-.modo-oscuro {
-    --bg-app: #0f172a;
-    --bg-sidebar: #1e293b;
-    --bg-card: #334155;
-    --bg-input: #475569;
-    --color-text: #f8fafc;
-    --color-gugel: #38bdf8;
-    --color-accent: #38bdf8;
-    --color-accent-text: #0f172a;
-    --msg-gugel: #1e293b;
-    --msg-ai: #334155;
-    --msg-ai-text: #f8fafc;
-    --border-radius: 14px;
-}
-
-/* --- ESTILOS BASE (APLICAN A CUALQUIER MODO) --- */
-body {
-    background-color: var(--bg-app);
-    color: var(--color-text);
-    transition: background-color 0.3s, color 0.3s;
-    margin: 0;
-    font-family: sans-serif; /* Puedes cambiar a 'Courier New' si quieres el toque retro */
-}
-
-.card {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    background-color: var(--bg-card);
-    padding: 20px;
-    border-radius: var(--border-radius);
-}
-
-.opinion-box {
-    background-color: var(--bg-input);
-    padding: 16px;
-    border-radius: 8px;
-    border-left: 4px solid var(--color-accent);
-    font-size: 1.1rem;
-}
-
-.list-container {
-    max-height: 400px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-/* Asegurar que los textos dinámicos tomen los colores del tema */
-h3, p, strong {
-    color: var(--color-text);
-}
