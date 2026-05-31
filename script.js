@@ -116,7 +116,7 @@ function generarPregunta() {
     return PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
 }
 
-// Añade esto a tu función appendMessage existente (Sección 4)
+// En la Sección 4, actualiza appendMessage para asegurar que se guarda
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     if (box) {
@@ -126,10 +126,16 @@ function appendMessage(sender, text) {
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
     }
-    // NUEVA LÍNEA: Guardar en el historial
-    gameState.history.push({ sender, text, timestamp: new Date().toLocaleTimeString() });
+    
+    // GUARDADO REAL: Aseguramos que se añada al estado si no es una respuesta vacía
+    if (text) {
+        gameState.history.push({ 
+            pregunta: sender === 'tú' ? "Usuario" : gameState.currentPregunta, 
+            respuesta: text,
+            timestamp: new Date().toLocaleTimeString() 
+        });
+    }
 }
-
 // NUEVA FUNCIÓN: Para renderizar el historial en su panel
 function renderHistorial() {
     const histPanel = document.getElementById('view-historial'); // Asegúrate que este sea el ID de tu panel de historial
@@ -207,6 +213,19 @@ document.getElementById('chat-form').onsubmit = (e) => {
         renderAllData();   // Actualiza el contador de logros
     }, 500);
 };
+
+En la Sección 8, actualiza renderAllData para que pinte el historial
+function renderAllData() {
+    // ... (tu lógica existente de los IDs)
+    
+    // Renderizado del historial en el contenedor
+    const histContainer = document.getElementById('history-list-container');
+    if (histContainer) {
+        histContainer.innerHTML = gameState.history.map(h => 
+            `<div class="hist-item"><strong>${h.pregunta}:</strong> ${h.respuesta}</div>`
+        ).join('');
+    }
+}
 
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
