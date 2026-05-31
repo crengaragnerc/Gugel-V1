@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONSTANTES, FRASES Y LOGROS (LISTAS COMPLETAS)
+// 1. CONSTANTES Y LISTAS (ESENCIA GUGEL)
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
@@ -13,31 +13,24 @@ const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya 
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
-const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
-// --- NUEVO SISTEMA DE LOGROS (150) ---
-const BASE_LOGROS = Array.from({ length: 150 }, (_, i) => ({
-    id: i,
-    titulo: `Logro #${i + 1}`,
-    desc: "Progreso oculto de sistema desbloqueado."
-}));
+// --- SISTEMA LOGROS (150) ---
+const BASE_LOGROS = Array.from({ length: 150 }, (_, i) => ({ id: i, titulo: `Logro #${i + 1}`, desc: "Desbloqueo secreto de sistema." }));
 
 // ==========================================
-// 2. ESTADO GLOBAL
+// 2. ESTADO Y LÓGICA (TODO UNIFICADO)
 // ==========================================
 let gameState = { 
     campanaIndex: 0, 
     satisfaction: 50, 
     history: [], 
-    logrosDesbloqueados: [],
+    logrosDesbloqueados: [], 
+    favoritos: [],
     recentReactions: [] 
 };
 
-// ==========================================
-// 3. NAVEGACIÓN Y TEMAS (Corregidos)
-// ==========================================
+// --- NAVEGACIÓN Y TEMA ---
 function cambiarPanel(panelId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById(panelId).classList.add('active');
@@ -48,9 +41,7 @@ function cambiarTema(nuevoTema) {
     localStorage.setItem('gugel-tema', nuevoTema);
 }
 
-// ==========================================
-// 4. MOTOR DE JUEGO (Lógica Completa)
-// ==========================================
+// --- UTILIDADES ---
 function obtenerElementoNoRepetido(lista, historial) {
     let opciones = lista.filter(item => !historial.includes(item));
     if (opciones.length === 0) opciones = lista;
@@ -67,89 +58,56 @@ function appendMessage(sender, text) {
         msg.className = `message ${sender}`;
         msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
         box.appendChild(msg);
-        box.scrollTop = box.scrollHeight;
     }
     gameState.history.push({ pregunta: gameState.currentPregunta || "Sistema", respuesta: text });
 }
 
-function verificarLogros() {
-    if (gameState.logrosDesbloqueados.length < 150) {
-        let nuevo = BASE_LOGROS[gameState.logrosDesbloqueados.length];
-        gameState.logrosDesbloqueados.push(nuevo);
-    }
-}
-
 function renderAllData() {
-    // Historial
     const hist = document.getElementById('history-list-container');
-    if (hist) hist.innerHTML = gameState.history.map(h => `<div><strong>${h.pregunta}:</strong> ${h.respuesta}</div>`).join('');
-    
-    // Opinión
-    const op = document.getElementById('prof-opinion');
-    if (op) {
-        let lista = (gameState.satisfaction < 30) ? OPINIONES_BAJA : (gameState.satisfaction < 60) ? OPINIONES_MEDIA_BAJA : (gameState.satisfaction < 85) ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
-        op.innerText = obtenerElementoNoRepetido(lista, gameState.recentReactions);
+    if (hist) {
+        hist.innerHTML = gameState.history.map((h, i) => `<div><strong>${h.pregunta}:</strong> ${h.respuesta} <button onclick="marcarFavorito(${i})">⭐</button></div>`).join('');
     }
+    const op = document.getElementById('prof-opinion');
+    const sat = document.getElementById('prof-satisfaction');
+    if (op) op.innerText = gameState.satisfaction < 50 ? obtenerElementoNoRepetido(OPINIONES_BAJA, []) : obtenerElementoNoRepetido(OPINIONES_ALTA, []);
+    if (sat) sat.innerText = gameState.satisfaction + "%";
     
-    // Logros (Solo muestra los desbloqueados)
     const logList = document.getElementById('logros-container');
     if (logList) logList.innerHTML = gameState.logrosDesbloqueados.map(l => `<li>${l.titulo}</li>`).join('');
     const count = document.getElementById('logros-count');
-    if (count) count.innerText = gameState.logrosDesbloqueados.length;
+    if (count) count.innerText = gameState.logrosDesbloqueados.length + "/150";
 }
 
+// --- MOTOR DE JUEGO ---
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
     const userText = input.value.trim().toLowerCase();
-    if (!userText) return;
     
     appendMessage('tú', userText);
-    input.style.display = "none";
-    document.getElementById('transmit-btn').style.display = "none";
-
+    input.value = "";
+    
     let tipo = EVASIVAS.includes(userText) ? "CRITICA" : (userText.length <= 15 ? "RECHAZO" : "OK");
     let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.recentReactions) :
                    tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.recentReactions) :
                    obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions);
-
+    
     gameState.satisfaction += (tipo === "OK" ? 5 : -10);
 
     setTimeout(() => {
         appendMessage('gugel', reaccion);
-        verificarLogros();
+        if(gameState.logrosDesbloqueados.length < 150) gameState.logrosDesbloqueados.push(BASE_LOGROS[gameState.logrosDesbloqueados.length]);
         renderAllData();
-        document.getElementById('continue-btn').style.display = "block";
     }, 500);
 };
 
 function nextRound() {
-    document.getElementById('chat-messages').innerHTML = "";
-    document.getElementById('continue-btn').style.display = "none";
     gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex++ % PREGUNTAS_CAMPANA.length];
+    document.getElementById('chat-messages').innerHTML = "";
     appendMessage('gugel', gameState.currentPregunta);
-    
-    const input = document.getElementById('user-input');
-    input.style.display = "block";
-    input.value = "";
-    input.disabled = true;
-    input.placeholder = "Procesando...";
-    document.getElementById('transmit-btn').style.display = "block";
-    document.getElementById('transmit-btn').disabled = true;
-
-    setTimeout(() => {
-        input.disabled = false;
-        document.getElementById('transmit-btn').disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
-    }, 3000);
 }
 
-document.getElementById('continue-btn').onclick = nextRound;
-
-window.addEventListener('DOMContentLoaded', () => {
-    const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
-    document.body.className = temaGuardado;
-    const select = document.getElementById('theme-select');
-    if (select) select.value = temaGuardado;
-    nextRound();
+document.addEventListener('DOMContentLoaded', () => { 
+    nextRound(); 
+    renderAllData(); 
 });
