@@ -58,20 +58,19 @@ body {
     background-color: var(--bg-app);
     color: var(--color-text);
     height: 100vh;
-    height: -webkit-fill-available;
+    height: 100dvh; /* Arreglo definitivo para Safari/iPhone */
     overflow: hidden;
     transition: background 0.2s, color 0.2s;
 }
 
 #app-container {
     display: flex;
-    height: 100vh;
+    height: 100%;
     width: 100vw;
     padding: 15px;
     gap: 15px;
 }
 
-/* Botón de menú para móviles */
 #mobile-menu-toggle {
     display: none;
     position: fixed;
@@ -81,11 +80,11 @@ body {
     background-color: var(--color-accent);
     color: var(--color-accent-text);
     border: none;
-    padding: 10px 16px;
+    padding: 12px 18px;
     border-radius: 8px;
     font-weight: bold;
     font-size: 0.9rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     cursor: pointer;
 }
 
@@ -148,6 +147,7 @@ body {
     flex-grow: 1;
     position: relative;
     height: 100%;
+    width: 100%;
 }
 
 .content-panel {
@@ -157,6 +157,7 @@ body {
     border-radius: var(--border-radius);
     padding: 16px;
     height: 100%;
+    width: 100%;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
@@ -177,6 +178,21 @@ body {
     border-bottom: 1px dashed var(--bg-input);
     padding-bottom: 10px;
     margin-bottom: 10px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#countdown-timer {
+    font-weight: bold;
+    background-color: var(--bg-input);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #ff3366;
 }
 
 #chat-messages {
@@ -235,11 +251,6 @@ body {
     font-size: 1rem;
 }
 
-#user-input:focus {
-    outline: none;
-    border-color: var(--color-accent);
-}
-
 #transmit-btn, #continue-btn {
     padding: 14px;
     border-radius: var(--border-radius);
@@ -261,15 +272,6 @@ body {
     color: var(--bg-app);
     display: none;
     flex-grow: 1;
-}
-
-.streaming-box {
-    background-color: var(--bg-card);
-    padding: 10px;
-    border-radius: 8px;
-    border-left: 4px solid #ff0055;
-    font-size: 0.8rem;
-    margin-top: 8px;
 }
 
 .card {
@@ -310,69 +312,35 @@ body {
     font-size: 0.85rem;
 }
 
-.historial-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-.fav-btn {
-    background: none;
-    border: none;
-    color: #444;
-    font-size: 1.4rem;
-    cursor: pointer;
-}
-
-.fav-btn.active { color: #ffcc00; }
-
 .action-btn {
     align-self: flex-start;
     background-color: var(--color-accent);
     color: var(--color-accent-text);
     border: none;
-    padding: 10px 16px;
+    padding: 12px 18px;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 0.85rem;
 }
 
-/* ==========================================
-   MEDIA QUERIES PARA ADAPTACIÓN MÓVIL
-   ========================================== */
 @media (max-width: 768px) {
     #app-container {
         flex-direction: column;
         padding: 10px;
-        padding-top: 60px; /* Espacio para el botón flotante */
+        padding-top: 65px;
+        height: 100%;
     }
-
-    #mobile-menu-toggle {
-        display: block; /* Revelar botón de menú */
-    }
-
+    #mobile-menu-toggle { display: block; }
     #sidebar {
         position: fixed;
         top: 0;
         left: -100%;
-        width: 85vw;
-        height: 100vh;
+        width: 80vw;
+        height: 100dvh;
         z-index: 998;
-        transition: left 0.25s ease-in-out;
+        transition: left 0.22s ease-in-out;
         border-radius: 0;
     }
-
-    #sidebar.open {
-        left: 0;
-    }
-
-    .message {
-        max-width: 90%;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr; /* Una columna en móvil */
-    }
+    #sidebar.open { left: 0; }
+    .stats-grid { grid-template-columns: 1fr; }
 }
