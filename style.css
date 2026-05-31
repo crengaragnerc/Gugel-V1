@@ -233,9 +233,20 @@ button {
     border: 1px solid var(--bubble-border);
 }
 
-.message.gugel { align-self: flex-end; border-left: 3px solid var(--accent-color); }
-.message.usuario { align-self: flex-start; }
-.message strong { color: var(--accent-color); display: inline-block; margin-right: 5px; }
+.message.humano { 
+    align-self: flex-start; 
+}
+
+.message.ia { 
+    align-self: flex-end; 
+    border-right: 3px solid var(--accent-color); 
+}
+
+.message strong { 
+    color: var(--accent-color); 
+    display: inline-block; 
+    margin-right: 5px; 
+}
 
 .fav-btn {
     background: var(--bg-inner);
