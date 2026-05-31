@@ -60,7 +60,7 @@ const FRASES_RECHAZO = [
     "no te has esmerado nada en responder", "con esto no hago nada amplia el texto",
     "muy resumido se pierde el contexto", "vaya parrafo mas inutil no dice nada",
     "esperaba un analisis no una frase suelta", "no soluciona la pregunta es muy incompleto",
-    "explicacion de un segundo busca algo mejor", "falta profundidad in tu argumentacion",
+    "explicacion de un segundo busca algo mejor", "falta profundidad en tu argumentacion",
     "vaya contestacion mas floja e imprecisa", "esto no me saca de dudas amplia mas",
     "muy flojo el nivel de esta respuesta", "no detallas nada asi no hay quien entienda",
     "esperaba mas sustancia in este parrafo", "el contenido es insuficiente", 
@@ -158,7 +158,7 @@ const OPINIONES_BUENAS = [
     "(cree que eres una ia alienigena del futuro)", "(esta fascinado con tu velocidad)"
 ];
 
-// --- REGISTRO DE LOGROS ---
+// --- REGISTRO DE LOGROS UNIFICADO ---
 const LOGROS_DIVERTIDOS = [
     { t: "Hola Mundo", d: "Conseguiste no romper la base de datos in la primera respuesta." },
     { t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento." },
@@ -171,8 +171,13 @@ const LOGROS_DIVERTIDOS = [
     { t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia." }
 ];
 
+const RECOMENDACIONES_DINAMICAS = {
+    "gato": "ayuda mi gato hace ruido raro", "pc": "que pasa si pantalla pc da calambre",
+    "teclado": "porque teclado usb borra archivos solo", "router": "como hacer que router wifi parpadea sin parar"
+};
+
 // ==========================================
-// ESTADO INTERNO DEL JUEGO
+// ESTADO INTERNO Y CONFIGURACIÓN DEL MOTOR
 // ==========================================
 let coreState = {
     cycles: 0,
@@ -183,7 +188,7 @@ let coreState = {
     currentQ: "",
     nextModoSelected: "",
     ultimoSujetoClave: "",
-    satisfaccionAcumulada: 50,
+    satisfaccionAcumulada: 50, // Comienzo calibrado estricto
     logrosDesbloqueados: [],
     history: []
 };
@@ -193,23 +198,19 @@ let timeLeft = 5;
 let userAccount = null;
 
 // ==========================================
-// OPERATORIA DE RONDAS Y LOS DOS TEMPORIZADORES
+// FLUJO OPERATIVO DE RONDAS Y TEMPORIZADOR
 // ==========================================
 function iniciarSiguienteRonda() {
     clearInterval(timerInterval);
-
     const input = document.getElementById('user-input');
     const transBtn = document.getElementById('transmit-btn');
     const contBtn = document.getElementById('continue-btn');
-    const chatBox = document.getElementById('chat-messages');
+    const recBox = document.getElementById('streaming-recommendation');
 
-    // REGLA 1: Se vacía el chat por completo con cada nueva pregunta
-    if (chatBox) chatBox.innerHTML = "";
-
-    // Bloqueamos escritura inicial para obligar a leer
-    if (input) { input.disabled = true; input.value = ""; input.placeholder = "Lee la pregunta primero..."; }
-    if (transBtn) { transBtn.style.display = "inline-block"; transBtn.disabled = true; }
+    if (input) { input.disabled = false; input.value = ""; }
+    if (transBtn) transBtn.style.display = "inline-block";
     if (contBtn) contBtn.style.display = "none";
+    if (recBox) recBox.style.display = "none";
 
     let pregunta = "";
 
@@ -221,35 +222,32 @@ function iniciarSiguienteRonda() {
             return;
         }
         pregunta = PREGUNTAS_CAMPANA[coreState.campanaIdx++];
+        coreState.ultimoSujetoClave = pregunta.includes("gato") ? "gato" : "pc";
     } else {
         const s = SUJETOS[Math.floor(Math.random() * SUJETOS.length)];
         const p = PREDICADOS[Math.floor(Math.random() * PREDICADOS.length)];
         let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
         pregunta = plantilla.replace("[s]", s).replace("[p]", p);
+        coreState.ultimoSujetoClave = s.includes("gato") ? "gato" : "router";
     }
 
     coreState.currentQ = pregunta;
     inyectarBurbuja('gugel', pregunta);
-    
-    // REGLA 2: Primer temporizador (5s) en el botón de Transmitir ANTES de poder responder
-    iniciarPrimerTemporizador();
+    iniciarTemporizadorRonda();
 }
 
-function iniciarPrimerTemporizador() {
+function iniciarTemporizadorRonda() {
     timeLeft = 5;
-    const transBtn = document.getElementById('transmit-btn');
-    if (transBtn) transBtn.innerText = `⌛ ${timeLeft}s`;
+    const timerDisplay = document.getElementById('countdown-timer');
+    if (timerDisplay) timerDisplay.innerText = `⏳ ${timeLeft}s`;
 
     timerInterval = setInterval(() => {
         timeLeft--;
-        if (transBtn) transBtn.innerText = `⌛ ${timeLeft}s`;
+        if (timerDisplay) timerDisplay.innerText = `⏳ ${timeLeft}s`;
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            // Al terminar la lectura, habilitamos entrada
-            const input = document.getElementById('user-input');
-            if (input) { input.disabled = false; input.placeholder = "Escribe tu respuesta aquí..."; input.focus(); }
-            if (transBtn) { transBtn.disabled = false; transBtn.innerText = "TRANSMITIR"; }
+            procesarFalloPorTiempo();
         }
     }, 1000);
 }
@@ -258,12 +256,13 @@ function procesarFalloPorTiempo() {
     inyectarBurbuja('ai', "[TIEMPO EXTREMO AGOTADO - INACTIVIDAD]");
     let reaccion = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
     
+    // Impacto intermedio calibrado por inactividad
     coreState.satisfaccionAcumulada -= 8;
     coreState.cycles++;
 
     inyectarBurbuja('gugel', reaccion);
     coreState.history.push({
-        pregunta: coreState.currentQ, respuesta: "[TIMEOUT]", reaccion: reaccion, tipo: "rechazo"
+        pregunta: coreState.currentQ, respuesta: "[TIMEOUT]", reaccion: reaccion, tipo: "rechazo", fav: false
     });
 
     bloquearYMostrarContinuar();
@@ -281,29 +280,32 @@ function inyectarBurbuja(sender, texto) {
 }
 
 // ==========================================
-// EVALUATOR ENGINE DE SATISFACCIÓN REAJUSTADO
+// BALANCED EVALUATION ENGINE (RITMO INTERMEDIO)
 // ==========================================
 function evaluarRespuestaIA(userText) {
     const textClean = userText.toLowerCase().trim();
     
+    // Bloque 1: Evasivas Directas
     if (EVASIVAS.some(e => textClean === e || textClean === e + ".")) {
         desbloquearLogro("Esquiva Balas");
         return {
             tipo: "critica",
             txt: FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)],
-            satMod: -(Math.floor(Math.random() * 7) + 12)
+            satMod: -(Math.floor(Math.random() * 7) + 12) // Descenso entre -12% y -18%
         };
     }
 
+    // Bloque 2: Filtrado Mucho Texto
     if (userText.length > 140) {
         desbloquearLogro("Biblia Evitada");
         return {
             tipo: "mucho_texto",
             txt: FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)],
-            satMod: -(Math.floor(Math.random() * 5) + 8)
+            satMod: -(Math.floor(Math.random() * 5) + 8) // Descenso entre -8% y -12%
         };
     }
 
+    // Bloque 3: Verificación de coherencia y longitud correcta
     let tieneIndicador = INDICADORES_COHERENCIA.some(ind => textClean.includes(ind));
     
     if (userText.length >= 35 && tieneIndicador) {
@@ -311,13 +313,14 @@ function evaluarRespuestaIA(userText) {
         return {
             tipo: "ok",
             txt: FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)],
-            satMod: Math.floor(Math.random() * 5) + 5
+            satMod: Math.floor(Math.random() * 5) + 5 // Subida equilibrada entre +5% y +9%
         };
     } else {
+        // Bloque 4: Respuesta corta o inconexa
         return {
             tipo: "rechazo",
             txt: FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)],
-            satMod: -(Math.floor(Math.random() * 5) + 6)
+            satMod: -(Math.floor(Math.random() * 5) + 6) // Descenso calibrado entre -6% y -10%
         };
     }
 }
@@ -337,63 +340,44 @@ function bloquearYMostrarContinuar() {
     if (transBtn) transBtn.style.display = "none";
     if (contBtn) {
         contBtn.style.display = "inline-block";
-        // REGLA 3: Segundo temporizador (5s) en el botón de Continuar al ver la reacción
-        iniciarSegundoTemporizador();
+        contBtn.innerText = "CONTINUAR";
+        coreState.nextModoSelected = coreState.modoJuego;
     }
 }
 
-function iniciarSegundoTemporizador() {
-    timeLeft = 5;
-    const contBtn = document.getElementById('continue-btn');
-    if (contBtn) contBtn.innerText = `SIGUIENTE (⌛ ${timeLeft}s)`;
-
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        if (contBtn) contBtn.innerText = `SIGUIENTE (⌛ ${timeLeft}s)`;
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            iniciarSiguienteRonda(); // Avance automático al expirar
-        }
-    }, 1000);
-}
-
 // ==========================================
-// RENDERIZADO COMPLETO Y SISTEMA LOGROS INVISIBLES
+// VISUALIZACIÓN EN CRIPTO (SABER CUÁNTOS, OCULTAR CUÁLES)
 // ==========================================
 function ejecutarRenderizadoPaneles() {
-    // Tratamos los elementos de perfil de forma segura por si cambiaste el HTML
-    const lvl = document.getElementById('prof-level');
-    if (lvl) lvl.innerText = Math.floor(coreState.cycles / 4) + 1;
+    document.getElementById('prof-cycles').innerText = coreState.cycles;
+    document.getElementById('prof-chars').innerText = `${coreState.charsSent} carac.`;
+    document.getElementById('prof-level').innerText = Math.floor(coreState.cycles / 4) + 1;
 
     if (coreState.satisfaccionAcumulada > 100) coreState.satisfaccionAcumulada = 100;
     if (coreState.satisfaccionAcumulada < 0) coreState.satisfaccionAcumulada = 0;
-    
-    const sat = document.getElementById('prof-satisfaction');
-    if (sat) sat.innerText = `${coreState.satisfaccionAcumulada}%`;
+    document.getElementById('prof-satisfaction').innerText = `${coreState.satisfaccionAcumulada}%`;
 
     const opinionContainer = document.getElementById('prof-opinion');
-    if (opinionContainer) {
-        if (coreState.cycles === 0) {
-            opinionContainer.innerText = "(analizando conexiones primarias...)";
-        } else {
-            let arrayOpiniones = coreState.satisfaccionAcumulada < 30 ? OPINIONES_MALAS :
-                                 coreState.satisfaccionAcumulada < 55 ? OPINIONES_MEDIO_MALAS :
-                                 coreState.satisfaccionAcumulada < 80 ? OPINIONES_MEDIO_BUENAS : OPINIONES_BUENAS;
-            opinionContainer.innerText = arrayOpiniones[coreState.cycles % arrayOpiniones.length] || "(estable)";
-        }
+    if (coreState.cycles === 0) {
+        opinionContainer.innerText = "(analizando conexiones primarias...)";
+    } else {
+        let arrayOpiniones = coreState.satisfaccionAcumulada < 30 ? OPINIONES_MALAS :
+                             coreState.satisfaccionAcumulada < 55 ? OPINIONES_MEDIO_MALAS :
+                             coreState.satisfaccionAcumulada < 80 ? OPINIONES_MEDIO_BUENAS : OPINIONES_BUENAS;
+        opinionContainer.innerText = arrayOpiniones[coreState.cycles % arrayOpiniones.length] || "(estable)";
     }
 
-    // Métricas automáticas
+    // Desbloqueos basados en métricas globales
     if (coreState.cycles >= 1) desbloquearLogro("Hola Mundo");
     if (coreState.satisfaccionAcumulada >= 92) desbloquearLogro("Modo Dios: Iniciando");
 
-    // REGLA 4: Sistema de logros invisible absoluto (solo aparecen si están desbloqueados)
+    // Lógica Criptográfica de Logros
     const logrosContainer = document.getElementById('logros-container');
     const logrosCount = document.getElementById('logros-count');
     
     let htmlLogros = "";
     let totalUnlocked = 0;
+    const maxLogrosTotales = LOGLOS_DIVERTIDOS = LOGROS_DIVERTIDOS.length;
 
     LOGROS_DIVERTIDOS.forEach(logro => {
         if (coreState.logrosDesbloqueados.includes(logro.t)) {
@@ -404,39 +388,37 @@ function ejecutarRenderizadoPaneles() {
                     <small style="color: var(--color-gugel);">${logro.d}</small>
                 </div>
             `;
+        } else {
+            htmlLogros += `
+                <div class="list-item" style="border-left: 4px solid #333; opacity: 0.4; background: rgba(255,255,255,0.01)">
+                    <strong>🔒 Logro Secreto Encriptado</strong><br>
+                    <small style="color: #555;">Contenido restringido. Sigue operando el Núcleo de la IA para descifrarlo.</small>
+                </div>
+            `;
         }
     });
 
-    if (htmlLogros === "") {
-        htmlLogros = `<div class="list-item" style="text-align: center; color: #666; font-style: italic;">No has desbloqueado ningún logro todavía...</div>`;
-    }
+    logrosContainer.innerHTML = htmlLogros;
+    logrosCount.innerText = `${totalUnlocked} / ${maxLogrosTotales}`;
 
-    if (logrosContainer) logrosContainer.innerHTML = htmlLogros;
-    if (logrosCount) logrosCount.innerText = totalUnlocked;
-
-    // Actualización del Historial
-    const histContainer = document.getElementById('history-list-container');
-    if (histContainer) {
-        histContainer.innerHTML = coreState.history.map(h => `
-            <div class="list-item">
-                <strong>Q: ${h.pregunta}</strong><br>
-                <span>A: ${h.respuesta}</span><br>
-                <small style="color: var(--color-accent)">GUGEL: ${h.reaccion}</small>
-            </div>
-        `).join('');
-    }
+    // Historial logs
+    document.getElementById('history-list-container').innerHTML = coreState.history.map(h => `
+        <div class="list-item">
+            <strong>Q: ${h.pregunta}</strong><br>
+            <span>A: ${h.respuesta}</span><br>
+            <small style="color: var(--color-accent)">GUGEL: ${h.reaccion}</small>
+        </div>
+    `).join('');
 }
 
 // ==========================================
-// TODAS LAS FUNCIONES DE INTERFAZ ORIGINALES RESTAURADAS
+// MANIPULACIÓN DE VISTAS Y NAVEGACIÓN INTERNA
 // ==========================================
 function switchView(viewId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    const targetPanel = document.getElementById(viewId);
-    if (targetPanel) targetPanel.classList.add('active');
-    
+    document.getElementById(viewId).classList.add('active');
     const targetBtn = document.getElementById(`btn-${viewId}`);
     if (targetBtn) targetBtn.classList.add('active');
     ejecutarRenderizadoPaneles();
@@ -444,14 +426,13 @@ function switchView(viewId) {
 
 function cambiarModoEstrategia(modo) {
     coreState.modoJuego = modo;
-    const title = document.getElementById('panel-title-text');
-    if (title) title.innerText = `Interfaz Core - ${modo.toUpperCase()}`;
+    document.getElementById('panel-title-text').innerText = `Interfaz Core - ${modo.toUpperCase()}`;
     switchView('view-core');
+    document.getElementById('chat-messages').innerHTML = "";
     iniciarSiguienteRonda();
 }
 
 function confirmContinue() {
-    clearInterval(timerInterval);
     iniciarSiguienteRonda();
 }
 
@@ -462,74 +443,79 @@ function cambiarTemaVisual(tema) {
 
 function toggleMobileMenu() {
     const sidebar = document.getElementById('sidebar');
-    if (sidebar && window.innerWidth <= 768) sidebar.classList.toggle('open');
+    if (window.innerWidth <= 768) sidebar.classList.toggle('open');
 }
 
 function exportCoreData() {
     let output = coreState.history.map(h => `Q: ${h.pregunta}\nA: ${h.respuesta}\n---`).join('\n');
-    navigator.clipboard.writeText(output).then(() => alert("Logs volcados al portapapeles con éxito."));
+    navigator.clipboard.writeText(output).then(() => alert("Logs volcados al portapapeles."));
 }
 
+window.inyectarRecomendacionDirecta = function(preguntaText) {
+    cambiarModoEstrategia('infinito');
+    coreState.currentQ = preguntaText;
+    inyectarBurbuja('gugel', preguntaText);
+    iniciarTemporizadorRonda();
+};
+
 // ==========================================
-// DISPARADOR DE INICIALIZACIÓN Y EVENTOS DOM
+// ASIGNACIÓN DE ENLACES DOM AL CARGAR VENTANA
 // ==========================================
 window.onload = function() {
-    const accBtn = document.getElementById("btn-gestion-cuenta");
-    if (accBtn) {
-        accBtn.onclick = function() {
-            const name = prompt("Nickname del Operador:");
-            if (name && name.trim()) {
-                userAccount = name.trim();
-                accBtn.innerText = `👤 ${userAccount.toUpperCase()}`;
-            }
-        };
-    }
-
-    const contBtn = document.getElementById('continue-btn');
-    if (contBtn) {
-        contBtn.onclick = function() {
-            confirmContinue();
-        };
-    }
+    document.getElementById("btn-gestion-cuenta").onclick = function() {
+        const name = prompt("Nickname:");
+        if (name && name.trim()) {
+            userAccount = name.trim();
+            document.getElementById("btn-gestion-cuenta").innerText = `👤 ${userAccount.toUpperCase()}`;
+        }
+    };
 
     const form = document.getElementById('chat-form');
-    if (form) {
-        form.onsubmit = function(e) {
-            e.preventDefault();
-            
-            const input = document.getElementById('user-input');
-            const text = input ? input.value.trim() : "";
-            if (!text) return;
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        clearInterval(timerInterval); // Cortar cuenta atrás activa
+        
+        const input = document.getElementById('user-input');
+        const text = input ? input.value.trim() : "";
+        if (!text) return;
 
-            if (coreState.history.some(h => h.respuesta.toLowerCase().trim() === text.toLowerCase().trim())) {
-                alert("⚠️ ERROR: Redundancia cíclica. Modifica la respuesta.");
-                return;
+        // Anti-repetición implacable
+        if (coreState.history.some(h => h.respuesta.toLowerCase().trim() === text.toLowerCase().trim())) {
+            alert("⚠️ ERROR: Redundancia cíclica. Respuesta idéntica ya enviada.");
+            iniciarTemporizadorRonda();
+            return;
+        }
+
+        coreState.cycles++;
+        coreState.charsSent += text.length;
+        inyectarBurbuja('ai', text);
+
+        let evaluacion = evaluarRespuestaIA(text);
+        coreState.satisfaccionAcumulada += evaluacion.satMod;
+
+        setTimeout(() => {
+            inyectarBurbuja('gugel', evaluacion.txt);
+            coreState.history.push({
+                pregunta: coreState.currentQ, respuesta: text, reaccion: evaluacion.txt, tipo: evaluacion.tipo, fav: false
+            });
+
+            ejecutarRenderizadoPaneles();
+            bloquearYMostrarContinuar();
+
+            const recBox = document.getElementById('streaming-recommendation');
+            if (recBox && coreState.ultimoSujetoClave) {
+                const sugestion = RECOMENDACIONES_DINAMICAS[coreState.ultimoSujetoClave] || "que pasa si pantalla pc da calambre";
+                recBox.innerHTML = `📺 Recomendación por contexto: <span style="text-decoration: underline; cursor: pointer; font-weight: bold;" onclick="window.inyectarRecomendacionDirecta('${sugestion}')">${sugestion}</span>`;
+                recBox.style.display = "block";
             }
+        }, 400);
+    };
 
-            coreState.cycles++;
-            coreState.charsSent += text.length;
-            inyectarBurbuja('ai', text);
-
-            let evaluacion = evaluarRespuestaIA(text);
-            coreState.satisfaccionAcumulada += evaluacion.satMod;
-
-            setTimeout(() => {
-                inyectarBurbuja('gugel', evaluacion.txt);
-                coreState.history.push({
-                    pregunta: coreState.currentQ, respuesta: text, reaccion: evaluacion.txt, tipo: evaluacion.tipo
-                });
-
-                ejecutarRenderizadoPaneles();
-                bloquearYMostrarContinuar();
-            }, 400);
-        };
-    }
-
-    // Soporte nativo para cierre de menú lateral en iPhone/Móvil
+    // Cerrar menú si haces clic fuera del contenedor (móviles)
     document.addEventListener('click', function(event) {
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('mobile-menu-toggle');
-        if (sidebar && window.innerWidth <= 768 && !sidebar.contains(event.target) && event.target !== toggleBtn) {
+        if (window.innerWidth <= 768 && !sidebar.contains(event.target) && event.target !== toggleBtn) {
             sidebar.classList.remove('open');
         }
     });
