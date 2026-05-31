@@ -2,49 +2,92 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>GUGEL: Simulador de IA</title>
-    <link rel="stylesheet" href="style.css" id="theme-link">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUGEL: simulador de IA</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div id="pantalla-login" class="panel">
-        <h1>GUGEL Login</h1>
-        <input type="text" id="nombreUsuario" placeholder="Tu nombre...">
-        <button onclick="iniciarSesion()">Entrar</button>
-        <button onclick="iniciarInvitado()">Entrar como Invitado</button>
-    </div>
+<body class="modo-hacker">
 
-    <div id="pantalla-principal" class="panel" style="display:none;">
-        <div id="stats">Satisfacción: 50%</div>
-        <div id="logros-container">Logros: <span id="logros">Ninguno</span></div>
-        <div id="mensajes"></div>
-        <input type="text" id="userInput" placeholder="Consulta...">
-        <button id="btnEnviar">Buscar</button>
-        <button onclick="cambiarPanel('pantalla-infinito')">Infinito</button>
-        <button onclick="cambiarPanel('pantalla-historial')">Historial</button>
-        <button onclick="cambiarPanel('pantalla-ajustes')">Ajustes</button>
-    </div>
+    <header id="top-bar">
+        <div class="brand-top">GUGEL: simulador de IA</div>
+        <div class="theme-selector">
+            <label>TEMA:</label>
+            <select id="theme-select" onchange="cambiarTema(this.value)">
+                <option value="modo-hacker">HACKER</option>
+                <option value="modo-claro">CLARO</option>
+                <option value="modo-oscuro">OSCURO</option>
+            </select>
+        </div>
+    </header>
 
-    <div id="pantalla-infinito" class="panel" style="display:none;">
-        <h1>Infinito</h1>
-        <div id="output-infinito"></div>
-        <button id="btnGenerar">Generar</button>
-        <button onclick="cambiarPanel('pantalla-principal')">Volver</button>
-    </div>
+    <div id="app-container">
+        <aside id="sidebar">
+            <div class="brand">GUGEL: simulador de IA</div>
+            
+            <div class="menu-section">
+                <div class="section-title">🎨 TEMA</div>
+                <button class="sub-btn" onclick="cicloTema()">CAMBIAR TEMA</button>
+            </div>
 
-    <div id="pantalla-historial" class="panel" style="display:none;">
-        <h1>Historial</h1>
-        <div id="lista-historial"></div>
-        <button onclick="cambiarPanel('pantalla-principal')">Volver</button>
-    </div>
+            <div class="menu-section">
+                <div class="section-title">🕹️ MODOS DE JUEGO</div>
+                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
+                    📌 LAS 10 CAMPAÑAS
+                </button>
+                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
+                    ♾️ PREGUNTAS INFINITAS
+                </button>
+            </div>
 
-    <div id="pantalla-ajustes" class="panel" style="display:none;">
-        <h1>Ajustes de Tema</h1>
-        <button onclick="cambiarTema('claro')">Claro</button>
-        <button onclick="cambiarTema('oscuro')">Oscuro</button>
-        <button onclick="cambiarTema('hacker')">Hacker</button>
-        <button onclick="cambiarPanel('pantalla-principal')">Volver</button>
-    </div>
+            <div class="menu-section">
+                <div class="section-title">🖥️ PANELES</div>
+                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
+            </div>
 
+            <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN DE CUENTA</button>
+        </aside>
+
+        <main id="chat-area">
+            <section id="view-chat" class="content-panel active">
+                <div id="chat-messages"></div>
+                <form id="chat-form">
+                    <input type="text" id="user-input" placeholder="Escribe tu respuesta..." required>
+                    <button type="submit" id="transmit-btn">ENVIAR</button>
+                    <button type="button" id="continue-btn" onclick="confirmContinue()" style="display:none;">CONTINUAR</button>
+                </form>
+            </section>
+
+            <section id="view-perfil" class="content-panel">
+                <div class="card">
+                    <h3>📊 Datos de Usuario</h3>
+                    <div class="opinion-box" id="opinion-container">
+                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
+                    </div>
+                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
+                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
+                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
+                </div>
+            </section>
+
+            <section id="view-logros" class="content-panel">
+                <div class="card">
+                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
+                    <div id="logros-container" class="list-container"></div>
+                </div>
+            </section>
+
+            <section id="view-historial" class="content-panel">
+                <div class="card">
+                    <h3>📁 Historial de Conversaciones</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
+                    <div id="history-list-container" class="list-container"></div>
+                </div>
+            </section>
+        </main>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
