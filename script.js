@@ -218,8 +218,9 @@ function appendMessage(sender, text) {
     box.scrollTop = box.scrollHeight;
 }
 
+// --- SUSTITUYE LA FUNCIÓN nextRound POR ESTA ---
+
 function nextRound() {
-    // CERROJO DE SEGURIDAD: Evita duplicados automáticos al pulsar repetidamente "Infinitas"
     if (gameState.esperandoRespuesta) return; 
     gameState.esperandoRespuesta = true;
 
@@ -229,12 +230,62 @@ function nextRound() {
     
     if (continueBtn) continueBtn.style.display = "none";
     
+    // --- LÓGICA DE FINALIZACIÓN DE CAMPAÑA ---
     if (gameState.modoActualJuego === "campaña" && gameState.campanaCompletada) {
-        if (input) { input.style.display = "block"; input.disabled = true; input.value = ""; input.placeholder = "CAMPAÑA COMPLETADA."; }
-        if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
-        appendMessage('gugel', "has respondido todas las consultas de la campaña."); 
-        return;
+        if (input) { 
+            input.style.display = "none"; // Oculta el input
+            input.value = ""; 
+        }
+        if (transmitBtn) { 
+            transmitBtn.style.display = "none"; // AQUÍ DESAPARECE EL BOTÓN
+        }
+        appendMessage('gugel', "Has finalizado la campaña. No hay más consultas pendientes."); 
+        return; // Salimos de la función para no volver a intentar procesar nada
     }
+    
+    // Si la campaña no está completada o es modo infinito, mostramos controles
+    if (input) { 
+        input.style.display = "block"; 
+        input.value = ""; 
+    }
+    if (transmitBtn) { 
+        transmitBtn.style.display = "block"; 
+        transmitBtn.disabled = true; // Empieza deshabilitado por el temporizador
+    }
+    
+    let q = generarPregunta();
+    
+    // Control de seguridad por si acaso la función devuelve null inesperadamente
+    if (q === null) { 
+        gameState.campanaCompletada = true;
+        gameState.esperandoRespuesta = false; 
+        nextRound(); 
+        return; 
+    }
+    
+    gameState.currentPregunta = q;
+    appendMessage('gugel', gameState.currentPregunta);
+    
+    // RESTAURACIÓN DEL TEMPORIZADOR DE 5s
+    if (input && transmitBtn) {
+        input.disabled = true; 
+        let timeLeft = 5; 
+        input.placeholder = `Procesando... (${timeLeft}s)`;
+        
+        if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+        window.currentRoundTimer = setInterval(() => { 
+            timeLeft--; 
+            input.placeholder = `Procesando... (${timeLeft}s)`; 
+            if (timeLeft <= 0) { 
+                clearInterval(window.currentRoundTimer); 
+                input.disabled = false; 
+                transmitBtn.disabled = false; 
+                input.placeholder = "Introduce tu respuesta..."; 
+                input.focus(); 
+            } 
+        }, 1000);
+    }
+}
     
     if (input) { input.style.display = "block"; input.value = ""; }
     if (transmitBtn) { transmitBtn.style.display = "block"; }
