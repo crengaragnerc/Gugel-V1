@@ -65,12 +65,19 @@ function guardarProgresoCuenta() {
 function cambiarModoEstrategia(modo) {
     const modoLimpio = (modo === 'campaña' || modo === 'campana') ? 'campaña' : 'infinito';
     if (gameState.modoActualJuego === modoLimpio) { switchView('view-chat'); return; }
-    gameState.modoSeleccionadoSiguiente = modoLimpio; gameState.modoActualJuego = modoLimpio;
+    
+    // Limpiamos el chat antes de cambiar
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = ""; 
+
+    gameState.modoSeleccionadoSiguiente = modoLimpio; 
+    gameState.modoActualJuego = modoLimpio;
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     if (modoLimpio === 'campaña') { const btnC = document.getElementById('btn-mode-campaña'); if (btnC) btnC.classList.add('active'); }
     else { const btnI = document.getElementById('btn-mode-infinito'); if (btnI) btnI.classList.add('active'); }
-    const chatBox = document.getElementById('chat-messages'); if (chatBox) chatBox.innerHTML = "";
-    switchView('view-chat'); nextRound();
+    
+    switchView('view-chat'); 
+    nextRound();
 }
 
 function switchView(viewId) {
