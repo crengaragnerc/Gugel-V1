@@ -51,9 +51,9 @@ const BASE_LOGROS = [
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
-    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias unique." },
+    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -81,7 +81,7 @@ const BASE_LOGROS = [
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
-let esperandoRespuestaDeTurno = true; // Controla si el usuario está escribiendo su respuesta
+let esperandoRespuestaDeTurno = true; 
 
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
@@ -311,7 +311,7 @@ function renderAllData() {
 }
 
 // ==========================================
-// 5. FLUJO DEL CHAT Y RONDAS
+// 5. FLUJO DEL CHAT Y RONDAS (CORREGIDO BIEN)
 // ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
@@ -363,7 +363,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
         salvarAStorage();
         renderAllData();
         
-        esperandoRespuestaDeTurno = false; // Ha terminado el turno, ya no se está respondiendo la actual
+        esperandoRespuestaDeTurno = false; 
         document.getElementById('chat-actions-bar').style.display = "block";
         document.getElementById('continue-btn').style.display = "block";
     }, 500);
@@ -392,6 +392,8 @@ function nextRound() {
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
 
+    // EXPLICACIÓN DEL CAMBIO: Fijamos bien que avance la campaña si corresponde, 
+    // y si no, que genere una aleatoria real sin quedarse congelada en la última guardada.
     if (c.modo === "campaña") {
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
@@ -405,7 +407,7 @@ function nextRound() {
     }
     
     appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; // Empieza una nueva ronda, volvemos a esperar respuesta
+    esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
     input.value = "";
@@ -483,26 +485,23 @@ function cargarChatHistorico(index) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // Cambiamos el modo del sistema inmediatamente (¡Sin bloqueos!)
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
-    // Aseguramos que el panel visual del chat esté activo al pulsar las pestañas
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
     salvarAStorage();
 
-    // SOLUCIÓN DEFINITIVA SIMULTÁNEA:
-    // ¿El usuario está a mitad de responder? Mantenemos lo que tiene en pantalla intacto.
-    // ¿El usuario ya terminó su turno y estaba en la pantalla de "Siguiente Consulta"? Generamos la nueva de su nuevo modo.
+    // Si no está a mitad de responder, lanzamos la nueva pregunta del nuevo modo.
+    // Si estaba a mitad, se conserva la pregunta activa para no machacarla por error.
     if (!esperandoRespuestaDeTurno) {
         nextRound();
     } else {
-        renderAllData(); // Si está a mitad, solo redibujamos botones visuales activos sin romper su pregunta actual.
+        renderAllData(); 
     }
 }
 
@@ -617,6 +616,25 @@ function exportarHistorialCompleto() {
     desbloquearLogro("L20");
 }
 
+// ==========================================
+// 10. CONTROL INTERACTIVO DE MENÚ MÓVIL
+// ==========================================
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+}
+
+// Interceptamos la navegación para cerrar el menú si se hace clic desde móvil
+const originalSwitchView = switchView;
+switchView = function(viewId) {
+    originalSwitchView(viewId);
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+};
+
+// ==========================================
+// 11. EVENTO INICIAL DE CARGA
+// ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
@@ -636,22 +654,3 @@ window.addEventListener('DOMContentLoaded', () => {
     esperandoRespuestaDeTurno = true; 
     renderAllData();
 });
-
-// ==========================================
-// 10. CONTROL DE MENÚ DESPLEGABLE MÓVIL
-// ==========================================
-function toggleMobileMenu() {
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) {
-        sidebar.classList.toggle('mobile-open');
-    }
-}
-
-// Modificamos ligeramente switchView para que si se pulsa una opción en móvil, se cierre el menú automáticamente
-const originalSwitchView = switchView;
-switchView = function(viewId) {
-    originalSwitchView(viewId);
-    // Cierra el menú móvil al cambiar de sección
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.remove('mobile-open');
-};
