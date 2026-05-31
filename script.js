@@ -17,7 +17,6 @@ const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", 
 const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
-// MATRIZ DE PALABRAS CLAVE PARA EL PARCHE ANTI-SPAM / COHERENCIA
 const MAPA_COHERENCIA = {
     "rubik": ["cubo", "algoritmo", "capa", "giro", "color", "cara", "esquina", "arista", "f2l", "oll", "pll", "cruzar", "girar"],
     "verde": ["medico", "doctor", "comida", "digestión", "bilis", "estomago", "color", "cuerpo", "sintoma"],
@@ -32,10 +31,9 @@ const MAPA_COHERENCIA = {
 };
 
 // ==========================================
-// 2. BASE DE DATOS DE 40 LOGROS (30 Positivos, 10 Negativos)
+// 2. BASE DE DATOS DE 40 LOGROS
 // ==========================================
 const BASE_LOGROS = [
-    // 30 POSITIVOS
     { id: "L01", tipo: "positivo", nombre: "Primeros Pasos", desc: "Completaste la primera consulta con éxito." },
     { id: "L02", tipo: "positivo", nombre: "IA Comprensiva", desc: "Alcanzaste el 60% de satisfacción del usuario." },
     { id: "L03", tipo: "positivo", nombre: "Empatía Algorítmica", desc: "Alcanzaste el 80% de satisfacción." },
@@ -65,10 +63,10 @@ const BASE_LOGROS = [
     { id: "L27", tipo: "positivo", nombre: "IA de Confianza", desc: "Gugel te tiene guardado en marcadores mentales." },
     { id: "L28", tipo: "positivo", nombre: "Vocabulario Rico", desc: "Evitaste usar palabras repetitivas en tus envíos." },
     { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rondas totales combinadas." },
-    { id: "L30", tipo: "positivo", nombre: "Control Absoluto", desc: "Mantuviste la satisfacción por encima del 50% durante 8 turnos." },
+    { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el nuevo y reluciente Tema Rosa." },
     
     // 10 NEGATIVOS
-    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam (Spam o teclado loco)." },
+    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
     { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
     { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
     { id: "LN4", tipo: "negativo", nombre: "Hundimiento del Sistema", desc: "La satisfacción del usuario cayó por debajo del 20%." },
@@ -98,41 +96,37 @@ let gameState = {
     currentPregunta: ""
 };
 
-if (localStorage.getItem('gugel-save-state-v2')) {
-    gameState = JSON.parse(localStorage.getItem('gugel-save-state-v2'));
+if (localStorage.getItem('gugel-save-state-v3')) {
+    gameState = JSON.parse(localStorage.getItem('gugel-save-state-v3'));
 }
 
 function guardarEstadoEnStorage() {
-    localStorage.setItem('gugel-save-state-v2', JSON.stringify(gameState));
+    localStorage.setItem('gugel-save-state-v3', JSON.stringify(gameState));
 }
 
 // ==========================================
-// 4. PARCHE Y MOTOR DE COHERENCIA INTELIGENTE
+// 4. MOTOR DE TRATAMIENTO DE TEXTO (ANTI-SPAM)
 // ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
 
-    // 1. Detección de aporreamiento de teclado (letras al azar sin vocales o repetidas)
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
-        desbloquearLogro("LN1"); // Logro Negativo: Aporrea-Teclados
+        desbloquearLogro("LN1");
         return "CRITICA";
     }
     
-    // 2. Detección de patrones repetitivos tipo teclado
     if (resp.includes("fighfd") || resp.includes("fhbifbh") || resp.includes("qwerty") || resp.includes("asdf")) {
         desbloquearLogro("LN1");
         return "CRITICA";
     }
 
-    // 3. Comprobación de evasivas cortas o muletillas
     if (EVASIVAS.includes(resp) || resp.length < 4) {
-        if (resp.length < 4) desbloquearLogro("LN6"); // Logro Negativo: Corto
-        desbloquearLogro("LN2"); // Logro Negativo: Evasivo
+        if (resp.length < 4) desbloquearLogro("LN6");
+        desbloquearLogro("LN2");
         return "RECHAZO";
     }
 
-    // 4. Validación de palabras clave del contexto
     let claveEncontrada = false;
     let tieneDiccionario = false;
 
@@ -140,20 +134,17 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
         if (preg.includes(palabraClave)) {
             tieneDiccionario = true;
             let sinonimos = MAPA_COHERENCIA[palabraClave];
-            // Verificar si el usuario puso la palabra clave o algún sinónimo
             if (resp.includes(palabraClave) || sinonimos.some(s => resp.includes(s))) {
                 claveEncontrada = true;
             }
         }
     }
 
-    // Si la pregunta está mapeada y el usuario respondió algo totalmente desconectado
     if (tieneDiccionario && !claveEncontrada) {
-        desbloquearLogro("LN3"); // Logro Negativo: Incoherencia Total
+        desbloquearLogro("LN3");
         return "RECHAZO";
     }
 
-    // Logros temáticos si la respuesta es coherente
     if (preg.includes("rubik") && claveEncontrada) desbloquearLogro("L09");
     if (preg.includes("tomate") && claveEncontrada) desbloquearLogro("L08");
     if (preg.includes("dormir") && claveEncontrada) desbloquearLogro("L22");
@@ -166,14 +157,14 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
 }
 
 // ==========================================
-// 5. SISTEMA DE LOGROS
+// 5. SISTEMA DE LOGROS (CON OCULTACIÓN COHERENTE)
 // ==========================================
 function desbloquearLogro(id) {
     if (!gameState.logrosDesbloqueados.includes(id)) {
         gameState.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            alert(`[NUEVO LOGRO DETECTADO] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}: ${logro.desc}`);
+            alert(`[LOGRO DESBLOQUEADO] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
         }
         guardarEstadoEnStorage();
     }
@@ -190,7 +181,7 @@ function verificarLogrosDeEstado() {
 }
 
 // ==========================================
-// 6. CONTROLADORES DE JUEGO Y CHAT
+// 6. CONTROLADORES GENERALES
 // ==========================================
 function obtenerElementoNoRepetido(lista, historial) {
     let opciones = lista.filter(item => !historial.includes(item));
@@ -213,9 +204,9 @@ function appendMessage(sender, text) {
 }
 
 function renderAllData() {
-    // Actualización de textos e identificadores de cuenta
     document.getElementById('sidebar-user-display').innerText = gameState.usuario;
     document.getElementById('prof-usuario').innerText = gameState.usuario;
+    document.getElementById('panel-user-status').innerText = gameState.usuario;
     document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
     document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
         gameState.satisfaction < 35 ? OPINIONES_BAJA : 
@@ -224,7 +215,6 @@ function renderAllData() {
         gameState.recentReactions
     );
 
-    // Visibilidad de modos
     const btnCamp = document.getElementById('btn-mode-campaña');
     const btnInf = document.getElementById('btn-mode-infinito');
     if (gameState.campañaCompletada) {
@@ -235,7 +225,7 @@ function renderAllData() {
         if (btnInf) btnInf.style.display = 'none';
     }
 
-    // Renderizado completo de la lista de Logros
+    // Render de logros ocultos dinámicamente hasta desbloquearse
     document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
@@ -243,9 +233,8 @@ function renderAllData() {
             const desb = gameState.logrosDesbloqueados.includes(logro.id);
             return `
                 <div class="item-logro ${desb ? logro.tipo : 'bloqueado'}">
-                    <strong>${desb ? (logro.tipo === 'negativo' ? '⚠️' : '🏆') : '🔒'} ${logro.nombre}</strong> 
-                    (${logro.tipo === 'negativo' ? 'Logro Negativo' : 'Sistema'})<br>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${desb ? logro.desc : 'Parámetro oculto cifrado.'}</span>
+                    <strong>${desb ? (logro.tipo === 'negativo' ? '⚠️ ' : '🏆 ') + logro.nombre : '🔒 ???'}</strong><br>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${desb ? logro.desc : 'Parámetro oculto cifrado. Completa acciones del núcleo para revelar.'}</span>
                 </div>
             `;
         }).join('');
@@ -284,11 +273,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
     input.style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
 
-    // Comprobación anti-duplicados / bucles
     let tipo = "OK";
     if (userText.toLowerCase() === gameState.lastUserText.toLowerCase()) {
         tipo = "CRITICA";
-        desbloquearLogro("LN7"); // Logro Negativo: Bucle Repetitivo
+        desbloquearLogro("LN7");
     } else {
         tipo = evaluarCoherenciaYSpam(gameState.currentPregunta, userText);
     }
@@ -313,12 +301,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
     setTimeout(() => {
         appendMessage('gugel', reaccion);
-        
-        gameState.history.push({ 
-            pregunta: gameState.currentPregunta, 
-            respuesta: userText, 
-            reaccion: reaccion 
-        });
+        gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion });
 
         if (gameState.modo === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
             gameState.campañaCompletada = true;
@@ -330,7 +313,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         verificarLogrosDeEstado();
         renderAllData();
-        
         document.getElementById('chat-actions-bar').style.display = "block";
         document.getElementById('continue-btn').style.display = "block";
     }, 500);
@@ -340,7 +322,6 @@ function marcarActualComoFavorito() {
     if (gameState.history.length === 0) return;
     let ultimoLog = gameState.history[gameState.history.length - 1];
     
-    // Evitar duplicados en favoritos
     if (!gameState.favorites.some(f => f.pregunta === ultimoLog.pregunta && f.respuesta === ultimoLog.respuesta)) {
         gameState.favorites.push({ pregunta: ultimoLog.pregunta, respuesta: ultimoLog.respuesta });
         desbloquearLogro("L06");
@@ -398,7 +379,7 @@ function nextRound() {
 }
 
 // ==========================================
-// 7. NAVEGACIÓN Y TEMAS
+// 7. NAVEGACIÓN Y TEMAS (INCLUIDO ROSA)
 // ==========================================
 function cambiarTema(nuevoTema) {
     document.body.className = nuevoTema;
@@ -406,6 +387,7 @@ function cambiarTema(nuevoTema) {
     if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
     if (nuevoTema === "modo-claro") desbloquearLogro("L12");
     if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
+    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
 }
 
 function switchView(viewId) {
@@ -419,11 +401,20 @@ function switchView(viewId) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         if (panelObjetivo) {
             panelObjetivo.classList.add('active');
-            const btnPulsado = document.getElementById(`btn-${viewId}`);
+            // Mapeo dinámico de botones de activación
+            let btnId = viewId === 'view-cuenta' ? 'btn-view-cuenta' : `btn-${viewId}`;
+            const btnPulsado = document.getElementById(btnId);
             if (btnPulsado) btnPulsado.classList.add('active');
+            
             if (viewId === "view-perfil") desbloquearLogro("L17");
             if (viewId === "view-historial") desbloquearLogro("L18");
         }
+    }
+    
+    // Cargar credenciales guardadas en el panel si se entra a cuenta
+    if (viewId === 'view-cuenta') {
+        document.getElementById('account-username').value = gameState.usuario === "Invitado" ? "" : gameState.usuario;
+        document.getElementById('account-password').value = gameState.password || "";
     }
     renderAllData();
 }
@@ -441,19 +432,8 @@ function cambiarModoEstrategia(modo) {
 }
 
 // ==========================================
-// 8. VENTANA GESTIÓN DE CUENTA CON CONTRASEÑA
+// 8. LOGICA GESTIÓN DE CUENTA INTEGRADA
 // ==========================================
-function abrirModalCuenta() {
-    document.getElementById('account-modal').classList.add('active');
-    document.getElementById('modal-user-status').innerText = gameState.usuario;
-    document.getElementById('account-username').value = gameState.usuario === "Invitado" ? "" : gameState.usuario;
-    document.getElementById('account-password').value = gameState.password || "";
-}
-
-function cerrarModalCuenta() {
-    document.getElementById('account-modal').classList.remove('active');
-}
-
 function guardarNombreCuenta() {
     const userIn = document.getElementById('account-username').value.trim();
     const passIn = document.getElementById('account-password').value;
@@ -467,9 +447,9 @@ function guardarNombreCuenta() {
     gameState.password = passIn;
 
     if (passIn === "") {
-        desbloquearLogro("LN10"); // Logro Negativo: Contraseña Vacía
+        desbloquearLogro("LN10");
     } else {
-        desbloquearLogro("L10"); // Logro Positivo: Ciberseguridad
+        desbloquearLogro("L10");
     }
 
     if (userIn !== "Invitado") {
@@ -478,20 +458,20 @@ function guardarNombreCuenta() {
 
     guardarEstadoEnStorage();
     renderAllData();
-    cerrarModalCuenta();
-    alert(`Sesión validada. Conectado como: ${gameState.usuario}`);
+    alert(`Sesión validada con éxito. Operador activo: ${gameState.usuario}`);
+    switchView('view-chat'); // Te devuelve automáticamente al chat principal
 }
 
 function resetearProgresoJuego() {
     if (confirm("🚨 ¿CONFIRMAS LA DESTRUCCIÓN COMPLETA DE LA MEMORIA? 🚨")) {
-        localStorage.removeItem('gugel-save-state-v2');
+        localStorage.removeItem('gugel-save-state-v3');
         gameState = { 
             modo: "campaña", campanaIndex: 0, satisfaction: 50, history: [], favorites: [], logrosDesbloqueados: [], recentReactions: [], lastUserText: "", usuario: "Invitado", password: "", campañaCompletada: false, currentPregunta: ""
         };
-        desbloquearLogro("LN9"); // Logro Negativo: Borrar Progreso
+        desbloquearLogro("LN9");
         guardarEstadoEnStorage();
         renderAllData();
-        cerrarModalCuenta();
+        switchView('view-chat');
         nextRound();
     }
 }
