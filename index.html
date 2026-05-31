@@ -4,36 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL: simulador de IA</title>
-    <link rel="stylesheet" href="gemini-code-1780242375968.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
 
     <div id="app-container">
-        <aside id="sidebar" id="app-sidebar">
+        <aside id="app-sidebar">
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE CONSULTA</div>
-                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">📌 Panel de Campaña</button>
-                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
+                <button id="btn-modo-campaña" type="button" class="sub-btn" onclick="seleccionarModoJuego('campaña')">📌 Panel de Campaña</button>
+                <button id="btn-modo-infinito" type="button" class="sub-btn" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">👤 MONITOR DE SESIÓN</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
+                <button id="btn-view-perfil" type="button" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">🏆 REGISTRO INTERNO</div>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
+                <button id="btn-view-logros" type="button" class="sub-btn" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">📁 REGISTRO CENTRAL</div>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
+                <button id="btn-view-historial" type="button" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
             </div>
 
             <div class="menu-section-footer">
                 <div class="account-badge-sidebar">Operador: <span id="sidebar-user-display">Invitado</span></div>
-                <button id="btn-view-cuenta" class="sub-btn account-btn" onclick="switchView('view-cuenta')">GESTIÓN DE CUENTA</button>
+                <button id="btn-view-cuenta" type="button" class="sub-btn account-btn" onclick="switchView('view-cuenta')">GESTIÓN DE CUENTA</button>
             </div>
         </aside>
 
@@ -42,11 +42,11 @@
                 <div class="brand-top">GUGEL Core</div>
                 <div class="theme-selector">
                     <select id="theme-select" onchange="cambiarTema(this.value)">
-                        <option value="modo-hacker">Hacker</option>
-                        <option value="modo-oscuro">Oscuro</option>
-                        <option value="modo-claro">Claro</option>
-                        <option value="modo-rosa">Rosa</option>
-                        <option value="modo-espacial">Espacial</option>
+                        <option value="modo-hacker">Modo Hacker</option>
+                        <option value="modo-oscuro">Modo Oscuro</option>
+                        <option value="modo-claro">Modo Claro</option>
+                        <option value="modo-rosa">Modo Rosa</option>
+                        <option value="modo-espacial">Modo Espacial</option>
                     </select>
                 </div>
             </header>
@@ -55,11 +55,11 @@
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
                     <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
-                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">⭐ Guardar consulta en favoritos</button>
+                        <button id="btn-add-favorite" type="button" class="fav-btn" onclick="marcarActualComoFavorito()">⭐ Guardar consulta en favoritos</button>
                     </div>
                     <form id="chat-form">
                         <div class="input-wrapper">
-                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                            <input type="text" id="user-input" placeholder="Introduce tu respuesta como IA..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                             <button type="submit" id="transmit-btn">ENVIAR</button>
                         </div>
                     </form>
@@ -87,8 +87,8 @@
                     <div class="card">
                         <h3>📁 Búfer de Logs y Favoritos</h3>
                         <div class="action-bar">
-                            <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
-                            <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
+                            <button type="button" class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                            <button type="button" class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
                         </div>
                         
                         <h4>⭐ MARCADORES FAVORITOS</h4>
@@ -114,7 +114,7 @@
                                 <input type="password" id="account-password" placeholder="••••••••" style="width:100%; margin-top:5px;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-                                <button class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text);">ACCEDER / REGISTRAR CUENTA</button>
+                                <button type="button" class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text);">ACCEDER / REGISTRAR CUENTA</button>
                             </div>
                         </div>
                     </div>
@@ -122,11 +122,11 @@
             </div>
 
             <footer id="bottom-bar">
-                <button id="continue-btn" onclick="nextRound()" style="display:none;">SIGUIENTE CONSULTA</button>
+                <button id="continue-btn" type="button" onclick="nextRound()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
     </div>
 
-    <script src="script (41).js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
