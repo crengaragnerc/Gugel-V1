@@ -3,7 +3,7 @@
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
-const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen point no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
+const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "explicate mejor q no me entero de nada"];
 const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura", "deja de repetirme lo mismo pesado"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no"];
@@ -28,7 +28,8 @@ let gameState = {
     recentReactions: [],
     lastUserText: "",
     totalChars: 0,
-    usuario: "Invitado"
+    usuario: "Invitado",
+    campañaCompletada: false
 };
 
 // Carga el estado guardado si existe previamente
@@ -86,12 +87,24 @@ function appendMessage(sender, text) {
 }
 
 function renderAllData() {
+    // Control de visibilidad del botón campaña / infinito
+    const btnCamp = document.getElementById('btn-mode-campaña');
+    const btnInf = document.getElementById('btn-mode-infinito');
+    
+    if (gameState.campañaCompletada) {
+        if (btnCamp) btnCamp.style.display = 'none';
+        if (btnInf) btnInf.style.display = 'block';
+    } else {
+        if (btnCamp) btnCamp.style.display = 'block';
+        if (btnInf) btnInf.style.display = 'none'; // Oculto hasta que acabe la campaña si así se prefiere
+    }
+
     // Historial panel
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
         histContainer.innerHTML = gameState.history.map(h => 
-            `<div style="margin-bottom:10px; border-bottom:1px dashed var(--text); padding-bottom:5px;">
-                <strong>PREGUNTA:</strong> ${h.pregunta}<br>
+            `<div style="margin-bottom:10px; border-bottom:1px dashed var(--bubble-border); padding-bottom:5px;">
+                <strong>CONSULTA:</strong> ${h.pregunta}<br>
                 <strong>RESPUESTA:</strong> ${h.respuesta}<br>
                 <strong>REACCIÓN:</strong> ${h.reaccion}
             </div>`
@@ -121,7 +134,7 @@ function renderAllData() {
     const logContainer = document.getElementById('logros-container');
     if (logContainer) {
         logContainer.innerHTML = gameState.logrosDesbloqueados.length > 0 
-            ? gameState.logrosDesbloqueados.map(l => `<div class="message gugel">🏆 <strong>${l}</strong> - Desbloqueado con éxito.</div>`).join('')
+            ? gameState.logrosDesbloqueados.map(l => `<div class="message gugel">🏆 <strong>${l}</strong> - Registro asignado al núcleo.</div>`).join('')
             : "<div>Ningún logro desbloqueado todavía.</div>";
     }
 }
@@ -141,7 +154,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
     let tipo = "OK";
     
-    // Control Anti-Spam de repetición exacta
+    // Control Anti-Spam
     if (textProcesado === gameState.lastUserText) {
         tipo = "CRITICA";
     } else if (EVASIVAS.includes(textProcesado)) {
@@ -173,6 +186,12 @@ document.getElementById('chat-form').onsubmit = (e) => {
             reaccion: reaccion 
         });
 
+        if (gameState.modo === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
+            gameState.campañaCompletada = true;
+            gameState.modo = "infinito";
+            alert("¡Has terminado las 10 preguntas de la campaña! El sistema conmuta al modo infinito.");
+        }
+
         verificarLogros();
         renderAllData();
         document.getElementById('continue-btn').style.display = "block";
@@ -190,8 +209,12 @@ function nextRound() {
     document.getElementById('chat-messages').innerHTML = "";
     document.getElementById('continue-btn').style.display = "none";
     
+    if (gameState.campañaCompletada) {
+        gameState.modo = "infinito";
+    }
+
     if (gameState.modo === "campaña") {
-        gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex % PREGUNTAS_CAMPANA.length];
+        gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex];
         gameState.campanaIndex++;
     } else {
         gameState.currentPregunta = generarPreguntaInfinita();
@@ -203,7 +226,7 @@ function nextRound() {
     input.value = "";
     input.style.display = "block";
     input.disabled = true;
-    input.placeholder = "Procesando...";
+    input.placeholder = "Procesando núcleo...";
     
     const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
@@ -227,17 +250,27 @@ function cambiarTema(nuevoTema) {
 
 function switchView(viewId) {
     const panelObjetivo = document.getElementById(viewId);
+    
+    // Desactivar todos los botones de subpaneles de estilos para mantener limpieza visual
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+
     if (panelObjetivo && panelObjetivo.classList.contains('active')) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
     } else {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        if (panelObjetivo) panelObjetivo.classList.add('active');
+        if (panelObjetivo) {
+            panelObjetivo.classList.add('active');
+            const btnPulsado = document.getElementById(`btn-${viewId}`);
+            if (btnPulsado) btnPulsado.classList.add('active');
+        }
     }
     renderAllData();
 }
 
 function cambiarModoEstrategia(modo) {
+    if (modo === "campaña" && gameState.campañaCompletada) return;
+    
     gameState.modo = modo;
     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
     
@@ -251,7 +284,7 @@ function cambiarModoEstrategia(modo) {
 }
 
 // ==========================================
-// 6. FUNCIONES DE GESTIÓN DE CUENTA
+// 6. GESTIÓN DE CUENTA
 // ==========================================
 function abrirModalCuenta() {
     document.getElementById('account-modal').classList.add('active');
@@ -265,11 +298,7 @@ function cerrarModalCuenta() {
 
 function guardarNombreCuenta() {
     const inputNombre = document.getElementById('account-username').value.trim();
-    if (inputNombre !== "") {
-        gameState.usuario = inputNombre;
-    } else {
-        gameState.usuario = "Invitado";
-    }
+    gameState.usuario = inputNombre !== "" ? inputNombre : "Invitado";
     guardarEstadoEnStorage();
     renderAllData();
     cerrarModalCuenta();
@@ -277,7 +306,7 @@ function guardarNombreCuenta() {
 }
 
 function resetearProgresoJuego() {
-    if (confirm("¿Seguro que quieres borrar todo el historial, los logros y la satisfacción? Esta acción destruirá los datos.")) {
+    if (confirm("¿Destruir el búfer completo y restaurar parámetros iniciales?")) {
         localStorage.removeItem('gugel-save-state');
         gameState = { 
             modo: "campaña",
@@ -288,7 +317,8 @@ function resetearProgresoJuego() {
             recentReactions: [],
             lastUserText: "",
             totalChars: 0,
-            usuario: "Invitado"
+            usuario: "Invitado",
+            campañaCompletada: false
         };
         guardarEstadoEnStorage();
         renderAllData();
@@ -302,51 +332,51 @@ function resetearProgresoJuego() {
 // ==========================================
 function exportCoreData() {
     if (gameState.history.length === 0) {
-        alert("No hay registros en el historial para copiar.");
+        alert("Búfer vacío.");
         return;
     }
     let textoLog = gameState.history.map((h, i) => 
-        `RONDA ${i + 1}\nPregunta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n------------------------`
+        `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`
     ).join('\n');
     
     navigator.clipboard.writeText(textoLog).then(() => {
-        alert("Logs copiados al portapapeles con formato limpio.");
+        alert("Copiado en portapapeles.");
     });
 }
 
 function exportarHistorialCompleto() {
     if (gameState.history.length === 0) {
-        alert("Historial vacío.");
+        alert("Búfer vacío.");
         return;
     }
-    let textoLog = `=== GUGEL SIMULADOR IA - EXPORTACIÓN COMPLETA ===\n`;
-    textoLog += `Operador: ${gameState.usuario}\n`;
-    textoLog += `Satisfacción Final: ${gameState.satisfaction}%\n`;
-    textoLog += `Logros Desbloqueados: ${gameState.logrosDesbloqueados.join(', ') || 'Ninguno'}\n`;
-    textoLog += `================================================\n\n`;
-    
-    textoLog += gameState.history.map((h, i) => 
-        `[Log #${i + 1}]\n-> PREGUNTA: ${h.pregunta}\n-> RESPUESTA: ${h.respuesta}\n-> REACCIÓN: ${h.reaccion}\n`
-    ).join('\n');
+    let textoLog = `=== GUGEL CORE LOGGER ===\nOperador: ${gameState.usuario}\nSatisfacción: ${gameState.satisfaction}%\n\n`;
+    textoLog += gameState.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
 
     const blob = new Blob([textoLog], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `gugel_sesion_${Date.now()}.txt`;
+    a.download = `gugel_core_${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
 
-// Inicialización única de la sesión al cargar la página en el navegador
+// Inicialización de la sesión
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
     const select = document.getElementById('theme-select');
     if (select) select.value = temaGuardado;
     
+    if (gameState.campañaCompletada) {
+        gameState.modo = "infinito";
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        const btnInf = document.getElementById('btn-mode-infinito');
+        if (btnInf) btnInf.classList.add('active');
+    }
+
     nextRound();
     renderAllData();
 });
