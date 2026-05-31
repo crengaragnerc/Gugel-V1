@@ -148,13 +148,18 @@ function guardarProgresoCuenta() {
     if (db[currentUser]) { db[currentUser].data = gameState; localStorage.setItem("gugel_users", JSON.stringify(db)); }
 }
 
+// Aseguramos que al pulsar el modo de juego, siempre limpie y se vea el chat
 function cambiarModoEstrategia(modo) {
+    gameState.modoActualJuego = modo;
+    gameState.esperandoRespuesta = false;
+    
+    // Forzamos volver a la vista de chat al cambiar de modo
+    switchView('view-chat'); // Asegúrate que este sea el ID de tu panel de chat en el HTML
+    
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) chatBox.innerHTML = ""; 
     if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
 
-    gameState.modoActualJuego = modo;
-    gameState.esperandoRespuesta = false;
     nextRound();
 }
 
