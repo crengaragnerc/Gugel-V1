@@ -6,55 +6,42 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
-
     <header id="top-bar">
         <div class="brand-top">GUGEL: simulador de IA</div>
-        <div class="theme-selector">
-            <label>TEMA:</label>
-            <select id="theme-select" onchange="cambiarTema(this.value)">
-                <option value="modo-hacker">HACKER</option>
-                <option value="modo-claro">CLARO</option>
-                <option value="modo-oscuro">OSCURO</option>
-            </select>
-        </div>
+        <select id="theme-select" onchange="cambiarTema(this.value)">
+            <option value="modo-hacker">HACKER</option>
+            <option value="modo-claro">CLARO</option>
+            <option value="modo-oscuro">OSCURO</option>
+        </select>
     </header>
 
     <div id="app-container">
         <aside id="sidebar">
-            <div class="menu-section">
-                <div class="section-title">🕹️ MODOS DE JUEGO</div>
-                <button id="btn-mode-campaña" class="mode-btn" onclick="cambiarPanel('view-chat')">CAMPANA</button>
-                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarPanel('view-chat')">INFINITO</button>
-            </div>
-            <div class="menu-section">
-                <div class="section-title">🖥️ PANELES</div>
-                <button class="sub-btn" onclick="cambiarPanel('view-chat')">CHAT</button>
-                <button class="sub-btn" onclick="cambiarPanel('view-perfil')">PERFIL</button>
-                <button class="sub-btn" onclick="cambiarPanel('view-logros')">LOGROS</button>
-                <button class="sub-btn" onclick="cambiarPanel('view-historial')">HISTORIAL</button>
-            </div>
+            <button class="sub-btn" onclick="cambiarPanel('view-chat')">CHAT</button>
+            <button class="sub-btn" onclick="cambiarPanel('view-perfil')">PERFIL</button>
+            <button class="sub-btn" onclick="cambiarPanel('view-logros')">LOGROS</button>
+            <button class="sub-btn" onclick="cambiarPanel('view-historial')">HISTORIAL</button>
         </aside>
 
         <main id="chat-area">
             <section id="view-chat" class="content-panel active">
                 <div id="chat-messages"></div>
                 <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="Escribe tu respuesta..." required>
+                    <input type="text" id="user-input" placeholder="Escribe..." required>
                     <button type="submit" id="transmit-btn">ENVIAR</button>
                     <button type="button" id="continue-btn" style="display:none;">CONTINUAR</button>
                 </form>
             </section>
             <section id="view-perfil" class="content-panel">
-                <h3>📊 Datos de Usuario</h3>
+                <h3>📊 PERFIL</h3>
                 <p>Opinión: <span id="prof-opinion">Analizando...</span></p>
-                <p>Satisfacción: <span id="prof-satisfaction">50%</span></p>
             </section>
             <section id="view-logros" class="content-panel">
-                <h3>🏆 Logros (<span id="logros-count">0</span>)</h3>
+                <h3>🏆 LOGROS (<span id="logros-count">0</span>)</h3>
                 <div id="logros-container"></div>
             </section>
             <section id="view-historial" class="content-panel">
-                <h3>📁 Historial</h3>
+                <h3>📁 HISTORIAL</h3>
                 <div id="history-list-container"></div>
             </section>
         </main>
