@@ -17,6 +17,7 @@ const PREDICADOS = ["mira fijo raro", "esta caliente quemando", "no enciende luz
 const INDICADORES_COHERENCIA = ["porque", "ya que", "debido a", "por eso", "entonces", "significa", "pasa que", "es por", "como", "cuando"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
 
+// --- LAS 65 FRASES OK ORIGINALES AL COMPLETO ---
 const FRASES_OK = [
     "vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido",
     "ok eso responde lo que queria", "perfecto gracias por aclararlo", "ah vale ya lo entiendo mejor", "bueno me sirve la explicacion",
@@ -32,7 +33,7 @@ const FRASES_OK = [
     "vale es justo lo que necesitaba saber", "tiene base logica me parece bien", "perfectamente aclarado gracias por el texto",
     "confirmado el dato es de utilidad", "comprension completada con exito", "procesado correcto de la informacion", 
     "ninguna objecion al argumento", "la respuesta es totalmente valida", "anotado in los registros del sistema", 
-    "informacion estruturada correctamente", "todo claro in este point", "explicacion concisa y directa", 
+    "informacion estructurada correctamente", "todo claro in este point", "explicacion concisa y directa", 
     "datos validados sin problemas", "el planteamiento es correcto", "me sirve para el analisis", 
     "ningun error in la deduccion", "comprension absoluta del parrafo", "perfecto el desarrollo", 
     "argumentacion solida y clara", "todo coincide con lo esperado", "explicacion limpia y logica", 
@@ -41,6 +42,7 @@ const FRASES_OK = [
     "asimilado correctamente", "la logica es correcta"
 ];
 
+// --- LAS 65 FRASES RECHAZO ORIGINALES AL COMPLETO ---
 const FRASES_RECHAZO = [
     "vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", 
     "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", "dios q pereza para decirme eso no pongas nada",
@@ -72,6 +74,7 @@ const FRASES_RECHAZO = [
     "amplia la informacion", "muy basico el contenido", "se requiere mas texto", "explicacion muy pobre"
 ];
 
+// --- LAS 67 FRASES CRÍTICAS ORIGINALES AL COMPLETO ---
 const FRASES_CRITICAS = [
     "te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura mejor nada", 
     "para esto apago el pc no me vaciles", "pero q dices bicho raro no tiene sentido",
@@ -103,6 +106,7 @@ const FRASES_CRITICAS = [
     "entrada pf rechazada por incoherencia", "fallo absoluto de datos", "texto sin formato valido"
 ];
 
+// --- LAS 53 FRASES MUCHO TEXTO ORIGINALES AL COMPLETO ---
 const FRASES_MUCHO_TEXTO = [
     "uf mucho texto ni de coña me leo eso", "me has escrito una biblia paso",
     "vaya chapa me acabas de meter in un momento", "resume un poco q no tengo todo el dia para leer",
@@ -132,23 +136,29 @@ const FRASES_MUCHO_TEXTO = [
     "demasiado relleno inútil", "saturacion de lineas detectada", "recorta el parrafo actual"
 ];
 
+// --- BLOQUES REACCIONALES DE OPINIONES ---
 const OPINIONES_MALAS = [
     "(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)", "(esta buscando el boton de formatear)", 
-    "(cree que este buscador lo programo un mono)", "(se le esta calentando la cpu del enfado)", "(va a denunciar la aplicacion)", "(piensa que eres peor que el malware de 2004)"
+    "(cree que este buscador lo programo un mono)", "(se le esta calentando la cpu del enfado)", "(va a denunciar la aplicacion)", "(piensa que eres peor que el malware de 2004)",
+    "(esta buscando el destornillador para abrir el pc)", "(asume que eres un chat obsoleto)", "(piensa que no sirves ni para calcular 2+2)", "(esta insulting al monitor)"
 ];
 
 const OPINIONES_MEDIO_MALAS = [
-    "(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)", "(te mira con desconfianza absoluta)", "(cree que respondes con los ojos cerrados)"
+    "(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)", "(te mira con desconfianza absoluta)", "(cree que respondes con los ojos cerrados)",
+    "(piensa que eres un becario in tu primer dia)", "(se esta aburriendo soberanamente)", "(busca el boton de saltar consulta)", "(cree que tu sistema tiene lag)"
 ];
 
 const OPINIONES_MEDIO_BUENAS = [
-    "(cree que eres un bot pasable pero va a llamar a un tecnico)", "(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)", "(piensa que vas por buen camino)"
+    "(cree que eres un bot pasable pero va a llamar a un tecnico)", "(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)", "(piensa que vas por buen camino)",
+    "(cree que tienes potencial oculto)", "(le ha parecido una respuesta aceptable)", "(asiente levemente con la cabeza)"
 ];
 
 const OPINIONES_BUENAS = [
-    "(se cree que eres dios)", "(te tiene guardado in marcadores prioritarios)", "(piensa que eres la cura del cancer informatico)", "(cree que eres una ia alienigena del futuro)"
+    "(se cree que eres dios)", "(te tiene guardado in marcadores prioritarios)", "(piensa que eres la cura del cancer informatico)", "(te va a recomendar in foros de hackers)",
+    "(cree que eres una ia alienigena del futuro)", "(esta fascinado con tu velocidad)"
 ];
 
+// --- REGISTRO DE LOGROS ---
 const LOGROS_DIVERTIDOS = [
     { t: "Hola Mundo", d: "Conseguiste no romper la base de datos in la primera respuesta." },
     { t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento." },
@@ -171,54 +181,57 @@ let coreState = {
     campanaIdx: 0,
     campanaOk: false,
     currentQ: "",
+    nextModoSelected: "",
+    ultimoSujetoClave: "",
     satisfaccionAcumulada: 50,
     logrosDesbloqueados: [],
     history: []
 };
 
 let timerInterval = null;
-let autoAdvanceTimeout = null;
 let timeLeft = 5;
 let userAccount = null;
 
 // ==========================================
-// FLUJO OPERATIVO CON 2 TEMPORIZADORES EN BOTONES
+// OPERATORIA DE RONDAS Y LOS DOS TEMPORIZADORES
 // ==========================================
 function iniciarSiguienteRonda() {
     clearInterval(timerInterval);
-    clearTimeout(autoAdvanceTimeout);
 
     const input = document.getElementById('user-input');
     const transBtn = document.getElementById('transmit-btn');
     const contBtn = document.getElementById('continue-btn');
     const chatBox = document.getElementById('chat-messages');
 
-    // REGLA: Vaciar chat con cada nueva pregunta
+    // REGLA 1: Se vacía el chat por completo con cada nueva pregunta
     if (chatBox) chatBox.innerHTML = "";
 
-    // Preparar UI inicial bloqueada
+    // Bloqueamos escritura inicial para obligar a leer
     if (input) { input.disabled = true; input.value = ""; input.placeholder = "Lee la pregunta primero..."; }
     if (transBtn) { transBtn.style.display = "inline-block"; transBtn.disabled = true; }
     if (contBtn) contBtn.style.display = "none";
 
     let pregunta = "";
+
     if (coreState.modoJuego === 'campaña') {
         if (coreState.campanaIdx >= PREGUNTAS_CAMPANA.length) {
             coreState.campanaOk = true;
             inyectarBurbuja('gugel', "⚠️ misiones completadas con éxito.");
+            if (input) input.disabled = true;
             return;
         }
         pregunta = PREGUNTAS_CAMPANA[coreState.campanaIdx++];
     } else {
         const s = SUJETOS[Math.floor(Math.random() * SUJETOS.length)];
         const p = PREDICADOS[Math.floor(Math.random() * PREDICADOS.length)];
-        pregunta = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
+        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+        pregunta = plantilla.replace("[s]", s).replace("[p]", p);
     }
 
     coreState.currentQ = pregunta;
     inyectarBurbuja('gugel', pregunta);
     
-    // Lanzar Primer Temporizador (En el botón de Transmitir)
+    // REGLA 2: Primer temporizador (5s) en el botón de Transmitir ANTES de poder responder
     iniciarPrimerTemporizador();
 }
 
@@ -233,7 +246,7 @@ function iniciarPrimerTemporizador() {
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            // Fin del tiempo de lectura -> Se desbloquea la escritura para responder
+            // Al terminar la lectura, habilitamos entrada
             const input = document.getElementById('user-input');
             if (input) { input.disabled = false; input.placeholder = "Escribe tu respuesta aquí..."; input.focus(); }
             if (transBtn) { transBtn.disabled = false; transBtn.innerText = "TRANSMITIR"; }
@@ -268,7 +281,7 @@ function inyectarBurbuja(sender, texto) {
 }
 
 // ==========================================
-// BALANCED EVALUATION ENGINE
+// EVALUATOR ENGINE DE SATISFACCIÓN REAJUSTADO
 // ==========================================
 function evaluarRespuestaIA(userText) {
     const textClean = userText.toLowerCase().trim();
@@ -324,6 +337,7 @@ function bloquearYMostrarContinuar() {
     if (transBtn) transBtn.style.display = "none";
     if (contBtn) {
         contBtn.style.display = "inline-block";
+        // REGLA 3: Segundo temporizador (5s) en el botón de Continuar al ver la reacción
         iniciarSegundoTemporizador();
     }
 }
@@ -339,35 +353,42 @@ function iniciarSegundoTemporizador() {
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            iniciarSiguienteRonda(); // Avance automático
+            iniciarSiguienteRonda(); // Avance automático al expirar
         }
     }, 1000);
 }
 
 // ==========================================
-// RENDERIZADO EXCLUSIVO DE LOGROS LOGRADOS
+// RENDERIZADO COMPLETO Y SISTEMA LOGROS INVISIBLES
 // ==========================================
 function ejecutarRenderizadoPaneles() {
-    document.getElementById('prof-level').innerText = Math.floor(coreState.cycles / 4) + 1;
+    // Tratamos los elementos de perfil de forma segura por si cambiaste el HTML
+    const lvl = document.getElementById('prof-level');
+    if (lvl) lvl.innerText = Math.floor(coreState.cycles / 4) + 1;
 
     if (coreState.satisfaccionAcumulada > 100) coreState.satisfaccionAcumulada = 100;
     if (coreState.satisfaccionAcumulada < 0) coreState.satisfaccionAcumulada = 0;
-    document.getElementById('prof-satisfaction').innerText = `${coreState.satisfaccionAcumulada}%`;
+    
+    const sat = document.getElementById('prof-satisfaction');
+    if (sat) sat.innerText = `${coreState.satisfaccionAcumulada}%`;
 
     const opinionContainer = document.getElementById('prof-opinion');
-    if (coreState.cycles === 0) {
-        opinionContainer.innerText = "(analizando conexiones primarias...)";
-    } else {
-        let arrayOpiniones = coreState.satisfaccionAcumulada < 30 ? OPINIONES_MALAS :
-                             coreState.satisfaccionAcumulada < 55 ? OPINIONES_MEDIO_MALAS :
-                             coreState.satisfaccionAcumulada < 80 ? OPINIONES_MEDIO_BUENAS : OPINIONES_BUENAS;
-        opinionContainer.innerText = arrayOpiniones[coreState.cycles % arrayOpiniones.length] || "(estable)";
+    if (opinionContainer) {
+        if (coreState.cycles === 0) {
+            opinionContainer.innerText = "(analizando conexiones primarias...)";
+        } else {
+            let arrayOpiniones = coreState.satisfaccionAcumulada < 30 ? OPINIONES_MALAS :
+                                 coreState.satisfaccionAcumulada < 55 ? OPINIONES_MEDIO_MALAS :
+                                 coreState.satisfaccionAcumulada < 80 ? OPINIONES_MEDIO_BUENAS : OPINIONES_BUENAS;
+            opinionContainer.innerText = arrayOpiniones[coreState.cycles % arrayOpiniones.length] || "(estable)";
+        }
     }
 
+    // Métricas automáticas
     if (coreState.cycles >= 1) desbloquearLogro("Hola Mundo");
     if (coreState.satisfaccionAcumulada >= 92) desbloquearLogro("Modo Dios: Iniciando");
 
-    // REGLA: Sistema Invisible Puro (Solo renderiza si está conseguido)
+    // REGLA 4: Sistema de logros invisible absoluto (solo aparecen si están desbloqueados)
     const logrosContainer = document.getElementById('logros-container');
     const logrosCount = document.getElementById('logros-count');
     
@@ -387,81 +408,131 @@ function ejecutarRenderizadoPaneles() {
     });
 
     if (htmlLogros === "") {
-        htmlLogros = `<div class="list-item" style="text-align: center; color: #666; font-style: italic;">No hay registros de logros desbloqueados...</div>`;
+        htmlLogros = `<div class="list-item" style="text-align: center; color: #666; font-style: italic;">No has desbloqueado ningún logro todavía...</div>`;
     }
 
-    logrosContainer.innerHTML = htmlLogros;
-    logrosCount.innerText = totalUnlocked;
+    if (logrosContainer) logrosContainer.innerHTML = htmlLogros;
+    if (logrosCount) logrosCount.innerText = totalUnlocked;
 
-    // Historial logs
-    document.getElementById('history-list-container').innerHTML = coreState.history.map(h => `
-        <div class="list-item">
-            <strong>Q: ${h.pregunta}</strong><br>
-            <span>A: ${h.respuesta}</span><br>
-            <small style="color: var(--color-accent)">GUGEL: ${h.reaccion}</small>
-        </div>
-    `).join('');
+    // Actualización del Historial
+    const histContainer = document.getElementById('history-list-container');
+    if (histContainer) {
+        histContainer.innerHTML = coreState.history.map(h => `
+            <div class="list-item">
+                <strong>Q: ${h.pregunta}</strong><br>
+                <span>A: ${h.respuesta}</span><br>
+                <small style="color: var(--color-accent)">GUGEL: ${h.reaccion}</small>
+            </div>
+        `).join('');
+    }
 }
 
+// ==========================================
+// TODAS LAS FUNCIONES DE INTERFAZ ORIGINALES RESTAURADAS
+// ==========================================
 function switchView(viewId) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    document.getElementById(viewId).classList.add('active');
+    const targetPanel = document.getElementById(viewId);
+    if (targetPanel) targetPanel.classList.add('active');
+    
     const targetBtn = document.getElementById(`btn-${viewId}`);
     if (targetBtn) targetBtn.classList.add('active');
     ejecutarRenderizadoPaneles();
 }
 
+function cambiarModoEstrategia(modo) {
+    coreState.modoJuego = modo;
+    const title = document.getElementById('panel-title-text');
+    if (title) title.innerText = `Interfaz Core - ${modo.toUpperCase()}`;
+    switchView('view-core');
+    iniciarSiguienteRonda();
+}
+
+function confirmContinue() {
+    clearInterval(timerInterval);
+    iniciarSiguienteRonda();
+}
+
+function cambiarTemaVisual(tema) {
+    document.body.className = "";
+    document.body.classList.add(tema);
+}
+
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth <= 768) sidebar.classList.toggle('open');
+}
+
+function exportCoreData() {
+    let output = coreState.history.map(h => `Q: ${h.pregunta}\nA: ${h.respuesta}\n---`).join('\n');
+    navigator.clipboard.writeText(output).then(() => alert("Logs volcados al portapapeles con éxito."));
+}
+
 // ==========================================
-// EVENTOS DEL MOTOR DOM
+// DISPARADOR DE INICIALIZACIÓN Y EVENTOS DOM
 // ==========================================
 window.onload = function() {
-    document.getElementById("btn-gestion-cuenta").onclick = function() {
-        const name = prompt("Nickname:");
-        if (name && name.trim()) {
-            userAccount = name.trim();
-            document.getElementById("btn-gestion-cuenta").innerText = `👤 ${userAccount.toUpperCase()}`;
-        }
-    };
+    const accBtn = document.getElementById("btn-gestion-cuenta");
+    if (accBtn) {
+        accBtn.onclick = function() {
+            const name = prompt("Nickname del Operador:");
+            if (name && name.trim()) {
+                userAccount = name.trim();
+                accBtn.innerText = `👤 ${userAccount.toUpperCase()}`;
+            }
+        };
+    }
 
     const contBtn = document.getElementById('continue-btn');
     if (contBtn) {
         contBtn.onclick = function() {
-            clearInterval(timerInterval);
-            iniciarSiguienteRonda();
+            confirmContinue();
         };
     }
 
     const form = document.getElementById('chat-form');
-    form.onsubmit = function(e) {
-        e.preventDefault();
-        
-        const input = document.getElementById('user-input');
-        const text = input ? input.value.trim() : "";
-        if (!text) return;
+    if (form) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            
+            const input = document.getElementById('user-input');
+            const text = input ? input.value.trim() : "";
+            if (!text) return;
 
-        if (coreState.history.some(h => h.respuesta.toLowerCase().trim() === text.toLowerCase().trim())) {
-            alert("⚠️ ERROR: Redundancia cíclica.");
-            return;
+            if (coreState.history.some(h => h.respuesta.toLowerCase().trim() === text.toLowerCase().trim())) {
+                alert("⚠️ ERROR: Redundancia cíclica. Modifica la respuesta.");
+                return;
+            }
+
+            coreState.cycles++;
+            coreState.charsSent += text.length;
+            inyectarBurbuja('ai', text);
+
+            let evaluacion = evaluarRespuestaIA(text);
+            coreState.satisfaccionAcumulada += evaluacion.satMod;
+
+            setTimeout(() => {
+                inyectarBurbuja('gugel', evaluacion.txt);
+                coreState.history.push({
+                    pregunta: coreState.currentQ, respuesta: text, reaccion: evaluacion.txt, tipo: evaluacion.tipo
+                });
+
+                ejecutarRenderizadoPaneles();
+                bloquearYMostrarContinuar();
+            }, 400);
+        };
+    }
+
+    // Soporte nativo para cierre de menú lateral en iPhone/Móvil
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('mobile-menu-toggle');
+        if (sidebar && window.innerWidth <= 768 && !sidebar.contains(event.target) && event.target !== toggleBtn) {
+            sidebar.classList.remove('open');
         }
-
-        coreState.cycles++;
-        inyectarBurbuja('ai', text);
-
-        let evaluacion = evaluarRespuestaIA(text);
-        coreState.satisfaccionAcumulada += evaluacion.satMod;
-
-        setTimeout(() => {
-            inyectarBurbuja('gugel', evaluacion.txt);
-            coreState.history.push({
-                pregunta: coreState.currentQ, respuesta: text, reaccion: evaluacion.txt, tipo: evaluacion.tipo
-            });
-
-            ejecutarRenderizadoPaneles();
-            bloquearYMostrarContinuar();
-        }, 400);
-    };
+    });
 
     ejecutarRenderizadoPaneles();
     iniciarSiguienteRonda();
