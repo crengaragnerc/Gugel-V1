@@ -38,7 +38,7 @@
     --negative-color: #dc3545;
 }
 
-/* NUEVO TEMA ROSA */
+/* TEMA ROSA */
 .modo-rosa {
     --bg-main: #ffd1dc;
     --bg-panel: #fff0f5;
@@ -290,11 +290,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .item-logro { padding: 12px; border-radius: 6px; background: var(--bg-panel); border: 1px solid var(--bubble-border); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
 .item-logro.negativo { border-left: 4px solid var(--negative-color); }
-.item-logro.bloqueado { opacity: 0.5; border-left: 4px solid var(--text-muted); background: rgba(0,0,0,0.02); }
 
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
-
-.danger-btn { border: 1px solid var(--negative-color); color: var(--negative-color); background: transparent; border-radius: 8px; padding: 14px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; }
-.danger-btn:hover { background: var(--negative-color); color: #fff; }
