@@ -3,63 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL: Simulador de IA</title>
+    <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="app-container">
-        <header class="main-header">
-            <div class="brand">GUGEL :: CORE SYSTEM v2.5</div>
-            <div class="header-controls">
-                <button id="btn-gestion-cuenta" class="btn-terminal">👤 CONFIGURAR CUENTA</button>
-                <button id="btn-reset-data" class="btn-terminal" style="background-color: #7c2d12; border-color: #9a3412;">🔄 BORRAR PERSISTENCIA</button>
-                <select id="modo-juego-selector" class="select-terminal">
-                    <option value="campaña">Modo Campaña</option>
-                    <option value="infinito">Modo Infinito</option>
-                </select>
-            </div>
-        </header>
-
-        <div class="interface-layout">
+<body class="modo-hacker">
+    <div id="app-container">
+        <aside id="sidebar">
+            <div class="brand">GUGEL: simulador de IA</div>
             
-            <aside class="panel side-panel left-panel">
-                <div class="panel-section section-profile">
-                    <h3>ESTADO DEL CORE</h3>
-                    <div class="profile-data-box">
-                        <p id="prof-level">Nivel: 1</p>
-                        <p id="prof-satisfaction">Satisfacción: 50%</p>
-                        <p id="prof-difficulty">Exigencia: 35 caracteres / 5s</p>
-                        <p id="prof-opinion">Opinión: (analizando conexiones...)</p>
+            <div class="menu-section">
+                <div class="section-title">🕹️ MODOS DE JUEGO</div>
+                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña')">
+                    📌 LAS 10 CAMPAÑAS
+                </button>
+                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito')">
+                    ♾️ PREGUNTAS INFINITAS
+                </button>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-title">🖥️ PANELES</div>
+                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">DATOS PERFIL</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS SISTEMA</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
+            </div>
+
+            <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN DE CUENTA</button>
+        </aside>
+
+        <main id="chat-area">
+            <section id="view-chat" class="content-panel">
+                <div id="chat-messages"></div>
+                <form id="chat-form">
+                    <input type="text" id="user-input" placeholder="Escribe tu respuesta..." required>
+                    <button type="submit">ENVIAR</button>
+                </form>
+            </section>
+
+            <section id="view-perfil" class="content-panel">
+                <div class="card">
+                    <h3>📊 Datos de Usuario</h3>
+                    <div class="opinion-box" id="opinion-container">
+                        <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
                     </div>
+                    <p><strong>Satisfacción del usuario:</strong> <span id="prof-satisfaction">50%</span></p>
+                    <p><strong>Consultas totales procesadas:</strong> <span id="prof-cycles">0</span></p>
+                    <p><strong>Caracteres totales enviados:</strong> <span id="prof-chars">0</span></p>
                 </div>
-                
-                <div class="panel-section section-achievements">
-                    <h3>LOGROS UNIFICADOS (<span id="logros-count">0</span>)</h3>
-                    <div id="logros-container" class="scrollable-list">
-                        </div>
-                </div>
+            </section>
 
-                <div class="panel-section section-network-logs">
-                    <h3>LOGS DE RED EN TIEMPO REAL</h3>
-                    <div id="network-logs-container" class="scrollable-list text-log-style">
-                        </div>
+            <section id="view-logros" class="content-panel">
+                <div class="card">
+                    <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
+                    <div id="logros-container" class="list-container"></div>
                 </div>
-            </aside>
+            </section>
 
-            <main class="panel main-panel central-panel">
-                <div id="chat-messages" class="chat-viewport">
-                    </div>
-                
-                <div class="control-bar">
-                    <form id="chat-form" class="input-container">
-                        <input type="text" id="user-input" class="input-terminal" placeholder="Esperando activación del búfer..." disabled autocomplete="off">
-                        <button type="submit" id="transmit-btn" class="btn-action b-transmit" disabled>TRANSMITIR (5s)</button>
-                    </form>
-                    <button id="continue-btn" class="btn-action b-continue" style="display: none;">SIGUIENTE CONSULTA</button>
+            <section id="view-historial" class="content-panel">
+                <div class="card">
+                    <h3>📁 Historial de Conversaciones</h3>
+                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                    <div id="history-list-container" class="list-container"></div>
                 </div>
-            </main>
-
-        </div>
+            </section>
+        </main>
     </div>
     <script src="script.js"></script>
 </body>
