@@ -28,10 +28,7 @@
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL</button>
             </div>
 
-            <div class="menu-section">
-                <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN DE CUENTA</button>
-                <button id="btn-toggle-theme" class="account-btn" onclick="toggleTheme()">🌗 CAMBIAR TEMA</button>
-            </div>
+            <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN DE CUENTA</button>
         </aside>
 
         <main id="chat-area">
@@ -43,7 +40,7 @@
                 </form>
             </section>
 
-            <section id="view-perfil" class="content-panel" style="display:none;">
+            <section id="view-perfil" class="content-panel">
                 <div class="card">
                     <h3>📊 Datos de Usuario</h3>
                     <div class="opinion-box" id="opinion-container">
@@ -55,14 +52,14 @@
                 </div>
             </section>
 
-            <section id="view-logros" class="content-panel" style="display:none;">
+            <section id="view-logros" class="content-panel">
                 <div class="card">
                     <h3>🏆 Logros de Sistema (<span id="logros-count">0</span>)</h3>
                     <div id="logros-container" class="list-container"></div>
                 </div>
             </section>
 
-            <section id="view-historial" class="content-panel" style="display:none;">
+            <section id="view-historial" class="content-panel">
                 <div class="card">
                     <h3>📁 Historial de Conversaciones</h3>
                     <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
