@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONSTANTES, PLANTILLAS Y DICCIONARIO
+// 1. CONSTANTES, PLANTILLAS Y DICCIONARIOS
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
@@ -30,15 +30,12 @@ const MAPA_COHERENCIA = {
     "web": ["servidor", "dns", "conexion", "wifi", "router", "enlace", "caido", "host", "navegador", "url"]
 };
 
-// ==========================================
-// 2. BASE DE DATOS DE 40 LOGROS
-// ==========================================
 const BASE_LOGROS = [
     { id: "L01", tipo: "positivo", nombre: "Primeros Pasos", desc: "Completaste la primera consulta con éxito." },
     { id: "L02", tipo: "positivo", nombre: "IA Comprensiva", desc: "Alcanzaste el 60% de satisfacción del usuario." },
     { id: "L03", tipo: "positivo", nombre: "Empatía Algorítmica", desc: "Alcanzaste el 80% de satisfacción." },
     { id: "L04", tipo: "positivo", nombre: "Deidad Binaria", desc: "Llegaste al 100% de satisfacción máxima." },
-    { id: "L05", tipo: "positivo", nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
+    { id: "L05", tipo: "positivo", merge: true, nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
     { id: "L06", tipo: "positivo", nombre: "Guardado Seguro", desc: "Añadiste tu primera consulta a Favoritos." },
     { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
     { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
@@ -65,7 +62,7 @@ const BASE_LOGROS = [
     { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rondas totales combinadas." },
     { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el nuevo y reluciente Tema Rosa." },
     
-    // 10 NEGATIVOS
+    // NEGATIVOS
     { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
     { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
     { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
@@ -79,33 +76,46 @@ const BASE_LOGROS = [
 ];
 
 // ==========================================
-// 3. ESTADO GLOBAL
+// 2. SISTEMA MULTICUENTA DE DATOS AISLADOS
 // ==========================================
-let gameState = { 
-    modo: "campaña",
-    campanaIndex: 0, 
-    satisfaction: 50,
-    history: [], 
-    favorites: [],
-    logrosDesbloqueados: [],
-    recentReactions: [],
-    lastUserText: "",
-    usuario: "Invitado",
-    password: "",
-    campañaCompletada: false,
-    currentPregunta: ""
-};
+let usuarioActivo = "Invitado";
+let baseCuentas = {};
 
-if (localStorage.getItem('gugel-save-state-v3')) {
-    gameState = JSON.parse(localStorage.getItem('gugel-save-state-v3'));
+// Cargar estructura completa desde LocalStorage si existe
+if (localStorage.getItem('gugel-multiverse-v4')) {
+    baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
 }
 
-function guardarEstadoEnStorage() {
-    localStorage.setItem('gugel-save-state-v3', JSON.stringify(gameState));
+// Inicializar cuenta por defecto si no existe
+function asegurarEstructuraCuenta(nombre) {
+    if (!baseCuentas[nombre]) {
+        baseCuentas[nombre] = {
+            modo: "campaña",
+            campanaIndex: 0,
+            satisfaction: 50,
+            history: [],
+            favorites: [],
+            logrosDesbloqueados: [],
+            recentReactions: [],
+            lastUserText: "",
+            password: "",
+            campañaCompletada: false,
+            currentPregunta: ""
+        };
+    }
+}
+asegurarEstructuraCuenta(usuarioActivo);
+
+function salvarAStorage() {
+    localStorage.setItem('gugel-multiverse-v4', JSON.stringify(baseCuentas));
+}
+
+function getCuenta() {
+    return baseCuentas[usuarioActivo];
 }
 
 // ==========================================
-// 4. MOTOR DE TRATAMIENTO DE TEXTO
+// 3. MOTOR DE COHERENCIA
 // ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
@@ -156,32 +166,31 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
     return "OK";
 }
 
-// ==========================================
-// 5. SISTEMA DE LOGROS
-// ==========================================
 function desbloquearLogro(id) {
-    if (!gameState.logrosDesbloqueados.includes(id)) {
-        gameState.logrosDesbloqueados.push(id);
+    let c = getCuenta();
+    if (!c.logrosDesbloqueados.includes(id)) {
+        c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            alert(`[LOGRO DESBLOQUEADO] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
+            alert(`[LOGRO DESBLOQUEADO - CUENTA: ${usuarioActivo}] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
         }
-        guardarEstadoEnStorage();
+        salvarAStorage();
     }
 }
 
 function verificarLogrosDeEstado() {
-    if (gameState.history.length === 1) desbloquearLogro("L01");
-    if (gameState.history.length >= 12) desbloquearLogro("L29");
-    if (gameState.satisfaction >= 60) desbloquearLogro("L02");
-    if (gameState.satisfaction >= 80) desbloquearLogro("L03");
-    if (gameState.satisfaction >= 100) desbloquearLogro("L04");
-    if (gameState.satisfaction <= 20) desbloquearLogro("LN4");
-    if (gameState.satisfaction === 0) desbloquearLogro("LN5");
+    let c = getCuenta();
+    if (c.history.length === 1) desbloquearLogro("L01");
+    if (c.history.length >= 12) desbloquearLogro("L29");
+    if (c.satisfaction >= 60) desbloquearLogro("L02");
+    if (c.satisfaction >= 80) desbloquearLogro("L03");
+    if (c.satisfaction >= 100) desbloquearLogro("L04");
+    if (c.satisfaction <= 20) desbloquearLogro("LN4");
+    if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
 
 // ==========================================
-// 6. CONTROLADORES GENERALES
+// 4. INTERFAZ Y RENDERIZADO DINÁMICO
 // ==========================================
 function obtenerElementoNoRepetido(lista, historial) {
     let opciones = lista.filter(item => !historial.includes(item));
@@ -197,7 +206,6 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        // INTERCAMBIO DE ROLES VISUAL: El que pregunta es USUARIO, el que responde es GUGEL
         let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
@@ -206,42 +214,44 @@ function appendMessage(sender, text) {
 }
 
 function renderAllData() {
-    document.getElementById('sidebar-user-display').innerText = gameState.usuario;
-    document.getElementById('prof-usuario').innerText = gameState.usuario;
-    document.getElementById('panel-user-status').innerText = gameState.usuario;
-    document.getElementById('prof-satisfaction').innerText = `${gameState.satisfaction}%`;
+    let c = getCuenta();
+
+    // Actualizar marcadores e identificadores
+    document.getElementById('sidebar-user-display').innerText = usuarioActivo;
+    document.getElementById('prof-usuario').innerText = usuarioActivo;
+    document.getElementById('panel-user-status').innerText = usuarioActivo;
+    document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
     document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
-        gameState.satisfaction < 35 ? OPINIONES_BAJA : 
-        gameState.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
-        gameState.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA, 
-        gameState.recentReactions
+        c.satisfaction < 35 ? OPINIONES_BAJA : 
+        c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
+        c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA, 
+        c.recentReactions
     );
 
-    // LÓGICA DE VISIBILIDAD DEL SELECTOR DE CHATS
-    const selectSelect = document.getElementById('chat-mode-select');
-    if (selectSelect) {
-        selectSelect.value = gameState.modo;
-        
-        // Si se ha pasado la campaña, eliminamos la opción de campaña y forzamos infinito
-        if (gameState.campañaCompletada) {
-            selectSelect.innerHTML = `<option value="infinito">Consultas Infinitas</option>`;
-            gameState.modo = "infinito";
-        } else {
-            selectSelect.innerHTML = `
-                <option value="campaña">Panel de Consultas (Campaña)</option>
-                <option value="infinito">Consultas Infinitas</option>
-            `;
-            selectSelect.value = gameState.modo;
-        }
+    // Render de botones de modo de juego
+    const btnCamp = document.getElementById('btn-modo-campaña');
+    const btnInfi = document.getElementById('btn-modo-infinito');
+
+    if (c.campañaCompletada) {
+        btnCamp.style.display = "none"; // Ocultar si ya la pasó por completo
+        c.modo = "infinito";
+    } else {
+        btnCamp.style.display = "block";
     }
 
-    // Renderizado limpio de logros
-    document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
+    // Resaltar el botón activo del modo
+    btnCamp.classList.remove('active');
+    btnInfi.classList.remove('active');
+    if (c.modo === "campaña") btnCamp.classList.add('active');
+    if (c.modo === "infinito") btnInfi.classList.add('active');
+
+    // Render de Logros específicos de esta cuenta
+    document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        const unlockedLogros = BASE_LOGROS.filter(logro => gameState.logrosDesbloqueados.includes(logro.id));
+        const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
         if (unlockedLogros.length === 0) {
-            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado ningún registro del sistema todavía.</p>`;
+            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado ningún registro en esta cuenta.</p>`;
         } else {
             logrosContainer.innerHTML = unlockedLogros.map(logro => `
                 <div class="item-logro ${logro.tipo}">
@@ -252,96 +262,101 @@ function renderAllData() {
         }
     }
 
-    // Historial y Favoritos
+    // Render de Historial Interactivo (con vista previa y añadir a favoritos directo)
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
-        histContainer.innerHTML = gameState.history.length === 0 ? "<p>Búfer vacío.</p>" : gameState.history.map(h => `
-            <div style="margin-bottom:10px; border-bottom:1px dashed var(--bubble-border); padding-bottom:5px;">
-                <strong>CONSULTA:</strong> ${h.pregunta}<br>
-                <strong>RESPUESTA:</strong> ${h.respuesta}<br>
-                <strong>REACCIÓN:</strong> ${h.reaccion}
-            </div>
-        `).join('');
+        if (c.history.length === 0) {
+            histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
+        } else {
+            histContainer.innerHTML = c.history.map((h, index) => `
+                <div class="log-item-card" onclick="cargarChatHistorico(${index})">
+                    <div class="log-item-info">
+                        <strong>Q:</strong> ${h.pregunta}<br>
+                        <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span>
+                    </div>
+                    <div class="log-item-action" onclick="event.stopPropagation();">
+                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Marcar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
 
+    // Render de Favoritos
     const favContainer = document.getElementById('favorites-list-container');
     if (favContainer) {
-        favContainer.innerHTML = gameState.favorites.length === 0 ? "<p style='color:var(--text-muted);'>No hay favoritos seleccionados.</p>" : gameState.favorites.map(f => `
-            <div style="margin-bottom:10px; border-left:2px solid #ffd700; padding-left:10px; background: rgba(255,215,0,0.05); padding:8px;">
-                <strong>⭐ [GUARDADO] Q:</strong> ${f.pregunta}<br>
-                <strong>A:</strong> ${f.respuesta}
-            </div>
-        `).join('');
+        if (c.favorites.length === 0) {
+            favContainer.innerHTML = "<p style='color:var(--text-muted);'>No hay favoritos en esta cuenta.</p>";
+        } else {
+            favContainer.innerHTML = c.favorites.map(f => `
+                <div style="margin-bottom:10px; border-left:2px solid #ffd700; padding-left:10px; background: rgba(255,215,0,0.03); padding:8px; border-radius:4px;">
+                    <strong>⭐ Q:</strong> ${f.pregunta}<br>
+                    <strong>A:</strong> ${f.respuesta}
+                </div>
+            `).join('');
+        }
     }
 }
 
+// ==========================================
+// 5. FLUJO DEL CHAT Y RONDAS
+// ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
+    let c = getCuenta();
     const input = document.getElementById('user-input');
     const userText = input.value.trim();
     if (!userText || input.disabled) return;
     
-    appendMessage('gugel', userText); // 'gugel' genera la burbuja de la derecha (tú respondiendo)
+    appendMessage('gugel', userText);
     input.style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
 
     let tipo = "OK";
-    if (userText.toLowerCase() === gameState.lastUserText.toLowerCase()) {
+    if (userText.toLowerCase() === c.lastUserText.toLowerCase()) {
         tipo = "CRITICA";
         desbloquearLogro("LN7");
     } else {
-        tipo = evaluarCoherenciaYSpam(gameState.currentPregunta, userText);
+        tipo = evaluarCoherenciaYSpam(c.currentPregunta, userText);
     }
 
-    gameState.lastUserText = userText;
+    c.lastUserText = userText;
 
-    let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, gameState.recentReactions) :
-                   tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, gameState.recentReactions) :
-                   obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions);
+    let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, c.recentReactions) :
+                   tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, c.recentReactions) :
+                   obtenerElementoNoRepetido(FRASES_OK, c.recentReactions);
 
     if (tipo === "CRITICA") {
-        gameState.satisfaction -= 20;
+        c.satisfaction -= 20;
         desbloquearLogro("LN8");
     } else if (tipo === "RECHAZO") {
-        gameState.satisfaction -= 15;
+        c.satisfaction -= 15;
     } else {
-        gameState.satisfaction += 10;
+        c.satisfaction += 10;
         if (userText.length > 60) desbloquearLogro("L15");
     }
     
-    gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction));
+    c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
 
     setTimeout(() => {
-        appendMessage('usuario', reaccion); // 'usuario' genera la burbuja de la izquierda
-        gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion });
+        appendMessage('usuario', reaccion);
+        c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
-        if (gameState.modo === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            gameState.campañaCompletada = true;
-            gameState.modo = "infinito";
+        if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
+            c.campañaCompletada = true;
+            c.modo = "infinito";
             desbloquearLogro("L05");
             desbloquearLogro("L14");
-            alert("¡Felicidades! Campaña completada con éxito. Conmutando a consultas infinitas.");
+            alert("¡Felicidades! Campaña completada en esta cuenta. Conmutando de forma permanente al Modo Infinito.");
         }
 
         verificarLogrosDeEstado();
+        salvarAStorage();
         renderAllData();
         document.getElementById('chat-actions-bar').style.display = "block";
         document.getElementById('continue-btn').style.display = "block";
     }, 500);
 };
-
-function marcarActualComoFavorito() {
-    if (gameState.history.length === 0) return;
-    let ultimoLog = gameState.history[gameState.history.length - 1];
-    
-    if (!gameState.favorites.some(f => f.pregunta === ultimoLog.pregunta && f.respuesta === ultimoLog.respuesta)) {
-        gameState.favorites.push({ pregunta: ultimoLog.pregunta, respuesta: ultimoLog.respuesta });
-        desbloquearLogro("L06");
-        if (gameState.favorites.length >= 3) desbloquearLogro("L07");
-        alert("¡Consulta añadida a tus marcadores favoritos!");
-        renderAllData();
-    }
-}
 
 function generarPreguntaInfinita() {
     let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
@@ -351,26 +366,27 @@ function generarPreguntaInfinita() {
 }
 
 function nextRound() {
+    let c = getCuenta();
     document.getElementById('chat-messages').innerHTML = "";
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
     
-    if (gameState.campañaCompletada) gameState.modo = "infinito";
+    if (c.campañaCompletada) c.modo = "infinito";
 
-    if (gameState.modo === "campaña") {
-        if (gameState.campanaIndex < PREGUNTAS_CAMPANA.length) {
-            gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex];
-            gameState.campanaIndex++;
+    if (c.modo === "campaña") {
+        if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
+            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
+            c.campanaIndex++;
         } else {
-            gameState.campañaCompletada = true;
-            gameState.modo = "infinito";
-            gameState.currentPregunta = generarPreguntaInfinita();
+            c.campañaCompletada = true;
+            c.modo = "infinito";
+            c.currentPregunta = generarPreguntaInfinita();
         }
     } else {
-        gameState.currentPregunta = generarPreguntaInfinita();
+        c.currentPregunta = generarPreguntaInfinita();
     }
     
-    appendMessage('usuario', gameState.currentPregunta); // El 'usuario' inicia la pregunta
+    appendMessage('usuario', c.currentPregunta);
     
     const input = document.getElementById('user-input');
     input.value = "";
@@ -387,12 +403,81 @@ function nextRound() {
         tBtn.disabled = false;
         input.placeholder = "Introduce tu respuesta...";
         input.focus();
-    }, 1500);
+    }, 1200);
 }
 
 // ==========================================
-// 7. NAVEGACIÓN Y TEMAS
+// 6. CONTROLADORES DE FAVORITOS INTERACTIVOS
 // ==========================================
+function marcarActualComoFavorito() {
+    let c = getCuenta();
+    if (c.history.length === 0) return;
+    let ultimoLog = c.history[c.history.length - 1];
+    inyectarFavoritoEstructural(ultimoLog.pregunta, ultimoLog.respuesta);
+}
+
+function marcarHistoricoComoFavorito(index) {
+    let c = getCuenta();
+    let logSeleccionado = c.history[index];
+    if (logSeleccionado) {
+        inyectarFavoritoEstructural(logSeleccionado.pregunta, logSeleccionado.respuesta);
+    }
+}
+
+function inyectarFavoritoEstructural(preg, resp) {
+    let c = getCuenta();
+    if (!c.favorites.some(f => f.pregunta === preg && f.respuesta === resp)) {
+        c.favorites.push({ pregunta: preg, respuesta: resp });
+        desbloquearLogro("L06");
+        if (c.favorites.length >= 3) desbloquearLogro("L07");
+        salvarAStorage();
+        renderAllData();
+        alert("Consulta guardada en marcadores favoritos.");
+    } else {
+        alert("Esta consulta ya se encuentra en favoritos.");
+    }
+}
+
+function cargarChatHistorico(index) {
+    let c = getCuenta();
+    let log = c.history[index];
+    if (!log) return;
+
+    // Conmutar a la pestaña del chat
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+
+    // Reconstruir la escena en la burbuja
+    document.getElementById('chat-messages').innerHTML = "";
+    appendMessage('usuario', log.pregunta);
+    appendMessage('gugel', log.respuesta);
+    appendMessage('usuario', log.reaccion);
+
+    // Bloquear controles de envío hasta que use "Siguiente"
+    document.getElementById('user-input').style.display = "none";
+    document.getElementById('transmit-btn').style.display = "none";
+    document.getElementById('chat-actions-bar').style.display = "none";
+    document.getElementById('continue-btn').style.display = "block";
+}
+
+// ==========================================
+// 7. NAVEGACIÓN, MODOS Y TEMAS
+// ==========================================
+function seleccionarModoJuego(nuevoModo) {
+    let c = getCuenta();
+    if (nuevoModo === "campaña" && c.campañaCompletada) return;
+    
+    c.modo = nuevoModo;
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    salvarAStorage();
+    nextRound();
+    renderAllData();
+}
+
 function cambiarTema(nuevoTema) {
     document.body.className = nuevoTema;
     localStorage.setItem('gugel-tema', nuevoTema);
@@ -423,22 +508,14 @@ function switchView(viewId) {
     }
     
     if (viewId === 'view-cuenta') {
-        document.getElementById('account-username').value = gameState.usuario === "Invitado" ? "" : gameState.usuario;
-        document.getElementById('account-password').value = gameState.password || "";
+        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
+        document.getElementById('account-password').value = getCuenta().password || "";
     }
     renderAllData();
 }
 
-function cambiarModoEstrategia(modo) {
-    if (modo === "campaña" && gameState.campañaCompletada) return;
-    gameState.modo = modo;
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    nextRound();
-}
-
 // ==========================================
-// 8. LOGICA GESTIÓN DE CUENTA INTEGRADA
+// 8. LOGICA GESTIÓN DE CUENTA AISLADA
 // ==========================================
 function guardarNombreCuenta() {
     const userIn = document.getElementById('account-username').value.trim();
@@ -449,8 +526,12 @@ function guardarNombreCuenta() {
         return;
     }
 
-    gameState.usuario = userIn;
-    gameState.password = passIn;
+    // Cambiar de puntero de usuario
+    usuarioActivo = userIn;
+    asegurarEstructuraCuenta(usuarioActivo);
+    
+    let c = getCuenta();
+    c.password = passIn;
 
     if (passIn === "") {
         desbloquearLogro("LN10");
@@ -462,18 +543,31 @@ function guardarNombreCuenta() {
         desbloquearLogro("L21");
     }
 
-    guardarEstadoEnStorage();
+    salvarAStorage();
+    
+    // Limpiar pantalla y refrescar con la base de la nueva cuenta
+    document.getElementById('chat-messages').innerHTML = "";
     renderAllData();
-    alert(`Sesión validada con éxito. Operador activo: ${gameState.usuario}`);
+    
+    alert(`Sesión validada. Datos cargados para el operador: ${usuarioActivo}`);
+    
+    // Forzar el inicio de ronda para la nueva cuenta si no tenía pregunta asignada
+    if (!c.currentPregunta) {
+        nextRound();
+    } else {
+        appendMessage('usuario', c.currentPregunta);
+    }
+    
     switchView('view-chat');
 }
 
 // ==========================================
-// 9. EXPORTACIONES
+// 9. EXPORTACIONES MUESTRA
 // ==========================================
 function exportCoreData() {
-    if (gameState.history.length === 0) return alert("Búfer vacío.");
-    let log = gameState.history.map((h, i) => `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`).join('\n');
+    let c = getCuenta();
+    if (c.history.length === 0) return alert("Búfer vacío.");
+    let log = c.history.map((h, i) => `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`).join('\n');
     navigator.clipboard.writeText(log).then(() => {
         desbloquearLogro("L19");
         alert("Logs copiados al portapapeles.");
@@ -481,14 +575,15 @@ function exportCoreData() {
 }
 
 function exportarHistorialCompleto() {
-    if (gameState.history.length === 0) return alert("Búfer vacío.");
-    let log = `=== GUGEL OPERATOR LOG ===\nUsuario: ${gameState.usuario}\n\n`;
-    log += gameState.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
+    let c = getCuenta();
+    if (c.history.length === 0) return alert("Búfer vacío.");
+    let log = `=== GUGEL OPERATOR LOG ===\nUsuario: ${usuarioActivo}\n\n`;
+    log += c.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
     const blob = new Blob([log], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `logs_gugel_${Date.now()}.txt`;
+    a.download = `logs_gugel_${usuarioActivo}_${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -502,16 +597,16 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
-    // Forzar renderizado inicial para construir las opciones correctas del select
     renderAllData();
 
-    if (!gameState.currentPregunta) {
-        if (gameState.modo === "campaña") {
-            gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex];
-            gameState.campanaIndex++;
+    let c = getCuenta();
+    if (!c.currentPregunta) {
+        if (c.modo === "campaña") {
+            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
+            c.campanaIndex++;
         } else {
-            gameState.currentPregunta = generarPreguntaInfinita();
+            c.currentPregunta = generarPreguntaInfinita();
         }
     }
-    appendMessage('usuario', gameState.currentPregunta);
+    appendMessage('usuario', c.currentPregunta);
 });
