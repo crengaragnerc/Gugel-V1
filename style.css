@@ -3,12 +3,12 @@
     --bg-main: #0a0a0a;
     --bg-panel: #111111;
     --bg-inner: #161616;
-    --text-primary: #ffffff;
-    --text-muted: #555555;
+    --text-primary: #00ff00;
+    --text-muted: #446644;
     --accent-color: #00ff00;
     --accent-text: #000000;
-    --bubble-bg: #181818;
-    --bubble-border: #252525;
+    --bubble-bg: #141414;
+    --bubble-border: #223322;
     --negative-color: #ff3333;
 }
 
@@ -278,7 +278,6 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
 .item-logro.negativo { border-left: 4px solid var(--negative-color); }
 
-/* Historial interactivo */
 .log-item-card {
     display: flex;
     justify-content: space-between;
