@@ -9,7 +9,6 @@
 <body class="modo-hacker">
 
     <div id="app-container">
-        <!-- MENÚ LATERAL IZQUIERDO -->
         <aside id="sidebar">
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE CONSULTA</div>
@@ -38,7 +37,6 @@
             </div>
         </aside>
 
-        <!-- AREA CENTRAL DE LA INTERFAZ -->
         <main id="main-content">
             <header id="top-bar">
                 <div class="brand-top">GUGEL Core</div>
@@ -53,7 +51,6 @@
             </header>
 
             <div id="display-workspace">
-                <!-- VISTA PRINCIPAL: CHAT -->
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
                     <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
@@ -67,7 +64,6 @@
                     </form>
                 </section>
 
-                <!-- VISTA PANEL: PERFIL -->
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
                         <h3>📊 Estado Analítico del Operador</h3>
@@ -79,7 +75,6 @@
                     </div>
                 </section>
 
-                <!-- VISTA PANEL: LOGROS -->
                 <section id="view-logros" class="content-panel">
                     <div class="card">
                         <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
@@ -87,7 +82,6 @@
                     </div>
                 </section>
 
-                <!-- VISTA PANEL: HISTORIAL (LOGS) -->
                 <section id="view-historial" class="content-panel">
                     <div class="card">
                         <h3>📁 Búfer de Logs y Favoritos</h3>
@@ -104,11 +98,11 @@
                     </div>
                 </section>
 
-                <!-- VISTA PANEL: GESTIÓN DE CUENTA -->
                 <section id="view-cuenta" class="content-panel">
                     <div class="card">
                         <h3>⚙️ Autenticación Central de Operadores</h3>
                         <p>Sesión actual activa: <strong id="panel-user-status">Invitado</strong></p>
+                        <p style="font-size: 0.8rem; color: var(--negative-color);" id="warning-invitado">⚠️ Estás en modo Invitado. El progreso no se guardará localmente al salir.</p>
                         
                         <div class="account-form-block" style="max-width: 400px; display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
                             <div>
@@ -127,7 +121,6 @@
                 </section>
             </div>
 
-            <!-- BOTÓN INFERIOR DE CONTINUACIÓN -->
             <footer id="bottom-bar">
                 <button id="continue-btn" onclick="nextRound()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
