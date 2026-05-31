@@ -12,9 +12,9 @@ const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", 
 const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet", "raton", "portatil", "vecino", "coche", "llave", "cafetera", "ventilador", "pantalla", "cable"];
 const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
-const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
+const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un técnico)", "(piensa que eres un troyano ruso)"];
 const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
-const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
+const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin más)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
 const MAPA_COHERENCIA = {
@@ -100,9 +100,7 @@ function crearEstructuraVacia() {
         lastUserText: "",
         password: "",
         campañaCompletada: false,
-        currentPregunta: "",
-        preguntaCampanaActiva: "",
-        preguntaInfinitoActiva: ""
+        currentPregunta: ""
     };
 }
 
@@ -225,7 +223,8 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
+        // Corrección de Rol Canónico: 'usuario' es el humano Gugel pidiendo info; 'gugel' es la respuesta de la IA (jugador)
+        let etiqueta = sender === 'gugel' ? 'IA' : 'GUGEL';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
@@ -246,6 +245,7 @@ function renderAllData() {
         c.recentReactions
     );
 
+    // Validación segura para evitar crasheos si el elemento no existe en el DOM
     const warningInvitado = document.getElementById('warning-invitado');
     if (warningInvitado) {
         if (usuarioActivo === "Invitado") {
@@ -258,10 +258,12 @@ function renderAllData() {
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
 
-    btnCamp.classList.remove('active');
-    btnInfi.classList.remove('active');
-    if (c.modo === "campaña") btnCamp.classList.add('active');
-    if (c.modo === "infinito") btnInfi.classList.add('active');
+    if (btnCamp && btnInfi) {
+        btnCamp.classList.remove('active');
+        btnInfi.classList.remove('active');
+        if (c.modo === "campaña") btnCamp.classList.add('active');
+        if (c.modo === "infinito") btnInfi.classList.add('active');
+    }
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
@@ -315,8 +317,50 @@ function renderAllData() {
 }
 
 // ==========================================
-// 5. FLUJO DEL CHAT Y RONDAS
+// 5. FLUJO DEL CHAT, RONDAS Y AUTOSINCRO
 // ==========================================
+function actualizarVistaChatSincronizada() {
+    let c = getCuenta();
+    document.getElementById('chat-messages').innerHTML = "";
+    
+    if (!c.currentPregunta) {
+        nextRound();
+        return;
+    }
+
+    let ultimoLog = c.history[c.history.length - 1];
+    if (ultimoLog && ultimoLog.pregunta === c.currentPregunta) {
+        // La pregunta activa de este perfil ya fue respondida con anterioridad
+        appendMessage('usuario', ultimoLog.pregunta);
+        appendMessage('gugel', ultimoLog.respuesta);
+        appendMessage('usuario', ultimoLog.reaccion);
+        
+        document.getElementById('user-input').style.display = "none";
+        document.getElementById('transmit-btn').style.display = "none";
+        document.getElementById('chat-actions-bar').style.display = "block";
+        document.getElementById('continue-btn').style.display = "block";
+        esperandoRespuestaDeTurno = false;
+    } else {
+        // Turno pendiente de procesar
+        appendMessage('usuario', c.currentPregunta);
+        
+        const input = document.getElementById('user-input');
+        input.value = "";
+        input.style.display = "block";
+        input.disabled = false;
+        input.placeholder = "Introduce tu respuesta...";
+        
+        const tBtn = document.getElementById('transmit-btn');
+        tBtn.style.display = "block";
+        tBtn.disabled = false;
+        
+        document.getElementById('chat-actions-bar').style.none = "none";
+        document.getElementById('continue-btn').style.display = "none";
+        esperandoRespuestaDeTurno = true;
+    }
+    renderAllData();
+}
+
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     let c = getCuenta();
@@ -358,14 +402,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
         appendMessage('usuario', reaccion);
         c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
-        // Al responder con éxito, limpiamos el slot activo de ese modo
-        if (c.modo === "campaña") {
-            c.preguntaCampanaActiva = "";
-        } else {
-            c.preguntaInfinitoActiva = "";
-        }
-        c.currentPregunta = "";
-
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
             c.campañaCompletada = true;
             desbloquearLogro("L05");
@@ -400,11 +436,6 @@ function generarPreguntaInfinita() {
 
 function nextRound() {
     let c = getCuenta();
-    
-    // Aseguramos que existan las variables de control de estado por modo
-    if (c.preguntaCampanaActiva === undefined) c.preguntaCampanaActiva = "";
-    if (c.preguntaInfinitoActiva === undefined) c.preguntaInfinitoActiva = "";
-
     document.getElementById('chat-messages').innerHTML = "";
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
@@ -417,10 +448,8 @@ function nextRound() {
             c.campañaCompletada = true;
             c.currentPregunta = generarPreguntaInfinita();
         }
-        c.preguntaCampanaActiva = c.currentPregunta; // Memorizar pregunta de campaña
     } else {
         c.currentPregunta = generarPreguntaInfinita();
-        c.preguntaInfinitoActiva = c.currentPregunta; // Memorizar pregunta infinita
     }
     
     appendMessage('usuario', c.currentPregunta);
@@ -442,6 +471,9 @@ function nextRound() {
         input.placeholder = "Introduce tu respuesta...";
         input.focus();
     }, 1200);
+
+    salvarAStorage();
+    renderAllData();
 }
 
 // ==========================================
@@ -458,7 +490,7 @@ function marcarHistoricoComoFavorito(index) {
     let c = getCuenta();
     let logSeleccionado = c.history[index];
     if (logSeleccionado) {
-        inyectarFavoritoEstructural(logSeleccionado.pregunta, logSeleccionado.reacciones || logSeleccionado.respuesta);
+        inyectarFavoritoEstructural(logSeleccionado.pregunta, logSeleccionado.respuesta);
     }
 }
 
@@ -501,19 +533,6 @@ function cargarChatHistorico(index) {
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
-    
-    if (c.preguntaCampanaActiva === undefined) c.preguntaCampanaActiva = "";
-    if (c.preguntaInfinitoActiva === undefined) c.preguntaInfinitoActiva = "";
-
-    // Si haces clic en el botón del modo en el que YA ESTÁS jugando, solo volvemos a la vista del chat
-    if (c.modo === nuevoModo) {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-        renderAllData();
-        return;
-    }
-
-    // Cambiamos de modo de forma oficial
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
@@ -523,61 +542,8 @@ function seleccionarModoJuego(nuevoModo) {
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    // Limpiamos la pantalla visual del chat para renderizar el estado del nuevo modo elegido
-    document.getElementById('chat-messages').innerHTML = "";
-
-    // LÓGICA DE PERSISTENCIA POR MODO:
-    if (nuevoModo === "campaña") {
-        if (c.preguntaCampanaActiva) {
-            // Recuperamos la pregunta exacta que dejamos congelada en campaña
-            c.currentPregunta = c.preguntaCampanaActiva;
-            appendMessage('usuario', c.currentPregunta);
-            esperandoRespuestaDeTurno = true;
-            
-            // Re-habilitamos la interfaz de entrada para continuar la partida
-            const input = document.getElementById('user-input');
-            input.value = "";
-            input.style.display = "block";
-            input.disabled = false;
-            input.placeholder = "Introduce tu respuesta...";
-            
-            const tBtn = document.getElementById('transmit-btn');
-            tBtn.style.display = "block";
-            tBtn.disabled = false;
-            
-            document.getElementById('chat-actions-bar').style.display = "none";
-            document.getElementById('continue-btn').style.display = "none";
-        } else {
-            // Si no había ninguna pregunta de campaña en curso, generamos ronda limpia
-            nextRound();
-        }
-    } else { // modo infinito
-        if (c.preguntaInfinitoActiva) {
-            // Recuperamos la pregunta del universo infinito exacta que dejamos a medias
-            c.currentPregunta = c.preguntaInfinitoActiva;
-            appendMessage('usuario', c.currentPregunta);
-            esperandoRespuestaDeTurno = true;
-            
-            const input = document.getElementById('user-input');
-            input.value = "";
-            input.style.display = "block";
-            input.disabled = false;
-            input.placeholder = "Introduce tu respuesta...";
-            
-            const tBtn = document.getElementById('transmit-btn');
-            tBtn.style.display = "block";
-            tBtn.disabled = false;
-            
-            document.getElementById('chat-actions-bar').style.display = "none";
-            document.getElementById('continue-btn').style.display = "none";
-        } else {
-            // Si no había ninguna infinita guardada, lanzamos una nueva
-            nextRound();
-        }
-    }
-
     salvarAStorage();
-    renderAllData(); 
+    actualizarVistaChatSincronizada();
 }
 
 function cambiarTema(nuevoTema) {
@@ -645,26 +611,9 @@ function guardarNombreCuenta() {
     }
 
     salvarAStorage();
-    
-    document.getElementById('chat-messages').innerHTML = "";
-    renderAllData();
-    
     alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
     
-    // Al cambiar de cuenta, restauramos según lo que tuviese guardado ese perfil
-    if (c.modo === "campaña") {
-        if (c.preguntaCampanaActiva) c.currentPregunta = c.preguntaCampanaActiva;
-    } else {
-        if (c.preguntaInfinitoActiva) c.currentPregunta = c.preguntaInfinitoActiva;
-    }
-
-    if (!c.currentPregunta) {
-        nextRound();
-    } else {
-        appendMessage('usuario', c.currentPregunta);
-        esperandoRespuestaDeTurno = true; 
-    }
-    
+    actualizarVistaChatSincronizada();
     switchView('view-chat');
 }
 
@@ -702,14 +651,15 @@ function exportarHistorialCompleto() {
 // 10. CONTROL INTERACTIVO DE MENÚ MÓVIL
 // ==========================================
 function toggleMobileMenu() {
-    const sidebar = document.getElementById('app-sidebar');
+    const sidebar = document.getElementById('sidebar');
     if (sidebar) sidebar.classList.toggle('mobile-open');
 }
 
+// Interceptamos la navegación para cerrar el menú si se hace clic desde móvil
 const originalSwitchView = switchView;
 switchView = function(viewId) {
     originalSwitchView(viewId);
-    const sidebar = document.getElementById('app-sidebar');
+    const sidebar = document.getElementById('sidebar');
     if (sidebar) sidebar.classList.remove('mobile-open');
 };
 
@@ -723,29 +673,13 @@ window.addEventListener('DOMContentLoaded', () => {
     if (s) s.value = temaGuardado;
     
     let c = getCuenta();
-    if (c.preguntaCampanaActiva === undefined) c.preguntaCampanaActiva = "";
-    if (c.preguntaInfinitoActiva === undefined) c.preguntaInfinitoActiva = "";
-
-    // Comprobamos si hay alguna pregunta activa según el modo guardado
-    if (c.modo === "campaña") {
-        if (!c.preguntaCampanaActiva) {
+    if (!c.currentPregunta) {
+        if (c.modo === "campaña") {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
             c.campanaIndex++;
-            c.preguntaCampanaActiva = c.currentPregunta;
         } else {
-            c.currentPregunta = c.preguntaCampanaActiva;
-        }
-    } else {
-        if (!c.preguntaInfinitoActiva) {
             c.currentPregunta = generarPreguntaInfinita();
-            c.preguntaInfinitoActiva = c.currentPregunta;
-        } else {
-            c.currentPregunta = c.preguntaInfinitoActiva;
         }
     }
-
-    document.getElementById('chat-messages').innerHTML = "";
-    appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; 
-    renderAllData();
+    actualizarVistaChatSincronizada();
 });
