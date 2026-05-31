@@ -3,54 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL - Interfaz Core</title>
+    <title>GUGEL: Simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app-container">
-        <aside id="sidebar">
-            <div class="brand">GUGEL CORE</div>
-            <button id="btn-gestion-cuenta" class="main-btn">👤 REGISTRAR CUENTA</button>
-            <nav class="menu-nav">
-                <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core')">🖥️ Núcleo Central</button>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">🏆 Logros (<span id="logros-count">0</span>)</button>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">📜 Registros Antiguos</button>
-            </nav>
-        </aside>
+        <header class="main-header">
+            <div class="brand">GUGEL :: CORE SYSTEM v2.5</div>
+            <div class="header-controls">
+                <button id="btn-gestion-cuenta" class="btn-terminal">👤 CONFIGURAR CUENTA</button>
+                <button id="btn-reset-data" class="btn-terminal" style="background-color: #7c2d12; border-color: #9a3412;">🔄 BORRAR PERSISTENCIA</button>
+                <select id="modo-juego-selector" class="select-terminal">
+                    <option value="campaña">Modo Campaña</option>
+                    <option value="infinito">Modo Infinito</option>
+                </select>
+            </div>
+        </header>
 
-        <main class="main-content">
-            <div id="view-core" class="content-panel active">
-                <div class="panel-header">
-                    <span id="panel-title-text">Interfaz Core - CAMPAÑA</span>
-                    <span id="global-level-badge">Nivel de IA: <span id="prof-level">1</span></span>
+        <div class="interface-layout">
+            
+            <aside class="panel side-panel left-panel">
+                <div class="panel-section section-profile">
+                    <h3>ESTADO DEL CORE</h3>
+                    <div class="profile-data-box">
+                        <p id="prof-level">Nivel: 1</p>
+                        <p id="prof-satisfaction">Satisfacción: 50%</p>
+                        <p id="prof-difficulty">Exigencia: 35 caracteres / 5s</p>
+                        <p id="prof-opinion">Opinión: (analizando conexiones...)</p>
+                    </div>
+                </div>
+                
+                <div class="panel-section section-achievements">
+                    <h3>LOGROS UNIFICADOS (<span id="logros-count">0</span>)</h3>
+                    <div id="logros-container" class="scrollable-list">
+                        </div>
                 </div>
 
-                <div class="server-status-bar">
-                    <div>Satisfacción: <span id="prof-satisfaction">50%</span></div>
-                    <div>Humor: <span id="prof-opinion">(estable)</span></div>
+                <div class="panel-section section-network-logs">
+                    <h3>LOGS DE RED EN TIEMPO REAL</h3>
+                    <div id="network-logs-container" class="scrollable-list text-log-style">
+                        </div>
                 </div>
+            </aside>
 
-                <div id="chat-messages" class="chat-container"></div>
-
+            <main class="panel main-panel central-panel">
+                <div id="chat-messages" class="chat-viewport">
+                    </div>
+                
                 <div class="control-bar">
-                    <form id="chat-form" autocomplete="off">
-                        <input type="text" id="user-input" placeholder="Esperando al sistema..." disabled>
-                        <button type="submit" id="transmit-btn">TRANSMITIR</button>
-                        <button type="button" id="continue-btn" style="display:none;">CONTINUAR</button>
+                    <form id="chat-form" class="input-container">
+                        <input type="text" id="user-input" class="input-terminal" placeholder="Esperando activación del búfer..." disabled autocomplete="off">
+                        <button type="submit" id="transmit-btn" class="btn-action b-transmit" disabled>TRANSMITIR (5s)</button>
                     </form>
+                    <button id="continue-btn" class="btn-action b-continue" style="display: none;">SIGUIENTE CONSULTA</button>
                 </div>
-            </div>
+            </main>
 
-            <div id="view-logros" class="content-panel">
-                <h2>Logros de Transmisión Desbloqueados</h2>
-                <div id="logros-container" class="list-grid"></div>
-            </div>
-
-            <div id="view-historial" class="content-panel">
-                <h2>Logs de Conexión Recientes</h2>
-                <div id="history-list-container" class="list-grid"></div>
-            </div>
-        </main>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
