@@ -1,3 +1,7 @@
+#top-bar { display: flex; justify-content: space-between; padding: 15px 30px; background: var(--panel); border-bottom: 1px solid var(--text); align-items: center; }
+.brand-top { font-weight: bold; }
+.theme-selector select { background: var(--bg); color: var(--text); border: 1px solid var(--text); padding: 5px; cursor: pointer; }
+
 :root { --border-radius: 12px; }
 .modo-hacker { --bg: #121212; --text: #00ff00; --panel: #1e1e1e; --accent: #00ff00; }
 .modo-claro { --bg: #ffffff; --text: #333333; --panel: #f0f0f0; --accent: #007bff; }
