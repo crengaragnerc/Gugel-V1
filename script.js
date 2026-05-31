@@ -76,6 +76,15 @@ function cambiarModoEstrategia(modo) {
     nextRound();
 }
 
+function verificarLogros() {
+    // Ejemplo: Logro "IA con Cafeína" si tienes más de 5 mensajes en historial
+    if (gameState.history.length > 10 && !gameState.logrosDesbloqueados.includes("IA con Cafeína")) {
+        gameState.logrosDesbloqueados.push("IA con Cafeína");
+        alert("¡Logro desbloqueado: IA con Cafeína!");
+    }
+    // Añade más condiciones aquí...
+}
+
 function ejecutarAccionCuenta() {
     const userIn = prompt("Introduce tu nombre de usuario:");
     if (!userIn) return;
