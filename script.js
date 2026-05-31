@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -244,20 +244,15 @@ function renderAllData() {
         c.recentReactions
     );
 
-    const warningInvitado = document.getElementById('warning-invitado');
-    if (usuarioActivo === "Invitado") {
-        warningInvitado.style.display = "block";
-    } else {
-        warningInvitado.style.display = "none";
-    }
-
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
 
-    btnCamp.classList.remove('active');
-    btnInfi.classList.remove('active');
-    if (c.modo === "campaña") btnCamp.classList.add('active');
-    if (c.modo === "infinito") btnInfi.classList.add('active');
+    if (document.getElementById('view-chat').classList.contains('active')) {
+        btnCamp.classList.remove('active');
+        btnInfi.classList.remove('active');
+        if (c.modo === "campaña") btnCamp.classList.add('active');
+        if (c.modo === "infinito") btnInfi.classList.add('active');
+    }
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
@@ -311,7 +306,7 @@ function renderAllData() {
 }
 
 // ==========================================
-// 5. FLUJO DEL CHAT Y RONDAS (CORREGIDO BIEN)
+// 5. FLUJO DEL CHAT Y RONDAS
 // ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
@@ -392,8 +387,6 @@ function nextRound() {
     document.getElementById('continue-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
 
-    // EXPLICACIÓN DEL CAMBIO: Fijamos bien que avance la campaña si corresponde, 
-    // y si no, que genere una aleatoria real sin quedarse congelada en la última guardada.
     if (c.modo === "campaña") {
         if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
@@ -464,9 +457,7 @@ function cargarChatHistorico(index) {
     let log = c.history[index];
     if (!log) return;
 
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    switchView('view-chat');
 
     document.getElementById('chat-messages').innerHTML = "";
     appendMessage('usuario', log.pregunta);
@@ -480,28 +471,18 @@ function cargarChatHistorico(index) {
 }
 
 // ==========================================
-// 7. NAVEGACIÓN, MODOS Y TEMAS
+// 7. NAVEGACIÓN COMPLETA Y UNIFICADA (BUG FIX)
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
-    
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
-
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    
     salvarAStorage();
-
-    // Si no está a mitad de responder, lanzamos la nueva pregunta del nuevo modo.
-    // Si estaba a mitad, se conserva la pregunta activa para no machacarla por error.
+    switchView('view-chat');
     if (!esperandoRespuestaDeTurno) {
         nextRound();
-    } else {
-        renderAllData(); 
     }
 }
 
@@ -515,24 +496,30 @@ function cambiarTema(nuevoTema) {
 }
 
 function switchView(viewId) {
-    const panelObjetivo = document.getElementById(viewId);
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
 
-    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-    } else {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        if (panelObjetivo) {
-            panelObjetivo.classList.add('active');
-            let btnId = viewId === 'view-cuenta' ? 'btn-view-cuenta' : `btn-${viewId}`;
+    const panelObjetivo = document.getElementById(viewId);
+    if (panelObjetivo) {
+        panelObjetivo.classList.add('active');
+        
+        if (viewId === 'view-chat') {
+            let c = getCuenta();
+            const btnId = c.modo === 'campaña' ? 'btn-modo-campaña' : 'btn-modo-infinito';
             const btnPulsado = document.getElementById(btnId);
             if (btnPulsado) btnPulsado.classList.add('active');
-            
-            if (viewId === "view-perfil") desbloquearLogro("L17");
-            if (viewId === "view-historial") desbloquearLogro("L18");
+        } else {
+            const btnId = `btn-${viewId}`;
+            const btnPulsado = document.getElementById(btnId);
+            if (btnPulsado) btnPulsado.classList.add('active');
         }
+        
+        if (viewId === "view-perfil") desbloquearLogro("L17");
+        if (viewId === "view-historial") desbloquearLogro("L18");
     }
+
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) sidebar.classList.remove('mobile-open');
     
     if (viewId === 'view-cuenta') {
         document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
@@ -617,20 +604,12 @@ function exportarHistorialCompleto() {
 }
 
 // ==========================================
-// 10. CONTROL INTERACTIVO DE MENÚ MÓVIL
+// 10. MENÚ MÓVIL EVENTO
 // ==========================================
 function toggleMobileMenu() {
     const sidebar = document.getElementById('app-sidebar');
     if (sidebar) sidebar.classList.toggle('mobile-open');
 }
-
-// Interceptamos la navegación para cerrar el menú si se hace clic desde móvil
-const originalSwitchView = switchView;
-switchView = function(viewId) {
-    originalSwitchView(viewId);
-    const sidebar = document.getElementById('app-sidebar');
-    if (sidebar) sidebar.classList.remove('mobile-open');
-};
 
 // ==========================================
 // 11. EVENTO INICIAL DE CARGA
