@@ -29,7 +29,8 @@ let gameState = {
     lastUserText: "",
     totalChars: 0,
     usuario: "Invitado",
-    campañaCompletada: false
+    campañaCompletada: false,
+    currentPregunta: ""
 };
 
 // Carga el estado guardado si existe previamente
@@ -61,7 +62,7 @@ function calcularOpinion() {
 }
 
 function verificarLogros() {
-    if (gameState.history.length >= 5 && !gameState.logrosDesbloqueados.includes("IA con Cafeína")) {
+    if (gameState.history.length >= 5 && !gameState.logrosDesbloadoas.includes("IA con Cafeína")) {
         gameState.logrosDesbloqueados.push("IA con Cafeína");
         alert("¡Logro desbloqueado: IA con Cafeína!");
     }
@@ -87,7 +88,6 @@ function appendMessage(sender, text) {
 }
 
 function renderAllData() {
-    // Control de visibilidad del botón campaña / infinito
     const btnCamp = document.getElementById('btn-mode-campaña');
     const btnInf = document.getElementById('btn-mode-infinito');
     
@@ -96,7 +96,7 @@ function renderAllData() {
         if (btnInf) btnInf.style.display = 'block';
     } else {
         if (btnCamp) btnCamp.style.display = 'block';
-        if (btnInf) btnInf.style.display = 'none'; // Oculto hasta que acabe la campaña si así se prefiere
+        if (btnInf) btnInf.style.display = 'none';
     }
 
     // Historial panel
@@ -154,10 +154,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
     let tipo = "OK";
     
-    // Control Anti-Spam
-    if (textProcesado === gameState.lastUserText) {
-        tipo = "CRITICA";
-    } else if (EVASIVAS.includes(textProcesado)) {
+    if (textProcesado === gameState.lastUserText || EVASIVAS.includes(textProcesado)) {
         tipo = "CRITICA";
     } else if (userText.length <= 15) {
         tipo = "RECHAZO";
@@ -186,6 +183,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
             reaccion: reaccion 
         });
 
+        // Comprobación exacta tras responder la décima pregunta
         if (gameState.modo === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
             gameState.campañaCompletada = true;
             gameState.modo = "infinito";
@@ -213,9 +211,16 @@ function nextRound() {
         gameState.modo = "infinito";
     }
 
+    // Selección controlada de la pregunta para EVITAR el "undefined"
     if (gameState.modo === "campaña") {
-        gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex];
-        gameState.campanaIndex++;
+        if (gameState.campanaIndex < PREGUNTAS_CAMPANA.length) {
+            gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex];
+            gameState.campanaIndex++;
+        } else {
+            gameState.campañaCompletada = true;
+            gameState.modo = "infinito";
+            gameState.currentPregunta = generarPreguntaInfinita();
+        }
     } else {
         gameState.currentPregunta = generarPreguntaInfinita();
     }
@@ -250,8 +255,6 @@ function cambiarTema(nuevoTema) {
 
 function switchView(viewId) {
     const panelObjetivo = document.getElementById(viewId);
-    
-    // Desactivar todos los botones de subpaneles de estilos para mantener limpieza visual
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
 
     if (panelObjetivo && panelObjetivo.classList.contains('active')) {
@@ -318,7 +321,8 @@ function resetearProgresoJuego() {
             lastUserText: "",
             totalChars: 0,
             usuario: "Invitado",
-            campañaCompletada: false
+            campañaCompletada: false,
+            currentPregunta: ""
         };
         guardarEstadoEnStorage();
         renderAllData();
@@ -377,6 +381,16 @@ window.addEventListener('DOMContentLoaded', () => {
         if (btnInf) btnInf.classList.add('active');
     }
 
-    nextRound();
+    // Forzar carga de la primera pregunta válida del estado actual nada más arrancar
+    if (!gameState.currentPregunta) {
+        if (gameState.modo === "campaña") {
+            gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex];
+            gameState.campanaIndex++;
+        } else {
+            gameState.currentPregunta = generarPreguntaInfinita();
+        }
+    }
+
+    appendMessage('gugel', gameState.currentPregunta);
     renderAllData();
 });
