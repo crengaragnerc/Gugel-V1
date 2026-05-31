@@ -114,19 +114,59 @@ function nextRound() {
     const input = document.getElementById('user-input');
     const transmitBtn = document.getElementById('transmit-btn');
     const continueBtn = document.getElementById('continue-btn');
-    const btnCampaña = document.getElementById('btn-mode-campaña'); 
+    const btnCampaña = document.getElementById('btn-mode-campaña');
+    const chatBox = document.getElementById('chat-messages');
+
+    // 1. Limpieza absoluta antes de una nueva pregunta
+    // (Solo limpiamos si no es la continuación de la misma lógica)
+    if (continueBtn && continueBtn.style.display === "none") {
+        chatBox.innerHTML = ""; 
+    }
 
     if (continueBtn) continueBtn.style.display = "none";
     
+    // 2. Control de fin de campaña
     if (gameState.modoActualJuego === "campaña" && gameState.campanaCompletada) {
         if (input) { input.style.display = "block"; input.disabled = true; input.value = ""; input.placeholder = "CAMPAÑA COMPLETADA."; }
-        if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
-        
-        // Ocultar botón al terminar campaña
+        if (transmitBtn) { transmitBtn.style.display = "none"; } // Ocultar transmitir
         if (btnCampaña) btnCampaña.style.display = "none";
         
         appendMessage('gugel', "has respondido todas las consultas de la campaña."); return;
     }
+    
+    // 3. Reset de interfaz
+    if (input) { 
+        input.style.display = "block"; 
+        input.disabled = true; 
+        input.value = ""; 
+    }
+    if (transmitBtn) { 
+        transmitBtn.style.display = "block"; 
+        transmitBtn.disabled = true; 
+    }
+    
+    let q = generarPregunta();
+    gameState.currentPregunta = q;
+    appendMessage('gugel', gameState.currentPregunta);
+    
+    // 4. Timer de procesamiento
+    let timeLeft = 5; 
+    input.placeholder = `Procesando... (${timeLeft}s)`;
+    
+    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+    window.currentRoundTimer = setInterval(() => { 
+        timeLeft--; 
+        if (timeLeft <= 0) { 
+            clearInterval(window.currentRoundTimer); 
+            input.disabled = false; 
+            transmitBtn.disabled = false; 
+            input.placeholder = "Introduce tu respuesta..."; 
+            input.focus(); 
+        } else {
+            input.placeholder = `Procesando... (${timeLeft}s)`;
+        }
+    }, 1000);
+}
     
     if (input) { input.style.display = "block"; input.value = ""; }
     if (transmitBtn) { transmitBtn.style.display = "block"; }
