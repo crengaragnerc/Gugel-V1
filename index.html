@@ -2,104 +2,54 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GUGEL: simulador de IA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUGEL - Interfaz Core</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="modo-hacker">
-    <div id="app-container">
-        <button id="mobile-menu-toggle" onclick="toggleMobileMenu()">☰ MENÚ GUGEL</button>
-
+<body>
+    <div class="app-container">
         <aside id="sidebar">
-            <div class="brand">🧠 GUGEL: SIMULADOR DE IA</div>
-            
-            <div class="menu-section">
-                <div class="section-title">🕹️ MODOS DE JUEGO</div>
-                <button id="btn-mode-campaña" class="mode-btn active" onclick="cambiarModoEstrategia('campaña'); toggleMobileMenu();">
-                    📌 MISIONES CAMPAÑA
-                </button>
-                <button id="btn-mode-infinito" class="mode-btn" onclick="cambiarModoEstrategia('infinito'); toggleMobileMenu();">
-                    Anclaje INFINITO
-                </button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">🖥️ PANELES DE CONTROL</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil'); toggleMobileMenu();">DATOS PERFIL</button>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros'); toggleMobileMenu();">LOGROS SECRETOS</button>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial'); toggleMobileMenu();">HISTORIAL GENERAL</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">👤 SISTEMA CUENTAS</div>
-                <button id="btn-gestion-cuenta" class="account-btn">👤 PERFIL PERSISTENTE</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">🎨 ENTORNO VISUAL</div>
-                <select id="tema-select" onchange="cambiarTemaVisual(this.value)">
-                    <option value="modo-hacker">Modo Hacker (Terminal)</option>
-                    <option value="modo-oscuro">Modo Oscuro (Blue)</option>
-                    <option value="modo-claro">Modo Claro (System)</option>
-                </select>
-            </div>
+            <div class="brand">GUGEL CORE</div>
+            <button id="btn-gestion-cuenta" class="main-btn">👤 REGISTRAR CUENTA</button>
+            <nav class="menu-nav">
+                <button id="btn-view-core" class="sub-btn active" onclick="switchView('view-core')">🖥️ Núcleo Central</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">🏆 Logros (<span id="logros-count">0</span>)</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">📜 Registros Antiguos</button>
+            </nav>
         </aside>
 
-        <main id="main-content">
-            <section id="view-core" class="content-panel active">
-                <div id="chat-container">
-                    <div id="chat-header">
-                        <span id="panel-title-text">Interfaz Core - Campaña</span>
-                        <div class="header-right">
-                            <div id="countdown-timer">⏳ --s</div>
-                            <span id="status-indicator" class="status-online">● en línea</span>
-                        </div>
-                    </div>
-                    <div id="chat-messages"></div>
-                    <form id="chat-form">
-                        <input type="text" id="user-input" placeholder="Introduce tu respuesta de IA..." autocomplete="off">
-                        <div class="input-container">
-                            <button type="submit" id="transmit-btn">TRANSMITIR</button>
-                            <button type="button" id="continue-btn" onclick="confirmContinue()">CONTINUAR</button>
-                        </div>
+        <main class="main-content">
+            <div id="view-core" class="content-panel active">
+                <div class="panel-header">
+                    <span id="panel-title-text">Interfaz Core - CAMPAÑA</span>
+                    <span id="global-level-badge">Nivel de IA: <span id="prof-level">1</span></span>
+                </div>
+
+                <div class="server-status-bar">
+                    <div>Satisfacción: <span id="prof-satisfaction">50%</span></div>
+                    <div>Humor: <span id="prof-opinion">(estable)</span></div>
+                </div>
+
+                <div id="chat-messages" class="chat-container"></div>
+
+                <div class="control-bar">
+                    <form id="chat-form" autocomplete="off">
+                        <input type="text" id="user-input" placeholder="Esperando al sistema..." disabled>
+                        <button type="submit" id="transmit-btn">TRANSMITIR</button>
+                        <button type="button" id="continue-btn" style="display:none;">CONTINUAR</button>
                     </form>
-                    <div id="streaming-recommendation" class="streaming-box" style="display: none;"></div>
                 </div>
-            </section>
+            </div>
 
-            <section id="view-perfil" class="content-panel">
-                <div class="card">
-                    <h3>📊 Análisis de Rendimiento de la IA</h3>
-                    <div class="opinion-box" id="opinion-container">
-                        <strong>REACCIÓN PSICOLÓGICA:</strong> <br>
-                        <span id="prof-opinion" style="font-style: italic; font-size: 1.1rem;">(esperando transmisiones...)</span>
-                    </div>
-                    <div class="stats-grid">
-                        <p><strong>Nivel Algorítmico:</strong> <span id="prof-level">1</span></p>
-                        <p><strong>Satisfacción Humana:</strong> <span id="prof-satisfaction">50%</span></p>
-                        <p><strong>Consultas Procesadas:</strong> <span id="prof-cycles">0</span></p>
-                        <p><strong>Volumen Datos:</strong> <span id="prof-chars">0 carac.</span></p>
-                    </div>
-                    <button class="action-btn" onclick="switchView('view-core')">Volver al Núcleo</button>
-                </div>
-            </section>
+            <div id="view-logros" class="content-panel">
+                <h2>Logros de Transmisión Desbloqueados</h2>
+                <div id="logros-container" class="list-grid"></div>
+            </div>
 
-            <section id="view-logros" class="content-panel">
-                <div class="card">
-                    <h3>🏆 Logros Ocultos Desbloqueados (<span id="logros-count">0</span>)</h3>
-                    <div id="logros-container" class="list-container"></div>
-                    <button class="action-btn" onclick="switchView('view-core')">Volver al Núcleo</button>
-                </div>
-            </section>
-
-            <section id="view-historial" class="content-panel">
-                <div class="card">
-                    <h3>📁 Historial de Conversaciones</h3>
-                    <button class="action-btn" onclick="exportCoreData()">Copiar Logs Limpios</button>
-                    <div id="history-list-container" class="list-container"></div>
-                    <button class="action-btn" onclick="switchView('view-core')">Volver al Núcleo</button>
-                </div>
-            </section>
+            <div id="view-historial" class="content-panel">
+                <h2>Logs de Conexión Recientes</h2>
+                <div id="history-list-container" class="list-grid"></div>
+            </div>
         </main>
     </div>
     <script src="script.js"></script>
