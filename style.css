@@ -312,7 +312,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* ESTRUCTURA DE LA VENTANITA MODAL DE CUENTA (FLOTANTE) */
+/* ESTRUCTURA DE LA VENTANITA MODAL (CUENTA FLOTANTE) */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -328,6 +328,16 @@ input:focus { outline: none; border-color: var(--accent-color); }
 }
 .modal-overlay.active {
     display: flex;
+}
+.modal-window {
+    background-color: var(--bg-panel);
+    border: 2px solid var(--accent-color);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 460px;
+    box-shadow: 0px 0px 25px rgba(0, 255, 0, 0.15);
+    box-sizing: border-box;
 }
 .modal-window {
     background-color: var(--bg-panel);
