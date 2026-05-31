@@ -27,8 +27,18 @@ let gameState = {
     logrosDesbloqueados: [],
     recentReactions: [],
     lastUserText: "",
-    totalChars: 0
+    totalChars: 0,
+    usuario: "Invitado"
 };
+
+// Carga el estado guardado si existe previamente
+if (localStorage.getItem('gugel-save-state')) {
+    gameState = JSON.parse(localStorage.getItem('gugel-save-state'));
+}
+
+function guardarEstadoEnStorage() {
+    localStorage.setItem('gugel-save-state', JSON.stringify(gameState));
+}
 
 // ==========================================
 // 3. LÓGICA DE PERSONALIDAD Y LOGROS
@@ -58,6 +68,7 @@ function verificarLogros() {
         gameState.logrosDesbloqueados.push("Perfeccionista");
         alert("¡Logro desbloqueado: Perfeccionista!");
     }
+    guardarEstadoEnStorage();
 }
 
 // ==========================================
@@ -88,6 +99,9 @@ function renderAllData() {
     }
     
     // Perfil panel
+    const userEl = document.getElementById('prof-usuario');
+    if (userEl) userEl.innerText = gameState.usuario;
+
     const opEl = document.getElementById('prof-opinion');
     if (opEl) opEl.innerText = calcularOpinion();
     
@@ -200,13 +214,8 @@ function nextRound() {
         tBtn.disabled = false;
         input.placeholder = "Introduce tu respuesta...";
         input.focus();
-    }, 2000); // Reducido un poco para agilizar testeo, cámbialo a 5000 si deseas simulación más lenta
+    }, 2000);
 }
-
-window.onload = () => {
-    nextRound();
-    renderAllData();
-};
 
 // ==========================================
 // 5. NAVEGACIÓN Y CONFIGURACIÓN
@@ -214,19 +223,6 @@ window.onload = () => {
 function cambiarTema(nuevoTema) {
     document.body.className = nuevoTema;
     localStorage.setItem('gugel-tema', nuevoTema);
-}
-
-function cicloTema() {
-    const temas = ["modo-hacker", "modo-claro", "modo-oscuro"];
-    let actual = document.body.className;
-    let siguienteIndex = (temas.indexOf(actual) + 1) % temas.length;
-    if (siguienteIndex === -1 || siguienteIndex === undefined) siguienteIndex = 0;
-    let nuevoTema = temas[siguienteIndex];
-    
-    cambiarTema(nuevoTema);
-    
-    const select = document.getElementById('theme-select');
-    if (select) select.value = nuevoTema;
 }
 
 function switchView(viewId) {
@@ -251,11 +247,59 @@ function cambiarModoEstrategia(modo) {
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     
-    // Reinicia ronda para aplicar el nuevo set de preguntas inmediatamente
     nextRound();
 }
 
-// --- FUNCIONES DE EXPORTACIÓN MEJORADAS ---
+// ==========================================
+// 6. FUNCIONES DE GESTIÓN DE CUENTA
+// ==========================================
+function abrirModalCuenta() {
+    document.getElementById('account-modal').classList.add('active');
+    document.getElementById('modal-user-status').innerText = gameState.usuario;
+    document.getElementById('account-username').value = gameState.usuario === "Invitado" ? "" : gameState.usuario;
+}
+
+function cerrarModalCuenta() {
+    document.getElementById('account-modal').classList.remove('active');
+}
+
+function guardarNombreCuenta() {
+    const inputNombre = document.getElementById('account-username').value.trim();
+    if (inputNombre !== "") {
+        gameState.usuario = inputNombre;
+    } else {
+        gameState.usuario = "Invitado";
+    }
+    guardarEstadoEnStorage();
+    renderAllData();
+    cerrarModalCuenta();
+    alert(`Sesión activa como: ${gameState.usuario}`);
+}
+
+function resetearProgresoJuego() {
+    if (confirm("¿Seguro que quieres borrar todo el historial, los logros y la satisfacción? Esta acción destruirá los datos.")) {
+        localStorage.removeItem('gugel-save-state');
+        gameState = { 
+            modo: "campaña",
+            campanaIndex: 0, 
+            satisfaction: 50,
+            history: [], 
+            logrosDesbloqueados: [],
+            recentReactions: [],
+            lastUserText: "",
+            totalChars: 0,
+            usuario: "Invitado"
+        };
+        guardarEstadoEnStorage();
+        renderAllData();
+        cerrarModalCuenta();
+        nextRound();
+    }
+}
+
+// ==========================================
+// 7. EXPORTACIÓN DE LOGS
+// ==========================================
 function exportCoreData() {
     if (gameState.history.length === 0) {
         alert("No hay registros en el historial para copiar.");
@@ -276,6 +320,7 @@ function exportarHistorialCompleto() {
         return;
     }
     let textoLog = `=== GUGEL SIMULADOR IA - EXPORTACIÓN COMPLETA ===\n`;
+    textoLog += `Operador: ${gameState.usuario}\n`;
     textoLog += `Satisfacción Final: ${gameState.satisfaction}%\n`;
     textoLog += `Logros Desbloqueados: ${gameState.logrosDesbloqueados.join(', ') || 'Ninguno'}\n`;
     textoLog += `================================================\n\n`;
@@ -295,9 +340,13 @@ function exportarHistorialCompleto() {
     URL.revokeObjectURL(url);
 }
 
+// Inicialización de la sesión
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
     const select = document.getElementById('theme-select');
     if (select) select.value = temaGuardado;
+    
+    nextRound();
+    renderAllData();
 });
