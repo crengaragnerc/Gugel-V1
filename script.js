@@ -65,7 +65,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -252,7 +252,6 @@ function renderAllData() {
 
     document.getElementById('sidebar-user-display').innerText = usuarioActivo;
     document.getElementById('prof-usuario').innerText = usuarioActivo;
-    document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
     document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
         c.satisfaction < 35 ? OPINIONES_BAJA : 
@@ -398,7 +397,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
             if (segReaccion > 0) {
                 continueBtn.innerText = `SIGUIENTE CONSULTA (${segReaccion}s)`;
             } else {
-                clearInterval(cronouter);
                 clearInterval(cronometroReaccion);
                 continueBtn.disabled = false;
                 continueBtn.innerText = "SIGUIENTE CONSULTA";
@@ -493,7 +491,7 @@ function marcarHistoricoComoFavorito(index) {
 function inyectarFavoritoEstructural(preg, resp) {
     let c = getCuenta();
     if (!c.favorites.some(f => f.pregunta === preg && f.respuesta === resp)) {
-        c.favorites.push({ pregunta: preg, respuesta: resp });
+        c.favorites.push({ pregnancy: preg, respuesta: resp });
         desbloquearLogro("L06");
         if (c.favorites.length >= 3) desbloquearLogro("L07");
         salvarAStorage();
@@ -533,7 +531,6 @@ function cargarChatHistorico(index) {
 // 7. NAVEGACIÓN Y CONFIGURACIÓN DE MODO
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
-    // ELIMINADO EL CANADO DE RONDAS: Ahora puedes cambiar libremente sin alertas molestas
     let c = getCuenta();
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
@@ -542,10 +539,33 @@ function seleccionarModoJuego(nuevoModo) {
     salvarAStorage();
     switchView('view-chat');
     
-    if (cronometroPregunta) clearInterval(cronometroPregunta);
-    if (cronometroReaccion) clearInterval(cronometroReaccion);
-    
-    nextRound();
+    // ARREGLADO: Solo se llama a nextRound() si la pregunta actual está vacía.
+    // Si ya hay una ronda en curso, se preserva por completo y no se borra nada al clicar.
+    if (!c.currentPregunta) {
+        if (cronometroPregunta) clearInterval(cronometroPregunta);
+        if (cronometroReaccion) clearInterval(cronometroReaccion);
+        nextRound();
+    } else {
+        // Redibujamos la interfaz con la pregunta existente intacta
+        renderAllData();
+        
+        // Si el chat tiene mensajes, asegurarse de pintar el historial visual en vez de dejarlo en blanco
+        const box = document.getElementById('chat-messages');
+        if (box && box.children.length === 0) {
+            appendMessage('humano', c.currentPregunta);
+            if (c.lastUserText && c.history.length > 0) {
+                let ultimoLog = c.history[c.history.length - 1];
+                if (ultimoLog.pregunta === c.currentPregunta) {
+                    appendMessage('ia', ultimoLog.respuesta);
+                    appendMessage('humano', ultimoLog.reaccion);
+                    document.getElementById('chat-actions-bar').style.display = "block";
+                    document.getElementById('continue-btn').style.display = "block";
+                    document.getElementById('user-input').style.display = "none";
+                    document.getElementById('transmit-btn').style.display = "none";
+                }
+            }
+        }
+    }
 }
 
 function cambiarTema(nuevoTema) {
@@ -583,32 +603,29 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 8. CONTROL DEL DIÁLOGO EMERGENTE (MODAL)
+// 8. CONTROL DE AUTENTICACIÓN CON DIÁLOGO NATIVO
 // ==========================================
-function abrirModalCuenta() {
-    const modal = document.getElementById('modal-cuenta');
-    if (modal) {
-        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-        document.getElementById('account-password').value = getCuenta().password || "";
-        modal.classList.add('active');
-    }
-}
-
-function cerrarModalCuenta() {
-    const modal = document.getElementById('modal-cuenta');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-
-function guardarNombreCuenta() {
-    const userIn = document.getElementById('account-username').value.trim();
-    const passIn = document.getElementById('account-password').value;
-
+function gestionarCuentaNativa() {
+    // ARREGLADO: Ahora se usan ventanas nativas (prompt) exactamente iguales al diseño de sistema de la foto.
+    let userIn = prompt("⚙️ AUTENTICACIÓN CENTRAL GUGEL\n\nIntroduce tu Código o Alias de Operador:", usuarioActivo === "Invitado" ? "" : usuarioActivo);
+    
+    // Si el usuario da a Cancelar (null), no hacemos nada
+    if (userIn === null) return;
+    
+    userIn = userIn.trim();
     if (!userIn) {
-        alert("Error: El código de operador no puede estar vacío.");
+        alert("⚠️ Error: El código de operador no puede estar vacío.");
         return;
     }
+
+    let currentPass = "";
+    if (usuarioActivo !== "Invitado" && baseCuentas[userIn]) {
+        currentPass = baseCuentas[userIn].password || "";
+    }
+    
+    let passIn = prompt(`🔐 SEGURIDAD DE TERMINAL\n\nOperador detectado: "${userIn}"\nIntroduce la contraseña de acceso (deja en blanco si es una cuenta nueva o libre):`, currentPass);
+    
+    if (passIn === null) return; // Cancelado
 
     usuarioActivo = userIn;
     asegurarEstructuraCuenta(usuarioActivo);
@@ -627,12 +644,11 @@ function guardarNombreCuenta() {
     }
 
     salvarAStorage();
-    cerrarModalCuenta();
     
     document.getElementById('chat-messages').innerHTML = "";
     renderAllData();
     
-    alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
+    alert(`[SISTEMA] Módulo de datos cargado con éxito para el operador: ${usuarioActivo}`);
     
     if (cronometroPregunta) clearInterval(cronometroPregunta);
     if (cronometroReaccion) clearInterval(cronometroReaccion);
