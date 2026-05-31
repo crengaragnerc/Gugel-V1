@@ -2,56 +2,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>GUGEL: simulador de IA</title>
+    <title>GUGEL: Simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="modo-hacker">
-    <header id="top-bar">
-        <div class="brand-top">GUGEL: simulador de IA</div>
-        <select id="theme-select" onchange="cambiarTema(this.value)">
-            <option value="modo-hacker">HACKER</option>
-            <option value="modo-claro">CLARO</option>
-            <option value="modo-oscuro">OSCURO</option>
-        </select>
-    </header>
-
-    <div id="app-container">
-        <aside id="sidebar">
-            <button class="sub-btn" onclick="cambiarPanel('view-chat')">CHAT</button>
-            <button class="sub-btn" onclick="cambiarPanel('view-perfil')">PERFIL</button>
-            <button class="sub-btn" onclick="cambiarPanel('view-logros')">LOGROS</button>
-            <button class="sub-btn" onclick="cambiarPanel('view-historial')">HISTORIAL</button>
-        </aside>
-
-        <main id="chat-area">
-            <section id="view-chat" class="content-panel active">
-                <div id="chat-messages"></div>
-                <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="Escribe..." required>
-                    <button type="submit" id="transmit-btn">ENVIAR</button>
-                    <button type="button" id="continue-btn" style="display:none;">SIGUIENTE</button>
-                </form>
-            </section>
-
-            <section id="view-perfil" class="content-panel">
-                <h3>📊 PERFIL DE GUGEL</h3>
-                <p>Satisfacción: <span id="prof-satisfaction">50%</span></p>
-                <p>Opinión actual: <span id="prof-opinion">Analizando...</span></p>
-            </section>
-
-            <section id="view-logros" class="content-panel">
-                <h3>🏆 LOGROS (<span id="logros-count">0/150</span>)</h3>
-                <ul id="logros-container"></ul>
-            </section>
-
-            <section id="view-historial" class="content-panel">
-                <h3>📁 HISTORIAL</h3>
-                <button onclick="exportCoreData()">Copiar al portapapeles</button>
-                <button onclick="exportarHistorialCompleto()">Exportar JSON</button>
-                <div id="history-list-container"></div>
-            </section>
-        </main>
+<body>
+    <div id="stats">Satisfacción: 50%</div>
+    
+    <div id="pantalla-campana" class="panel">
+        <h1>Buscador GUGEL</h1>
+        <div id="mensajes"></div>
+        <input type="text" id="userInput" placeholder="Escribe tu consulta...">
+        <button id="btnEnviar">Buscar</button>
     </div>
+
+    <div id="pantalla-infinito" class="panel" style="display:none;">
+        <h1>Generador Infinito</h1>
+        <div id="output-infinito"></div>
+        <button id="btnGenerar">Nueva Pregunta</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
