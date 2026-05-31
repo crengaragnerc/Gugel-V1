@@ -653,3 +653,24 @@ window.onload = function() {
     ejecutarRenderizadoPaneles();
     iniciarSiguienteRonda();
 };
+
+// Control del menú desplegable para móviles
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('open');
+    }
+}
+
+// Cerrar menú si se pulsa fuera de él en dispositivos móviles
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('mobile-menu-toggle');
+    
+    if (window.innerWidth <= 768 && 
+        !sidebar.contains(event.target) && 
+        event.target !== toggleBtn && 
+        sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+    }
+});
