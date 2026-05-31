@@ -1,20 +1,282 @@
-#top-bar { display: flex; justify-content: space-between; padding: 15px 30px; background: var(--panel); border-bottom: 1px solid var(--text); align-items: center; }
-.brand-top { font-weight: bold; }
-.theme-selector select { background: var(--bg); color: var(--text); border: 1px solid var(--text); padding: 5px; cursor: pointer; }
+/* ==========================================
+   CONFIGURACIÓN DE VARIABLES Y TEMAS
+   ========================================== */
+body.theme-dark {
+    --bg-main: #0a0a0c;
+    --bg-panel: #141419;
+    --border-color: #2a2a35;
+    --text-main: #00ffcc;
+    --text-muted: #00aa88;
+    --text-dark: #050505;
+    --btn-bg: #1c1c24;
+    --btn-hover: #00ffcc;
+    --msg-gugel: #1a233a;
+    --msg-user: #221a3a;
+    --accent: #ff007f;
+}
 
-:root { --border-radius: 12px; }
-.modo-hacker { --bg: #121212; --text: #00ff00; --panel: #1e1e1e; --accent: #00ff00; }
-.modo-claro { --bg: #ffffff; --text: #333333; --panel: #f0f0f0; --accent: #007bff; }
-.modo-oscuro { --bg: #1a1b26; --text: #a9b1d6; --panel: #24283b; --accent: #7aa2f7; }
-body { background-color: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; transition: 0.3s; }
-#app-container { display: flex; height: 100vh; }
-#sidebar { width: 250px; background: var(--panel); padding: 20px; border-right: 1px solid var(--text); display: flex; flex-direction: column; gap: 20px; }
-#chat-area { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; max-width: 800px; margin: auto; }
-#chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-.message { padding: 10px; border-radius: 8px; border-left: 3px solid var(--accent); }
-.gugel { background: rgba(0,0,0,0.1); }
-.user { align-self: flex-end; background: var(--accent); color: var(--bg); }
-.content-panel { display: none; }
-.content-panel.active { display: block; }
-input { padding: 15px; border-radius: 5px; border: 1px solid var(--text); background: transparent; color: var(--text); width: 100%; box-sizing: border-box; }
-button { padding: 10px; cursor: pointer; background: var(--panel); color: var(--text); border: 1px solid var(--text); border-radius: 4px; }
+body.theme-light {
+    --bg-main: #f0f2f5;
+    --bg-panel: #ffffff;
+    --border-color: #d1d5db;
+    --text-main: #1f2937;
+    --text-muted: #4b5563;
+    --text-dark: #ffffff;
+    --btn-bg: #e5e7eb;
+    --btn-hover: #2563eb;
+    --msg-gugel: #eff6ff;
+    --msg-user: #f3e8ff;
+    --accent: #dc2626;
+}
+
+/* ==========================================
+   ESTILOS GENERALES Y ESTRUCTURA base
+   ========================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* CABECERA */
+.main-header {
+    background-color: var(--bg-panel);
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.subtitle {
+    font-size: 0.5em;
+    text-transform: uppercase;
+    color: var(--accent);
+    letter-spacing: 2px;
+}
+
+#btn-gestion-cuenta {
+    background: transparent;
+    border: 1px solid var(--text-main);
+    color: var(--text-main);
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+#btn-gestion-cuenta:hover {
+    background-color: var(--text-main);
+    color: var(--text-dark);
+}
+
+/* BARRA DE NAVEGACIÓN */
+.nav-bar {
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px 20px;
+    gap: 10px;
+}
+
+.nav-bar button {
+    background-color: var(--btn-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.nav-bar button.active {
+    background-color: var(--text-main);
+    color: var(--text-dark);
+    border-color: var(--text-main);
+}
+
+/* CONTENEDOR DE JUEGO */
+.game-container {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* PANELES DE CONTENIDO */
+.content-panel {
+    display: none;
+    width: 100%;
+    max-width: 900px;
+}
+
+.content-panel.active {
+    display: block;
+}
+
+.panel-card {
+    background-color: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    padding: 25px;
+    border-radius: 8px;
+}
+
+.panel-card h2 {
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* TERMINAL DE CHAT */
+.chat-wrapper {
+    background-color: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+    overflow: hidden;
+}
+
+.chat-box {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    max-width: 85%;
+    line-height: 1.4;
+}
+
+.message.gugel {
+    background-color: var(--msg-gugel);
+    align-self: flex-start;
+    border-left: 4px solid var(--accent);
+}
+
+.message.tú {
+    background-color: var(--msg-user);
+    align-self: flex-end;
+    border-right: 4px solid var(--text-main);
+}
+
+/* FORMULARIO DE CONTROL */
+.control-form {
+    display: flex;
+    border-top: 2px solid var(--border-color);
+    background-color: var(--bg-main);
+}
+
+#user-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    padding: 15px;
+    font-size: 1.1em;
+    outline: none;
+}
+
+#transmit-btn {
+    background-color: var(--btn-bg);
+    border: none;
+    border-left: 2px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0 25px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#transmit-btn:hover:not(:disabled) {
+    background-color: var(--text-main);
+    color: var(--text-dark);
+}
+
+#transmit-btn:disabled, #user-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.action-btn {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+}
+
+/* REJILLAS Y DETALLES DEL PANEL */
+.stat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: var(--bg-main);
+    border-radius: 4px;
+}
+
+.stat-label { color: var(--text-muted); }
+.stat-value { font-weight: bold; }
+
+.logros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.logro-item {
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.history-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.historial-item {
+    background-color: var(--bg-main);
+    padding: 12px;
+    border-radius: 4px;
+    border-left: 3px solid var(--text-muted);
+    font-size: 0.9em;
+}
+
+.info-text {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
