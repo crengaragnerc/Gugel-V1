@@ -63,7 +63,7 @@ const BASE_LOGROS = [
     { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el reluciente Tema Rosa." },
     { id: "L31", tipo: "positivo", nombre: "Odisea del Espacio", desc: "Estableciste la terminal en órbita con el Modo Espacial." },
     
-    // NEGATIVOS
+    // LOGROS NEGATIVOS
     { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
     { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
     { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
@@ -135,7 +135,7 @@ function getCuenta() {
 }
 
 // ==========================================
-// 3. MOTOR DE COHERENCIA
+// 3. MOTOR DE COHERENCIA Y LOGROS
 // ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
@@ -305,7 +305,6 @@ function renderAllData() {
         }
     }
 
-    // Actualiza el texto del botón de continuar dependiendo del modo/estado
     const contBtn = document.getElementById('continue-btn');
     if (revisandoHistorial) {
         contBtn.innerText = "VOLVER AL CHAT ACTIVO";
@@ -392,7 +391,7 @@ function generarPreguntaInfinita() {
 
 function clickBotonContinuar() {
     if (revisandoHistorial) {
-        // BUG 2 SOLUCIONADO: Volvemos al chat activo sin romper la ronda ni consumir índices
+        // BUG 2 ARREGLADO: Volver al chat activo de forma segura sin consumir rondas
         revisandoHistorial = false;
         let c = getCuenta();
         
@@ -455,7 +454,7 @@ function nextRound() {
     tBtn.style.display = "block";
     tBtn.disabled = true;
 
-    // BUG 3 SOLUCIONADO: Sincronización robusta por timeout limpio
+    // BUG 3 ARREGLADO: Sincronización asíncrona segura sin bloqueos aleatorios
     syncTimeout = setTimeout(() => {
         input.disabled = false;
         tBtn.disabled = false;
@@ -537,7 +536,7 @@ function seleccionarModoJuego(nuevoModo) {
     revisandoHistorial = false;
     document.getElementById('chat-messages').innerHTML = "";
 
-    // BUG 1 SOLUCIONADO: Obligamos a generar una consulta nativa al cambiar de modo
+    // BUG 1 ARREGLADO: Generación inmediata y nativa del modo seleccionado al limpiar el chat
     if (c.modo === "campaña") {
         c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || generarPreguntaInfinita();
     } else {
@@ -576,7 +575,7 @@ function cambiarTema(nuevoTema) {
     if (nuevoTema === "modo-claro") desbloquearLogro("L12");
     if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
     if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
-    if (nuevoTema === "modo-espacial") desbloquearLogro("L31"); // MODO ESPACIAL
+    if (nuevoTema === "modo-espacial") desbloquearLogro("L31");
 }
 
 function switchView(viewId) {
@@ -603,7 +602,7 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 8. LOGICA DE LA VENTANITA MODAL FLOTANTE
+// 8. LOGICA DE LA VENTANITA MODAL FLOTANTE (CUENTA)
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
