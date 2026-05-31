@@ -13,7 +13,7 @@ const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet"
 const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
+const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algorithm tiene un tornillo flojo)"];
 const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
@@ -80,13 +80,12 @@ const BASE_LOGROS = [
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
+let esperandoRespuestaDeTurno = true; 
 
-// Cargar estructura completa desde LocalStorage si existe
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
 }
 
-// Inicializar cuenta por defecto si no existe
 function asegurarEstructuraCuenta(nombre) {
     if (!baseCuentas[nombre]) {
         baseCuentas[nombre] = {
@@ -216,7 +215,6 @@ function appendMessage(sender, text) {
 function renderAllData() {
     let c = getCuenta();
 
-    // Actualizar marcadores e identificadores
     document.getElementById('sidebar-user-display').innerText = usuarioActivo;
     document.getElementById('prof-usuario').innerText = usuarioActivo;
     document.getElementById('panel-user-status').innerText = usuarioActivo;
@@ -228,24 +226,21 @@ function renderAllData() {
         c.recentReactions
     );
 
-    // Render de botones de modo de juego
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
 
     if (c.campañaCompletada) {
-        btnCamp.style.display = "none"; // Ocultar si ya la pasó por completo
+        btnCamp.style.display = "none";
         c.modo = "infinito";
     } else {
         btnCamp.style.display = "block";
     }
 
-    // Resaltar el botón activo del modo
     btnCamp.classList.remove('active');
     btnInfi.classList.remove('active');
     if (c.modo === "campaña") btnCamp.classList.add('active');
     if (c.modo === "infinito") btnInfi.classList.add('active');
 
-    // Render de Logros específicos de esta cuenta
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
@@ -262,7 +257,6 @@ function renderAllData() {
         }
     }
 
-    // Render de Historial Interactivo (con vista previa y añadir a favoritos directo)
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
         if (c.history.length === 0) {
@@ -272,7 +266,8 @@ function renderAllData() {
                 <div class="log-item-card" onclick="cargarChatHistorico(${index})">
                     <div class="log-item-info">
                         <strong>Q:</strong> ${h.pregunta}<br>
-                        <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span>
+                        <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
+                        <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción del Sistema:</strong> "${h.reaccion}"</span>
                     </div>
                     <div class="log-item-action" onclick="event.stopPropagation();">
                         <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Marcar</button>
@@ -282,7 +277,6 @@ function renderAllData() {
         }
     }
 
-    // Render de Favoritos
     const favContainer = document.getElementById('favorites-list-container');
     if (favContainer) {
         if (c.favorites.length === 0) {
@@ -353,16 +347,28 @@ document.getElementById('chat-form').onsubmit = (e) => {
         verificarLogrosDeEstado();
         salvarAStorage();
         renderAllData();
+        
+        esperandoRespuestaDeTurno = false; 
         document.getElementById('chat-actions-bar').style.display = "block";
         document.getElementById('continue-btn').style.display = "block";
     }, 500);
 };
 
 function generarPreguntaInfinita() {
-    let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-    let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-    let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-    return plantilla.replace("[s]", sujeto).replace("[p]", predicado);
+    let preguntaFinal = "";
+    while (true) {
+        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+        let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+        let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+        
+        preguntaFinal = plantilla.replace("[s]", sujeto).replace("[p]", predicado);
+        
+        let numeroPalabras = preguntaFinal.split(/\s+/).filter(Boolean).length;
+        if (numeroPalabras > 2) {
+            break; 
+        }
+    }
+    return preguntaFinal;
 }
 
 function nextRound() {
@@ -378,7 +384,7 @@ function nextRound() {
             c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
             c.campanaIndex++;
         } else {
-            c.campañaCompletada = true;
+            c.campaignCompletada = true;
             c.modo = "infinito";
             c.currentPregunta = generarPreguntaInfinita();
         }
@@ -387,6 +393,7 @@ function nextRound() {
     }
     
     appendMessage('usuario', c.currentPregunta);
+    esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
     input.value = "";
@@ -443,18 +450,15 @@ function cargarChatHistorico(index) {
     let log = c.history[index];
     if (!log) return;
 
-    // Conmutar a la pestaña del chat
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
 
-    // Reconstruir la escena en la burbuja
     document.getElementById('chat-messages').innerHTML = "";
     appendMessage('usuario', log.pregunta);
     appendMessage('gugel', log.respuesta);
     appendMessage('usuario', log.reaccion);
 
-    // Bloquear controles de envío hasta que use "Siguiente"
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
@@ -466,6 +470,12 @@ function cargarChatHistorico(index) {
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
+    
+    // CORRECCIÓN SILENCIOSA: Si hay una consulta en curso, no salta aviso flotante pero frena la ejecución por completo
+    if (esperandoRespuestaDeTurno) {
+        return;
+    }
+
     if (nuevoModo === "campaña" && c.campañaCompletada) return;
     
     c.modo = nuevoModo;
@@ -526,7 +536,6 @@ function guardarNombreCuenta() {
         return;
     }
 
-    // Cambiar de puntero de usuario
     usuarioActivo = userIn;
     asegurarEstructuraCuenta(usuarioActivo);
     
@@ -545,17 +554,16 @@ function guardarNombreCuenta() {
 
     salvarAStorage();
     
-    // Limpiar pantalla y refrescar con la base de la nueva cuenta
     document.getElementById('chat-messages').innerHTML = "";
     renderAllData();
     
     alert(`Sesión validada. Datos cargados para el operador: ${usuarioActivo}`);
     
-    // Forzar el inicio de ronda para la nueva cuenta si no tenía pregunta asignada
     if (!c.currentPregunta) {
         nextRound();
     } else {
         appendMessage('usuario', c.currentPregunta);
+        esperandoRespuestaDeTurno = true; 
     }
     
     switchView('view-chat');
@@ -609,4 +617,5 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
     appendMessage('usuario', c.currentPregunta);
+    esperandoRespuestaDeTurno = true; 
 });
