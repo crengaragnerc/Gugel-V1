@@ -118,12 +118,27 @@ function appendMessage(sender, text) {
     }
 }
 
+// ==========================================
+// 4. MOTOR DE JUEGO Y TEMPORIZADOR (CORREGIDO)
+// ==========================================
 function nextRound() {
     if (gameState.esperandoRespuesta) return;
     gameState.esperandoRespuesta = true;
 
-    document.getElementById('chat-messages').innerHTML = "";
+    // Limpiar chat y ocultar botón de continuar
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = "";
     document.getElementById('continue-btn').style.display = "none";
+    
+    // Obtener elementos del DOM
+    const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    
+    // Mostrar el input y el botón, pero deshabilitados inicialmente
+    input.style.display = "block";
+    transmitBtn.style.display = "block";
+    input.disabled = true;
+    transmitBtn.disabled = true;
     
     let q = generarPregunta();
     if (!q) { gameState.campanaIndex = 0; q = generarPregunta(); }
@@ -131,22 +146,22 @@ function nextRound() {
     gameState.currentPregunta = q;
     appendMessage('gugel', q);
 
-    const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    input.disabled = true;
-    transmitBtn.disabled = true;
-
-    let timeLeft = 5; // 5 SEGUNDOS
+    let timeLeft = 5;
+    input.value = ""; // Limpiar texto anterior
     input.placeholder = `Procesando... (${timeLeft}s)`;
+    
     if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+    
     window.currentRoundTimer = setInterval(() => {
         timeLeft--;
-        input.placeholder = `Procesando... (${timeLeft}s)`;
-        if (timeLeft <= 0) {
+        if (timeLeft > 0) {
+            input.placeholder = `Procesando... (${timeLeft}s)`;
+        } else {
             clearInterval(window.currentRoundTimer);
             input.disabled = false;
             transmitBtn.disabled = false;
             input.placeholder = "Introduce tu respuesta...";
+            input.focus(); // Esto ayuda a que el usuario sepa que puede escribir
         }
     }, 1000);
 }
