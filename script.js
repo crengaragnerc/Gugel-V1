@@ -207,26 +207,11 @@ function guardarProgresoCuenta() {
 }
 
 function cambiarModoEstrategia(modo) {
-    const modoLimpio = modo === 'campaña' ? 'campaña' : 'infinito';
-    
-    // Limpiar el historial visual del chat
-    const chatBox = document.getElementById('chat-messages');
-    if (chatBox) chatBox.innerHTML = ""; 
+    // --- COPIA ESTO AQUÍ ---
+    document.getElementById('chat-messages').innerHTML = "";
+    // -----------------------
 
-    // Resetear el estado de la pregunta activa
-    gameState.esperandoRespuesta = false; 
-    procesamientoBloqueado = false;
-    
-    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-
-    gameState.modoSeleccionadoSiguiente = modoLimpio; 
-    gameState.modoActualJuego = modoLimpio;
-
-    actualizarBotonesModoUI();
-    switchView('view-chat'); 
-    
-    // Iniciar nuevo ciclo
-    nextRound();
+    // ... el resto de tu código sigue igual
 }
 
     const chatBox = document.getElementById('chat-messages');
@@ -275,11 +260,12 @@ function appendMessage(sender, text) {
 }
 
 function nextRound() {
-    // BUG FIX: Si ya estamos esperando respuesta, no lanzar otra pregunta
-    if (gameState.esperandoRespuesta) {
-        console.log("Ya hay una pregunta activa, ignorando llamada.");
-        return;
-    }
+    // --- COPIA ESTO AQUÍ ---
+    if (gameState.esperandoRespuesta) return; 
+    // -----------------------
+
+    // ... el resto de tu código sigue igual
+}
 
     if (gameState.campanaCompletada && gameState.modoActualJuego === 'campaña') {
         gameState.modoActualJuego = 'infinito';
