@@ -70,14 +70,29 @@ function cambiarTema(clase) {
 }
 
 function switchView(viewId) {
+    // 1. Ocultar todos los paneles de contenido
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
+    // 2. Mostrar el panel solicitado
     const targetPanel = document.getElementById(viewId); 
     if (targetPanel) targetPanel.classList.add('active');
     
+    // 3. Resaltar botón en sidebar
     const targetBtn = document.getElementById(`btn-${viewId}`); 
     if (targetBtn) targetBtn.classList.add('active');
+
+    // 4. LÓGICA DE RECUPERACIÓN: 
+    // Si volvemos al "chat" (o donde esté tu área de juego), restauramos los controles si estamos esperando respuesta
+    if (viewId === 'view-chat' || viewId === 'chat-area') { // Ajusta 'view-chat' según tu HTML
+        const input = document.getElementById('user-input');
+        const btn = document.getElementById('transmit-btn');
+        
+        if (gameState.esperandoRespuesta) {
+            if (input) input.style.display = "block";
+            if (btn) btn.style.display = "block";
+        }
+    }
 }
 
 // ==========================================
