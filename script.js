@@ -206,27 +206,17 @@ function guardarProgresoCuenta() {
     }
 }
 
-function cambiarModoEstrategia(modo) {
-    // --- COPIA ESTO AQUÍ ---
-    document.getElementById('chat-messages').innerHTML = "";
-    // -----------------------
+// --- ZONA LIBRE (Encima de la mesa) ---
+// Todo lo que escribas aquí, tus botones lo verán perfectamente.
 
-    // ... el resto de tu código sigue igual
+function cambiarTema(clase) {
+    document.body.className = clase;
+    console.log("Tema cambiado a: " + clase);
 }
 
-    const chatBox = document.getElementById('chat-messages');
-    if (chatBox) chatBox.innerHTML = ""; 
-
-    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-
-    gameState.modoSeleccionadoSiguiente = modoLimpio; 
-    gameState.modoActualJuego = modoLimpio;
-    gameState.esperandoRespuesta = false; 
-    procesamientoBloqueado = false;
-
-    actualizarBotonesModoUI();
-    switchView('view-chat'); 
-    nextRound();
+function cambiarModoEstrategia(modo) {
+    document.getElementById('chat-messages').innerHTML = "";
+    // ... tu lógica para cambiar modo
 }
 
 // ==========================================
@@ -263,9 +253,6 @@ function nextRound() {
     // --- COPIA ESTO AQUÍ ---
     if (gameState.esperandoRespuesta) return; 
     // -----------------------
-
-    // ... el resto de tu código sigue igual
-}
 
     if (gameState.campanaCompletada && gameState.modoActualJuego === 'campaña') {
         gameState.modoActualJuego = 'infinito';
@@ -315,69 +302,6 @@ function nextRound() {
         input.disabled = true; 
         transmitBtn.disabled = true; 
         let timeLeft = 3; // Reducido a 3s para mayor agilidad
-        input.placeholder = `Procesando... (${timeLeft}s)`;
-        
-        if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-        window.currentRoundTimer = setInterval(() => { 
-            timeLeft--; 
-            input.placeholder = `Procesando... (${timeLeft}s)`; 
-            if (timeLeft <= 0) { 
-                clearInterval(window.currentRoundTimer); 
-                input.disabled = false; 
-                transmitBtn.disabled = false; 
-                input.placeholder = "Introduce tu respuesta..."; 
-                input.focus(); 
-            } 
-        }, 1000);
-    }
-}
-
-    actualizarBotonesModoUI();
-
-    const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    const continueBtn = document.getElementById('continue-btn');
-    
-    if (continueBtn) continueBtn.style.display = "none";
-
-    if (gameState.modoActualJuego === "campaña" && (gameState.campanaCompletada || gameState.campanaIndex > PREGUNTAS_CAMPANA.length)) {
-        gameState.campanaCompletada = true;
-        actualizarBotonesModoUI();
-        if (input) { input.style.display = "none"; input.value = ""; }
-        if (transmitBtn) { transmitBtn.style.display = "none"; }
-        appendMessage('gugel', "has respondido todas las consultas de la campaña. ¡Felicidades, has domado a Gugel!"); 
-        gameState.esperandoRespuesta = false; 
-        procesamientoBloqueado = false;
-        guardarProgresoCuenta();
-        return;
-    }
-    
-    gameState.esperandoRespuesta = true;
-    procesamientoBloqueado = false; 
-
-    if (input) { input.style.display = "block"; input.value = ""; }
-    if (transmitBtn) { transmitBtn.style.display = "block"; }
-    
-    let q = generarPregunta();
-    
-    if (q === null) { 
-        gameState.campanaCompletada = true;
-        gameState.esperandoRespuesta = false; 
-        actualizarBotonesModoUI();
-        if (input) { input.style.display = "none"; }
-        if (transmitBtn) { transmitBtn.style.display = "none"; }
-        appendMessage('gugel', "has respondido todas las consultas de la campaña. ¡Felicidades, has domado a Gugel!");
-        guardarProgresoCuenta();
-        return; 
-    }
-    
-    gameState.currentPregunta = q;
-    appendMessage('gugel', gameState.currentPregunta); 
-    
-    if (input && transmitBtn) {
-        input.disabled = true; 
-        transmitBtn.disabled = true; 
-        let timeLeft = 5; 
         input.placeholder = `Procesando... (${timeLeft}s)`;
         
         if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
@@ -457,11 +381,15 @@ window.confirmContinue = function() {
     nextRound(); 
 };
 
-// Vinculación segura de formularios una vez cargado el DOM
-window.onload = () => { 
+// ==========================================
+// --- ZONA DE ARRANQUE (La caja cerrada) ---
+// ==========================================
+window.onload = function() {
+    
+    // Aquí es donde deberías tener el evento del formulario
     const form = document.getElementById('chat-form');
     if(form) {
-        form.onsubmit = (e) => {
+        form.onsubmit = function(e) {
             e.preventDefault();
             
             if (procesamientoBloqueado) return false;
