@@ -191,18 +191,30 @@ function nextRound() {
     if (gameState.esperandoRespuesta) return; 
     gameState.esperandoRespuesta = true;
 
+    // --- CORRECCIÓN AQUÍ: Limpiar el chat antes de mostrar nueva pregunta ---
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = ""; 
+    // ----------------------------------------------------------------------
+
     const input = document.getElementById('user-input');
     const transmitBtn = document.getElementById('transmit-btn');
     const continueBtn = document.getElementById('continue-btn');
     
     if (continueBtn) continueBtn.style.display = "none";
     
-    if (gameState.modoActualJuego === "campaña" && gameState.campanaCompletada) {
-        if (input) input.style.display = "none";
-        if (transmitBtn) transmitBtn.style.display = "none";
-        appendMessage('gugel', "Has finalizado la campaña."); 
-        return;
-    }
+    // ... resto de tu lógica (campaña, generación de pregunta, etc.)
+    
+    if (input) { input.style.display = "block"; input.value = ""; input.disabled = true; }
+    if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
+    
+    let q = generarPregunta();
+    if (!q) { gameState.esperandoRespuesta = false; nextRound(); return; }
+    
+    gameState.currentPregunta = q;
+    appendMessage('gugel', gameState.currentPregunta);
+    
+    // ... temporizador
+}
     
     if (input) { input.style.display = "block"; input.value = ""; input.disabled = true; }
     if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
