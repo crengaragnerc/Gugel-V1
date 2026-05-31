@@ -19,13 +19,6 @@ let gameState = { modoSeleccionadoSiguiente: "campaña", modoActualJuego: "campa
 let currentUser = null; 
 const MAX_PALABRAS = 15;
 
-function cicloTema() {
-    const b = document.body;
-    if (b.classList.contains('modo-hacker')) { b.classList.remove('modo-hacker'); b.classList.add('modo-claro'); }
-    else if (b.classList.contains('modo-claro')) { b.classList.remove('modo-claro'); b.classList.add('modo-oscuro'); }
-    else { b.classList.remove('modo-oscuro'); b.classList.add('modo-hacker'); }
-}
-
 function obtenerElementoNoRepetido(arr, excluidos) {
     if (!arr || arr.length === 0) return "";
     let listaExcluidos = Array.isArray(excluidos) ? excluidos : [excluidos];
@@ -125,7 +118,7 @@ function nextRound() {
     gameState.currentPregunta = q;
     appendMessage('gugel', gameState.currentPregunta);
     if (input && transmitBtn) {
-        input.disabled = true; transmitBtn.disabled = true; let timeLeft = 3; input.placeholder = `Procesando... (${timeLeft}s)`;
+        input.disabled = true; transmitBtn.disabled = true; let timeLeft = 5; input.placeholder = `Procesando... (${timeLeft}s)`;
         if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
         window.currentRoundTimer = setInterval(() => { timeLeft--; input.placeholder = `Procesando... (${timeLeft}s)`; if (timeLeft <= 0) { clearInterval(window.currentRoundTimer); input.disabled = false; transmitBtn.disabled = false; input.placeholder = "Introduce tu respuesta..."; input.focus(); } }, 1000);
     }
@@ -183,7 +176,7 @@ function renderAllData() {
 window.confirmContinue = function() { nextRound(); document.getElementById('continue-btn').style.display = "none"; };
 window.onload = () => { document.getElementById("btn-gestion-cuenta").onclick = ejecutarAccionCuenta; actualizarBotonCuentaUI(); renderAllData(); nextRound(); };
 
-// --- NUEVAS FUNCIONES ---
+// --- FUNCIONES DE TEMA Y EXPORTACIÓN ---
 
 function cambiarTema(clase) {
     document.body.className = clase;
