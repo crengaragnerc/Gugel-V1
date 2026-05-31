@@ -209,10 +209,25 @@ function guardarProgresoCuenta() {
 function cambiarModoEstrategia(modo) {
     const modoLimpio = modo === 'campaña' ? 'campaña' : 'infinito';
     
-    if (modoLimpio === 'campaña' && gameState.campanaCompletada) {
-        cambiarModoEstrategia('infinito');
-        return;
-    }
+    // Limpiar el historial visual del chat
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) chatBox.innerHTML = ""; 
+
+    // Resetear el estado de la pregunta activa
+    gameState.esperandoRespuesta = false; 
+    procesamientoBloqueado = false;
+    
+    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+
+    gameState.modoSeleccionadoSiguiente = modoLimpio; 
+    gameState.modoActualJuego = modoLimpio;
+
+    actualizarBotonesModoUI();
+    switchView('view-chat'); 
+    
+    // Iniciar nuevo ciclo
+    nextRound();
+}
 
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) chatBox.innerHTML = ""; 
