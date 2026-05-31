@@ -157,7 +157,7 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
 }
 
 // ==========================================
-// 5. SISTEMA DE LOGROS (LOGROS OCULTOS QUITADOS COMPLETAMENTE)
+// 5. SISTEMA DE LOGROS
 // ==========================================
 function desbloquearLogro(id) {
     if (!gameState.logrosDesbloqueados.includes(id)) {
@@ -197,7 +197,9 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        msg.innerHTML = `<strong>${sender === 'tú' ? 'TÚ' : 'GUGEL'}:</strong> ${text}`;
+        // INTERCAMBIO DE ROLES VISUAL: El que pregunta es USUARIO, el que responde es GUGEL
+        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
+        msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
     }
@@ -215,15 +217,25 @@ function renderAllData() {
         gameState.recentReactions
     );
 
-    // Gestión permanente de visibilidad de modos (Campaña e Infinito siempre activos salvo fin de campaña)
-    const btnCamp = document.getElementById('btn-mode-campaña');
-    if (gameState.campañaCompletada) {
-        if (btnCamp) btnCamp.style.display = 'none';
-    } else {
-        if (btnCamp) btnCamp.style.display = 'block';
+    // LÓGICA DE VISIBILIDAD DEL SELECTOR DE CHATS
+    const selectSelect = document.getElementById('chat-mode-select');
+    if (selectSelect) {
+        selectSelect.value = gameState.modo;
+        
+        // Si se ha pasado la campaña, eliminamos la opción de campaña y forzamos infinito
+        if (gameState.campañaCompletada) {
+            selectSelect.innerHTML = `<option value="infinito">Consultas Infinitas</option>`;
+            gameState.modo = "infinito";
+        } else {
+            selectSelect.innerHTML = `
+                <option value="campaña">Panel de Consultas (Campaña)</option>
+                <option value="infinito">Consultas Infinitas</option>
+            `;
+            selectSelect.value = gameState.modo;
+        }
     }
 
-    // Renderizado limpio de logros: Solo aparecen si están desbloqueados. Cero líneas de marcadores vacíos.
+    // Renderizado limpio de logros
     document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
@@ -269,7 +281,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     const userText = input.value.trim();
     if (!userText || input.disabled) return;
     
-    appendMessage('tú', userText);
+    appendMessage('gugel', userText); // 'gugel' genera la burbuja de la derecha (tú respondiendo)
     input.style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
 
@@ -300,7 +312,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     gameState.satisfaction = Math.max(0, Math.min(100, gameState.satisfaction));
 
     setTimeout(() => {
-        appendMessage('gugel', reaccion);
+        appendMessage('usuario', reaccion); // 'usuario' genera la burbuja de la izquierda
         gameState.history.push({ pregunta: gameState.currentPregunta, respuesta: userText, reaccion: reaccion });
 
         if (gameState.modo === "campaña" && gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) {
@@ -358,7 +370,7 @@ function nextRound() {
         gameState.currentPregunta = generarPreguntaInfinita();
     }
     
-    appendMessage('gugel', gameState.currentPregunta);
+    appendMessage('usuario', gameState.currentPregunta); // El 'usuario' inicia la pregunta
     
     const input = document.getElementById('user-input');
     input.value = "";
@@ -420,10 +432,6 @@ function switchView(viewId) {
 function cambiarModoEstrategia(modo) {
     if (modo === "campaña" && gameState.campañaCompletada) return;
     gameState.modo = modo;
-    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-    const btnActivo = document.getElementById(`btn-mode-${modo}`);
-    if (btnActivo) btnActivo.classList.add('active');
-    
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     nextRound();
@@ -494,6 +502,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
+    // Forzar renderizado inicial para construir las opciones correctas del select
+    renderAllData();
+
     if (!gameState.currentPregunta) {
         if (gameState.modo === "campaña") {
             gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex];
@@ -502,6 +513,5 @@ window.addEventListener('DOMContentLoaded', () => {
             gameState.currentPregunta = generarPreguntaInfinita();
         }
     }
-    appendMessage('gugel', gameState.currentPregunta);
-    renderAllData();
+    appendMessage('usuario', gameState.currentPregunta);
 });
