@@ -46,22 +46,24 @@ window.currentRoundTimer = null;
 // 3. CONTROLADORES Y NAVEGACIÓN CORREGIDOS
 // ==========================================
 
+// Sustituye tu función switchView por esta versión simplificada
 function switchView(viewId) {
-    // Ocultar paneles
+    // 1. Ocultar todos los paneles de contenido
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     
-    // Quitar clase active de botones del sidebar
+    // 2. Quitar clase active de TODOS los botones del sidebar (sub-btns y modos)
     document.querySelectorAll('.sub-btn, .mode-btn').forEach(b => b.classList.remove('active'));
     
-    // Mostrar panel
+    // 3. Mostrar el panel solicitado
     const targetPanel = document.getElementById(viewId); 
     if (targetPanel) targetPanel.classList.add('active');
     
-    // Marcar botón como activo (buscamos por ID o data-panel)
-    const targetBtn = document.querySelector(`[data-panel="${viewId}"], #btn-${viewId}`);
+    // 4. Marcar el botón específico como activo
+    // Buscamos el botón que tenga el onclick que coincida con el viewId
+    const targetBtn = document.querySelector(`[onclick*="${viewId}"]`);
     if (targetBtn) targetBtn.classList.add('active');
 
-    // Restauración de controles si volvemos al chat
+    // 5. Restaurar input si es la vista del chat
     if (viewId === 'view-chat') {
         const input = document.getElementById('user-input');
         const btn = document.getElementById('transmit-btn');
