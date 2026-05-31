@@ -33,7 +33,7 @@
 
             <div class="menu-section-footer">
                 <div class="account-badge-sidebar">Operador: <span id="sidebar-user-display">Invitado</span></div>
-                <button id="btn-view-cuenta" type="button" class="sub-btn account-btn" onclick="switchView('view-cuenta')">GESTIÓN DE CUENTA</button>
+                <button id="btn-view-cuenta" type="button" class="sub-btn account-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
             </div>
         </aside>
 
@@ -98,33 +98,34 @@
                         <div id="history-list-container" class="list-container"></div>
                     </div>
                 </section>
-
-                <section id="view-cuenta" class="content-panel">
-                    <div class="card">
-                        <h3>⚙️ Autenticación Central de Operadores</h3>
-                        <p>Sesión actual activa: <strong id="panel-user-status">Invitado</strong></p>
-                        
-                        <div class="account-form-block" style="max-width: 400px; display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-                            <div>
-                                <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Código/Alias de Operador:</label>
-                                <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;" autocomplete="off">
-                            </div>
-                            <div>
-                                <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
-                                <input type="password" id="account-password" placeholder="••••••••" style="width:100%; margin-top:5px;">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-                                <button type="button" class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text);">ACCEDER / REGISTRAR CUENTA</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
             </div>
 
             <footer id="bottom-bar">
                 <button id="continue-btn" type="button" onclick="nextRound()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
+    </div>
+
+    <div id="modal-cuenta" class="modal-overlay">
+        <div class="modal-card">
+            <h3>⚙️ Autenticación Central</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 15px;">Sesión activa: <strong id="panel-user-status" style="color: var(--accent-color);">Invitado</strong></p>
+            
+            <div class="modal-form-gap">
+                <div>
+                    <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 5px;">Código/Alias de Operador:</label>
+                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%;" autocomplete="off">
+                </div>
+                <div>
+                    <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 5px;">Contraseña de Terminal:</label>
+                    <input type="password" id="account-password" placeholder="••••••••" style="width:100%;">
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="sub-btn modal-save-btn" onclick="guardarNombreCuenta()">ACCEDER / REGISTRAR</button>
+                    <button type="button" class="sub-btn modal-cancel-btn" onclick="cerrarModalCuenta()">CERRAR</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
