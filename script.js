@@ -10,24 +10,20 @@ const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve",
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "¿te ha costado mucho esfuerzo escribir eso? esperaba algo mas complejo.", "dios q pereza para decirme eso no pongas nada", "menuda porqueria de respuesta muy vacia", "explicate mejor q no me entero de nada", "escribeme algo mas q pareces un bot perezoso", "no me convence eso es muy simple", "poca informacion me das para lo que pregunto", "vaya linea mas pobre búscame otra cosa", "esperaba mas texto y desarrollo de tu parte", "eso no soluciona mi duda busca otra respuesta", "te has quedado a medias falta desarrollo", "un poco pobre la respuesta esperaba mas", "demasiado escueto no me soluciona nada", "busca mejor que eso no aporta valor", "vaya explicacion mas simple e incompleta", "muy vago todo concreta un poco mas", "esto no aclara mi duda es superficial", "esperaba una respuesta mas elaborada", "te falta informacion por todos lados", "no me convence nada demasiado basico", "una linea no es suficiente para esto", "vaya pereza de definicion busca otra", "corta y vacia no me sirve para nada", "poca chicha tiene esto dame mas datos", "no te has esmerado nada en responder", "con esto no hago nada amplia el texto", "muy resumido se pierde el contexto", "vaya parrafo mas inutil no dice nada", "esperaba un analisis no una frase suelta", "no soluciona la pregunta es muy incompleto", "explicacion de un segundo busca algo mejor", "falta profundidad en tu argumentacion", "vaya contestacion mas floja e imprecisa", "esto no me saca de dudas amplia mas", "muy flojo el nivel de esta respuesta", "no detallas nada asi no hay quien entienda", "esperaba mas sustancia en este parrafo"];
 const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura mejor nada", "para esto apago el pc no me vaciles", "pero q dices bicho raro no tiene sentido", "estas rompiendome la cabeza con estas respuestas", "que dejes de vacilarme pesado que no soy tonto", "vete a tomar el pelo a otra parte", "menuda estafa de ia me estas vacilando", "no tiene coherencia ninguna lo que pones", "deja de trolear de una vez y responde bien", "esto es spam o que te pasa en el codigo", "menudo timo de chat no entiendo nada de esas letras", "vaya sarta de tonterias me estas contando", "esto es un sinsentido total estas bugeado", "vaya letras aleatorias no inventes cosas", "deja de trolearme que no tiene logica", "esto parece un error de sintaxis absoluto", "menudo desastre de respuesta me vacilas", "pero que dices eso no tiene relacion alguna", "no digas tonterias y responde en serio", "vaya basura de codigo maneja esta respuesta", "estas delirando o que te pasa en la ram", "para poner esto mejor no respondas nada", "vaya troleo de ia no entiendo tus letras", "menuda tomadura de pelo de buscador", "no entiendo nada parece un fallo de red", "deja de inventar palabras que no existen", "vaya tonteria mas grande acabas de poner", "me estas rompiendo el sistema de lo absurdo", "esto es un troleo maximo responde bien", "menudo bot mas inutil vaya sinsentido", "estas tirando dados para responder esto", "vaya respuesta mas absurda no tiene pies ni cabeza", "me estas vacilando descaradamente para ya", "esto no es una respuesta son caracteres aleatorios", "menuda estafa de procesamiento de datos", "deja el troleo informatico de una vez", "vaya codigo mas roto tienes chaval"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "yo que se", "asdf", "nose", "jaja", "ño", "si", "no"];
-const LOGROS_DIVERTIDOS = [{t: "Hola Mundo", d: "Conseguiste no romper la base de datos."}, {t: "IA con Cafeína", d: "Respondiste 10 veces."}, {t: "Esquiva Balas", d: "El humano intentó colarte un 'asdf'."}];
 
 // ==========================================
 // 2. ESTADO GLOBAL
 // ==========================================
 let gameState = { 
-    modoActualJuego: "campaña", 
     campanaIndex: 0, 
-    satisfaction: 50, 
     history: [], 
     logrosDesbloqueados: [],
-    esperandoRespuesta: false,
-    currentPregunta: "",
-    recentReactions: []
+    currentPregunta: "", 
+    recentReactions: [] 
 };
 
 // ==========================================
-// 3. FUNCIONES DE APOYO
+// 3. MOTOR DE JUEGO (CORREGIDO)
 // ==========================================
 function obtenerElementoNoRepetido(lista, historial) {
     let opciones = lista.filter(item => !historial.includes(item));
@@ -47,13 +43,9 @@ function appendMessage(sender, text) {
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
     }
-    // Guardamos en historial
-    gameState.history.push({ pregunta: gameState.currentPregunta || "Sistema", respuesta: text });
+    if (text) gameState.history.push({ pregunta: gameState.currentPregunta || "Gugel", respuesta: text });
 }
 
-// ==========================================
-// 4. RENDERIZACIÓN Y LOGROS
-// ==========================================
 function renderAllData() {
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
@@ -65,16 +57,29 @@ function renderAllData() {
     if (logEl) logEl.innerText = gameState.logrosDesbloqueados.length;
 }
 
-function verificarLogros() {
-    if (gameState.history.length >= 20 && !gameState.logrosDesbloqueados.includes("IA con Cafeína")) {
-        gameState.logrosDesbloqueados.push("IA con Cafeína");
-        alert("¡Logro desbloqueado: IA con Cafeína!");
-    }
+function nextRound() {
+    document.getElementById('chat-messages').innerHTML = "";
+    document.getElementById('continue-btn').style.display = "none";
+    
+    gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex++ % PREGUNTAS_CAMPANA.length];
+    appendMessage('gugel', gameState.currentPregunta);
+
+    const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    input.style.display = "block";
+    input.value = "";
+    input.disabled = true;
+    input.placeholder = "Procesando...";
+    transmitBtn.style.display = "block";
+    transmitBtn.disabled = true;
+    
+    setTimeout(() => {
+        input.disabled = false;
+        transmitBtn.disabled = false;
+        input.placeholder = "Introduce tu respuesta...";
+    }, 5000);
 }
 
-// ==========================================
-// 5. MOTOR DE JUEGO (CORREGIDO)
-// ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
@@ -91,33 +96,15 @@ document.getElementById('chat-form').onsubmit = (e) => {
                    obtenerElementoNoRepetido(FRASES_OK, gameState.recentReactions);
 
     setTimeout(() => {
-        appendMessage('gugel', reaccion); // Sin paréntesis
-        verificarLogros();
+        appendMessage('gugel', reaccion); // Sin paréntesis, sin bazofia
+        if (gameState.history.length >= 20 && !gameState.logrosDesbloqueados.includes("IA con Cafeína")) {
+            gameState.logrosDesbloqueados.push("IA con Cafeína");
+            alert("¡Logro desbloqueado: IA con Cafeína!");
+        }
         renderAllData();
         document.getElementById('continue-btn').style.display = "block";
     }, 500);
 };
-
-function nextRound() {
-    gameState.esperandoRespuesta = true;
-    const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    document.getElementById('chat-messages').innerHTML = "";
-    document.getElementById('continue-btn').style.display = "none";
-    
-    gameState.currentPregunta = PREGUNTAS_CAMPANA[gameState.campanaIndex++ % PREGUNTAS_CAMPANA.length];
-    appendMessage('gugel', gameState.currentPregunta);
-
-    input.style.display = "block";
-    transmitBtn.style.display = "block";
-    input.disabled = true;
-    input.placeholder = "Procesando...";
-    
-    setTimeout(() => {
-        input.disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
-    }, 5000);
-}
 
 document.getElementById('continue-btn').onclick = nextRound;
 window.onload = nextRound;
