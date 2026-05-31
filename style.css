@@ -99,24 +99,6 @@ body {
     margin-left: 8px;
 }
 
-#chat-mode-select {
-    width: 100%;
-    background-color: var(--bg-inner);
-    color: var(--text-primary);
-    border: 1px solid var(--bubble-border);
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 0.85rem;
-}
-
-#chat-mode-select:focus {
-    border-color: var(--accent-color);
-    outline: none;
-}
-
 button {
     font-family: 'Courier New', monospace;
     font-weight: bold;
@@ -295,6 +277,40 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .item-logro { padding: 12px; border-radius: 6px; background: var(--bg-panel); border: 1px solid var(--bubble-border); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
 .item-logro.negativo { border-left: 4px solid var(--negative-color); }
+
+/* Historial interactivo */
+.log-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: var(--bg-panel);
+    border: 1px solid var(--bubble-border);
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.log-item-card:hover {
+    border-color: var(--accent-color);
+}
+.log-item-info {
+    flex-grow: 1;
+}
+.log-item-action {
+    margin-left: 15px;
+}
+.mini-fav-btn {
+    background: none;
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+.mini-fav-btn:hover {
+    background: #ffd700;
+    color: #000;
+}
 
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
