@@ -78,7 +78,7 @@ body {
 }
 
 /* ==========================================
-   MENÚ LATERAL (SIDEBAR)
+   SIDEBAR (POR DEFECTO FIJO EN PC)
    ========================================== */
 .sidebar {
     width: 280px;
@@ -87,7 +87,6 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 100;
-    transition: transform 0.3s ease;
 }
 
 .sidebar-header {
@@ -112,7 +111,7 @@ body {
 }
 
 .close-sidebar-btn {
-    display: none;
+    display: none; /* Oculto en PC */
     position: absolute;
     right: 15px;
     top: 20px;
@@ -187,7 +186,7 @@ body {
 }
 
 .mobile-header {
-    display: none;
+    display: none; /* Oculto en PC */
     background-color: var(--bg-sidebar);
     border-bottom: 2px solid var(--border-color);
     padding: 10px 15px;
@@ -250,7 +249,7 @@ hr {
 }
 
 /* ==========================================
-   CONSOLA DE CHAT (REDISEÑO FLEXIBLE)
+   CONSOLA DE CHAT
    ========================================== */
 .chat-wrapper {
     display: flex;
@@ -338,10 +337,6 @@ hr {
     font-size: 0.95rem;
 }
 
-#transmit-btn:hover, .continue-btn:hover {
-    opacity: 0.9;
-}
-
 #transmit-btn:disabled {
     background: var(--btn-hover);
     color: var(--text-muted);
@@ -356,7 +351,7 @@ hr {
 }
 
 /* ==========================================
-   ESTADOS ANALÍTICOS Y OTROS ELEMENTOS
+   OTROS MÓDULOS DEL ENTORNO
    ========================================== */
 .stats-grid {
     display: grid;
@@ -401,7 +396,6 @@ hr {
     max-height: 250px;
     overflow-y: auto;
     margin-top: 10px;
-    padding-right: 5px;
 }
 
 .item-logro {
@@ -438,7 +432,6 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
 }
 
 .log-item-card:hover {
@@ -466,7 +459,7 @@ hr {
 }
 
 /* ==========================================
-   ADAPTACIÓN MÓVIL (MEDIA QUERIES)
+   CÓDIGO DE MEDIDAS ADAPTATIVAS (MÓVIL)
    ========================================== */
 @media (max-width: 768px) {
     .sidebar {
@@ -474,32 +467,34 @@ hr {
         left: 0;
         top: 0;
         height: 100%;
-        transform: translateX(-100%); /* Oculto por defecto */
+        transform: translateX(-100%); /* Escondido en móvil */
+        transition: transform 0.3s ease;
     }
     
     .sidebar.mobile-open {
-        transform: translateX(0); /* Deslizar hacia dentro */
+        transform: translateX(0); /* Desliza en móvil */
     }
 
     .close-sidebar-btn {
-        display: block; /* Botón de aspa visible */
+        display: block; /* Aspa visible solo en móvil */
     }
 
     .mobile-header {
-        display: flex; /* Barra superior para móviles activa */
+        display: flex; /* Header visible solo en móvil */
     }
 
     .content-panel {
-        padding: 10px; /* Menos márgenes laterales */
+        padding: 10px;
     }
 
     .message {
-        max-width: 95%; /* Que aproveche mejor el ancho de la pantalla */
+        max-width: 95%;
     }
 
     .log-item-card {
         flex-direction: column;
         align-items: flex-start;
+        gap: 8px;
     }
     
     .log-item-action {
