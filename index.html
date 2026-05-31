@@ -9,11 +9,14 @@
 <body class="modo-hacker">
 
     <div id="app-container">
+        <!-- MENÚ LATERAL IZQUIERDO -->
         <aside id="sidebar">
             <div class="menu-section">
+                <!-- Botón principal de consultas (Campaña) -->
                 <button id="btn-mode-campaña" class="mode-btn main-action-btn active" onclick="cambiarModoEstrategia('campaña')">
                     💭 PANEL DE CONSULTAS
                 </button>
+                <!-- Botón de preguntas infinitas (Aparece tras la campaña o al seleccionarlo) -->
                 <button id="btn-mode-infinito" class="mode-btn main-action-btn" onclick="cambiarModoEstrategia('infinito')" style="display:none;">
                     ♾️ CONSULTAS INFINITAS
                 </button>
@@ -39,6 +42,7 @@
             </div>
         </aside>
 
+        <!-- AREA CENTRAL DE LA INTERFAZ -->
         <main id="main-content">
             <header id="top-bar">
                 <div class="brand-top">GUGEL Core</div>
@@ -52,6 +56,7 @@
             </header>
 
             <div id="display-workspace">
+                <!-- VISTA PRINCIPAL: CHAT -->
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
                     <form id="chat-form">
@@ -62,6 +67,7 @@
                     </form>
                 </section>
 
+                <!-- VISTA PANEL: PERFIL -->
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
                         <h3>📊 Estado Analítico del Operador</h3>
@@ -75,6 +81,7 @@
                     </div>
                 </section>
 
+                <!-- VISTA PANEL: LOGROS -->
                 <section id="view-logros" class="content-panel">
                     <div class="card">
                         <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>)</h3>
@@ -82,6 +89,7 @@
                     </div>
                 </section>
 
+                <!-- VISTA PANEL: HISTORIAL (LOGS) -->
                 <section id="view-historial" class="content-panel">
                     <div class="card">
                         <h3>📁 Búfer de Logs Guardados</h3>
@@ -94,12 +102,14 @@
                 </section>
             </div>
 
+            <!-- BOTÓN INFERIOR DE CONTINUACIÓN -->
             <footer id="bottom-bar">
                 <button id="continue-btn" onclick="nextRound()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
     </div>
 
+    <!-- MODAL PARA LA GESTIÓN DE CUENTA -->
     <div id="account-modal" class="modal-overlay">
         <div class="modal-content">
             <h3>⚙️ Gestión de Cuenta de IA</h3>
