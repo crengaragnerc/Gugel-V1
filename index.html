@@ -7,18 +7,20 @@
 </head>
 <body>
     <div id="stats">Satisfacción: 50%</div>
-    
-    <div id="pantalla-campana" class="panel">
-        <h1>Buscador GUGEL</h1>
+
+    <div id="pantalla-principal" class="panel">
+        <h1>GUGEL: Simulador de IA</h1>
         <div id="mensajes"></div>
-        <input type="text" id="userInput" placeholder="Escribe tu consulta...">
-        <button id="btnEnviar">Buscar</button>
+        <input type="text" id="userInput" placeholder="Interactúa con la IA...">
+        <button id="btnEnviar">Enviar</button>
+        <button onclick="cambiarPanel('pantalla-infinito')">Ir a Infinito</button>
     </div>
 
     <div id="pantalla-infinito" class="panel" style="display:none;">
         <h1>Generador Infinito</h1>
         <div id="output-infinito"></div>
         <button id="btnGenerar">Nueva Pregunta</button>
+        <button onclick="cambiarPanel('pantalla-principal')">Volver</button>
     </div>
 
     <script src="script.js"></script>
