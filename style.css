@@ -39,61 +39,32 @@
 }
 
 .modo-rosa {
-    --bg-main: #fce4ec;
-    --bg-panel: #ffffff;
-    --bg-inner: #f8bbd0;
-    --text-primary: #880e4f;
-    --text-muted: #ad1457;
-    --accent-color: #ec407a;
+    --bg-main: #ffd1dc;
+    --bg-panel: #fff0f5;
+    --bg-inner: #ffe4e1;
+    --text-primary: #4a2c3a;
+    --text-muted: #a78b9b;
+    --accent-color: #ff69b4;
     --accent-text: #ffffff;
-    --bubble-bg: #fff5f8;
-    --bubble-border: #f48fb1;
-    --negative-color: #d32f2f;
+    --bubble-bg: #fff5f7;
+    --bubble-border: #ffb6c1;
+    --negative-color: #ff4500;
 }
 
+/* NUEVO MODO ESPACIAL COSMIC RETRO */
 .modo-espacial {
-    --bg-main: #03030c;
-    --bg-panel: #090a16;
-    --bg-inner: #121424;
-    --text-primary: #c2d6ff;
-    --text-muted: #495678;
-    --accent-color: #00f2ff;
-    --accent-text: #03030c;
-    --bubble-bg: #151632;
-    --bubble-border: #242b5c;
-    --negative-color: #ff4a74;
+    --bg-main: #050515;
+    --bg-panel: #0b0c24;
+    --bg-inner: #12133a;
+    --text-primary: #e0e0ff;
+    --text-muted: #6266a0;
+    --accent-color: #00ffff;
+    --accent-text: #050515;
+    --bubble-bg: #161846;
+    --bubble-border: #22266f;
+    --negative-color: #ff007f;
 }
 
-/* REGLAS ESPECÍFICAS PARA EL MODO ESPACIAL */
-body.modo-espacial {
-    background-image: radial-gradient(circle at 50% 50%, #111235 0%, #03030c 85%);
-    position: relative;
-}
-body.modo-espacial #app-container {
-    border: 2px solid #2d3875;
-    box-shadow: 0 0 35px rgba(0, 242, 255, 0.25), inset 0 0 20px rgba(36, 43, 92, 0.4);
-}
-body.modo-espacial .card, 
-body.modo-espacial #app-sidebar, 
-body.modo-espacial #main-content {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(0, 242, 255, 0.15);
-}
-body.modo-espacial .message.ia {
-    border-right: 4px solid var(--accent-color);
-    box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
-}
-body.modo-espacial .message.humano {
-    border-left: 4px solid #b63fff;
-    box-shadow: 0 0 15px rgba(182, 63, 255, 0.15);
-}
-body.modo-espacial button:hover {
-    box-shadow: 0 0 12px var(--accent-color);
-    text-shadow: 0 0 5px rgba(255,255,255,0.5);
-}
-
-/* ESTILOS ESTRUCTURALES BASE */
 body {
     background-color: var(--bg-main);
     color: var(--text-primary);
@@ -116,7 +87,7 @@ body {
     gap: 20px;
 }
 
-#app-sidebar {
+#sidebar {
     width: 280px;
     background-color: var(--bg-panel);
     border-radius: 12px;
@@ -154,18 +125,13 @@ button {
     font-size: 0.85rem;
 }
 
-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
 .sub-btn {
     background-color: var(--bg-inner);
     color: var(--text-primary);
     border: 1px solid var(--bubble-border);
 }
 
-.sub-btn:hover:not(:disabled) {
+.sub-btn:hover {
     background-color: var(--bubble-border);
 }
 
@@ -268,20 +234,9 @@ button:disabled {
     border: 1px solid var(--bubble-border);
 }
 
-.message.humano { 
-    align-self: flex-start; 
-}
-
-.message.ia { 
-    align-self: flex-end; 
-    border-right: 3px solid var(--accent-color); 
-}
-
-.message strong { 
-    color: var(--accent-color); 
-    display: inline-block; 
-    margin-right: 5px; 
-}
+.message.gugel { align-self: flex-end; border-left: 3px solid var(--accent-color); }
+.message.usuario { align-self: flex-start; }
+.message strong { color: var(--accent-color); display: inline-block; margin-right: 5px; }
 
 .fav-btn {
     background: var(--bg-inner);
@@ -291,15 +246,13 @@ button:disabled {
     border-radius: 6px;
     font-size: 0.8rem;
     cursor: pointer;
-    width: 100%;
-    text-align: center;
 }
 .fav-btn:hover { background: #ffd700; color: #000; }
 
 #chat-form { width: 100%; }
 .input-wrapper { display: flex; gap: 12px; }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
     flex-grow: 1;
     padding: 16px;
     border-radius: 8px;
@@ -311,7 +264,6 @@ input[type="text"] {
 }
 
 input:focus { outline: none; border-color: var(--accent-color); }
-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 #transmit-btn {
     background-color: var(--bg-inner);
@@ -320,7 +272,7 @@ input:disabled { opacity: 0.5; cursor: not-allowed; }
     padding: 0 24px;
 }
 
-#transmit-btn:hover:not(:disabled) { background-color: var(--accent-color); color: var(--accent-text); }
+#transmit-btn:hover { background-color: var(--accent-color); color: var(--accent-text); }
 
 .card {
     background-color: var(--bg-inner);
@@ -340,6 +292,7 @@ input:disabled { opacity: 0.5; cursor: not-allowed; }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
 .item-logro.negativo { border-left: 4px solid var(--negative-color); }
 
+/* Historial interactivo */
 .log-item-card {
     display: flex;
     justify-content: space-between;
@@ -351,12 +304,79 @@ input:disabled { opacity: 0.5; cursor: not-allowed; }
     cursor: pointer;
     transition: border-color 0.2s;
 }
-.log-item-card:hover { border-color: var(--accent-color); }
-.log-item-info { flex-grow: 1; }
-.log-item-action { margin-left: 15px; }
-.mini-fav-btn { background: none; border: 1px solid #ffd700; color: #ffd700; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; }
-.mini-fav-btn:hover { background: #ffd700; color: #000; }
+.log-item-card:hover {
+    border-color: var(--accent-color);
+}
+.log-item-info {
+    flex-grow: 1;
+}
+.log-item-action {
+    margin-left: 15px;
+}
+.mini-fav-btn {
+    background: none;
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+.mini-fav-btn:hover {
+    background: #ffd700;
+    color: #000;
+}
 
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
-#continue-btn:hover:not(:disabled) { opacity: 0.9; }
+#continue-btn:hover { opacity: 0.9; }
+
+/* ESTRUCTURA DE LA VENTANITA MODAL (CUENTA) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(3px);
+}
+.modal-overlay.active {
+    display: flex;
+}
+.modal-window {
+    background-color: var(--bg-panel);
+    border: 2px solid var(--accent-color);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 460px;
+    box-shadow: 0px 0px 25px rgba(0, 255, 0, 0.15);
+    box-sizing: border-box;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed var(--bubble-border);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+.modal-header h3 {
+    margin: 0;
+    color: var(--accent-color);
+}
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 5px;
+}
+.close-modal-btn:hover {
+    color: var(--negative-color);
+}
