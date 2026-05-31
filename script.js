@@ -50,13 +50,13 @@ const BASE_LOGROS = [
     { id: "L14", tipo: "positivo", nombre: "Consultor Infatigable", desc: "Entraste al Modo Infinito." },
     { id: "L15", tipo: "positivo", nombre: "Respuesta Detallada", desc: "Escribiste una respuesta de más de 60 caracteres." },
     { id: "L16", tipo: "positivo", nombre: "Lógica Impecable", desc: "Obtuviste 3 respuestas aceptadas tipo 'OK' seguidas." },
-    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del sistema." },
+    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del system." },
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -105,7 +105,7 @@ function guardarEstadoEnStorage() {
 }
 
 // ==========================================
-// 4. MOTOR DE TRATAMIENTO DE TEXTO (ANTI-SPAM)
+// 4. MOTOR DE TRATAMIENTO DE TEXTO
 // ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
@@ -157,7 +157,7 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
 }
 
 // ==========================================
-// 5. SISTEMA DE LOGROS (CON OCULTACIÓN COHERENTE)
+// 5. SISTEMA DE LOGROS (LOGROS OCULTOS QUITADOS COMPLETAMENTE)
 // ==========================================
 function desbloquearLogro(id) {
     if (!gameState.logrosDesbloqueados.includes(id)) {
@@ -215,29 +215,29 @@ function renderAllData() {
         gameState.recentReactions
     );
 
+    // Gestión permanente de visibilidad de modos (Campaña e Infinito siempre activos salvo fin de campaña)
     const btnCamp = document.getElementById('btn-mode-campaña');
-    const btnInf = document.getElementById('btn-mode-infinito');
     if (gameState.campañaCompletada) {
         if (btnCamp) btnCamp.style.display = 'none';
-        if (btnInf) btnInf.style.display = 'block';
     } else {
         if (btnCamp) btnCamp.style.display = 'block';
-        if (btnInf) btnInf.style.display = 'none';
     }
 
-    // Render de logros ocultos dinámicamente hasta desbloquearse
+    // Renderizado limpio de logros: Solo aparecen si están desbloqueados. Cero líneas de marcadores vacíos.
     document.getElementById('logros-count').innerText = gameState.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        logrosContainer.innerHTML = BASE_LOGROS.map(logro => {
-            const desb = gameState.logrosDesbloqueados.includes(logro.id);
-            return `
-                <div class="item-logro ${desb ? logro.tipo : 'bloqueado'}">
-                    <strong>${desb ? (logro.tipo === 'negativo' ? '⚠️ ' : '🏆 ') + logro.nombre : '🔒 ???'}</strong><br>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${desb ? logro.desc : 'Parámetro oculto cifrado. Completa acciones del núcleo para revelar.'}</span>
+        const unlockedLogros = BASE_LOGROS.filter(logro => gameState.logrosDesbloqueados.includes(logro.id));
+        if (unlockedLogros.length === 0) {
+            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado ningún registro del sistema todavía.</p>`;
+        } else {
+            logrosContainer.innerHTML = unlockedLogros.map(logro => `
+                <div class="item-logro ${logro.tipo}">
+                    <strong>${logro.tipo === 'negativo' ? '⚠️ ' : '🏆 '}${logro.nombre}</strong><br>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${logro.desc}</span>
                 </div>
-            `;
-        }).join('');
+            `).join('');
+        }
     }
 
     // Historial y Favoritos
@@ -379,7 +379,7 @@ function nextRound() {
 }
 
 // ==========================================
-// 7. NAVEGACIÓN Y TEMAS (INCLUIDO ROSA)
+// 7. NAVEGACIÓN Y TEMAS
 // ==========================================
 function cambiarTema(nuevoTema) {
     document.body.className = nuevoTema;
@@ -401,7 +401,6 @@ function switchView(viewId) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         if (panelObjetivo) {
             panelObjetivo.classList.add('active');
-            // Mapeo dinámico de botones de activación
             let btnId = viewId === 'view-cuenta' ? 'btn-view-cuenta' : `btn-${viewId}`;
             const btnPulsado = document.getElementById(btnId);
             if (btnPulsado) btnPulsado.classList.add('active');
@@ -411,7 +410,6 @@ function switchView(viewId) {
         }
     }
     
-    // Cargar credenciales guardadas en el panel si se entra a cuenta
     if (viewId === 'view-cuenta') {
         document.getElementById('account-username').value = gameState.usuario === "Invitado" ? "" : gameState.usuario;
         document.getElementById('account-password').value = gameState.password || "";
@@ -459,21 +457,7 @@ function guardarNombreCuenta() {
     guardarEstadoEnStorage();
     renderAllData();
     alert(`Sesión validada con éxito. Operador activo: ${gameState.usuario}`);
-    switchView('view-chat'); // Te devuelve automáticamente al chat principal
-}
-
-function resetearProgresoJuego() {
-    if (confirm("🚨 ¿CONFIRMAS LA DESTRUCCIÓN COMPLETA DE LA MEMORIA? 🚨")) {
-        localStorage.removeItem('gugel-save-state-v3');
-        gameState = { 
-            modo: "campaña", campanaIndex: 0, satisfaction: 50, history: [], favorites: [], logrosDesbloqueados: [], recentReactions: [], lastUserText: "", usuario: "Invitado", password: "", campañaCompletada: false, currentPregunta: ""
-        };
-        desbloquearLogro("LN9");
-        guardarEstadoEnStorage();
-        renderAllData();
-        switchView('view-chat');
-        nextRound();
-    }
+    switchView('view-chat');
 }
 
 // ==========================================
