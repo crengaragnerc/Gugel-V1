@@ -33,7 +33,7 @@
 
             <div class="menu-section-footer">
                 <div class="account-badge-sidebar">Operador: <span id="sidebar-user-display">Invitado</span></div>
-                <button id="btn-view-cuenta" type="button" class="sub-btn account-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
+                <button id="btn-view-cuenta" type="button" class="sub-btn account-btn" onclick="gestionarCuentaNativa()">GESTIÓN DE CUENTA</button>
             </div>
         </aside>
 
@@ -104,28 +104,6 @@
                 <button id="continue-btn" type="button" onclick="nextRound()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
-    </div>
-
-    <div id="modal-cuenta" class="modal-overlay">
-        <div class="modal-card">
-            <h3>⚙️ Autenticación Central</h3>
-            <p style="font-size: 0.9rem; margin-bottom: 15px;">Sesión activa: <strong id="panel-user-status" style="color: var(--accent-color);">Invitado</strong></p>
-            
-            <div class="modal-form-gap">
-                <div>
-                    <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 5px;">Código/Alias de Operador:</label>
-                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%;" autocomplete="off">
-                </div>
-                <div>
-                    <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 5px;">Contraseña de Terminal:</label>
-                    <input type="password" id="account-password" placeholder="••••••••" style="width:100%;">
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" class="sub-btn modal-save-btn" onclick="guardarNombreCuenta()">ACCEDER / REGISTRAR</button>
-                    <button type="button" class="sub-btn modal-cancel-btn" onclick="cerrarModalCuenta()">CERRAR</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="script.js"></script>
