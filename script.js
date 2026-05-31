@@ -130,7 +130,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
     const userText = input.value.trim();
-    if (!userText) return;
+    if (!userText || input.disabled) return;
     
     let textProcesado = userText.toLowerCase();
     appendMessage('tú', userText);
@@ -340,7 +340,7 @@ function exportarHistorialCompleto() {
     URL.revokeObjectURL(url);
 }
 
-// Inicialización de la sesión
+// Inicialización única de la sesión al cargar la página en el navegador
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
