@@ -27,3 +27,13 @@ button {
     cursor: pointer;
     pointer-events: auto; /* Fuerza que el botón reciba clics */
 }
+
+:root { --bg: #121212; --text: #00ff00; --panel: #1e1e1e; --accent: #00ff00; }
+
+.modo-claro { --bg: #ffffff; --text: #333333; --panel: #f0f0f0; --accent: #007bff; }
+.modo-oscuro { --bg: #1a1b26; --text: #a9b1d6; --panel: #24283b; --accent: #7aa2f7; }
+
+body { background-color: var(--bg); color: var(--text); font-family: monospace; transition: 0.3s; }
+.content-panel { display: none; }
+.content-panel.active { display: block; }
+button { cursor: pointer; }
