@@ -126,3 +126,31 @@ function nextRound() {
 
 document.getElementById('continue-btn').onclick = nextRound;
 window.onload = nextRound;
+
+// --- SISTEMA DE NAVEGACIÓN DE PANELES ---
+function cambiarModoEstrategia(modo) {
+    // 1. Quitar clase active a todos los botones
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+    // 2. Activar el botón pulsado
+    document.getElementById(`btn-mode-${modo}`).classList.add('active');
+    
+    // 3. Ocultar todos los paneles y mostrar el correspondiente
+    document.querySelectorAll('.content-panel').forEach(p => p.style.display = 'none');
+    // Asumiendo que tus secciones tienen IDs tipo 'view-campaña', etc.
+    const panel = document.getElementById(`view-${modo}`);
+    if (panel) panel.style.display = 'block';
+}
+
+// --- SISTEMA DE TEMAS ---
+function cambiarTema(nuevoTema) {
+    document.body.className = nuevoTema; // Cambia la clase del body
+    localStorage.setItem('gugel-tema', nuevoTema); // Guarda la preferencia
+}
+
+// Inicializar tema guardado al cargar
+window.addEventListener('DOMContentLoaded', () => {
+    const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
+    document.body.className = temaGuardado;
+    const select = document.getElementById('theme-select');
+    if (select) select.value = temaGuardado;
+});
