@@ -2,130 +2,68 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL: Simulador de IA</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="modo-hacker">
+<body class="theme-verde-neon">
 
-    <div class="app-container">
-        
-        <aside class="sidebar" id="app-sidebar">
-            <div class="sidebar-header">
-                <h2>GUGEL v4.0</h2>
-                <span class="user-badge" id="sidebar-user-display">Invitado</span>
-                <button class="close-sidebar-btn" onclick="toggleMobileMenu()">✕</button>
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>GUGEL v4.0</h2>
+            <span class="badge">Invitado</span>
+        </div>
+
+        <nav class="menu">
+            <p class="menu-label">Modos de Simulación</p>
+            <button id="btn-campana" class="menu-item active" onclick="cambiarModo('campana')">
+                <span class="icon">📢</span> Panel de Campaña
+            </button>
+            <button id="btn-infinitas" class="menu-item" onclick="cambiarModo('infinitas')">
+                <span class="icon">♾️</span> Consultas Infinitas
+            </button>
+
+            <p class="menu-label">Datos y Registros</p>
+            <button class="menu-item">
+                <span class="icon">📊</span> Estado Analítico
+            </button>
+            <button class="menu-item">
+                <span class="icon">📁</span> Búfer de Logs
+            </button>
+            <button class="menu-item">
+                <span class="icon">🔑</span> Perfil de Operador
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <label for="theme-select">Interfaz:</label>
+            <select id="theme-select" onchange="cambiarTema(this.value)">
+                <option value="theme-verde-neon">Verde Neón</option>
+                <option value="theme-espacial">Espacial</option>
+            </select>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+        <div class="banner-alerta">
+            ⚠️ Sesión de Invitado: los logs se autodestruirán al cerrar el navegador. Regístrate en el Perfil de Operador.
+        </div>
+
+        <!-- ÁREA DEL CHAT -->
+        <section class="chat-container">
+            <div id="chat-box" class="chat-box">
+                <!-- Los mensajes del usuario simulado (Gugel) e IA aparecerán aquí -->
             </div>
-            
-            <nav class="sidebar-nav">
-                <button class="nav-btn sub-btn active" id="btn-view-chat" onclick="switchView('view-chat')">📟 Consola de Chat</button>
-                
-                <div class="nav-section-title">Modos de Simulación</div>
-                <button class="nav-btn" id="btn-modo-campaña" onclick="seleccionarModoJuego('campaña')">🎯 Panel de Campaña</button>
-                <button class="nav-btn" id="btn-modo-infinito" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
-                
-                <div class="nav-section-title">Datos y Registros</div>
-                <button class="nav-btn sub-btn" id="btn-view-perfil" onclick="switchView('view-perfil')">📊 Estado Analítico</button>
-                <button class="nav-btn sub-btn" id="btn-view-historial" onclick="switchView('view-historial')">📁 Búfer de Logs</button>
-                <button class="nav-btn sub-btn" id="btn-view-cuenta" onclick="switchView('view-cuenta')">🔑 Perfil de Operador</button>
-            </nav>
 
-            <div class="sidebar-footer">
-                <label for="theme-select">Interfaz:</label>
-                <select id="theme-select" onchange="cambiarTema(this.value)">
-                    <option value="modo-hacker">Verde Neón</option>
-                    <option value="modo-oscuro">Matriz Oscura</option>
-                    <option value="modo-claro">Filtro Claro</option>
-                    <option value="modo-rosa">Mundo Algodón</option>
-                </select>
+            <!-- ENTRADA DE RESPUESTA -->
+            <div class="input-container">
+                <input type="text" id="input-respuesta" placeholder="Introduce tu respuesta..." onkeydown="evaluarEnter(event)">
+                <button id="btn-transmitir" onclick="transmitirRespuesta()">TRANSMITIR</button>
             </div>
-        </aside>
-
-        <main class="main-content">
-            
-            <header class="mobile-header">
-                <button class="menu-toggle-btn" onclick="toggleMobileMenu()">☰ Menú</button>
-                <h1>GUGEL SIM</h1>
-                <div class="mobile-user-badge" id="panel-user-status">Invitado</div>
-            </header>
-
-            <div id="warning-invitado" class="alert-banner">
-                ⚠️ Sesión de Invitado: Los logs se autodestruirán al cerrar el navegador. Regístrate en el Perfil de Operador.
-            </div>
-
-            <section id="view-chat" class="content-panel active">
-                <div class="chat-wrapper">
-                    <div class="chat-messages" id="chat-messages"></div>
-                    
-                    <div class="chat-actions-bar" id="chat-actions-bar" style="display: none;">
-                        <button class="action-btn fav" onclick="marcarActualComoFavorito()">⭐ Guardar en Favoritos</button>
-                    </div>
-
-                    <div class="chat-input-area">
-                        <form id="chat-form" autocomplete="off">
-                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required>
-                            <button type="submit" id="transmit-btn">TRANSMITIR</button>
-                        </form>
-                        <button id="continue-btn" class="continue-btn" onclick="nextRound()" style="display: none;">SIGUIENTE CONSULTA ⏭️</button>
-                    </div>
-                </div>
-            </section>
-
-            <section id="view-perfil" class="content-panel">
-                <div class="panel-card">
-                    <h3>Módulo Analítico del Sistema</h3>
-                    <hr>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <span class="stat-label">Operador Activo</span>
-                            <span class="stat-value" id="prof-usuario">Invitado</span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="stat-label">Satisfacción de Gugel</span>
-                            <span class="stat-value" id="prof-satisfaction">50%</span>
-                        </div>
-                    </div>
-                    <p class="opinion-text"><strong>Estado Psicológico de Gugel:</strong> <span id="prof-opinion">(Estable)</span></p>
-                    
-                    <h4>Registros del Núcleo (<span id="logros-count">0</span>)</h4>
-                    <div class="logros-container" id="logros-container"></div>
-                </div>
-            </section>
-
-            <section id="view-historial" class="content-panel">
-                <div class="panel-card">
-                    <h3>Búfer de Logs (Historial de Sesión)</h3>
-                    <p>Haz clic en cualquier log antiguo para cargar su simulación visual completa en la consola.</p>
-                    <div class="export-actions">
-                        <button class="action-btn copy" onclick="exportCoreData()">📋 Copiar al Portapapeles</button>
-                        <button class="action-btn download" onclick="exportarHistorialCompleto()">💾 Descargar Archivo .TXT</button>
-                    </div>
-                    <hr>
-                    <div class="history-list-container" id="history-list-container"></div>
-                    
-                    <h4 style="margin-top:20px;">Marcadores Guardados (Favoritos)</h4>
-                    <div class="favorites-list-container" id="favorites-list-container"></div>
-                </div>
-            </section>
-
-            <section id="view-cuenta" class="content-panel">
-                <div class="panel-card">
-                    <h3>Autenticación del Operador</h3>
-                    <hr>
-                    <div class="form-group">
-                        <label for="account-username">Código de Operador (Alias):</label>
-                        <input type="text" id="account-username" placeholder="Ej: Neox_99">
-                    </div>
-                    <div class="form-group">
-                        <label for="account-password">Clave de Encriptación (Contraseña):</label>
-                        <input type="password" id="account-password" placeholder="Opcional">
-                    </div>
-                    <button class="action-btn save" onclick="guardarNombreCuenta()">Cargar Módulo de Datos</button>
-                </div>
-            </section>
-
-        </main>
-    </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>
