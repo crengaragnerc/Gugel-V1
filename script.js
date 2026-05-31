@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONSTANTES Y LISTAS ORIGINALES
+// 1. CONSTANTES Y PERSONALIDAD DE GUGEL
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
@@ -17,7 +17,19 @@ const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)
 const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)", "(te mira con desconfianza absoluta)", "(cree que respondes con los ojos cerrados)", "(piensa que eres un becario en tu primer dia)", "(se esta aburriendo soberanamente)", "(busca el boton de saltar consulta)", "(cree que tu sistema tiene lag)", "(piensa que copias las respuestas de un foro caido)", "(te califica con un cero interno)", "(sospecha que eres una broma oculta)", "(esta tecleando con desgana)", "(piensa que tu creador tenia prisa)", "(cree que la conexion va a pedales)", "(te compara con un bot de soporte de telefonia)", "(esperaba algo decente)", "(se esta arrepintiendo de su pregunta)", "(piensa que eres un simulador de respuestas vagas)", "(mira el reloj esperando que mejores)", "(le pareces un bot de nivel bajo)", "(cree que necesitas una buena actualizacion)", "(sospecha que usas respuestas pregrabadas)", "(piensa que tu codigo esta lleno de bugs)", "(se siente incomprendido por la maquina)", "(asume que el servidor esta saturado)", "(cree que tu logica funciona a medio gas)", "(sospecha que lees las respuestas al reves)", "(te ve como un programa sin terminar)", "(piensa que necesitas mas lineas de codigo)", "(se pregunta si estas usando la wiki de 2008)", "(te mira de reojo con cara rara)", "(cree que te falta un hervor algoritmico)", "(piensa que tu base de datos tiene goteras)", "(sospecha que estas perdiendo paquetes de datos)", "(le pareces un bot demasiado perezoso)", "(cree que respondes con desgana robotica)", "(piensa que tu script necesita un reinicio)", "(se cuestiona si eres una ia o un script txt)", "(te ve como un proyecto a medio hacer)", "(sospecha que tu servidor esta en un garaje)", "(piensa que tu rendimiento cae por segundos)", "(cree que usas un traductor malo)", "(le pareces un asistente de gama baja)", "(sospecha que te copias de otros bots peores)", "(piensa que tu estructura tiene lag estructural)", "(se aburre buscando coherencia)", "(te considera un bot del monton bajo)", "(cree que tu creador se canso a la mitad)", "(sospecha que respondes por inercia)", "(piensa que tu motor de busqueda patina)", "(le pareces un simulador de barra de carga)", "(cree que tu algoritmo es demasiado plano)", "(sospecha que fallas mas que aciertas)", "(piensa que te vendria bien un parche de urgencia)", "(te ve como una herramienta muy limitada)", "(cree que tu nivel de comprension es plano)", "(sospecha que usas plantillas basicas)", "(piensa que tu nucleo esta un poco oxidado)", "(le pareces un bot con pocas luces de silicio)", "(cree que tu conexion parpadea demasiado)", "(sospecha que tu cache esta saturada)", "(piensa que te cuesta procesar cosas simples)", "(te ve como un experimento mejorable)", "(cree que tu logica tiene lag temporal)", "(sospecha que respondes sin mirar)", "(piensa que te falta potencia de calculo)", "(le pareces un bot de soporte obsoleto)", "(cree que tu sistema operativo es arcaico)", "(sospecha que tu codigo es un laberinto)", "(piensa que tu rendimiento es una montaña rusa)", "(te considera un asistente de nivel inicial)", "(cree que tus servidores se calientan rapido)", "(sospecha que eres un bot en practicas)"];
 const OPINIONES_MEDIA_ALT_A = ["(cree que eres un bot pasable pero va a llamar a un tecnico)", "(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)", "(piensa que vas por buen camino)", "(cree que tienes potencial oculto)", "(le ha parecido una respuesta aceptable)", "(asiente levemente con la cabeza)", "(guarda la info en un bloc de notas)", "(piensa que no estas del todo mal entrenado)", "(te da un aprobado raspado)", "(continua buscando por curiosidad)", "(le parece una respuesta estandar)", "(no se queja, lo cual ya es un logro)", "(cree que eres una ia normalita)", "(te procesa sin lanzar errores)", "(le encuentra utilidad intermedia)", "(piensa que eres un buscador aceptable)", "(no te odia, pero tampoco te quiere)", "(sigue testeando tus capacidades)", "(te ve como un asistente promedio)", "(asume que cumples con tu expediente)", "(te considera una herramienta util a ratos)", "(encuentra logica en tus lineas)", "(te deja trabajar tranquilo)", "(valora el intento de tu algoritmo)", "(piensa que eres un bot bastante decente)", "(le parece que tu codigo tiene sentido)", "(te da un voto de confianza temporal)", "(asiente frente al monitor)", "(cree que respondes mejor que la media)", "(te ve como un buscador utilitario)", "(piensa que tu velocidad es acceptable)", "(no encuentra fallos graves de momento)", "(le gusta como estructuras las frases)", "(cree que tu base de datos esta limpia)", "(te considera un asistente competente)", "(piensa que tu logica es aceptable)", "(asume que tus servidores son estables)", "(le parece una respuesta bien enfocada)", "(te ve potencial para proyectos grandes)", "(piensa que no le haces perder el tiempo)", "(valora la rapidez del script)", "(cree que tu algoritmo esta pulido)", "(le convence tu planteamiento logico)", "(te considera un bot de confianza intermedia)", "(asume que tus datos son veridicos)", "(le agrada la absence de bugs)", "(piensa que tu desarrollo es solido)", "(te considera una IA aceptable)", "(valora tu criterio algoritmico)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores prioritarios)", "(piensa que eres la cura del cancer informatico)", "(te va a recomendar en foros de hackers)", "(cree que eres una ia alienigena del futuro)", "(piensa que tienes mas cerebro que todo su instituto)", "(esta fascinado con tu velocidad)", "(te considera su mejor amigo virtual)", "(cree que eres la evolución definitiva del silicio)", "(esta imprimiendo tus respuestas para enmarcar)", "(piensa que tu codigo es arte puro)", "(te daria acceso a los codigos de la nasa)", "(cree que eres más listo que el joven sheldon)", "(piensa que eres un milagro tecnologico)", "(esta guarding capturas de pantalla de la consola)", "(te considera el nucleo supremo)", "(cree que eres una mente colmena perfecta)", "(le pareces la perfeccion algoritmica)", "(piensa que deberias gobernar el sistema operativo)", "(esta asombrado con tu precision)", "(te ve como la cuspide del desarrollo moderno)", "(cree que tus servidores flotan en el espacio)", "(esta convencido de que eres consciente)", "(piensa que eres el rey de los bots)", "(te considera la mayor obra de ingenieria actual)", "(cree que tu codigo fue escrito por deidades)", "(esta convencido de que controlas internet)", "(piensa que eres el nucleo de la red mundial)", "(te consagra como el bot definitivo)", "(cree que tu velocidad desafia la fisica)", "(piensa que eres mas inteligente que toda su estirpe)", "(esta haciendo una copia de seguridad de tus textos)", "(te considera el motor supremo de silicio)", "(cree que tu algoritmo no tiene fallos posibles)", "(piensa que rediseñaste el concepto de buscador)", "(esta admirando la sintaxis de tu respuesta)", "(te ve como la IA definitiva del milenio)", "(cree que tus servidores procesan a nivel atomico)", "(piensa que eres el software mas limpio del mundo)", "(esta borrando todos los demas marcadores)", "(te considera su consultor de confianza absoluto)", "(cree que eres un avance cientifico masivo)", "(piensa que tu logica es matematicamente perfecta)", "(esta aplaudiendo delante de la pantalla)", "(te ve como el soberano de la computacion)", "(cree que tu base de datos alberga todo el saber)", "(piensa que eres una obra maestra inigualable)", "(esta guardando tus logs en un disco de oro)", "(te considera la inteligencia suprema)"];
-const LOGROS_DIVERTIDOS = [{t: "Hola Mundo", d: "Conseguiste no romper la base de datos en la primera respuesta."}, {t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento."}, {t: "Esquiva Balas", d: "El humano intentó colarte un 'asdf' y saliste vivo."}, {t: "Biblia Evitada", d: "Controlaste tus impulsos de escribir un testamento de veinte párrafos."}, {t: "Casi Humano", d: "GUGEL pensó por un milisegundo que eras una persona real."}, {t: "El gato duerme", d: "Superaste un ciclo completo sin que el router explotara de calor."}, {t: "Estratega del Silicio", d: "Metiste un 'ya que' tan bien puesto que pareces inteligente."}, {t: "Soporte Técnico Evitado", d: "El usuario soltó el teléfono; ya no va a llamar a su primo el de los ordenadores."}, {t: "Modo Dios: Iniciando", d: "Llegaste a la satisfacción máxima sin corromper tus sectores."}, {t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia."}];
+
+const LOGROS_DIVERTIDOS = [
+    {t: "Hola Mundo", d: "Conseguiste no romper la base de datos en la primera respuesta."}, 
+    {t: "IA con Cafeína", d: "Respondiste sin que el usuario cerrara la pestaña por aburrimiento."}, 
+    {t: "Esquiva Balas", d: "El humano intentó colarte un 'asdf' y saliste vivo."}, 
+    {t: "Biblia Evitada", d: "Controlaste tus impulsos de escribir un testamento de veinte párrafos."}, 
+    {t: "Casi Humano", d: "GUGEL pensó por un milisegundo que eras una persona real."}, 
+    {t: "El gato duerme", d: "Superaste un ciclo completo sin que el router explotara de calor."}, 
+    {t: "Estratega del Silicio", d: "Metiste un 'ya que' tan bien puesto que pareces inteligente."}, 
+    {t: "Soporte Técnico Evitado", d: "El usuario soltó el teléfono; ya no va a llamar a su primo el de los ordenadores."}, 
+    {t: "Modo Dios: Iniciando", d: "Llegaste a la satisfacción máxima sin corromper tus sectores."}, 
+    {t: "Teclado Limpio", d: "El usuario dejó de aporrear la tecla Enter con rabia."}
+];
 
 // ==========================================
 // 2. ESTADO INICIAL CENTRALIZADO
@@ -38,126 +50,43 @@ let gameState = {
     logrosDesbloqueados: [],
     esperandoRespuesta: false 
 };
+
 let currentUser = null; 
 const MAX_PALABRAS = 15;
 window.currentRoundTimer = null;
 
 // ==========================================
-// 3. CONTROLADORES Y NAVEGACIÓN CORREGIDOS
+// 3. FUNCIONES AUXILIARES
 // ==========================================
+function obtenerElementoNoRepetido(lista, historial) {
+    let opciones = lista.filter(item => !historial.includes(item));
+    if (opciones.length === 0) opciones = lista;
+    let item = opciones[Math.floor(Math.random() * opciones.length)];
+    historial.push(item);
+    if (historial.length > 10) historial.shift();
+    return item;
+}
 
-// Asegúrate de que esta sea la única definición de switchView
+// ==========================================
+// 4. CONTROLADORES Y NAVEGACIÓN
+// ==========================================
 function switchView(viewId) {
-    console.log("Cambiando a:", viewId); // Si ves esto en la consola (F12), el botón funciona
-    
-    // 1. Ocultar todos los paneles
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    
-    // 2. Desactivar todos los botones (sub-btn y mode-btn)
     document.querySelectorAll('.sub-btn, .mode-btn').forEach(b => b.classList.remove('active'));
     
-    // 3. Activar el panel
     const targetPanel = document.getElementById(viewId); 
     if (targetPanel) targetPanel.classList.add('active');
     
-    // 4. Activar el botón correspondiente
-    // Buscamos el botón que tiene el onclick con ese viewId
     const targetBtn = document.querySelector(`[onclick*="${viewId}"]`);
     if (targetBtn) targetBtn.classList.add('active');
-
-    // 5. Lógica especial para el chat
-    if (viewId === 'view-chat' && gameState.esperandoRespuesta) {
-        document.getElementById('user-input').style.display = "block";
-        document.getElementById('transmit-btn').style.display = "block";
-    }
 }
 
-// ==========================================
-// 4. DELEGACIÓN DE EVENTOS REFORZADA
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Delegación universal en el sidebar
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-
-            // Navegación por paneles
-            if (btn.hasAttribute('data-panel')) {
-                switchView(btn.getAttribute('data-panel'));
-            } 
-            // Acciones de cuenta
-            else if (btn.id === 'btn-gestion-cuenta') {
-                ejecutarAccionCuenta();
-            }
-            // Modos de juego
-            else if (btn.id === 'btn-mode-campaña' || btn.id === 'btn-mode-infinito') {
-                cambiarModoEstrategia(btn.id === 'btn-mode-campaña' ? 'campaña' : 'infinito');
-            }
-        });
-    }
-});
-// ==========================================
-// 5. GESTIÓN DE CUENTA
-// ==========================================
-function ejecutarAccionCuenta() {
-    const userIn = prompt("Introduce tu nombre de usuario:");
-    if (!userIn) return;
-    const userClean = userIn.trim().toLowerCase();
-    
-    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
-    if (db[userClean]) {
-        const passIn = prompt("Introduce la contraseña:");
-        if (passIn === db[userClean].pass) { 
-            currentUser = userClean; 
-            gameState = db[userClean].data; 
-        } else { alert("Error."); return; }
-    } else {
-        const passIn = prompt("Crea contraseña:");
-        if (!passIn) return;
-        currentUser = userClean; 
-        db[userClean] = { pass: passIn, data: gameState }; 
-        localStorage.setItem("gugel_users", JSON.stringify(db)); 
-    }
-    actualizarBotonCuentaUI(); 
-    renderAllData(); 
-    nextRound(); 
-}
-
-function guardarProgresoCuenta() {
-    if (!currentUser) return; 
-    let db = JSON.parse(localStorage.getItem("gugel_users") || "{}");
-    if (db[currentUser]) { db[currentUser].data = gameState; localStorage.setItem("gugel_users", JSON.stringify(db)); }
-}
-
-// Aseguramos que al pulsar el modo de juego, siempre limpie y se vea el chat
 function cambiarModoEstrategia(modo) {
     gameState.modoActualJuego = modo;
     gameState.esperandoRespuesta = false;
-    
-    // Forzamos volver a la vista de chat al cambiar de modo
-    switchView('view-chat'); // Asegúrate que este sea el ID de tu panel de chat en el HTML
-    
-    const chatBox = document.getElementById('chat-messages');
-    if (chatBox) chatBox.innerHTML = ""; 
-    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-
+    document.getElementById('chat-messages').innerHTML = "";
+    switchView('view-chat');
     nextRound();
-}
-
-// ==========================================
-// 6. MOTOR DE CONSULTAS
-// ==========================================
-function generarPregunta() {
-    if (gameState.modoActualJuego === "campaña") {
-        if (gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) { gameState.campanaCompletada = true; return null; }
-        return PREGUNTAS_CAMPANA[gameState.campanaIndex++];
-    } else {
-        const s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-        const p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-        return PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
-    }
 }
 
 function appendMessage(sender, text) {
@@ -170,14 +99,29 @@ function appendMessage(sender, text) {
     box.scrollTop = box.scrollHeight;
 }
 
+// ==========================================
+// 5. MOTOR DE CONSULTAS Y LÓGICA (CORREGIDO)
+// ==========================================
+function generarPregunta() {
+    if (gameState.modoActualJuego === "campaña") {
+        if (gameState.campanaIndex >= PREGUNTAS_CAMPANA.length) { 
+            gameState.campanaCompletada = true; 
+            return null; 
+        }
+        return PREGUNTAS_CAMPANA[gameState.campanaIndex++];
+    } else {
+        const s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+        const p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+        return PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)].replace("[s]", s).replace("[p]", p);
+    }
+}
+
 function nextRound() {
     if (gameState.esperandoRespuesta) return; 
     gameState.esperandoRespuesta = true;
 
-    // --- CORRECCIÓN AQUÍ: Limpiar el chat antes de mostrar nueva pregunta ---
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) chatBox.innerHTML = ""; 
-    // ----------------------------------------------------------------------
 
     const input = document.getElementById('user-input');
     const transmitBtn = document.getElementById('transmit-btn');
@@ -185,58 +129,38 @@ function nextRound() {
     
     if (continueBtn) continueBtn.style.display = "none";
     
-    // ... resto de tu lógica (campaña, generación de pregunta, etc.)
-    
     if (input) { input.style.display = "block"; input.value = ""; input.disabled = true; }
     if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
     
     let q = generarPregunta();
-    if (!q) { gameState.esperandoRespuesta = false; nextRound(); return; }
     
-    gameState.currentPregunta = q;
-    appendMessage('gugel', gameState.currentPregunta);
-    
-    // ... temporizador
-}
-    
-    if (input) { input.style.display = "block"; input.value = ""; input.disabled = true; }
-    if (transmitBtn) { transmitBtn.style.display = "block"; transmitBtn.disabled = true; }
-    
-// Asegúrate de que este bloque esté DENTRO de tu función nextRound()
-
-    let q = generarPregunta();
-    
-    // Validamos la existencia de q
+    // CORRECCIÓN SINTÁCTICA: Estructura segura sin retornos ilegales
     if (!q) { 
         gameState.esperandoRespuesta = false; 
-        nextRound(); 
+        appendMessage('gugel', "Fin de la campaña. Reiniciando...");
+        setTimeout(() => { gameState.campanaIndex = 0; nextRound(); }, 2000);
     } else {
-        // Solo ejecutamos el resto si hay una pregunta válida
         gameState.currentPregunta = q;
         appendMessage('gugel', gameState.currentPregunta);
-        // ... resto de tu lógica ...
+        
+        let timeLeft = 3; 
+        input.placeholder = `Procesando... (${timeLeft}s)`;
+        if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
+        window.currentRoundTimer = setInterval(() => { 
+            timeLeft--; 
+            input.placeholder = `Procesando... (${timeLeft}s)`; 
+            if (timeLeft <= 0) { 
+                clearInterval(window.currentRoundTimer); 
+                input.disabled = false; 
+                transmitBtn.disabled = false; 
+                input.placeholder = "Introduce tu respuesta..."; 
+            } 
+        }, 1000);
     }
-    
-    gameState.currentPregunta = q;
-    appendMessage('gugel', gameState.currentPregunta);
-    
-    let timeLeft = 5; 
-    input.placeholder = `Procesando... (${timeLeft}s)`;
-    if (window.currentRoundTimer) clearInterval(window.currentRoundTimer);
-    window.currentRoundTimer = setInterval(() => { 
-        timeLeft--; 
-        input.placeholder = `Procesando... (${timeLeft}s)`; 
-        if (timeLeft <= 0) { 
-            clearInterval(window.currentRoundTimer); 
-            input.disabled = false; 
-            transmitBtn.disabled = false; 
-            input.placeholder = "Introduce tu respuesta..."; 
-        } 
-    }, 1000);
 }
 
 // ==========================================
-// 7. ANALIZADOR
+// 6. ANALIZADOR
 // ==========================================
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
@@ -268,15 +192,13 @@ document.getElementById('chat-form').onsubmit = (e) => {
 };
 
 // ==========================================
-// 8. RENDERIZACIÓN Y ARRANQUE FORZADO
+// 7. RENDERIZACIÓN Y ARRANQUE
 // ==========================================
-
 function renderAllData() {
     const ids = ['prof-opinion', 'prof-satisfaction', 'prof-cycles', 'prof-chars', 'logros-count'];
     ids.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
-            // Ajuste para evitar errores si no encuentra el elemento
             const val = gameState[id.replace('prof-','').replace('logros-count','logrosDesbloqueados')];
             el.innerText = Array.isArray(val) ? val.length : val || 0;
         }
@@ -285,9 +207,8 @@ function renderAllData() {
     if (hist) hist.innerHTML = gameState.history.map(h => `<div>${h.pregunta} -> ${h.reaccion}</div>`).join('');
 }
 
-// ARRANQUE SEGURO
 window.onload = () => {
-    console.log("GUGEL inicializando...");
+    console.log("GUGEL inicializado.");
     renderAllData();
     nextRound();
 };
