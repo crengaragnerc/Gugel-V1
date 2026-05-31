@@ -75,8 +75,7 @@ body.modo-espacial #app-container {
 }
 body.modo-espacial .card, 
 body.modo-espacial #app-sidebar, 
-body.modo-espacial #main-content,
-body.modo-espacial .modal-card {
+body.modo-espacial #main-content {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(0, 242, 255, 0.15);
@@ -300,7 +299,7 @@ button:disabled {
 #chat-form { width: 100%; }
 .input-wrapper { display: flex; gap: 12px; }
 
-input[type="text"], input[type="password"] {
+input[type="text"] {
     flex-grow: 1;
     padding: 16px;
     border-radius: 8px;
@@ -361,56 +360,3 @@ input:disabled { opacity: 0.5; cursor: not-allowed; }
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover:not(:disabled) { opacity: 0.9; }
-
-/* ESTILOS DE LA VENTANA EMERGENTE (MODAL) */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
-    z-index: 3000;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
-}
-.modal-overlay.active {
-    display: flex;
-}
-.modal-card {
-    width: 100%;
-    max-width: 440px;
-    background-color: var(--bg-inner);
-    border: 2px solid var(--accent-color);
-    border-radius: 12px;
-    padding: 24px;
-    box-sizing: border-box;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-}
-.modal-card h3 {
-    margin-top: 0;
-    color: var(--accent-color);
-    border-bottom: 1px dashed var(--bubble-border);
-    padding-bottom: 12px;
-}
-.modal-form-gap {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-.modal-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 10px;
-}
-.modal-buttons button {
-    flex: 1;
-    text-align: center;
-}
-.modal-save-btn {
-    background: var(--accent-color);
-    color: var(--accent-text);
-}
