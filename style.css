@@ -1,21 +1,6 @@
-/* Variables de Temas */
-:root { --bg: #000; --text: #0f0; --panel: #111; --accent: #0f0; }
-
-.modo-hacker { --bg: #000; --text: #0f0; --panel: #111; --accent: #0f0; }
-.modo-claro { --bg: #fff; --text: #333; --panel: #eee; --accent: #007bff; }
-.modo-oscuro { --bg: #1a1b26; --text: #a9b1d6; --panel: #24283b; --accent: #7aa2f7; }
-
-body { background-color: var(--bg); color: var(--text); font-family: monospace; margin: 0; }
-#app-container { display: flex; height: 90vh; }
-#sidebar { width: 200px; border-right: 1px solid var(--text); display: flex; flex-direction: column; }
-
-/* Navegación Paneles */
-.content-panel { display: none; padding: 20px; }
-.content-panel.active { display: block; }
-
-/* Estilos Generales */
-#chat-messages { height: 70vh; overflow-y: auto; border: 1px solid var(--text); margin-bottom: 10px; }
-.message { margin: 10px 0; }
-.tú { color: var(--accent); }
-button { background: var(--panel); color: var(--text); border: 1px solid var(--text); cursor: pointer; padding: 10px; }
-button:hover { background: var(--text); color: var(--bg); }
+body { font-family: sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
+.panel { border: 2px solid #444; padding: 20px; border-radius: 8px; background: #222; }
+#stats { font-size: 1.2em; color: #00ff00; margin-bottom: 10px; font-family: monospace; }
+#mensajes { height: 300px; overflow-y: auto; border: 1px solid #555; margin: 10px 0; padding: 10px; }
+input { width: 70%; padding: 10px; }
+button { padding: 10px; cursor: pointer; }
