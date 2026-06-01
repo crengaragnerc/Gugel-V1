@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -340,7 +340,7 @@ function renderAllData() {
     if (logrosContainer) {
         const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
         if (unlockedLogros.length === 0) {
-            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado registros en este perfil.</p>`;
+            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has registrado logros en este perfil.</p>`;
         } else {
             logrosContainer.innerHTML = unlockedLogros.map(logro => `
                 <div class="item-logro ${logro.tipo}">
