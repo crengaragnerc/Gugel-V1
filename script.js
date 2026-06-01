@@ -13,7 +13,7 @@ const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet"
 const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
+const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algorithm tiene un tornillo flojo)"];
 const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -132,6 +132,28 @@ function getCuenta() {
         return cuentaInvitadoVolatil;
     }
     return baseCuentas[usuarioActivo];
+}
+
+function sincronizarEstadoTurno(c) {
+    if (!c.currentPregunta) {
+        if (c.modo === "campaña") {
+            if (c.campañaCompletada) {
+                c.currentPregunta = generarPreguntaInfinita();
+            } else {
+                c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
+                c.campanaIndex++;
+            }
+        } else {
+            c.currentPregunta = generarPreguntaInfinita();
+        }
+        esperandoRespuestaDeTurno = true;
+    } else {
+        if (c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
+            esperandoRespuestaDeTurno = false;
+        } else {
+            esperandoRespuestaDeTurno = true;
+        }
+    }
 }
 
 // ==========================================
@@ -230,6 +252,42 @@ function appendMessage(sender, text) {
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
+    }
+}
+
+function renderChatActual() {
+    let c = getCuenta();
+    document.getElementById('chat-messages').innerHTML = "";
+    
+    if (esperandoRespuestaDeTurno) {
+        appendMessage('usuario', c.currentPregunta);
+        
+        const input = document.getElementById('user-input');
+        input.value = "";
+        input.style.display = "block";
+        input.disabled = false;
+        input.placeholder = "Introduce tu respuesta...";
+
+        const tBtn = document.getElementById('transmit-btn');
+        tBtn.style.display = "block";
+        tBtn.disabled = false;
+
+        document.getElementById('chat-actions-bar').style.display = "none";
+        document.getElementById('continue-btn').style.display = "none";
+    } else {
+        let lastLog = c.history[c.history.length - 1];
+        if (lastLog) {
+            appendMessage('usuario', lastLog.pregunta);
+            appendMessage('gugel', lastLog.respuesta);
+            appendMessage('usuario', lastLog.reaccion);
+        } else {
+            appendMessage('usuario', c.currentPregunta);
+        }
+        
+        document.getElementById('user-input').style.display = "none";
+        document.getElementById('transmit-btn').style.display = "none";
+        document.getElementById('chat-actions-bar').style.display = "block";
+        document.getElementById('continue-btn').style.display = "block";
     }
 }
 
@@ -364,11 +422,10 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
         verificarLogrosDeEstado();
         salvarAStorage();
-        renderAllData();
         
         esperandoRespuestaDeTurno = false; 
-        document.getElementById('chat-actions-bar').style.display = "block";
-        document.getElementById('continue-btn').style.display = "block";
+        renderChatActual();
+        renderAllData();
     }, 500);
 };
 
@@ -392,29 +449,16 @@ function generarPreguntaInfinita() {
 function clickBotonContinuar() {
     if (revisandoHistorial) {
         revisandoHistorial = false;
-        let c = getCuenta();
         
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
         
-        document.getElementById('chat-messages').innerHTML = "";
-        appendMessage('usuario', c.currentPregunta);
-        
-        document.getElementById('continue-btn').style.display = "none";
-        document.getElementById('chat-actions-bar').style.display = "none";
-        
-        const input = document.getElementById('user-input');
-        input.value = "";
-        input.style.display = "block";
-        input.disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
-        
-        const tBtn = document.getElementById('transmit-btn');
-        tBtn.style.display = "block";
-        tBtn.disabled = false;
-        
+        renderChatActual();
         renderAllData();
-        input.focus();
+        
+        if (esperandoRespuestaDeTurno) {
+            document.getElementById('user-input').focus();
+        }
     } else {
         nextRound();
     }
@@ -532,45 +576,23 @@ function seleccionarModoJuego(nuevoModo) {
     }
 
     revisandoHistorial = false;
-    document.getElementById('chat-messages').innerHTML = "";
 
-    // SOLUCIÓN AL BUG: Si ya hay una pregunta activa en curso, la preservamos por completo sin sobrescribirla
+    // Sincronizar estructura inicial solo si la cuenta no tiene ninguna pregunta asignada
     if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            if (c.campañaCompletada) {
-                c.currentPregunta = generarPreguntaInfinita();
-            } else {
-                c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
-                c.campanaIndex++;
-            }
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
-        }
+        sincronizarEstadoTurno(c);
     }
 
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
-    appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true;
-
-    const input = document.getElementById('user-input');
-    input.value = "";
-    input.style.display = "block";
-    input.disabled = false;
-    input.placeholder = "Introduce tu respuesta...";
-
-    const tBtn = document.getElementById('transmit-btn');
-    tBtn.style.display = "block";
-    tBtn.disabled = false;
-
-    document.getElementById('chat-actions-bar').style.display = "none";
-    document.getElementById('continue-btn').style.display = "none";
-
+    renderChatActual();
     salvarAStorage();
     renderAllData();
-    input.focus();
+    
+    if (esperandoRespuestaDeTurno) {
+        document.getElementById('user-input').focus();
+    }
 }
 
 function cambiarTema(nuevoTema) {
@@ -591,6 +613,7 @@ function switchView(viewId) {
     if (panelObjetivo && panelObjetivo.classList.contains('active')) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
+        renderChatActual();
     } else {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         if (panelObjetivo) {
@@ -607,15 +630,14 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 8. LOGICA DE VENTANAS DE DIÁLOGO NATIVAS (CUENTA)
+// 8. LÓGICA DE VENTANAS DE DIÁLOGO NATIVAS (CUENTA)
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
     
-    // Solicitud del nombre/código de operador a través de ventana superior nativa (prompt)
     let nuevoUsuario = prompt("⚙️ AUTENTICACIÓN DE OPERADORES\n\nIntroduce tu Código o Alias de Operador:", usuarioActivo === "Invitado" ? "" : usuarioActivo);
     
-    if (nuevoUsuario === null) return; // Cancelado por el usuario
+    if (nuevoUsuario === null) return; 
     nuevoUsuario = nuevoUsuario.trim();
 
     if (!nuevoUsuario) {
@@ -623,9 +645,8 @@ function abrirModalCuenta() {
         return;
     }
 
-    // Solicitud de contraseña a través de ventana superior nativa (prompt)
     let nuevaPassword = prompt("⚙️ AUTENTICACIÓN DE OPERADORES\n\nIntroduce tu Contraseña de Terminal:", c.password || "");
-    if (nuevaPassword === null) return; // Cancelado por el usuario
+    if (nuevaPassword === null) return; 
 
     if (syncTimeout) clearTimeout(syncTimeout);
 
@@ -647,40 +668,18 @@ function abrirModalCuenta() {
 
     salvarAStorage();
     
-    // Forzar reinicio visual de la terminal limpia para el nuevo perfil cargado
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('chat-messages').innerHTML = "";
     
-    if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
-            c.campanaIndex++;
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
-        }
-    }
-    
-    appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; 
-    
-    const input = document.getElementById('user-input');
-    input.value = "";
-    input.style.display = "block";
-    input.disabled = false;
-    input.placeholder = "Introduce tu respuesta...";
-
-    const tBtn = document.getElementById('transmit-btn');
-    tBtn.style.display = "block";
-    tBtn.disabled = false;
-
-    document.getElementById('chat-actions-bar').style.display = "none";
-    document.getElementById('continue-btn').style.display = "none";
-
+    sincronizarEstadoTurno(c);
+    renderChatActual();
     renderAllData();
+    
     alert(`🏆 Módulo de Datos cargado para el operador: ${usuarioActivo}`);
-    input.focus();
+    if (esperandoRespuestaDeTurno) {
+        document.getElementById('user-input').focus();
+    }
 }
 
 // ==========================================
@@ -723,15 +722,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (s) s.value = temaGuardado;
     
     let c = getCuenta();
-    if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
-            c.campanaIndex++;
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
-        }
-    }
-    appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; 
+    sincronizarEstadoTurno(c);
+    renderChatActual();
     renderAllData();
 });
