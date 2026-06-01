@@ -232,7 +232,6 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            // Vinculación directa al sistema de notificaciones flotantes de tu CSS
             const tituloToast = logro.tipo === 'negativo' ? "⚠️ LOGRO NEGATIVO" : "🏆 ¡LOGRO DESBLOQUEADO!";
             const cuerpoToast = `[${usuarioActivo}] ${logro.nombre.toUpperCase()}: ${logro.desc}`;
             generarVentanitaSistema(tituloToast, cuerpoToast, logro.tipo);
@@ -704,7 +703,6 @@ function cerrarModalCuenta() {
     }
 }
 
-// Cierra la terminal externa flotante si haces clic fuera de la ventana central
 function cerrarModalCuentaExterno(e) {
     if (e.target.id === "modal-cuenta-operador") {
         cerrarModalCuenta();
@@ -750,7 +748,7 @@ function guardarNombreCuenta() {
     renderChatActual();
     renderAllData();
     
-    generarVentanitaSistema("Estado del Operador", `Módulo de Datos cargado para el operador: ${usuarioActivo}`, "positivo");
+    generarVentanitaSistema("⚙️ GESTIÓN DE CUENTA", `Módulo de Datos cargado para el operador: ${usuarioActivo}`, "positivo");
     if (esperandoRespuestaDeTurno) {
         document.getElementById('user-input').focus();
     }
@@ -787,45 +785,34 @@ function exportarHistorialCompleto() {
 }
 
 /**
- * Crea y muestra de forma dinámica la ventanita exacta de alerta acoplada al CSS.
- * @param {string} titulo - El encabezado principal que aparecerá en la parte superior.
- * @param {string} mensaje - El texto descriptivo o cuerpo del aviso.
- * @param {string} claseTipo - La clase específica según tus selectores de CSS ('positivo' o 'negativo').
+ * Crea y muestra de forma dinámica las alertas flotantes del sistema.
  */
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     const contenedor = document.getElementById('contenedor-notificaciones-sistema');
     if (!contenedor) return;
 
-    // Creamos la estructura base del nodo flotante
     const nuevaVentanita = document.createElement('div');
+    // Asegura que las clases inyectadas sean exactamente 'positivo' o 'negativo'
     nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
 
-    // Insertamos el contenido utilizando tus selectores .toast-titulo y .toast-cuerpo
     nuevaVentanita.innerHTML = `
         <div class="toast-titulo">${titulo}</div>
         <div class="toast-cuerpo">${mensaje}</div>
     `;
 
-    // Añadimos el elemento al flujo visual
     contenedor.appendChild(nuevaVentanita);
 
-    // Configuración del temporizador para la transición de salida suave
     setTimeout(() => {
         nuevaVentanita.classList.add('salida-toast');
-        
-        // Limpieza completa del DOM al terminar la animación CSS
         nuevaVentanita.addEventListener('transitionend', () => {
             nuevaVentanita.remove();
         });
     }, 4000);
 }
 
-/**
- * Funciones de prueba vinculadas a los botones del simulador
- */
 function dispararLogroPrueba() {
     generarVentanitaSistema(
-        "¡Logro Desbloqueado!",
+        "🏆 ¡LOGRO DESBLOQUEADO!",
         "Pensamiento Artificial: Has procesado una petición en menos de 0.5 segundos.",
         "positivo"
     );
@@ -833,7 +820,7 @@ function dispararLogroPrueba() {
 
 function dispararOperadorPrueba() {
     generarVentanitaSistema(
-        "Estado del Operador",
+        "⚙️ GESTIÓN DE CUENTA",
         "Cuenta de operador vinculada correctamente al núcleo del simulador.",
         "positivo"
     );
