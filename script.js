@@ -145,7 +145,6 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
 
-    // Filtro avanzado contra repetición perezosa de la misma palabra (Anti-Abuso)
     let palabras = resp.split(/\s+/).filter(Boolean);
     let palabrasUnicas = new Set(palabras);
     if (palabras.length > 4 && (palabrasUnicas.size / palabras.length) < 0.4) {
@@ -155,7 +154,6 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
         desbloquearLogro("L28"); 
     }
 
-    // Filtro contra spam de caracteres repetidos monótonos o aporreamiento de teclas (SPAM EN VEZ DE CRÍTICA)
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
         desbloquearLogro("LN1");
         return "SPAM";
@@ -166,7 +164,6 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
         return "SPAM";
     }
 
-    // Filtro contra evasivas o respuestas vacías
     if (EVASIVAS.includes(resp) || resp.length < 4) {
         if (resp.length < 4) desbloquearLogro("LN6");
         desbloquearLogro("LN2");
@@ -176,7 +173,6 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let claveEncontrada = false;
     let tieneDiccionario = false;
 
-    // Validación mediante raíces semánticas cruzadas
     for (let palabraClave in MAPA_COHERENCIA) {
         if (preg.includes(palabraClave)) {
             tieneDiccionario = true;
@@ -192,7 +188,6 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
         return "RECHAZO";
     }
 
-    // Desbloqueos temáticos controlados
     if (preg.includes("rubik") && claveEncontrada) desbloquearLogro("L09");
     if (preg.includes("tomate") && claveEncontrada) desbloquearLogro("L08");
     if (preg.includes("dormir") && claveEncontrada) desbloquearLogro("L22");
@@ -287,17 +282,21 @@ function renderAllData() {
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        logrosContainer.innerHTML = BASE_LOGROS.map(logro => {
-            const desbloqueado = c.logrosDesbloqueados.includes(logro.id);
-            return `
-                <div class="item-logro ${logro.tipo} ${desbloqueado ? 'desbloqueado' : 'bloqueado'}" 
-                     style="opacity: ${desbloqueado ? '1' : '0.4'}; cursor: pointer; border-left: 4px solid ${logro.tipo === 'negativo' ? 'var(--negative-color)' : 'var(--accent-color)'};"
+        // CORRECCIÓN SOLICITADA: Ahora filtramos la base completa y mapeamos SOLO los que están obtenidos
+        const logrosObtenidos = BASE_LOGROS.filter(logro => c.logrosDesbloqueados.includes(logro.id));
+        
+        if (logrosObtenidos.length === 0) {
+            logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding:10px;'>No has desbloqueado ningún logro todavía.</p>";
+        } else {
+            logrosContainer.innerHTML = logrosObtenidos.map(logro => `
+                <div class="item-logro ${logro.tipo} desbloqueado" 
+                     style="cursor: pointer; border-left: 4px solid ${logro.tipo === 'negativo' ? 'var(--negative-color)' : 'var(--accent-color)'};"
                      onclick="mostrarDetalleLogro('${logro.id}')">
-                    <strong>${desbloqueado ? (logro.tipo === 'negativo' ? '⚠️ ' : '🏆 ') : '🔒 '}${desbloqueado ? logro.nombre : '[SISTEMA ENCRIPTADO]'}</strong><br>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${desbloqueado ? logro.desc : 'Requisito clasificado. Completa operaciones para desbloquear.'}</span>
+                    <strong>${logro.tipo === 'negativo' ? '⚠️ ' : '🏆 '}${logro.nombre}</strong><br>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${logro.desc}</span>
                 </div>
-            `;
-        }).join('');
+            `).join('');
+        }
     }
 
     filtrarLogsHistorial();
@@ -586,12 +585,9 @@ function mostrarDetalleLogro(idLogro) {
     if (!logro) return;
     
     const desbloqueado = c.logrosDesbloqueados.includes(idLogro);
+    if (!desbloqueado) return; // Protección adicional si se invoca un ID bloqueado
     
-    // Muestra encriptado en la inspección de alerta si no se ha ganado
-    const nombreVisual = desbloqueado ? logro.nombre : "[SISTEMA ENCRIPTADO]";
-    const descVisual = desbloqueado ? logro.desc : "Módulo de registro bloqueado. Completa las misiones del sistema para liberar los metadatos de este hito.";
-    
-    alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${nombreVisual}\nEstado: ${desbloqueado ? '🔓 DESBLOQUEADO' : '🔒 BLOQUEADO'}\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${descVisual}`);
+    alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${logro.nombre}\nEstado: 🔓 DESBLOQUEADO\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${logro.desc}`);
 }
 
 // ==========================================
@@ -600,13 +596,11 @@ function mostrarDetalleLogro(idLogro) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // CORRECCIÓN DE BUG: Si ya existe una pregunta en el buffer actual, NO sobreescribir ni saltar
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
-    // Cambia estéticamente los botones pero no altera la pregunta activa si el jugador está en mitad de ronda
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
     if (btnCamp && btnInfi) {
@@ -616,7 +610,6 @@ function seleccionarModoJuego(nuevoModo) {
         if (nuevoModo === "infinito") btnInfi.classList.add('active');
     }
 
-    // Si el chat estaba limpio por algún motivo o no había pregunta inicializada, la genera
     if (!c.currentPregunta) {
         if (c.modo === "campaña") {
             c.currentPregunta = PREGUNTAS_CAMPANA[0];
@@ -745,8 +738,7 @@ function guardarNombreCuenta() {
 
     renderAllData();
     
-    // VENTANA DE ALERTA ESTILO LOGRO (REQUISITO INTEGRADO)
-    alert(`[REGISTRO MATRIZ DE CUENTAS]\n-----------------------------------\nEstado: SCONECTADO\nOperador: ${usuarioActivo}\nAsignación: Terminal Virtual\n\nMódulo de datos e historial cargado correctamente para esta sesión.`);
+    alert(`[REGISTRO MATRIZ DE CUENTAS]\n-----------------------------------\nEstado: ASCONECTADO\nOperador: ${usuarioActivo}\nAsignación: Terminal Virtual\n\nMódulo de datos e historial cargado correctamente para esta sesión.`);
     input.focus();
 }
 
