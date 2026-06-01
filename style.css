@@ -308,3 +308,111 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
+
+/* MODAL DE GESTIÓN DE CUENTA CENTRAL */
+#modal-cuenta-operador {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#modal-cuenta-operador.active {
+    display: flex;
+}
+
+#modal-cuenta-operador .modal-content {
+    width: 100%;
+    max-width: 480px;
+    box-sizing: border-box;
+}
+
+.negative-btn {
+    border: 1px solid var(--negative-color) !important;
+    background-color: var(--bg-panel) !important;
+    color: var(--negative-color) !important;
+}
+
+.negative-btn:hover {
+    background-color: var(--negative-color) !important;
+    color: var(--bg-panel) !important;
+}
+
+/* SISTEMA CENTRAL DE NOTIFICACIONES FLOTANTES */
+#contenedor-notificaciones-sistema {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10000;
+    max-width: 360px;
+    width: 100%;
+}
+
+.ventanita-notificacion-flotante {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--bubble-border);
+    color: var(--text-primary);
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    font-family: 'Courier New', monospace;
+    box-sizing: border-box;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    animation: entradaToast 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.ventanita-notificacion-flotante.positivo {
+    border-left: 4px solid var(--accent-color);
+}
+
+.ventanita-notificacion-flotante.negativo {
+    border-left: 4px solid var(--negative-color);
+}
+
+.ventanita-notificacion-flotante.salida-toast {
+    opacity: 0;
+    transform: translateX(60px);
+}
+
+.toast-titulo {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.ventanita-notificacion-flotante.positivo .toast-titulo {
+    color: var(--accent-color);
+}
+
+.ventanita-notificacion-flotante.negativo .toast-titulo {
+    color: var(--negative-color);
+}
+
+.toast-cuerpo {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+@keyframes entradaToast {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
