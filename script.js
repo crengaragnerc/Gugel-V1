@@ -6,14 +6,15 @@ const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que s
 
 const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "explicate mejor q no me entero de nada"];
-const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura", "deja de repetirme lo mismo pesado", "vaya respuesta absurda, eso no tiene nada que ver"];
+const FRASES_CRITICAS = ["deja de repetirme lo mismo pesado", "vaya respuesta absurda, eso no tiene nada que ver"];
+const FRASES_SPAM = ["que dises eso no tiene sentido", "vaya mielda de ia no se entiende eso", "te estas riendo de mi? eso son letras al azar"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no", "uwu", "xd"];
 
 const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet", "raton", "portatil", "vecino", "coche", "llave", "cafetera", "ventilador", "pantalla", "cable"];
 const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
+const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algorithm tiene un tornillo flojo)"];
 const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
@@ -148,24 +149,24 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let palabras = resp.split(/\s+/).filter(Boolean);
     let palabrasUnicas = new Set(palabras);
     if (palabras.length > 4 && (palabrasUnicas.size / palabras.length) < 0.4) {
-        desbloquearLogro("L28"); // Salta hito pero procesará como spam/crítica por romper vocabulario
+        desbloquearLogro("L28"); 
         return "CRITICA";
     } else if (palabras.length >= 4) {
         desbloquearLogro("L28"); 
     }
 
-    // Filtro contra spam de caracteres repetidos monótonos o aporreamiento de teclas
+    // Filtro contra spam de caracteres repetidos monótonos o aporreamiento de teclas (SPAM EN VEZ DE CRÍTICA)
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
         desbloquearLogro("LN1");
-        return "CRITICA";
+        return "SPAM";
     }
     
     if (resp.includes("fighfd") || resp.includes("fhbifbh") || resp.includes("qwerty") || resp.includes("asdf")) {
         desbloquearLogro("LN1");
-        return "CRITICA";
+        return "SPAM";
     }
 
-    // Filtro contra evasivas, monosílabos o respuestas vacías
+    // Filtro contra evasivas o respuestas vacías
     if (EVASIVAS.includes(resp) || resp.length < 4) {
         if (resp.length < 4) desbloquearLogro("LN6");
         desbloquearLogro("LN2");
@@ -261,7 +262,6 @@ function renderAllData() {
     document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
     
-    // Gestión reactiva del estado emocional del usuario
     const opinionText = obtenerElementoNoRepetido(
         c.satisfaction < 35 ? OPINIONES_BAJA : 
         c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
@@ -293,14 +293,13 @@ function renderAllData() {
                 <div class="item-logro ${logro.tipo} ${desbloqueado ? 'desbloqueado' : 'bloqueado'}" 
                      style="opacity: ${desbloqueado ? '1' : '0.4'}; cursor: pointer; border-left: 4px solid ${logro.tipo === 'negativo' ? 'var(--negative-color)' : 'var(--accent-color)'};"
                      onclick="mostrarDetalleLogro('${logro.id}')">
-                    <strong>${desbloqueado ? (logro.tipo === 'negativo' ? '⚠️ ' : '🏆 ') : '🔒 '}${logro.nombre}</strong><br>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${desbloqueado ? logro.desc : 'Módulo de registro encriptado.'}</span>
+                    <strong>${desbloqueado ? (logro.tipo === 'negativo' ? '⚠️ ' : '🏆 ') : '🔒 '}${desbloqueado ? logro.nombre : '[SISTEMA ENCRIPTADO]'}</strong><br>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${desbloqueado ? logro.desc : 'Requisito clasificado. Completa operaciones para desbloquear.'}</span>
                 </div>
             `;
         }).join('');
     }
 
-    // Renderizado del Búfer con soporte nativo de filtros instalados
     filtrarLogsHistorial();
 
     const favContainer = document.getElementById('favorites-list-container');
@@ -324,7 +323,7 @@ function renderAllData() {
 }
 
 // ==========================================
-// 5. NÚCLEO LOGICÓ DEL MOTOR DE RONDAS
+// 5. NÚCLEO LÓGICO DEL MOTOR DE RONDAS
 // ==========================================
 function generarPreguntaInfinita() {
     let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
@@ -357,11 +356,12 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
     c.lastUserText = userText;
 
-    let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, c.recentReactions) :
+    let reaccion = tipo === "SPAM" ? obtenerElementoNoRepetido(FRASES_SPAM, c.recentReactions) :
+                   tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, c.recentReactions) :
                    tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, c.recentReactions) :
                    obtenerElementoNoRepetido(FRASES_OK, c.recentReactions);
 
-    if (tipo === "CRITICA") {
+    if (tipo === "CRITICA" || tipo === "SPAM") {
         c.satisfaction -= 20;
         rachaRespuestasOk = 0;
         desbloquearLogro("LN8");
@@ -580,14 +580,18 @@ function filtrarLogsHistorial() {
     }).join('');
 }
 
-// INSPECCIÓN INTEGRAL DE REQUISITOS DE LOGROS
 function mostrarDetalleLogro(idLogro) {
     let c = getCuenta();
     const logro = BASE_LOGROS.find(l => l.id === idLogro);
     if (!logro) return;
     
     const desbloqueado = c.logrosDesbloqueados.includes(idLogro);
-    alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${logro.nombre}\nEstado: ${desbloqueado ? '🔓 DESBLOQUEADO' : '🔒 BLOQUEADO'}\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${logro.desc}`);
+    
+    // Muestra encriptado en la inspección de alerta si no se ha ganado
+    const nombreVisual = desbloqueado ? logro.nombre : "[SISTEMA ENCRIPTADO]";
+    const descVisual = desbloqueado ? logro.desc : "Módulo de registro bloqueado. Completa las misiones del sistema para liberar los metadatos de este hito.";
+    
+    alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${nombreVisual}\nEstado: ${desbloqueado ? '🔓 DESBLOQUEADO' : '🔒 BLOQUEADO'}\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${descVisual}`);
 }
 
 // ==========================================
@@ -595,50 +599,37 @@ function mostrarDetalleLogro(idLogro) {
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
-    if (syncTimeout) clearTimeout(syncTimeout);
     
+    // CORRECCIÓN DE BUG: Si ya existe una pregunta en el buffer actual, NO sobreescribir ni saltar
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
-    revisandoHistorial = false;
-    document.getElementById('chat-messages').innerHTML = "";
+    // Cambia estéticamente los botones pero no altera la pregunta activa si el jugador está en mitad de ronda
+    const btnCamp = document.getElementById('btn-modo-campaña');
+    const btnInfi = document.getElementById('btn-modo-infinito');
+    if (btnCamp && btnInfi) {
+        btnCamp.classList.remove('active');
+        btnInfi.classList.remove('active');
+        if (nuevoModo === "campaña") btnCamp.classList.add('active');
+        if (nuevoModo === "infinito") btnInfi.classList.add('active');
+    }
 
-    if (c.modo === "campaña") {
-        if (c.campanaIndex === 0) {
+    // Si el chat estaba limpio por algún motivo o no había pregunta inicializada, la genera
+    if (!c.currentPregunta) {
+        if (c.modo === "campaña") {
             c.currentPregunta = PREGUNTAS_CAMPANA[0];
             c.campanaIndex = 1;
         } else {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex - 1] || generarPreguntaInfinita();
+            c.currentPregunta = generarPreguntaInfinita();
         }
-    } else {
-        c.currentPregunta = generarPreguntaInfinita();
+        document.getElementById('chat-messages').innerHTML = "";
+        appendMessage('usuario', c.currentPregunta);
     }
-
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    
-    appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true;
-
-    const input = document.getElementById('user-input');
-    const tBtn = document.getElementById('transmit-btn');
-    
-    input.value = "";
-    input.style.display = "block";
-    input.disabled = false;
-    input.placeholder = "Introduce tu respuesta...";
-
-    tBtn.style.display = "block";
-    tBtn.disabled = false;
-
-    document.getElementById('chat-actions-bar').style.display = "none";
-    document.getElementById('continue-btn').style.display = "none";
 
     salvarAStorage();
     renderAllData();
-    input.focus();
 }
 
 function cambiarTema(nuevoTema) {
@@ -753,7 +744,9 @@ function guardarNombreCuenta() {
     document.getElementById('continue-btn').style.display = "none";
 
     renderAllData();
-    alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
+    
+    // VENTANA DE ALERTA ESTILO LOGRO (REQUISITO INTEGRADO)
+    alert(`[REGISTRO MATRIZ DE CUENTAS]\n-----------------------------------\nEstado: SCONECTADO\nOperador: ${usuarioActivo}\nAsignación: Terminal Virtual\n\nMódulo de datos e historial cargado correctamente para esta sesión.`);
     input.focus();
 }
 
@@ -806,13 +799,11 @@ function purgarProgresoSistema() {
 window.addEventListener('DOMContentLoaded', () => {
     inicializarEntornoCuentas();
     
-    // Recuperación blindada del tema activo al iniciar
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
     const selectTema = document.getElementById('theme-select');
     if (selectTema) selectTema.value = temaGuardado;
     
-    // Listener nativo para el buscador de logs en tiempo real
     const buscadorLogs = document.getElementById('search-logs-input');
     if (buscadorLogs) {
         buscadorLogs.addEventListener('input', filtrarLogsHistorial);
