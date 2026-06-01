@@ -312,33 +312,49 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* INTERFAZ MODAL CENTRAL */
+/* INTERFAZ DE REGISTRO - ESTILO VENTANITA SUPERIOR FLOTANTE */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.4);
     display: none;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Posiciona el elemento arriba */
+    padding-top: 24px; /* Separación del borde superior */
     z-index: 9999;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(2px);
 }
+
 .modal-overlay.active {
     display: flex;
 }
+
 .modal-window {
     background-color: var(--bg-panel);
     border: 2px solid var(--accent-color);
     border-radius: 12px;
-    padding: 30px;
+    padding: 24px;
     width: 90%;
-    max-width: 480px;
-    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.5);
+    max-width: 460px;
+    box-shadow: 0px 12px 35px rgba(0, 0, 0, 0.7);
     box-sizing: border-box;
+    animation: popupSlideDown 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
 }
+
+@keyframes popupSlideDown {
+    from {
+        transform: translateY(-40px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -347,10 +363,13 @@ input:focus { outline: none; border-color: var(--accent-color); }
     padding-bottom: 12px;
     margin-bottom: 15px;
 }
+
 .modal-header h3 {
     margin: 0;
     color: var(--accent-color);
+    font-size: 1rem;
 }
+
 .close-modal-btn {
     background: none;
     border: none;
@@ -358,7 +377,9 @@ input:focus { outline: none; border-color: var(--accent-color); }
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0;
+    line-height: 1;
 }
+
 .close-modal-btn:hover {
     color: var(--negative-color);
 }
