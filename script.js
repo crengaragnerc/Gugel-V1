@@ -48,11 +48,11 @@ const BASE_LOGROS = [
     { id: "L14", tipo: "positivo", nombre: "Consultor Infatigable", desc: "Entraste al Modo Infinito." },
     { id: "L15", tipo: "positivo", nombre: "Respuesta Detallada", desc: "Escribiste una respuesta de más de 60 caracteres." },
     { id: "L16", tipo: "positivo", nombre: "Lógica Impecable", desc: "Obtuviste 3 respuestas aceptadas tipo 'OK' seguidas." },
-    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del sistema." },
+    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del system." },
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
-    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias unique." },
+    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
     { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
@@ -537,6 +537,72 @@ function cargarChatHistorico(index) {
     renderAllData();
 }
 
+// ==========================================
+// 7. SISTEMA DE NAVEGACIÓN Y TEMAS VISUALES
+// ==========================================
+function seleccionarModoJuego(nuevoModo) {
+    let c = getCuenta();
+    
+    // GUARDADO SILENCIOSO: Cambia la configuración de la sesión de fondo transparentemente
+    c.modo = nuevoModo;
+    if (nuevoModo === "infinito") {
+        desbloquearLogro("L14");
+    }
+
+    // ARREGLADO: Si estás en otra pestaña (Estado Analítico, Logs, etc.) y le das a un modo de juego,
+    // forzamos de forma reactiva la redirección hacia el contenedor del chat para que veas el cambio.
+    if (!document.getElementById('view-chat').classList.contains('active')) {
+        switchView('view-chat');
+    }
+
+    // Mantenemos la protección: si ya hay una pregunta iniciada, NO la pisamos ni la borramos.
+    if (!c.currentPregunta) {
+        if (c.modo === "campaña") {
+            c.currentPregunta = PREGUNTAS_CAMPANA[0];
+            c.campanaIndex = 1;
+        } else {
+            c.currentPregunta = generarPreguntaInfinita();
+        }
+        document.getElementById('chat-messages').innerHTML = "";
+        appendMessage('usuario', c.currentPregunta);
+    }
+
+    salvarAStorage();
+    renderAllData();
+}
+
+function cambiarTema(nuevoTema) {
+    document.body.className = nuevoTema;
+    localStorage.setItem('gugel-tema', nuevoTema);
+    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
+    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
+    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
+    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
+    if (nuevoTema === "modo-espacial") desbloquearLogro("L31");
+}
+
+function switchView(viewId) {
+    revisandoHistorial = false;
+    const panelObjetivo = document.getElementById(viewId);
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+
+    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('view-chat').classList.add('active');
+    } else {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        if (panelObjetivo) {
+            panelObjetivo.classList.add('active');
+            const btnPulsado = document.getElementById(`btn-${viewId}`);
+            if (btnPulsado) btnPulsado.classList.add('active');
+            
+            if (viewId === "view-perfil") desbloquearLogro("L17");
+            if (viewId === "view-historial") desbloquearLogro("L18");
+        }
+    }
+    renderAllData();
+}
+
 function filtrarLogsHistorial() {
     let c = getCuenta();
     const histContainer = document.getElementById('history-list-container');
@@ -587,76 +653,6 @@ function mostrarDetalleLogro(idLogro) {
     if (!desbloqueado) return;
     
     alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${logro.nombre}\nEstado: 🔓 DESBLOQUEADO\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${logro.desc}`);
-}
-
-// ==========================================
-// 7. SISTEMA DE NAVEGACIÓN Y TEMAS VISUALES
-// ==========================================
-function seleccionarModoJuego(nuevoModo) {
-    let c = getCuenta();
-    
-    // GUARDADO SILENCIOSO: Cambia la configuración del juego de fondo de manera transparente
-    c.modo = nuevoModo;
-    if (nuevoModo === "infinito") {
-        desbloquearLogro("L14");
-    }
-
-    const btnCamp = document.getElementById('btn-modo-campaña');
-    const btnInfi = document.getElementById('btn-modo-infinito');
-    if (btnCamp && btnInfi) {
-        btnCamp.classList.remove('active');
-        btnInfi.classList.remove('active');
-        if (nuevoModo === "campaña") btnCamp.classList.add('active');
-        if (nuevoModo === "infinito") btnInfi.classList.add('active');
-    }
-
-    // ARREGLADO: Si ya hay una pregunta en curso en c.currentPregunta, NO HACEMOS NADA en el chat.
-    // Solo inicializa la pregunta de respaldo si la sesión estuviera recién creada a cero absoluto.
-    if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[0];
-            c.campanaIndex = 1;
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
-        }
-        document.getElementById('chat-messages').innerHTML = "";
-        appendMessage('usuario', c.currentPregunta);
-    }
-
-    salvarAStorage();
-    renderAllData();
-}
-
-function cambiarTema(nuevoTema) {
-    document.body.className = nuevoTema;
-    localStorage.setItem('gugel-tema', nuevoTema);
-    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
-    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
-    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
-    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
-    if (nuevoTema === "modo-espacial") desbloquearLogro("L31");
-}
-
-function switchView(viewId) {
-    revisandoHistorial = false;
-    const panelObjetivo = document.getElementById(viewId);
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-
-    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-    } else {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        if (panelObjetivo) {
-            panelObjetivo.classList.add('active');
-            const btnPulsado = document.getElementById(`btn-${viewId}`);
-            if (btnPulsado) btnPulsado.classList.add('active');
-            
-            if (viewId === "view-perfil") desbloquearLogro("L17");
-            if (viewId === "view-historial") desbloquearLogro("L18");
-        }
-    }
-    renderAllData();
 }
 
 // ==========================================
