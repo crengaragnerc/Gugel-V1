@@ -232,7 +232,7 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            alert(`[LOGRO DESBLOQUEADO - OPERADOR: ${usuarioActivo}] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
+            generarVentanitaSistema(`🏆 Logro Desbloqueado`, `${logro.nombre.toUpperCase()}: ${logro.desc}`, logro.tipo === 'negativo' ? 'negativo' : 'positivo');
         }
         salvarAStorage();
     }
@@ -438,7 +438,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
         c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            c.campañaCompletada = true;
+            c.campaignCompletada = true;
             desbloquearLogro("L05");
         }
 
@@ -561,9 +561,9 @@ function inyectarFavoritoEstructural(preg, resp) {
         if (c.favorites.length >= 3) desbloquearLogro("L07");
         salvarAStorage();
         renderAllData();
-        alert("Consulta guardada en marcadores favoritos.");
+        generarVentanitaSistema("Marcador Guardado", "Consulta añadida con éxito a favoritos.", "positivo");
     } else {
-        alert("Esta consulta ya se encuentra en favoritos.");
+        generarVentanitaSistema("Aviso de Sistema", "Esta consulta ya se encuentra en favoritos.", "negativo");
     }
 }
 
@@ -701,13 +701,20 @@ function cerrarModalCuenta() {
     }
 }
 
+function cerrarModalCuentaExterno(event) {
+    const modal = document.getElementById('modal-cuenta-operador');
+    if (event.target === modal) {
+        cerrarModalCuenta();
+    }
+}
+
 function guardarNombreCuenta() {
     let c = getCuenta();
     let nuevoUsuario = document.getElementById('account-username').value.trim();
     let nuevaPassword = document.getElementById('account-password').value;
 
     if (!nuevoUsuario) {
-        alert("⚠️ Error: El código de operador no puede estar vacío.");
+        generarVentanitaSistema("Error de Acceso", "El código de operador no puede estar vacío.", "negativo");
         return;
     }
 
@@ -740,7 +747,7 @@ function guardarNombreCuenta() {
     renderChatActual();
     renderAllData();
     
-    alert(`🏆 Módulo de Datos cargado para el operador: ${usuarioActivo}`);
+    generarVentanitaSistema("Núcleo Cargado", `Módulo de Datos activo para el operador: ${usuarioActivo}`, "positivo");
     if (esperandoRespuestaDeTurno) {
         document.getElementById('user-input').focus();
     }
@@ -751,17 +758,23 @@ function guardarNombreCuenta() {
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
-    if (c.history.length === 0) return alert("Búfer vacío.");
+    if (c.history.length === 0) {
+        generarVentanitaSistema("Búfer Vacío", "No hay registros para copiar.", "negativo");
+        return;
+    }
     let log = c.history.map((h, i) => `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`).join('\n');
     navigator.clipboard.writeText(log).then(() => {
         desbloquearLogro("L19");
-        alert("Logs copiados al portapapeles.");
+        generarVentanitaSistema("Portapapeles", "Logs copiados de forma segura.", "positivo");
     });
 }
 
 function exportarHistorialCompleto() {
     let c = getCuenta();
-    if (c.history.length === 0) return alert("Búfer vacío.");
+    if (c.history.length === 0) {
+        generarVentanitaSistema("Búfer Vacío", "No hay datos que exportar.", "negativo");
+        return;
+    }
     let log = `=== GUGEL OPERATOR LOG ===\nUsuario: ${usuarioActivo}\n\n`;
     log += c.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
     const blob = new Blob([log], { type: 'text/plain' });
@@ -780,19 +793,20 @@ function exportarHistorialCompleto() {
  * Crea y muestra de forma dinámica la ventanita exacta de alerta en el contenedor del simulador.
  * @param {string} titulo - El encabezado principal que aparecerá en la parte superior.
  * @param {string} mensaje - El texto descriptivo o cuerpo del aviso.
- * @param {string} claseTipo - La clase específica para cambiar el estilo visual ('logro' o 'operador').
+ * @param {string} claseTipo - La clase específica para cambiar el estilo visual ('positivo' o 'negativo').
  */
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
-    const contenedor = document.getElementById('contenedor-ventanitas-alertas');
+    const contenedor = document.getElementById('contenedor-notificaciones-sistema');
+    if (!contenedor) return;
 
     // Creamos la estructura base del nodo
     const nuevaVentanita = document.createElement('div');
-    nuevaVentanita.className = `ventanita-notificacion ${claseTipo}`;
+    nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
 
     // Insertamos el contenido interno idéntico
     nuevaVentanita.innerHTML = `
-        <div class="titulo-alerta">${titulo}</div>
-        <div class="contenido-alerta">${mensaje}</div>
+        <div class="toast-titulo">${titulo}</div>
+        <div class="toast-cuerpo">${mensaje}</div>
     `;
 
     // Añadimos el elemento al flujo visual
@@ -800,7 +814,7 @@ function generarVentanitaSistema(titulo, mensaje, claseTipo) {
 
     // Configuración del temporizador para que desaparezca automáticamente tras 4 segundos
     setTimeout(() => {
-        nuevaVentanita.classList.add('ventanita-desvanecer');
+        nuevaVentanita.classList.add('salida-toast');
         
         // Esperamos a que la transición de CSS termine para limpiar el DOM por completo
         nuevaVentanita.addEventListener('transitionend', () => {
@@ -816,7 +830,7 @@ function dispararLogroPrueba() {
     generarVentanitaSistema(
         "¡Logro Desbloqueado!",
         "Pensamiento Artificial: Has procesado una petición en menos de 0.5 segundos.",
-        "logro"
+        "positivo"
     );
 }
 
@@ -824,7 +838,7 @@ function dispararOperadorPrueba() {
     generarVentanitaSistema(
         "Estado del Operador",
         "Cuenta de operador vinculada correctamente al núcleo del simulador.",
-        "operador"
+        "positivo"
     );
 }
 
