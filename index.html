@@ -9,7 +9,6 @@
 <body class="modo-hacker">
 
     <div id="app-container">
-        <!-- BARRA LATERAL DE CONTROL -->
         <aside id="sidebar">
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE CONSULTA</div>
@@ -38,7 +37,6 @@
             </div>
         </aside>
 
-        <!-- CONTENIDO PRINCIPAL -->
         <main id="main-content">
             <header id="top-bar">
                 <div class="brand-top">GUGEL Core</div>
@@ -54,7 +52,6 @@
             </header>
 
             <div id="display-workspace">
-                <!-- PANEL DE CHAT PRINCIPAL -->
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
                     <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
@@ -68,7 +65,6 @@
                     </form>
                 </section>
 
-                <!-- PANEL DE ESTADO ANALÍTICO -->
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
                         <h3>📊 Estado Analítico del Operador</h3>
@@ -81,7 +77,6 @@
                     </div>
                 </section>
 
-                <!-- PANEL DE LOGROS -->
                 <section id="view-logros" class="content-panel">
                     <div class="card">
                         <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
@@ -89,7 +84,6 @@
                     </div>
                 </section>
 
-                <!-- PANEL DE HISTORIAL Y MARCADORES -->
                 <section id="view-historial" class="content-panel">
                     <div class="card">
                         <h3>📁 Búfer de Logs y Favoritos</h3>
@@ -111,6 +105,30 @@
                 <button id="continue-btn" onclick="clickBotonContinuar()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
+    </div>
+
+    <div id="modal-cuenta-operador" class="modal-overlay">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3>⚙️ Autenticación de Operadores</h3>
+                <button class="close-modal-btn" onclick="cerrarModalCuenta()">×</button>
+            </div>
+            
+            <div class="account-form-block" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <div>
+                    <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Código/Alias de Operador:</label>
+                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;" autocomplete="off">
+                </div>
+                <div>
+                    <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
+                    <input type="password" id="account-password" placeholder="••••••••" style="width:100%; margin-top:5px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <button class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text); border:none;">ACCEDER / REGISTRAR CUENTA</button>
+                    <button class="sub-btn" onclick="cerrarModalCuenta()" style="text-align: center; background: transparent; color: var(--text-muted); border:1px solid var(--bubble-border);">CANCELAR</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
