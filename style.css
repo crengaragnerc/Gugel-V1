@@ -289,7 +289,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 
 .item-logro { padding: 12px; border-radius: 6px; background: var(--bg-panel); border: 1px solid var(--bubble-border); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
-.item-logro.negativo { border-left: 4px solid var(--negative-color); }
+.item-logro.negative { border-left: 4px solid var(--negative-color); }
 
 .log-item-card {
     display: flex;
@@ -312,7 +312,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* PANEL MODAL CENTRAL (ESTE ES EL QUE DEBE SER GRANDE Y IR EN EL CENTRO) */
+/* PANEL MODAL INTERACTIVO CENTRAL (CONFIGURACIÓN CORRECTA) */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -349,7 +349,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .close-modal-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 0 5px; }
 .close-modal-btn:hover { color: var(--negative-color); }
 
-/* VENTANITAS FLOTANTES DE NOTIFICACIÓN (TOASTS) */
+/* SISTEMA DINÁMICO DE VENTANITAS DE NOTIFICACIÓN (TOASTS) */
 #contenedor-notificaciones-sistema {
     position: fixed;
     top: 24px;
