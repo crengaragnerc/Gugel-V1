@@ -103,7 +103,11 @@ function crearEstructuraVacia() {
         lastUserText: "",
         password: "",
         campañaCompletada: false,
-        currentPregunta: ""
+        currentPregunta: "",
+        currentPreguntaCampana: "",
+        currentPreguntaInfinito: "",
+        esperandoCampana: true,
+        esperandoInfinito: true
     };
 }
 
@@ -115,6 +119,9 @@ function asegurarEstructuraCuenta(nombre) {
     } else {
         if (!baseCuentas[nombre]) {
             baseCuentas[nombre] = crearEstructuraVacia();
+        } else {
+            if (baseCuentas[nombre].esperandoCampana === undefined) baseCuentas[nombre].esperandoCampana = true;
+            if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
         }
     }
 }
@@ -135,24 +142,35 @@ function getCuenta() {
 }
 
 function sincronizarEstadoTurno(c) {
-    if (!c.currentPregunta) {
-        if (c.modo === "campaña") {
-            if (c.campañaCompletada) {
-                c.currentPregunta = generarPreguntaInfinita();
+    if (c.modo === "campaña") {
+        if (!c.currentPreguntaCampana) {
+            if (c.currentPregunta) {
+                c.currentPreguntaCampana = c.currentPregunta;
             } else {
-                c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
+                c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
                 c.campanaIndex++;
             }
-        } else {
-            c.currentPregunta = generarPreguntaInfinita();
+            c.esperandoCampana = true;
         }
-        esperandoRespuestaDeTurno = true;
+        c.currentPregunta = c.currentPreguntaCampana;
+        esperandoRespuestaDeTurno = c.esperandoCampana;
     } else {
-        if (c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
-            esperandoRespuestaDeTurno = false;
-        } else {
-            esperandoRespuestaDeTurno = true;
+        if (!c.currentPreguntaInfinito) {
+            if (c.currentPregunta && c.currentPreguntaInfinito === "") {
+                c.currentPreguntaInfinito = c.currentPregunta;
+            } else {
+                c.currentPreguntaInfinito = generarPreguntaInfinita();
+            }
+            c.esperandoInfinito = true;
         }
+        c.currentPregunta = c.currentPreguntaInfinito;
+        esperandoRespuestaDeTurno = c.esperandoInfinito;
+    }
+
+    if (c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
+        esperandoRespuestaDeTurno = false;
+        if (c.modo === "campaña") c.esperandoCampana = false;
+        else c.esperandoInfinito = false;
     }
 }
 
@@ -275,7 +293,11 @@ function renderChatActual() {
         document.getElementById('chat-actions-bar').style.display = "none";
         document.getElementById('continue-btn').style.display = "none";
     } else {
-        let lastLog = c.history[c.history.length - 1];
+        let lastLog = c.history.filter(h => h.pregunta === c.currentPregunta).pop();
+        if (!lastLog && c.history.length > 0) {
+            lastLog = c.history[c.history.length - 1];
+        }
+        
         if (lastLog) {
             appendMessage('usuario', lastLog.pregunta);
             appendMessage('gugel', lastLog.respuesta);
@@ -420,10 +442,17 @@ document.getElementById('chat-form').onsubmit = (e) => {
             desbloquearLogro("L05");
         }
 
+        esperandoRespuestaDeTurno = false; 
+        if (c.modo === "campaña") {
+            c.currentPreguntaCampana = c.currentPregunta;
+            c.esperandoCampana = false;
+        } else {
+            c.currentPreguntaInfinito = c.currentPregunta;
+            c.esperandoInfinito = false;
+        }
+
         verificarLogrosDeEstado();
         salvarAStorage();
-        
-        esperandoRespuestaDeTurno = false; 
         renderChatActual();
         renderAllData();
     }, 500);
@@ -435,9 +464,7 @@ function generarPreguntaInfinita() {
         let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
         let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
         let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-        
         preguntaFinal = plantilla.replace("[s]", sujeto).replace("[p]", predicado);
-        
         let numeroPalabras = preguntaFinal.split(/\s+/).filter(Boolean).length;
         if (numeroPalabras > 2) {
             break; 
@@ -449,13 +476,10 @@ function generarPreguntaInfinita() {
 function clickBotonContinuar() {
     if (revisandoHistorial) {
         revisandoHistorial = false;
-        
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
-        
         renderChatActual();
         renderAllData();
-        
         if (esperandoRespuestaDeTurno) {
             document.getElementById('user-input').focus();
         }
@@ -480,8 +504,12 @@ function nextRound() {
             c.campañaCompletada = true;
             c.currentPregunta = generarPreguntaInfinita();
         }
+        c.currentPreguntaCampana = c.currentPregunta;
+        c.esperandoCampana = true;
     } else {
         c.currentPregunta = generarPreguntaInfinita();
+        c.currentPreguntaInfinito = c.currentPregunta;
+        c.esperandoInfinito = true;
     }
     
     appendMessage('usuario', c.currentPregunta);
@@ -570,6 +598,14 @@ function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     if (syncTimeout) clearTimeout(syncTimeout);
     
+    if (c.modo === "campaña") {
+        c.currentPreguntaCampana = c.currentPregunta;
+        c.esperandoCampana = esperandoRespuestaDeTurno;
+    } else {
+        c.currentPreguntaInfinito = c.currentPregunta;
+        c.esperandoInfinito = esperandoRespuestaDeTurno;
+    }
+
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
@@ -577,9 +613,25 @@ function seleccionarModoJuego(nuevoModo) {
 
     revisandoHistorial = false;
 
-    // Sincronizar estructura inicial solo si la cuenta no tiene ninguna pregunta asignada
-    if (!c.currentPregunta) {
-        sincronizarEstadoTurno(c);
+    if (c.modo === "campaña") {
+        if (!c.currentPreguntaCampana) {
+            if (c.campañaCompletada) {
+                c.currentPreguntaCampana = generarPreguntaInfinita();
+            } else {
+                c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
+                c.campanaIndex++;
+            }
+            c.esperandoCampana = true;
+        }
+        c.currentPregunta = c.currentPreguntaCampana;
+        esperandoRespuestaDeTurno = c.esperandoCampana;
+    } else {
+        if (!c.currentPreguntaInfinito) {
+            c.currentPreguntaInfinito = generarPreguntaInfinita();
+            c.esperandoInfinito = true;
+        }
+        c.currentPregunta = c.currentPreguntaInfinito;
+        esperandoRespuestaDeTurno = c.esperandoInfinito;
     }
 
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
@@ -630,23 +682,34 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 8. LÓGICA DE VENTANAS DE DIÁLOGO NATIVAS (CUENTA)
+// 8. LÓGICA DE VENTANAS DE DIÁLOGO MODALES
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
-    
-    let nuevoUsuario = prompt("⚙️ AUTENTICACIÓN DE OPERADORES\n\nIntroduce tu Código o Alias de Operador:", usuarioActivo === "Invitado" ? "" : usuarioActivo);
-    
-    if (nuevoUsuario === null) return; 
-    nuevoUsuario = nuevoUsuario.trim();
+    const modal = document.getElementById('modal-cuenta-operador');
+    if (modal) {
+        modal.classList.add('active');
+        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
+        document.getElementById('account-password').value = c.password || "";
+    }
+}
+
+function cerrarModalCuenta() {
+    const modal = document.getElementById('modal-cuenta-operador');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function guardarNombreCuenta() {
+    let c = getCuenta();
+    let nuevoUsuario = document.getElementById('account-username').value.trim();
+    let nuevaPassword = document.getElementById('account-password').value;
 
     if (!nuevoUsuario) {
         alert("⚠️ Error: El código de operador no puede estar vacío.");
         return;
     }
-
-    let nuevaPassword = prompt("⚙️ AUTENTICACIÓN DE OPERADORES\n\nIntroduce tu Contraseña de Terminal:", c.password || "");
-    if (nuevaPassword === null) return; 
 
     if (syncTimeout) clearTimeout(syncTimeout);
 
@@ -667,6 +730,7 @@ function abrirModalCuenta() {
     }
 
     salvarAStorage();
+    cerrarModalCuenta();
     
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
