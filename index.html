@@ -4,133 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL: simulador de IA</title>
-    <link class="tema-link" rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="modo-hacker">
-
-    <div id="app-container">
-        <aside id="sidebar">
-            <div class="menu-section">
-                <div class="section-title">🕹️ MODOS DE CONSULTA</div>
-                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">📌 Panel de Campaña</button>
-                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
+<body class="pink-theme">
+    <div class="container">
+        <!-- Sidebar Izquierda -->
+        <aside class="sidebar">
+            <div class="menu-group">
+                <h3>👤 MODOS DE CONSULTA</h3>
+                <button class="menu-btn">📌 Panel de Campaña</button>
+                <button class="menu-btn active">∞ Consultas Infinitas</button>
             </div>
-
-            <div class="menu-section">
-                <div class="section-title">👤 MONITOR DE SESIÓN</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
+            
+            <div class="menu-group">
+                <h3>👤 MONITOR DE SESIÓN</h3>
+                <button class="menu-btn">ESTADO ANALÍTICO</button>
             </div>
-
-            <div class="menu-section">
-                <div class="section-title">🏆 REGISTRO INTERNO</div>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
+            
+            <div class="menu-group">
+                <h3>🏆 REGISTRO INTERNO</h3>
+                <button class="menu-btn" id="btn-logros-sistema">LOGROS DEL SISTEMA</button>
             </div>
-
-            <div class="menu-section">
-                <div class="section-title">📁 REGISTRO CENTRAL</div>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
+            
+            <div class="menu-group">
+                <h3>📁 REGISTRO CENTRAL</h3>
+                <button class="menu-btn">BÚFER DE LOGS</button>
             </div>
-
-            <div class="menu-section-footer">
-                <div class="account-badge-sidebar">Operador: <span id="sidebar-user-display">Invitado</span></div>
-                <button id="btn-open-cuenta" class="sub-btn account-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
+            
+            <div class="sidebar-footer">
+                <p class="operator-text">Operador: Invitado</p>
+                <button id="btn-gestion-cuenta" class="account-btn">GESTIÓN DE CUENTA</button>
             </div>
         </aside>
 
-        <main id="main-content">
-            <header id="top-bar">
-                <div class="brand-top">GUGEL Core</div>
-                <div class="theme-selector">
-                    <select id="theme-select" onchange="cambiarTema(this.value)">
-                        <option value="modo-hacker">Modo Hacker</option>
-                        <option value="modo-claro">Modo Claro</option>
-                        <option value="modo-oscuro">Modo Oscuro</option>
-                        <option value="modo-rosa">Modo Rosa</option>
-                        <option value="modo-espacial">Modo Espacial 🚀</option>
-                    </select>
+        <!-- Panel Central / Principal -->
+        <main class="main-content">
+            <h2 class="core-title">GUGEL Core</h2>
+            <div class="content-box">
+                <h3 class="box-title">📁 Búfer de Logs y Favoritos</h3>
+                
+                <div class="action-buttons">
+                    <button class="action-btn">Copiar Logs al Portapapeles</button>
+                    <button class="action-btn">EXPORTAR SESIÓN COMPLETA</button>
                 </div>
-            </header>
-
-            <div id="display-workspace">
-                <section id="view-chat" class="content-panel active">
-                    <div id="chat-messages"></div>
-                    <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
-                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">⭐ Guardar consulta en favoritos</button>
-                    </div>
-                    <form id="chat-form">
-                        <div class="input-wrapper">
-                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                            <button type="submit" id="transmit-btn">ENVIAR</button>
-                        </div>
-                    </form>
-                </section>
-
-                <section id="view-perfil" class="content-panel">
-                    <div class="card">
-                        <h3>📊 Estado Analítico del Operador</h3>
-                        <p><strong>Identificador de Cuenta Activa:</strong> <span id="prof-usuario">Invitado</span></p>
-                        <div class="opinion-box" id="opinion-container">
-                            <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
-                        </div>
-                        <p><strong>Satisfacción del Sujeto:</strong> <span id="prof-satisfaction">50%</span></p>
-                    </div>
-                </section>
-
-                <section id="view-logros" class="content-panel">
-                    <div class="card">
-                        <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
-                        <div id="logros-container" class="list-container"></div>
-                    </div>
-                </section>
-
-                <section id="view-historial" class="content-panel">
-                    <div class="card">
-                        <h3>📁 Búfer de Logs y Favoritos</h3>
-                        <div class="action-bar">
-                            <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
-                            <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
-                        </div>
-                        
-                        <h4>⭐ MARCADORES FAVORITOS</h4>
-                        <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
-
-                        <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
-                        <div id="history-list-container" class="list-container"></div>
-                    </div>
-                </section>
+                
+                <div class="section-block">
+                    <h4>⭐ MARCADORES FAVORITOS</h4>
+                    <p class="empty-text">No hay marcadores guardados.</p>
+                </div>
+                
+                <hr class="divider">
+                
+                <div class="section-block">
+                    <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
+                    <p class="empty-text">Búfer de logs vacío.</p>
+                </div>
             </div>
-
-            <footer id="bottom-bar">
-                <button id="continue-btn" onclick="clickBotonContinuar()" style="display:none;">SIGUIENTE CONSULTA</button>
-            </footer>
         </main>
     </div>
 
-    <div id="modal-cuenta-operador" class="modal-overlay" onclick="cerrarModalCuentaExterno(event)">
-        <div class="modal-window">
-            <div class="modal-header">
-                <h3>⚙️ Autenticación de Operadores</h3>
-                <button class="close-modal-btn" onclick="cerrarModalCuenta()">×</button>
-            </div>
-            <p>Sesión actual activa: <strong id="panel-user-status">Invitado</strong></p>
-            
-            <div class="account-form-block" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-                <div>
-                    <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Código/Alias de Operador:</label>
-                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;" autocomplete="off">
-                </div>
-                <div>
-                    <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
-                    <input type="password" id="account-password" placeholder="••••••••" style="width:100%; margin-top:5px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-                    <button class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text);">ACCEDER / REGISTRAR CUENTA</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="contenedor-notificaciones-sistema"></div>
+    <!-- Contenedor flotante de logros (Esquina superior derecha) -->
+    <div id="achievements-container"></div>
 
     <script src="script.js"></script>
 </body>
