@@ -378,7 +378,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* Modificadores de estado idénticos a tus componentes internos */
+/* Modificadores de estado */
 .ventanita-notificacion-flotante.positivo {
     border-left: 6px solid var(--accent-color);
 }
