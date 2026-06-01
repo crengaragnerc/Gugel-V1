@@ -9,7 +9,6 @@
 <body class="modo-hacker">
 
     <div id="app-container">
-        <!-- BARRA LATERAL DE CONTROL -->
         <aside id="sidebar">
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE CONSULTA</div>
@@ -38,7 +37,6 @@
             </div>
         </aside>
 
-        <!-- CONTENIDO PRINCIPAL -->
         <main id="main-content">
             <header id="top-bar">
                 <div class="brand-top">GUGEL Core</div>
@@ -54,7 +52,6 @@
             </header>
 
             <div id="display-workspace">
-                <!-- PANEL DE CHAT PRINCIPAL -->
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
                     <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
@@ -68,7 +65,6 @@
                     </form>
                 </section>
 
-                <!-- PANEL DE ESTADO ANALÍTICO -->
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
                         <h3>📊 Estado Analítico del Operador</h3>
@@ -80,7 +76,6 @@
                     </div>
                 </section>
 
-                <!-- PANEL DE LOGROS -->
                 <section id="view-logros" class="content-panel">
                     <div class="card">
                         <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
@@ -88,7 +83,6 @@
                     </div>
                 </section>
 
-                <!-- PANEL DE HISTORIAL Y MARCADORES -->
                 <section id="view-historial" class="content-panel">
                     <div class="card">
                         <h3>📁 Búfer de Logs y Favoritos</h3>
@@ -101,6 +95,7 @@
                         <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
 
                         <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
+                        <input type="text" id="search-logs-input" placeholder="🔍 Filtrar registros por palabra clave..." style="width: 100%; margin-bottom: 15px; padding: 12px; border-radius: 6px; box-sizing: border-box;">
                         <div id="history-list-container" class="list-container"></div>
                     </div>
                 </section>
@@ -112,7 +107,6 @@
         </main>
     </div>
 
-    <!-- VENTANITA MODAL FLOTANTE DE GESTIÓN DE CUENTAS -->
     <div id="modal-cuenta" class="modal-overlay" onclick="cerrarModalCuentaExterno(event)">
         <div class="modal-window">
             <div class="modal-header">
