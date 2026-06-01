@@ -54,32 +54,31 @@
             <div id="display-workspace">
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
-                    <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
-                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">⭐ Guardar consulta en favoritos</button>
+                    
+                    <div id="chat-actions-bar" style="display: none;">
+                        <button class="action-btn" onclick="toggleFavoritoActual()">⭐ Alternar Favorito</button>
+                        <button class="action-btn" onclick="denunciarConsulta()">⚠️ Reportar Error</button>
                     </div>
-                    <form id="chat-form">
-                        <div class="input-wrapper">
-                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                            <button type="submit" id="transmit-btn">ENVIAR</button>
-                        </div>
-                    </form>
+
+                    <div class="chat-input-area">
+                        <input type="text" id="user-input" placeholder="Introduce tu respuesta..." autocomplete="off" onkeydown="if(event.key === 'Enter') enviarRespuestaIA()">
+                        <button id="transmit-btn" onclick="enviarRespuestaIA()">TRANSMITIR DATOS</button>
+                    </div>
                 </section>
 
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
-                        <h3>📊 Estado Analítico del Operador</h3>
-                        <p><strong>Identificador de Cuenta Activa:</strong> <span id="prof-usuario">Invitado</span></p>
-                        <p><strong>Estado del Panel de Control:</strong> <span id="panel-user-status">Invitado</span></p>
-                        <div class="opinion-box" id="opinion-container">
-                            <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
-                        </div>
-                        <p><strong>Satisfacción del Sujeto:</strong> <span id="prof-satisfaction">50%</span></p>
+                        <h3>👤 Análisis de la Terminal Activa</h3>
+                        <div class="metric-row"><strong>Código Operador:</strong> <span id="prof-usuario">Invitado</span></div>
+                        <div class="metric-row"><strong>Nivel de Estabilidad:</strong> <span id="prof-satisfaction">50%</span></div>
+                        <div class="opinion-box" id="prof-opinion">(Cargando datos relacionales...)</div>
+                        <button class="danger-btn" onclick="destruirTodoElProgresoSistema()">RESETEAR REGISTRO CENTRAL</button>
                     </div>
                 </section>
 
                 <section id="view-logros" class="content-panel">
                     <div class="card">
-                        <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
+                        <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/41)</h3>
                         <div id="logros-container" class="list-container"></div>
                     </div>
                 </section>
@@ -93,7 +92,7 @@
                         </div>
                         
                         <h4>⭐ MARCADORES FAVORITOS</h4>
-                        <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
+                        <div id=\"favorites-list-container\" class=\"list-container\" style=\"margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;\"></div>
 
                         <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
                         <div id="history-list-container" class="list-container"></div>
@@ -105,25 +104,6 @@
                 <button id="continue-btn" onclick="clickBotonContinuar()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
-    </div>
-
-    <div id="contenedor-notificaciones-sistema"></div>
-
-    <div id="modal-cuenta-operador" onclick="cerrarModalCuentaExterno(event)">
-        <div class="modal-content card">
-            <h3>⚙️ GESTIÓN DE CUENTA DE OPERADOR</h3>
-            <div class="modal-body">
-                <label for="account-username" style="display: block; margin-bottom: 8px; font-size: 0.85rem;">Código de Identificación de Operador:</label>
-                <input type="text" id="account-username" placeholder="Introduce el nuevo alias..." style="width: 100%; margin-bottom: 15px;">
-                
-                <label for="account-password" style="display: block; margin-bottom: 8px; font-size: 0.85rem;">Clave de Cifrado (Contraseña):</label>
-                <input type="password" id="account-password" placeholder="Introduce la contraseña de acceso..." style="width: 100%; margin-bottom: 15px;">
-            </div>
-            <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="action-btn" onclick="guardarNombreCuenta()" style="background-color: var(--bg-inner); color: var(--accent-color); border: 1px solid var(--accent-color);">GUARDAR CAMBIOS</button>
-                <button class="action-btn negative-btn" onclick="cerrarModalCuenta()">CANCELAR</button>
-            </div>
-        </div>
     </div>
 
     <script src="script.js"></script>
