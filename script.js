@@ -77,20 +77,16 @@ const BASE_LOGROS = [
 ];
 
 // ==========================================
-// 2. SISTEMA MULTICUENTA DE DATOS AISLADOS
+// 2. SISTEMA DE SESIÓN AISLADA Y COMPLETA
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
-let cuentaInvitadoVolatil = null; 
-let esperandoRespuestaDeTurno = true; 
-let syncTimeout = null; 
-let revisandoHistorial = false; 
-let rachaRespuestasOk = 0;
+let cuentaInvitadoVolatil = null;
 
-if (localStorage.getItem('gugel-multiverse-v4')) {
-    baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
-    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
-}
+let esperandoRespuestaDeTurno = true;
+let syncTimeout = null;
+let revisandoHistorial = false;
+let rachaRespuestasOk = 0;
 
 function crearEstructuraVacia() {
     return {
@@ -108,19 +104,32 @@ function crearEstructuraVacia() {
     };
 }
 
-function asegurarEstructuraCuenta(nombre) {
-    if (nombre === "Invitado") {
-        if (!cuentaInvitadoVolatil) {
-            cuentaInvitadoVolatil = crearEstructuraVacia();
+function inicializarEntornoCuentas() {
+    const almacenado = localStorage.getItem('gugel-multiverse-v4');
+    if (almacenado) {
+        try {
+            baseCuentas = JSON.parse(almacenado);
+        } catch (e) {
+            baseCuentas = {};
         }
-    } else {
-        if (!baseCuentas[nombre]) {
-            baseCuentas[nombre] = crearEstructuraVacia();
-        }
+    }
+    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"];
+    
+    if (!cuentaInvitadoVolatil) {
+        cuentaInvitadoVolatil = crearEstructuraVacia();
     }
 }
 
-asegurarEstructuraCuenta(usuarioActivo);
+function getCuenta() {
+    if (usuarioActivo === "Invitado") {
+        if (!cuentaInvitadoVolatil) cuentaInvitadoVolatil = crearEstructuraVacia();
+        return cuentaInvitadoVolatil;
+    }
+    if (!baseCuentas[usuarioActivo]) {
+        baseCuentas[usuarioActivo] = crearEstructuraVacia();
+    }
+    return baseCuentas[usuarioActivo];
+}
 
 function salvarAStorage() {
     if (usuarioActivo !== "Invitado") {
@@ -128,29 +137,24 @@ function salvarAStorage() {
     }
 }
 
-function getCuenta() {
-    if (usuarioActivo === "Invitado") {
-        return cuentaInvitadoVolatil;
-    }
-    return baseCuentas[usuarioActivo];
-}
-
 // ==========================================
-// 3. MOTOR DE COHERENCIA Y LOGROS
+// 3. MOTOR DE VALIDACIÓN, COHERENCIA Y ANTI-ABUSO
 // ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
 
-    // Comprobación de palabras idénticas o repetitivas dentro de la misma respuesta
+    // Filtro avanzado contra repetición perezosa de la misma palabra (Anti-Abuso)
     let palabras = resp.split(/\s+/).filter(Boolean);
     let palabrasUnicas = new Set(palabras);
-    if (palabras.length > 5 && palabrasUnicas.size / palabras.length < 0.4) {
-        desbloquearLogro("L28"); // Desbloqueo inverso si se rompe el vocabulario rico
+    if (palabras.length > 4 && (palabrasUnicas.size / palabras.length) < 0.4) {
+        desbloquearLogro("L28"); // Salta hito pero procesará como spam/crítica por romper vocabulario
+        return "CRITICA";
     } else if (palabras.length >= 4) {
-        desbloquearLogro("L28"); // Vocabulario Rico desbloqueado con éxito
+        desbloquearLogro("L28"); 
     }
 
+    // Filtro contra spam de caracteres repetidos monótonos o aporreamiento de teclas
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
         desbloquearLogro("LN1");
         return "CRITICA";
@@ -161,6 +165,7 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
         return "CRITICA";
     }
 
+    // Filtro contra evasivas, monosílabos o respuestas vacías
     if (EVASIVAS.includes(resp) || resp.length < 4) {
         if (resp.length < 4) desbloquearLogro("LN6");
         desbloquearLogro("LN2");
@@ -170,6 +175,7 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let claveEncontrada = false;
     let tieneDiccionario = false;
 
+    // Validación mediante raíces semánticas cruzadas
     for (let palabraClave in MAPA_COHERENCIA) {
         if (preg.includes(palabraClave)) {
             tieneDiccionario = true;
@@ -203,7 +209,7 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            alert(`[LOGRO DESBLOQUEADO - OPERADOR: ${usuarioActivo}] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
+            alert(`[LOGRO DESBLOQUEADO] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
         }
         salvarAStorage();
     }
@@ -217,14 +223,14 @@ function verificarLogrosDeEstado() {
     if (c.satisfaction >= 80) desbloquearLogro("L03");
     if (c.satisfaction >= 100) {
         desbloquearLogro("L04");
-        desbloquearLogro("L27"); // IA de confianza máxima en marcadores
+        desbloquearLogro("L27");
     }
     if (c.satisfaction <= 20) desbloquearLogro("LN4");
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
 
 // ==========================================
-// 4. INTERFAZ Y RENDERIZADO DINÁMICO
+// 4. GESTIÓN DE RENDERIZADO VISUAL REACTIVO
 // ==========================================
 function obtenerElementoNoRepetido(lista, historial) {
     let opciones = lista.filter(item => !historial.includes(item));
@@ -240,7 +246,7 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
+        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'OPERADOR';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
@@ -254,56 +260,48 @@ function renderAllData() {
     document.getElementById('prof-usuario').innerText = usuarioActivo;
     document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
-    document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
+    
+    // Gestión reactiva del estado emocional del usuario
+    const opinionText = obtenerElementoNoRepetido(
         c.satisfaction < 35 ? OPINIONES_BAJA : 
         c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
         c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA, 
         c.recentReactions
     );
+    const opinionContainer = document.getElementById('prof-opinion');
+    if (opinionContainer) {
+        opinionContainer.innerText = opinionText;
+        opinionContainer.style.color = c.satisfaction < 35 ? "var(--negative-color)" : 
+                                       c.satisfaction >= 80 ? "var(--accent-color)" : "var(--text-primary)";
+    }
 
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
-
-    btnCamp.classList.remove('active');
-    btnInfi.classList.remove('active');
-    if (c.modo === "campaña") btnCamp.classList.add('active');
-    if (c.modo === "infinito") btnInfi.classList.add('active');
+    if (btnCamp && btnInfi) {
+        btnCamp.classList.remove('active');
+        btnInfi.classList.remove('active');
+        if (c.modo === "campaña") btnCamp.classList.add('active');
+        if (c.modo === "infinito") btnInfi.classList.add('active');
+    }
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
-        if (unlockedLogros.length === 0) {
-            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado registros en este perfil.</p>`;
-        } else {
-            logrosContainer.innerHTML = unlockedLogros.map(logro => `
-                <div class="item-logro ${logro.tipo}">
-                    <strong>${logro.tipo === 'negativo' ? '⚠️ ' : '🏆 '}${logro.nombre}</strong><br>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${logro.desc}</span>
+        logrosContainer.innerHTML = BASE_LOGROS.map(logro => {
+            const desbloqueado = c.logrosDesbloqueados.includes(logro.id);
+            return `
+                <div class="item-logro ${logro.tipo} ${desbloqueado ? 'desbloqueado' : 'bloqueado'}" 
+                     style="opacity: ${desbloqueado ? '1' : '0.4'}; cursor: pointer; border-left: 4px solid ${logro.tipo === 'negativo' ? 'var(--negative-color)' : 'var(--accent-color)'};"
+                     onclick="mostrarDetalleLogro('${logro.id}')">
+                    <strong>${desbloqueado ? (logro.tipo === 'negativo' ? '⚠️ ' : '🏆 ') : '🔒 '}${logro.nombre}</strong><br>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${desbloqueado ? logro.desc : 'Módulo de registro encriptado.'}</span>
                 </div>
-            `).join('');
-        }
+            `;
+        }).join('');
     }
 
-    const histContainer = document.getElementById('history-list-container');
-    if (histContainer) {
-        if (c.history.length === 0) {
-            histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
-        } else {
-            histContainer.innerHTML = c.history.map((h, index) => `
-                <div class="log-item-card" onclick="cargarChatHistorico(${index})">
-                    <div class="log-item-info">
-                        <strong>Q:</strong> ${h.pregunta}<br>
-                        <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
-                        <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
-                    </div>
-                    <div class="log-item-action" onclick="event.stopPropagation();">
-                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-    }
+    // Renderizado del Búfer con soporte nativo de filtros instalados
+    filtrarLogsHistorial();
 
     const favContainer = document.getElementById('favorites-list-container');
     if (favContainer) {
@@ -320,26 +318,34 @@ function renderAllData() {
     }
 
     const contBtn = document.getElementById('continue-btn');
-    if (revisandoHistorial) {
-        contBtn.innerText = "VOLVER AL CHAT ACTIVO";
-    } else {
-        contBtn.innerText = "SIGUIENTE CONSULTA";
+    if (contBtn) {
+        contBtn.innerText = revisandoHistorial ? "VOLVER AL CHAT ACTIVO" : "SIGUIENTE CONSULTA";
     }
 }
 
 // ==========================================
-// 5. FLUJO DEL CHAT Y RONDAS
+// 5. NÚCLEO LOGICÓ DEL MOTOR DE RONDAS
 // ==========================================
+function generarPreguntaInfinita() {
+    let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+    let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+    let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+    return plantilla.replace("[s]", sujeto).replace("[p]", predicado);
+}
+
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     let c = getCuenta();
     const input = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
     const userText = input.value.trim();
+    
     if (!userText || input.disabled) return;
     
     appendMessage('gugel', userText);
+    
     input.style.display = "none";
-    document.getElementById('transmit-btn').style.display = "none";
+    transmitBtn.style.display = "none";
 
     let tipo = "OK";
     if (userText.toLowerCase() === c.lastUserText.toLowerCase()) {
@@ -387,30 +393,13 @@ document.getElementById('chat-form').onsubmit = (e) => {
         esperandoRespuestaDeTurno = false; 
         document.getElementById('chat-actions-bar').style.display = "block";
         document.getElementById('continue-btn').style.display = "block";
-    }, 500);
+    }, 450);
 };
 
-function generarPreguntaInfinita() {
-    let preguntaFinal = "";
-    while (true) {
-        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-        let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-        let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-        
-        preguntaFinal = plantilla.replace("[s]", sujeto).replace("[p]", predicado);
-        
-        let numeroPalabras = preguntaFinal.split(/\s+/).filter(Boolean).length;
-        if (numeroPalabras > 2) {
-            break; 
-        }
-    }
-    return preguntaFinal;
-}
-
 function clickBotonContinuar() {
+    let c = getCuenta();
     if (revisandoHistorial) {
         revisandoHistorial = false;
-        let c = getCuenta();
         
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
@@ -419,7 +408,6 @@ function clickBotonContinuar() {
         appendMessage('usuario', c.currentPregunta);
         
         if (!esperandoRespuestaDeTurno) {
-            // Si ya respondimos a este turno antes de mirar los logs, restauramos la interfaz de espera
             let ultimoLog = c.history[c.history.length - 1];
             if (ultimoLog) {
                 appendMessage('gugel', ultimoLog.respuesta);
@@ -442,7 +430,6 @@ function clickBotonContinuar() {
             tBtn.disabled = false;
             input.focus();
         }
-        
         renderAllData();
     } else {
         nextRound();
@@ -473,12 +460,13 @@ function nextRound() {
     esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
+    const tBtn = document.getElementById('transmit-btn');
+    
     input.value = "";
     input.style.display = "block";
     input.disabled = true;
     input.placeholder = "Sincronizando terminal...";
     
-    const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
     tBtn.disabled = true;
 
@@ -489,11 +477,14 @@ function nextRound() {
         if (document.getElementById('view-chat').classList.contains('active')) {
             input.focus();
         }
-    }, 1200);
+    }, 1000);
+    
+    salvarAStorage();
+    renderAllData();
 }
 
 // ==========================================
-// 6. CONTROLADORES DE FAVORITOS INTERACTIVOS
+// 6. FUNCIONALIDADES AVANZADAS DEL BÚFER DE LOGS
 // ==========================================
 function marcarActualComoFavorito() {
     let c = getCuenta();
@@ -512,7 +503,7 @@ function marcarHistoricoComoFavorito(index) {
 
 function inyectarFavoritoEstructural(preg, resp) {
     let c = getCuenta();
-    if (!c.favorites.some(f => f.pregunta === preg && f.reshape === resp)) {
+    if (!c.favorites.some(f => f.pregunta === preg && f.respuesta === resp)) {
         c.favorites.push({ pregunta: preg, respuesta: resp });
         desbloquearLogro("L06");
         if (c.favorites.length >= 3) desbloquearLogro("L07");
@@ -548,8 +539,59 @@ function cargarChatHistorico(index) {
     renderAllData();
 }
 
+function filtrarLogsHistorial() {
+    let c = getCuenta();
+    const histContainer = document.getElementById('history-list-container');
+    if (!histContainer) return;
+
+    if (c.history.length === 0) {
+        histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
+        return;
+    }
+
+    const buscador = document.getElementById('search-logs-input');
+    const termino = buscador ? buscador.value.toLowerCase().trim() : "";
+
+    const logsFiltrados = c.history.filter(h => 
+        h.pregunta.toLowerCase().includes(termino) || 
+        h.respuesta.toLowerCase().includes(termino) ||
+        h.reaccion.toLowerCase().includes(termino)
+    );
+
+    if (logsFiltrados.length === 0) {
+        histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>No hay logs que coincidan con la búsqueda.</p>";
+        return;
+    }
+
+    histContainer.innerHTML = logsFiltrados.map(h => {
+        const indexReal = c.history.indexOf(h);
+        return `
+            <div class="log-item-card" onclick="cargarChatHistorico(${indexReal})">
+                <div class="log-item-info">
+                    <strong>Q:</strong> ${h.pregunta}<br>
+                    <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
+                    <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
+                </div>
+                <div class="log-item-action" onclick="event.stopPropagation();">
+                    <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${indexReal})">⭐ Guardar</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// INSPECCIÓN INTEGRAL DE REQUISITOS DE LOGROS
+function mostrarDetalleLogro(idLogro) {
+    let c = getCuenta();
+    const logro = BASE_LOGROS.find(l => l.id === idLogro);
+    if (!logro) return;
+    
+    const desbloqueado = c.logrosDesbloqueados.includes(idLogro);
+    alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${logro.nombre}\nEstado: ${desbloqueado ? '🔓 DESBLOQUEADO' : '🔒 BLOQUEADO'}\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${logro.desc}`);
+}
+
 // ==========================================
-// 7. NAVEGACIÓN, MODOS Y TEMAS
+// 7. SISTEMA DE NAVEGACIÓN Y TEMAS VISUALES
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
@@ -564,25 +606,30 @@ function seleccionarModoJuego(nuevoModo) {
     document.getElementById('chat-messages').innerHTML = "";
 
     if (c.modo === "campaña") {
-        c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || generarPreguntaInfinita();
+        if (c.campanaIndex === 0) {
+            c.currentPregunta = PREGUNTAS_CAMPANA[0];
+            c.campanaIndex = 1;
+        } else {
+            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex - 1] || generarPreguntaInfinita();
+        }
     } else {
         c.currentPregunta = generarPreguntaInfinita();
     }
 
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
     appendMessage('usuario', c.currentPregunta);
     esperandoRespuestaDeTurno = true;
 
     const input = document.getElementById('user-input');
+    const tBtn = document.getElementById('transmit-btn');
+    
     input.value = "";
     input.style.display = "block";
     input.disabled = false;
     input.placeholder = "Introduce tu respuesta...";
 
-    const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
     tBtn.disabled = false;
 
@@ -616,8 +663,7 @@ function switchView(viewId) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         if (panelObjetivo) {
             panelObjetivo.classList.add('active');
-            let btnId = `btn-${viewId}`;
-            const btnPulsado = document.getElementById(btnId);
+            const btnPulsado = document.getElementById(`btn-${viewId}`);
             if (btnPulsado) btnPulsado.classList.add('active');
             
             if (viewId === "view-perfil") desbloquearLogro("L17");
@@ -628,7 +674,7 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 8. LOGICA DE LA VENTANITA MODAL FLOTANTE (CUENTA)
+// 8. CONTROL DEL MODAL DE OPERADORES
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
@@ -660,20 +706,17 @@ function guardarNombreCuenta() {
     if (syncTimeout) clearTimeout(syncTimeout);
 
     usuarioActivo = userIn;
-    asegurarEstructuraCuenta(usuarioActivo);
+    if (usuarioActivo !== "Invitado" && !baseCuentas[usuarioActivo]) {
+        baseCuentas[usuarioActivo] = crearEstructuraVacia();
+    }
     
     let c = getCuenta();
     c.password = passIn;
 
-    if (passIn === "") {
-        desbloquearLogro("LN10");
-    } else {
-        desbloquearLogro("L10");
-    }
+    if (passIn === "") desbloquearLogro("LN10");
+    else desbloquearLogro("L10");
 
-    if (userIn !== "Invitado") {
-        desbloquearLogro("L21");
-    }
+    if (userIn !== "Invitado") desbloquearLogro("L21");
 
     salvarAStorage();
     cerrarModalCuenta();
@@ -696,12 +739,13 @@ function guardarNombreCuenta() {
     esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
+    const tBtn = document.getElementById('transmit-btn');
+    
     input.value = "";
     input.style.display = "block";
     input.disabled = false;
     input.placeholder = "Introduce tu respuesta...";
-
-    const tBtn = document.getElementById('transmit-btn');
+    
     tBtn.style.display = "block";
     tBtn.disabled = false;
 
@@ -714,7 +758,7 @@ function guardarNombreCuenta() {
 }
 
 // ==========================================
-// 9. EXPORTACIONES MUESTRA Y RESETEO
+// 9. SISTEMAS DE EXPORTACIÓN Y REINICIO
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
@@ -743,7 +787,6 @@ function exportarHistorialCompleto() {
     desbloquearLogro("L20");
 }
 
-// Función expuesta por consola o expansible para limpiar datos si fuese necesario
 function purgarProgresoSistema() {
     if (confirm("¿Confirmas la destrucción absoluta del búfer de datos de este operador?")) {
         if (usuarioActivo === "Invitado") {
@@ -758,13 +801,22 @@ function purgarProgresoSistema() {
 }
 
 // ==========================================
-// 10. EVENTO INICIAL DE CARGA
+// 10. ESCUCHADORES DE EVENTOS E INICIALIZACIÓN
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
+    inicializarEntornoCuentas();
+    
+    // Recuperación blindada del tema activo al iniciar
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
-    const s = document.getElementById('theme-select');
-    if (s) s.value = temaGuardado;
+    const selectTema = document.getElementById('theme-select');
+    if (selectTema) selectTema.value = temaGuardado;
+    
+    // Listener nativo para el buscador de logs en tiempo real
+    const buscadorLogs = document.getElementById('search-logs-input');
+    if (buscadorLogs) {
+        buscadorLogs.addEventListener('input', filtrarLogsHistorial);
+    }
     
     let c = getCuenta();
     if (!c.currentPregunta) {
@@ -775,6 +827,8 @@ window.addEventListener('DOMContentLoaded', () => {
             c.currentPregunta = generarPreguntaInfinita();
         }
     }
+    
+    document.getElementById('chat-messages').innerHTML = "";
     appendMessage('usuario', c.currentPregunta);
     esperandoRespuestaDeTurno = true; 
     renderAllData();
