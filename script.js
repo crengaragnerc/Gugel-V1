@@ -40,7 +40,7 @@ const BASE_LOGROS = [
     { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
     { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
     { id: "L09", tipo: "positivo", nombre: "Speedcuber Teórico", desc: "Le diste una respuesta digna sobre el cubo de Rubik." },
-    { id: "L10", tipo: "positivo", nombre: "Ciberseguridad Básica", desc: "Estableciste credenciales con contraseña." },
+    { id: "L10", tipo: "positivo", nombre: "Ciberseguridad Básica", desc: "Establebiste credenciales con contraseña." },
     { id: "L11", tipo: "positivo", nombre: "Modo Hacker Activo", desc: "Navegaste usando el entorno verde neón." },
     { id: "L12", tipo: "positivo", nombre: "Purista Claro", desc: "Activaste el modo Claro sin quemarte los ojos." },
     { id: "L13", tipo: "positivo", nombre: "Caballero Oscuro", desc: "Configuraste la interfaz en modo Oscuro." },
@@ -649,42 +649,8 @@ function seleccionarModoJuego(nuevoModo) {
     }
 }
 
-function cambiarTema(nuevoTema) {
-    document.body.className = nuevoTema;
-    localStorage.setItem('gugel-tema', nuevoTema);
-    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
-    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
-    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
-    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
-    if (nuevoTema === "modo-espacial") desbloquearLogro("L31");
-}
-
-function switchView(viewId) {
-    revisandoHistorial = false;
-    const panelObjetivo = document.getElementById(viewId);
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-
-    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-        renderChatActual();
-    } else {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        if (panelObjetivo) {
-            panelObjetivo.classList.add('active');
-            let btnId = `btn-${viewId}`;
-            const btnPulsado = document.getElementById(btnId);
-            if (btnPulsado) btnPulsado.classList.add('active');
-            
-            if (viewId === "view-perfil") desbloquearLogro("L17");
-            if (viewId === "view-historial") desbloquearLogro("L18");
-        }
-    }
-    renderAllData();
-}
-
 // ==========================================
-// 8. LÓGICA DE VENTANAS DE DIÁLOGO MODALES
+// 8. LÓGICA DE VENTANAS DE DIÁLOGO MODALES (CORREGIDO)
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
@@ -748,15 +714,48 @@ function guardarNombreCuenta() {
     renderChatActual();
     renderAllData();
     
-    // AQUÍ ESTABA EL ERROR: Enviaba la alerta a la ventana flotante de la esquina correctamente.
     generarVentanitaSistema("⚙️ GESTIÓN DE CUENTA", `Módulo de Datos cargado para el operador: ${usuarioActivo}`, "positivo");
     if (esperandoRespuestaDeTurno) {
         document.getElementById('user-input').focus();
     }
 }
 
+function cambiarTema(nuevoTema) {
+    document.body.className = nuevoTema;
+    localStorage.setItem('gugel-tema', nuevoTema);
+    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
+    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
+    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
+    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
+    if (nuevoTema === "modo-espacial") desbloquearLogro("L31");
+}
+
+function switchView(viewId) {
+    revisandoHistorial = false;
+    const panelObjetivo = document.getElementById(viewId);
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+
+    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('view-chat').classList.add('active');
+        renderChatActual();
+    } else {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        if (panelObjetivo) {
+            panelObjetivo.classList.add('active');
+            let btnId = `btn-${viewId}`;
+            const btnPulsado = document.getElementById(btnId);
+            if (btnPulsado) btnPulsado.classList.add('active');
+            
+            if (viewId === "view-perfil") desbloquearLogro("L17");
+            if (viewId === "view-historial") desbloquearLogro("L18");
+        }
+    }
+    renderAllData();
+}
+
 // ==========================================
-// 9. EXPORTACIONES MUESTRA
+// 9. EXPORTACIONES MUESTRA Y NOTIFICACIONES
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
@@ -785,9 +784,6 @@ function exportarHistorialCompleto() {
     desbloquearLogro("L20");
 }
 
-/**
- * CREA LAS PEQUEÑAS ALERTAS FLOTANTES DE LA ESQUINA SUPERIOR DERECHA (TOASTS)
- */
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     const contenedor = document.getElementById('contenedor-notificaciones-sistema');
     if (!contenedor) return;
@@ -810,7 +806,6 @@ function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     }, 4000);
 }
 
-// Botones de simulación para verificar que el aviso flotante va por su cuenta
 function dispararLogroPrueba() {
     generarVentanitaSistema(
         "🏆 ¡LOGRO DESBLOQUEADO!",
