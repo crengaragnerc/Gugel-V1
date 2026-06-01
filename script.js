@@ -35,7 +35,7 @@ const BASE_LOGROS = [
     { id: "L02", tipo: "positivo", nombre: "IA Comprensiva", desc: "Alcanzaste el 60% de satisfacción del usuario." },
     { id: "L03", tipo: "positivo", nombre: "Empatía Algorítmica", desc: "Alcanzaste el 80% de satisfacción." },
     { id: "L04", tipo: "positivo", nombre: "Deidad Binaria", desc: "Llegaste al 100% de satisfacción máxima." },
-    { id: "L05", tipo: "positivo", merge: true, nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
+    { id: "L05", tipo: "positivo", nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
     { id: "L06", tipo: "positivo", nombre: "Guardado Seguro", desc: "Añadiste tu primera consulta a Favoritos." },
     { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
     { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
@@ -85,6 +85,7 @@ let cuentaInvitadoVolatil = null;
 let esperandoRespuestaDeTurno = true; 
 let syncTimeout = null; 
 let revisandoHistorial = false; 
+let rachaRespuestasOk = 0;
 
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
@@ -141,6 +142,15 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
 
+    // Comprobación de palabras idénticas o repetitivas dentro de la misma respuesta
+    let palabras = resp.split(/\s+/).filter(Boolean);
+    let palabrasUnicas = new Set(palabras);
+    if (palabras.length > 5 && palabrasUnicas.size / palabras.length < 0.4) {
+        desbloquearLogro("L28"); // Desbloqueo inverso si se rompe el vocabulario rico
+    } else if (palabras.length >= 4) {
+        desbloquearLogro("L28"); // Vocabulario Rico desbloqueado con éxito
+    }
+
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
         desbloquearLogro("LN1");
         return "CRITICA";
@@ -175,6 +185,7 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
         return "RECHAZO";
     }
 
+    // Desbloqueos temáticos controlados
     if (preg.includes("rubik") && claveEncontrada) desbloquearLogro("L09");
     if (preg.includes("tomate") && claveEncontrada) desbloquearLogro("L08");
     if (preg.includes("dormir") && claveEncontrada) desbloquearLogro("L22");
@@ -204,7 +215,10 @@ function verificarLogrosDeEstado() {
     if (c.history.length >= 12) desbloquearLogro("L29");
     if (c.satisfaction >= 60) desbloquearLogro("L02");
     if (c.satisfaction >= 80) desbloquearLogro("L03");
-    if (c.satisfaction >= 100) desbloquearLogro("L04");
+    if (c.satisfaction >= 100) {
+        desbloquearLogro("L04");
+        desbloquearLogro("L27"); // IA de confianza máxima en marcadores
+    }
     if (c.satisfaction <= 20) desbloquearLogro("LN4");
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
@@ -343,11 +357,15 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
     if (tipo === "CRITICA") {
         c.satisfaction -= 20;
+        rachaRespuestasOk = 0;
         desbloquearLogro("LN8");
     } else if (tipo === "RECHAZO") {
         c.satisfaction -= 15;
+        rachaRespuestasOk = 0;
     } else {
         c.satisfaction += 10;
+        rachaRespuestasOk++;
+        if (rachaRespuestasOk >= 3) desbloquearLogro("L16");
         if (userText.length > 60) desbloquearLogro("L15");
     }
     
@@ -391,7 +409,6 @@ function generarPreguntaInfinita() {
 
 function clickBotonContinuar() {
     if (revisandoHistorial) {
-        // BUG 2 ARREGLADO: Volver al chat activo de forma segura sin consuming rondas
         revisandoHistorial = false;
         let c = getCuenta();
         
@@ -401,21 +418,32 @@ function clickBotonContinuar() {
         document.getElementById('chat-messages').innerHTML = "";
         appendMessage('usuario', c.currentPregunta);
         
-        document.getElementById('continue-btn').style.display = "none";
-        document.getElementById('chat-actions-bar').style.display = "none";
-        
-        const input = document.getElementById('user-input');
-        input.value = "";
-        input.style.display = "block";
-        input.disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
-        
-        const tBtn = document.getElementById('transmit-btn');
-        tBtn.style.display = "block";
-        tBtn.disabled = false;
+        if (!esperandoRespuestaDeTurno) {
+            // Si ya respondimos a este turno antes de mirar los logs, restauramos la interfaz de espera
+            let ultimoLog = c.history[c.history.length - 1];
+            if (ultimoLog) {
+                appendMessage('gugel', ultimoLog.respuesta);
+                appendMessage('usuario', ultimoLog.reaccion);
+            }
+            document.getElementById('continue-btn').style.display = "block";
+            document.getElementById('chat-actions-bar').style.display = "block";
+        } else {
+            document.getElementById('continue-btn').style.display = "none";
+            document.getElementById('chat-actions-bar').style.display = "none";
+            
+            const input = document.getElementById('user-input');
+            input.value = "";
+            input.style.display = "block";
+            input.disabled = false;
+            input.placeholder = "Introduce tu respuesta...";
+            
+            const tBtn = document.getElementById('transmit-btn');
+            tBtn.style.display = "block";
+            tBtn.disabled = false;
+            input.focus();
+        }
         
         renderAllData();
-        input.focus();
     } else {
         nextRound();
     }
@@ -454,7 +482,6 @@ function nextRound() {
     tBtn.style.display = "block";
     tBtn.disabled = true;
 
-    // BUG 3 ARREGLADO: Sincronización asíncrona segura sin bloqueos aleatorios
     syncTimeout = setTimeout(() => {
         input.disabled = false;
         tBtn.disabled = false;
@@ -485,7 +512,7 @@ function marcarHistoricoComoFavorito(index) {
 
 function inyectarFavoritoEstructural(preg, resp) {
     let c = getCuenta();
-    if (!c.favorites.some(f => f.pregunta === preg && f.respuesta === resp)) {
+    if (!c.favorites.some(f => f.pregunta === preg && f.reshape === resp)) {
         c.favorites.push({ pregunta: preg, respuesta: resp });
         desbloquearLogro("L06");
         if (c.favorites.length >= 3) desbloquearLogro("L07");
@@ -536,7 +563,6 @@ function seleccionarModoJuego(nuevoModo) {
     revisandoHistorial = false;
     document.getElementById('chat-messages').innerHTML = "";
 
-    // BUG 1 ARREGLADO: Generación inmediata y nativa del modo seleccionado al limpiar el chat
     if (c.modo === "campaña") {
         c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || generarPreguntaInfinita();
     } else {
@@ -652,7 +678,6 @@ function guardarNombreCuenta() {
     salvarAStorage();
     cerrarModalCuenta();
     
-    // Forzamos reseteo visual del chat para el nuevo perfil cargado
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
@@ -689,7 +714,7 @@ function guardarNombreCuenta() {
 }
 
 // ==========================================
-// 9. EXPORTACIONES MUESTRA
+// 9. EXPORTACIONES MUESTRA Y RESETEO
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
@@ -716,6 +741,20 @@ function exportarHistorialCompleto() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     desbloquearLogro("L20");
+}
+
+// Función expuesta por consola o expansible para limpiar datos si fuese necesario
+function purgarProgresoSistema() {
+    if (confirm("¿Confirmas la destrucción absoluta del búfer de datos de este operador?")) {
+        if (usuarioActivo === "Invitado") {
+            cuentaInvitadoVolatil = crearEstructuraVacia();
+        } else {
+            baseCuentas[usuarioActivo] = crearEstructuraVacia();
+            salvarAStorage();
+        }
+        desbloquearLogro("LN9");
+        location.reload();
+    }
 }
 
 // ==========================================
