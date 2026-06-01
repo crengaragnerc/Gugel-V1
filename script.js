@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -232,7 +232,10 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            generarVentanitaSistema(`🏆 Logro Desbloqueado`, `${logro.nombre.toUpperCase()}: ${logro.desc}`, logro.tipo === 'negativo' ? 'negativo' : 'positivo');
+            // Vinculación directa al sistema de notificaciones flotantes de tu CSS
+            const tituloToast = logro.tipo === 'negativo' ? "⚠️ LOGRO NEGATIVO" : "🏆 ¡LOGRO DESBLOQUEADO!";
+            const cuerpoToast = `[${usuarioActivo}] ${logro.nombre.toUpperCase()}: ${logro.desc}`;
+            generarVentanitaSistema(tituloToast, cuerpoToast, logro.tipo);
         }
         salvarAStorage();
     }
@@ -561,9 +564,9 @@ function inyectarFavoritoEstructural(preg, resp) {
         if (c.favorites.length >= 3) desbloquearLogro("L07");
         salvarAStorage();
         renderAllData();
-        generarVentanitaSistema("Marcador Guardado", "Consulta añadida con éxito a favoritos.", "positivo");
+        generarVentanitaSistema("Marcadores", "Consulta guardada en marcadores favoritos.", "positivo");
     } else {
-        generarVentanitaSistema("Aviso de Sistema", "Esta consulta ya se encuentra en favoritos.", "negativo");
+        generarVentanitaSistema("Marcadores", "Esta consulta ya se encuentra en favoritos.", "negativo");
     }
 }
 
@@ -701,9 +704,9 @@ function cerrarModalCuenta() {
     }
 }
 
-function cerrarModalCuentaExterno(event) {
-    const modal = document.getElementById('modal-cuenta-operador');
-    if (event.target === modal) {
+// Cierra la terminal externa flotante si haces clic fuera de la ventana central
+function cerrarModalCuentaExterno(e) {
+    if (e.target.id === "modal-cuenta-operador") {
         cerrarModalCuenta();
     }
 }
@@ -714,7 +717,7 @@ function guardarNombreCuenta() {
     let nuevaPassword = document.getElementById('account-password').value;
 
     if (!nuevoUsuario) {
-        generarVentanitaSistema("Error de Acceso", "El código de operador no puede estar vacío.", "negativo");
+        generarVentanitaSistema("⚠️ Error Crítico", "El código de operador no puede estar vacío.", "negativo");
         return;
     }
 
@@ -747,7 +750,7 @@ function guardarNombreCuenta() {
     renderChatActual();
     renderAllData();
     
-    generarVentanitaSistema("Núcleo Cargado", `Módulo de Datos activo para el operador: ${usuarioActivo}`, "positivo");
+    generarVentanitaSistema("Estado del Operador", `Módulo de Datos cargado para el operador: ${usuarioActivo}`, "positivo");
     if (esperandoRespuestaDeTurno) {
         document.getElementById('user-input').focus();
     }
@@ -758,23 +761,17 @@ function guardarNombreCuenta() {
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
-    if (c.history.length === 0) {
-        generarVentanitaSistema("Búfer Vacío", "No hay registros para copiar.", "negativo");
-        return;
-    }
+    if (c.history.length === 0) return alert("Búfer vacío.");
     let log = c.history.map((h, i) => `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`).join('\n');
     navigator.clipboard.writeText(log).then(() => {
         desbloquearLogro("L19");
-        generarVentanitaSistema("Portapapeles", "Logs copiados de forma segura.", "positivo");
+        generarVentanitaSistema("Búfer Central", "Logs transferidos al portapapeles del sistema.", "positivo");
     });
 }
 
 function exportarHistorialCompleto() {
     let c = getCuenta();
-    if (c.history.length === 0) {
-        generarVentanitaSistema("Búfer Vacío", "No hay datos que exportar.", "negativo");
-        return;
-    }
+    if (c.history.length === 0) return alert("Búfer vacío.");
     let log = `=== GUGEL OPERATOR LOG ===\nUsuario: ${usuarioActivo}\n\n`;
     log += c.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
     const blob = new Blob([log], { type: 'text/plain' });
@@ -790,20 +787,20 @@ function exportarHistorialCompleto() {
 }
 
 /**
- * Crea y muestra de forma dinámica la ventanita exacta de alerta en el contenedor del simulador.
+ * Crea y muestra de forma dinámica la ventanita exacta de alerta acoplada al CSS.
  * @param {string} titulo - El encabezado principal que aparecerá en la parte superior.
  * @param {string} mensaje - El texto descriptivo o cuerpo del aviso.
- * @param {string} claseTipo - La clase específica para cambiar el estilo visual ('positivo' o 'negativo').
+ * @param {string} claseTipo - La clase específica según tus selectores de CSS ('positivo' o 'negativo').
  */
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     const contenedor = document.getElementById('contenedor-notificaciones-sistema');
     if (!contenedor) return;
 
-    // Creamos la estructura base del nodo
+    // Creamos la estructura base del nodo flotante
     const nuevaVentanita = document.createElement('div');
     nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
 
-    // Insertamos el contenido interno idéntico
+    // Insertamos el contenido utilizando tus selectores .toast-titulo y .toast-cuerpo
     nuevaVentanita.innerHTML = `
         <div class="toast-titulo">${titulo}</div>
         <div class="toast-cuerpo">${mensaje}</div>
@@ -812,11 +809,11 @@ function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     // Añadimos el elemento al flujo visual
     contenedor.appendChild(nuevaVentanita);
 
-    // Configuración del temporizador para que desaparezca automáticamente tras 4 segundos
+    // Configuración del temporizador para la transición de salida suave
     setTimeout(() => {
         nuevaVentanita.classList.add('salida-toast');
         
-        // Esperamos a que la transición de CSS termine para limpiar el DOM por completo
+        // Limpieza completa del DOM al terminar la animación CSS
         nuevaVentanita.addEventListener('transitionend', () => {
             nuevaVentanita.remove();
         });
