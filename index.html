@@ -106,6 +106,32 @@
         </main>
     </div>
 
+    <div id="modal-cuenta-operador" class="modal-overlay" onclick="cerrarModalCuentaExterno(event)">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3>⚙️ Autenticación de Operadores</h3>
+                <button class="close-modal-btn" onclick="cerrarModalCuenta()">×</button>
+            </div>
+            <p>Sesión actual activa: <strong id="panel-user-status">Invitado</strong></p>
+            
+            <div class="account-form-block" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <div>
+                    <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Código/Alias de Operador:</label>
+                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;" autocomplete="off">
+                </div>
+                <div>
+                    <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
+                    <input type="password" id="account-password" placeholder="••••••••" style="width:100%; margin-top:5px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <button class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text);">ACCEDER / REGISTRAR CUENTA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="contenedor-notificaciones-sistema"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
