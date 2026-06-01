@@ -6,15 +6,14 @@ const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que s
 
 const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "explicate mejor q no me entero de nada"];
-const FRASES_CRITICAS = ["deja de repetirme lo mismo pesado", "vaya respuesta absurda, eso no tiene nada que ver"];
-const FRASES_SPAM = ["que dises eso no tiene sentido", "vaya mielda de ia no se entiende eso", "te estas riendo de mi? eso son letras al azar"];
+const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura", "deja de repetirme lo mismo pesado", "vaya respuesta absurda, eso no tiene nada que ver"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no", "uwu", "xd"];
 
 const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet", "raton", "portatil", "vecino", "coche", "llave", "cafetera", "ventilador", "pantalla", "cable"];
 const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
 
 const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algorithm tiene un tornillo flojo)"];
+const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algoritmo tiene un tornillo flojo)"];
 const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
 const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
 
@@ -36,7 +35,7 @@ const BASE_LOGROS = [
     { id: "L02", tipo: "positivo", nombre: "IA Comprensiva", desc: "Alcanzaste el 60% de satisfacción del usuario." },
     { id: "L03", tipo: "positivo", nombre: "Empatía Algorítmica", desc: "Alcanzaste el 80% de satisfacción." },
     { id: "L04", tipo: "positivo", nombre: "Deidad Binaria", desc: "Llegaste al 100% de satisfacción máxima." },
-    { id: "L05", tipo: "positivo", nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
+    { id: "L05", tipo: "positivo", merge: true, nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
     { id: "L06", tipo: "positivo", nombre: "Guardado Seguro", desc: "Añadiste tu primera consulta a Favoritos." },
     { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
     { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
@@ -48,7 +47,7 @@ const BASE_LOGROS = [
     { id: "L14", tipo: "positivo", nombre: "Consultor Infatigable", desc: "Entraste al Modo Infinito." },
     { id: "L15", tipo: "positivo", nombre: "Respuesta Detallada", desc: "Escribiste una respuesta de más de 60 caracteres." },
     { id: "L16", tipo: "positivo", nombre: "Lógica Impecable", desc: "Obtuviste 3 respuestas aceptadas tipo 'OK' seguidas." },
-    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del system." },
+    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del sistema." },
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
@@ -78,16 +77,19 @@ const BASE_LOGROS = [
 ];
 
 // ==========================================
-// 2. SISTEMA DE SESIÓN AISLADA Y COMPLETA
+// 2. SISTEMA MULTICUENTA DE DATOS AISLADOS
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
-let cuentaInvitadoVolatil = null;
+let cuentaInvitadoVolatil = null; 
+let esperandoRespuestaDeTurno = true; 
+let syncTimeout = null; 
+let revisandoHistorial = false; 
 
-let esperandoRespuestaDeTurno = true;
-let syncTimeout = null;
-let revisandoHistorial = false;
-let rachaRespuestasOk = 0;
+if (localStorage.getItem('gugel-multiverse-v4')) {
+    baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
+    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
+}
 
 function crearEstructuraVacia() {
     return {
@@ -105,32 +107,19 @@ function crearEstructuraVacia() {
     };
 }
 
-function inicializarEntornoCuentas() {
-    const almacenado = localStorage.getItem('gugel-multiverse-v4');
-    if (almacenado) {
-        try {
-            baseCuentas = JSON.parse(almacenado);
-        } catch (e) {
-            baseCuentas = {};
+function asegurarEstructuraCuenta(nombre) {
+    if (nombre === "Invitado") {
+        if (!cuentaInvitadoVolatil) {
+            cuentaInvitadoVolatil = crearEstructuraVacia();
         }
-    }
-    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"];
-    
-    if (!cuentaInvitadoVolatil) {
-        cuentaInvitadoVolatil = crearEstructuraVacia();
+    } else {
+        if (!baseCuentas[nombre]) {
+            baseCuentas[nombre] = crearEstructuraVacia();
+        }
     }
 }
 
-function getCuenta() {
-    if (usuarioActivo === "Invitado") {
-        if (!cuentaInvitadoVolatil) cuentaInvitadoVolatil = crearEstructuraVacia();
-        return cuentaInvitadoVolatil;
-    }
-    if (!baseCuentas[usuarioActivo]) {
-        baseCuentas[usuarioActivo] = crearEstructuraVacia();
-    }
-    return baseCuentas[usuarioActivo];
-}
+asegurarEstructuraCuenta(usuarioActivo);
 
 function salvarAStorage() {
     if (usuarioActivo !== "Invitado") {
@@ -138,30 +127,28 @@ function salvarAStorage() {
     }
 }
 
+function getCuenta() {
+    if (usuarioActivo === "Invitado") {
+        return cuentaInvitadoVolatil;
+    }
+    return baseCuentas[usuarioActivo];
+}
+
 // ==========================================
-// 3. MOTOR DE VALIDACIÓN, COHERENCIA Y ANTI-ABUSO
+// 3. MOTOR DE COHERENCIA Y LOGROS
 // ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
 
-    let palabras = resp.split(/\s+/).filter(Boolean);
-    let palabrasUnicas = new Set(palabras);
-    if (palabras.length > 4 && (palabrasUnicas.size / palabras.length) < 0.4) {
-        desbloquearLogro("L28"); 
-        return "CRITICA";
-    } else if (palabras.length >= 4) {
-        desbloquearLogro("L28"); 
-    }
-
     if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
         desbloquearLogro("LN1");
-        return "SPAM";
+        return "CRITICA";
     }
     
     if (resp.includes("fighfd") || resp.includes("fhbifbh") || resp.includes("qwerty") || resp.includes("asdf")) {
         desbloquearLogro("LN1");
-        return "SPAM";
+        return "CRITICA";
     }
 
     if (EVASIVAS.includes(resp) || resp.length < 4) {
@@ -205,7 +192,7 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            alert(`[LOGRO DESBLOQUEADO] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
+            alert(`[LOGRO DESBLOQUEADO - OPERADOR: ${usuarioActivo}] ${logro.tipo === 'negativo' ? '⚠️' : '🏆'} ${logro.nombre.toUpperCase()}`);
         }
         salvarAStorage();
     }
@@ -217,16 +204,13 @@ function verificarLogrosDeEstado() {
     if (c.history.length >= 12) desbloquearLogro("L29");
     if (c.satisfaction >= 60) desbloquearLogro("L02");
     if (c.satisfaction >= 80) desbloquearLogro("L03");
-    if (c.satisfaction >= 100) {
-        desbloquearLogro("L04");
-        desbloquearLogro("L27");
-    }
+    if (c.satisfaction >= 100) desbloquearLogro("L04");
     if (c.satisfaction <= 20) desbloquearLogro("LN4");
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
 
 // ==========================================
-// 4. GESTIÓN DE RENDERIZADO VISUAL REACTIVO
+// 4. INTERFAZ Y RENDERIZADO DINÁMICO
 // ==========================================
 function obtenerElementoNoRepetido(lista, historial) {
     let opciones = lista.filter(item => !historial.includes(item));
@@ -242,10 +226,7 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        // Corrección canónica de roles: 
-        // sender 'gugel' -> el operador de la IA responde (OPERADOR)
-        // sender 'usuario' -> el humano realiza consultas (GUGEL)
-        let etiqueta = sender === 'gugel' ? 'OPERADOR' : 'GUGEL';
+        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
@@ -259,41 +240,30 @@ function renderAllData() {
     document.getElementById('prof-usuario').innerText = usuarioActivo;
     document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
-    
-    const opinionText = obtenerElementoNoRepetido(
+    document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
         c.satisfaction < 35 ? OPINIONES_BAJA : 
         c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
         c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA, 
         c.recentReactions
     );
-    const opinionContainer = document.getElementById('prof-opinion');
-    if (opinionContainer) {
-        opinionContainer.innerText = opinionText;
-        opinionContainer.style.color = c.satisfaction < 35 ? "var(--negative-color)" : 
-                                       c.satisfaction >= 80 ? "var(--accent-color)" : "var(--text-primary)";
-    }
 
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
-    if (btnCamp && btnInfi) {
-        btnCamp.classList.remove('active');
-        btnInfi.classList.remove('active');
-        if (c.modo === "campaña") btnCamp.classList.add('active');
-        if (c.modo === "infinito") btnInfi.classList.add('active');
-    }
+
+    btnCamp.classList.remove('active');
+    btnInfi.classList.remove('active');
+    if (c.modo === "campaña") btnCamp.classList.add('active');
+    if (c.modo === "infinito") btnInfi.classList.add('active');
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        const logrosObtenidos = BASE_LOGROS.filter(logro => c.logrosDesbloqueados.includes(logro.id));
-        
-        if (logrosObtenidos.length === 0) {
-            logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding:10px;'>No has desbloqueado ningún logro todavía.</p>";
+        const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
+        if (unlockedLogros.length === 0) {
+            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has desbloqueado registros en este perfil.</p>`;
         } else {
-            logrosContainer.innerHTML = logrosObtenidos.map(logro => `
-                <div class="item-logro ${logro.tipo} desbloqueado" 
-                     style="cursor: pointer; border-left: 4px solid ${logro.tipo === 'negativo' ? 'var(--negative-color)' : 'var(--accent-color)'};"
-                     onclick="mostrarDetalleLogro('${logro.id}')">
+            logrosContainer.innerHTML = unlockedLogros.map(logro => `
+                <div class="item-logro ${logro.tipo}">
                     <strong>${logro.tipo === 'negativo' ? '⚠️ ' : '🏆 '}${logro.nombre}</strong><br>
                     <span style="font-size:0.8rem; color:var(--text-muted);">${logro.desc}</span>
                 </div>
@@ -301,7 +271,25 @@ function renderAllData() {
         }
     }
 
-    filtrarLogsHistorial();
+    const histContainer = document.getElementById('history-list-container');
+    if (histContainer) {
+        if (c.history.length === 0) {
+            histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
+        } else {
+            histContainer.innerHTML = c.history.map((h, index) => `
+                <div class="log-item-card" onclick="cargarChatHistorico(${index})">
+                    <div class="log-item-info">
+                        <strong>Q:</strong> ${h.pregunta}<br>
+                        <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
+                        <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
+                    </div>
+                    <div class="log-item-action" onclick="event.stopPropagation();">
+                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
 
     const favContainer = document.getElementById('favorites-list-container');
     if (favContainer) {
@@ -318,34 +306,26 @@ function renderAllData() {
     }
 
     const contBtn = document.getElementById('continue-btn');
-    if (contBtn) {
-        contBtn.innerText = revisandoHistorial ? "VOLVER AL CHAT ACTIVO" : "SIGUIENTE CONSULTA";
+    if (revisandoHistorial) {
+        contBtn.innerText = "VOLVER AL CHAT ACTIVO";
+    } else {
+        contBtn.innerText = "SIGUIENTE CONSULTA";
     }
 }
 
 // ==========================================
-// 5. NÚCLEO LÓGICO DEL MOTOR DE RONDAS
+// 5. FLUJO DEL CHAT Y RONDAS
 // ==========================================
-function generarPreguntaInfinita() {
-    let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-    let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-    let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-    return plantilla.replace("[s]", sujeto).replace("[p]", predicado);
-}
-
 document.getElementById('chat-form').onsubmit = (e) => {
     e.preventDefault();
     let c = getCuenta();
     const input = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
     const userText = input.value.trim();
-    
     if (!userText || input.disabled) return;
     
     appendMessage('gugel', userText);
-    
     input.style.display = "none";
-    transmitBtn.style.display = "none";
+    document.getElementById('transmit-btn').style.display = "none";
 
     let tipo = "OK";
     if (userText.toLowerCase() === c.lastUserText.toLowerCase()) {
@@ -357,22 +337,17 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
     c.lastUserText = userText;
 
-    let reaccion = tipo === "SPAM" ? obtenerElementoNoRepetido(FRASES_SPAM, c.recentReactions) :
-                   tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, c.recentReactions) :
+    let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, c.recentReactions) :
                    tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, c.recentReactions) :
                    obtenerElementoNoRepetido(FRASES_OK, c.recentReactions);
 
-    if (tipo === "CRITICA" || tipo === "SPAM") {
+    if (tipo === "CRITICA") {
         c.satisfaction -= 20;
-        rachaRespuestasOk = 0;
         desbloquearLogro("LN8");
     } else if (tipo === "RECHAZO") {
         c.satisfaction -= 15;
-        rachaRespuestasOk = 0;
     } else {
         c.satisfaction += 10;
-        rachaRespuestasOk++;
-        if (rachaRespuestasOk >= 3) desbloquearLogro("L16");
         if (userText.length > 60) desbloquearLogro("L15");
     }
     
@@ -394,13 +369,30 @@ document.getElementById('chat-form').onsubmit = (e) => {
         esperandoRespuestaDeTurno = false; 
         document.getElementById('chat-actions-bar').style.display = "block";
         document.getElementById('continue-btn').style.display = "block";
-    }, 450);
+    }, 500);
 };
 
+function generarPreguntaInfinita() {
+    let preguntaFinal = "";
+    while (true) {
+        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+        let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+        let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+        
+        preguntaFinal = plantilla.replace("[s]", sujeto).replace("[p]", predicado);
+        
+        let numeroPalabras = preguntaFinal.split(/\s+/).filter(Boolean).length;
+        if (numeroPalabras > 2) {
+            break; 
+        }
+    }
+    return preguntaFinal;
+}
+
 function clickBotonContinuar() {
-    let c = getCuenta();
     if (revisandoHistorial) {
         revisandoHistorial = false;
+        let c = getCuenta();
         
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
@@ -408,30 +400,21 @@ function clickBotonContinuar() {
         document.getElementById('chat-messages').innerHTML = "";
         appendMessage('usuario', c.currentPregunta);
         
-        if (!esperandoRespuestaDeTurno) {
-            let ultimoLog = c.history[c.history.length - 1];
-            if (ultimoLog) {
-                appendMessage('gugel', ultimoLog.respuesta);
-                appendMessage('usuario', ultimoLog.reaccion);
-            }
-            document.getElementById('continue-btn').style.display = "block";
-            document.getElementById('chat-actions-bar').style.display = "block";
-        } else {
-            document.getElementById('continue-btn').style.display = "none";
-            document.getElementById('chat-actions-bar').style.display = "none";
-            
-            const input = document.getElementById('user-input');
-            input.value = "";
-            input.style.display = "block";
-            input.disabled = false;
-            input.placeholder = "Introduce tu respuesta...";
-            
-            const tBtn = document.getElementById('transmit-btn');
-            tBtn.style.display = "block";
-            tBtn.disabled = false;
-            input.focus();
-        }
+        document.getElementById('continue-btn').style.display = "none";
+        document.getElementById('chat-actions-bar').style.display = "none";
+        
+        const input = document.getElementById('user-input');
+        input.value = "";
+        input.style.display = "block";
+        input.disabled = false;
+        input.placeholder = "Introduce tu respuesta...";
+        
+        const tBtn = document.getElementById('transmit-btn');
+        tBtn.style.display = "block";
+        tBtn.disabled = false;
+        
         renderAllData();
+        input.focus();
     } else {
         nextRound();
     }
@@ -461,13 +444,12 @@ function nextRound() {
     esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
-    const tBtn = document.getElementById('transmit-btn');
-    
     input.value = "";
     input.style.display = "block";
     input.disabled = true;
     input.placeholder = "Sincronizando terminal...";
     
+    const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
     tBtn.disabled = true;
 
@@ -478,20 +460,17 @@ function nextRound() {
         if (document.getElementById('view-chat').classList.contains('active')) {
             input.focus();
         }
-    }, 1000);
-    
-    salvarAStorage();
-    renderAllData();
+    }, 1200);
 }
 
 // ==========================================
-// 6. FUNCIONALIDADES AVANZADAS DEL BÚFER DE LOGS
+// 6. CONTROLADORES DE FAVORITOS INTERACTIVOS
 // ==========================================
 function marcarActualComoFavorito() {
     let c = getCuenta();
     if (c.history.length === 0) return;
     let ultimoLog = c.history[c.history.length - 1];
-    inyectarFavoritoEstructural(ultimoLog.pregunta, ultimoLog.respuesta);
+    inyectarFavoritoEstructural(ultimoLog.pregunta, ultimoLog.resepuesta);
 }
 
 function marcarHistoricoComoFavorito(index) {
@@ -541,67 +520,54 @@ function cargarChatHistorico(index) {
 }
 
 // ==========================================
-// 7. SISTEMA DE NAVEGACIÓN Y TEMAS VISUALES
+// 7. NAVEGACIÓN, MODOS Y TEMAS
 // ==========================================
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
+    if (syncTimeout) clearTimeout(syncTimeout);
     
-    if (c.modo === nuevoModo && c.currentPregunta) {
-        if (!document.getElementById('view-chat').classList.contains('active')) {
-            switchView('view-chat');
-        }
-        return;
-    }
-
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
-    const btnCamp = document.getElementById('btn-modo-campaña');
-    const btnInfi = document.getElementById('btn-modo-infinito');
-    if (btnCamp && btnInfi) {
-        btnCamp.classList.remove('active');
-        btnInfi.classList.remove('active');
-        if (nuevoModo === "campaña") btnCamp.classList.add('active');
-        if (nuevoModo === "infinito") btnInfi.classList.add('active');
-    }
+    revisandoHistorial = false;
+    document.getElementById('chat-messages').innerHTML = "";
 
-    if (!document.getElementById('view-chat').classList.contains('active')) {
-        switchView('view-chat');
-    }
-
-    // RESPUESTA VISUAL REACTIVA: Si se cambia el modo en mitad de un turno vacío, se regenera la pregunta inmediatamente
-    if (esperandoRespuestaDeTurno) {
-        if (c.modo === "campaña") {
-            if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-                c.currentPregunta = generarPreguntaInfinita();
-            } else {
-                c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
-            }
-        } else {
+    // BUG FIJADO: Conservar la pregunta de campaña activa en vez de adelantar o regenerar consultas
+    if (c.modo === "campaña") {
+        if (c.campañaCompletada) {
             c.currentPregunta = generarPreguntaInfinita();
+        } else {
+            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex - 1] || PREGUNTAS_CAMPANA[0];
         }
-        document.getElementById('chat-messages').innerHTML = "";
-        appendMessage('usuario', c.currentPregunta);
-
-        const input = document.getElementById('user-input');
-        const tBtn = document.getElementById('transmit-btn');
-        if (input && tBtn) {
-            input.value = "";
-            input.style.display = "block";
-            input.disabled = false;
-            input.placeholder = "Introduce tu respuesta...";
-            tBtn.style.display = "block";
-            tBtn.disabled = false;
-            input.focus();
-        }
-        document.getElementById('chat-actions-bar').style.display = "none";
-        document.getElementById('continue-btn').style.display = "none";
+    } else {
+        c.currentPregunta = generarPreguntaInfinita();
     }
+
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    appendMessage('usuario', c.currentPregunta);
+    esperandoRespuestaDeTurno = true;
+
+    const input = document.getElementById('user-input');
+    input.value = "";
+    input.style.display = "block";
+    input.disabled = false;
+    input.placeholder = "Introduce tu respuesta...";
+
+    const tBtn = document.getElementById('transmit-btn');
+    tBtn.style.display = "block";
+    tBtn.disabled = false;
+
+    document.getElementById('chat-actions-bar').style.display = "none";
+    document.getElementById('continue-btn').style.display = "none";
 
     salvarAStorage();
     renderAllData();
+    input.focus();
 }
 
 function cambiarTema(nuevoTema) {
@@ -626,7 +592,8 @@ function switchView(viewId) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         if (panelObjetivo) {
             panelObjetivo.classList.add('active');
-            const btnPulsado = document.getElementById(`btn-${viewId}`);
+            let btnId = `btn-${viewId}`;
+            const btnPulsado = document.getElementById(btnId);
             if (btnPulsado) btnPulsado.classList.add('active');
             
             if (viewId === "view-perfil") desbloquearLogro("L17");
@@ -636,60 +603,8 @@ function switchView(viewId) {
     renderAllData();
 }
 
-function filtrarLogsHistorial() {
-    let c = getCuenta();
-    const histContainer = document.getElementById('history-list-container');
-    if (!histContainer) return;
-
-    if (c.history.length === 0) {
-        histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
-        return;
-    }
-
-    const buscador = document.getElementById('search-logs-input');
-    const termino = buscador ? buscador.value.toLowerCase().trim() : "";
-
-    const logsFiltrados = c.history.filter(h => 
-        h.pregunta.toLowerCase().includes(termino) || 
-        h.respuesta.toLowerCase().includes(termino) ||
-        h.reaccion.toLowerCase().includes(termino)
-    );
-
-    if (logsFiltrados.length === 0) {
-        histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>No hay logs que coincidan con la búsqueda.</p>";
-        return;
-    }
-
-    histContainer.innerHTML = logsFiltrados.map(h => {
-        const indexReal = c.history.indexOf(h);
-        return `
-            <div class="log-item-card" onclick="cargarChatHistorico(${indexReal})">
-                <div class="log-item-info">
-                    <strong>Q:</strong> ${h.pregunta}<br>
-                    <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
-                    <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
-                </div>
-                <div class="log-item-action" onclick="event.stopPropagation();">
-                    <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${indexReal})">⭐ Guardar</button>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function mostrarDetalleLogro(idLogro) {
-    let c = getCuenta();
-    const logro = BASE_LOGROS.find(l => l.id === idLogro);
-    if (!logro) return;
-    
-    const desbloqueado = c.logrosDesbloqueados.includes(idLogro);
-    if (!desbloqueado) return;
-    
-    alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${logro.nombre}\nEstado: 🔓 DESBLOQUEADO\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${logro.desc}`);
-}
-
 // ==========================================
-// 8. CONTROL DEL MODAL DE OPERADORES
+// 8. LOGICA DE LA VENTANITA MODAL FLOTANTE (CUENTA)
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
@@ -721,17 +636,20 @@ function guardarNombreCuenta() {
     if (syncTimeout) clearTimeout(syncTimeout);
 
     usuarioActivo = userIn;
-    if (usuarioActivo !== "Invitado" && !baseCuentas[usuarioActivo]) {
-        baseCuentas[usuarioActivo] = crearEstructuraVacia();
-    }
+    asegurarEstructuraCuenta(usuarioActivo);
     
     let c = getCuenta();
     c.password = passIn;
 
-    if (passIn === "") desbloquearLogro("LN10");
-    else desbloquearLogro("L10");
+    if (passIn === "") {
+        desbloquearLogro("LN10");
+    } else {
+        desbloquearLogro("L10");
+    }
 
-    if (userIn !== "Invitado") desbloquearLogro("L21");
+    if (userIn !== "Invitado") {
+        desbloquearLogro("L21");
+    }
 
     salvarAStorage();
     cerrarModalCuenta();
@@ -754,13 +672,12 @@ function guardarNombreCuenta() {
     esperandoRespuestaDeTurno = true; 
     
     const input = document.getElementById('user-input');
-    const tBtn = document.getElementById('transmit-btn');
-    
     input.value = "";
     input.style.display = "block";
     input.disabled = false;
     input.placeholder = "Introduce tu respuesta...";
-    
+
+    const tBtn = document.getElementById('transmit-btn');
     tBtn.style.display = "block";
     tBtn.disabled = false;
 
@@ -768,13 +685,12 @@ function guardarNombreCuenta() {
     document.getElementById('continue-btn').style.display = "none";
 
     renderAllData();
-    
-    alert(`[REGISTRO MATRIZ DE CUENTAS]\n-----------------------------------\nEstado: ASCONECTADO\nOperador: ${usuarioActivo}\nAsignación: Terminal Virtual\n\nMódulo de datos e historial cargado correctamente para esta sesión.`);
+    alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
     input.focus();
 }
 
 // ==========================================
-// 9. SISTEMAS DE EXPORTACIÓN Y REINICIO
+// 9. EXPORTACIONES MUESTRA
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
@@ -803,34 +719,14 @@ function exportarHistorialCompleto() {
     desbloquearLogro("L20");
 }
 
-function purgarProgresoSistema() {
-    if (confirm("¿Confirmas la destrucción absoluta del búfer de datos de este operador?")) {
-        if (usuarioActivo === "Invitado") {
-            cuentaInvitadoVolatil = crearEstructuraVacia();
-        } else {
-            baseCuentas[usuarioActivo] = crearEstructuraVacia();
-            salvarAStorage();
-        }
-        desbloquearLogro("LN9");
-        location.reload();
-    }
-}
-
 // ==========================================
-// 10. ESCUCHADORES DE EVENTOS E INICIALIZACIÓN
+// 10. EVENTO INICIAL DE CARGA
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
-    inicializarEntornoCuentas();
-    
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
-    const selectTema = document.getElementById('theme-select');
-    if (selectTema) selectTema.value = temaGuardado;
-    
-    const buscadorLogs = document.getElementById('search-logs-input');
-    if (buscadorLogs) {
-        buscadorLogs.addEventListener('input', filtrarLogsHistorial);
-    }
+    const s = document.getElementById('theme-select');
+    if (s) s.value = temaGuardado;
     
     let c = getCuenta();
     if (!c.currentPregunta) {
@@ -841,8 +737,6 @@ window.addEventListener('DOMContentLoaded', () => {
             c.currentPregunta = generarPreguntaInfinita();
         }
     }
-    
-    document.getElementById('chat-messages').innerHTML = "";
     appendMessage('usuario', c.currentPregunta);
     esperandoRespuestaDeTurno = true; 
     renderAllData();
