@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -470,7 +470,7 @@ function marcarActualComoFavorito() {
     let c = getCuenta();
     if (c.history.length === 0) return;
     let ultimoLog = c.history[c.history.length - 1];
-    inyectarFavoritoEstructural(ultimoLog.pregunta, ultimoLog.resepuesta);
+    inyectarFavoritoEstructural(ultimoLog.pregunta, ultimoLog.respuesta);
 }
 
 function marcarHistoricoComoFavorito(index) {
@@ -534,15 +534,18 @@ function seleccionarModoJuego(nuevoModo) {
     revisandoHistorial = false;
     document.getElementById('chat-messages').innerHTML = "";
 
-    // BUG FIJADO: Conservar la pregunta de campaña activa en vez de adelantar o regenerar consultas
-    if (c.modo === "campaña") {
-        if (c.campañaCompletada) {
-            c.currentPregunta = generarPreguntaInfinita();
+    // SOLUCIÓN AL BUG: Si ya hay una pregunta activa en curso, la preservamos por completo sin sobrescribirla
+    if (!c.currentPregunta) {
+        if (c.modo === "campaña") {
+            if (c.campañaCompletada) {
+                c.currentPregunta = generarPreguntaInfinita();
+            } else {
+                c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
+                c.campanaIndex++;
+            }
         } else {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex - 1] || PREGUNTAS_CAMPANA[0];
+            c.currentPregunta = generarPreguntaInfinita();
         }
-    } else {
-        c.currentPregunta = generarPreguntaInfinita();
     }
 
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
@@ -604,56 +607,47 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 8. LOGICA DE LA VENTANITA MODAL FLOTANTE (CUENTA)
+// 8. LOGICA DE VENTANAS DE DIÁLOGO NATIVAS (CUENTA)
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
-    document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-    document.getElementById('account-password').value = c.password || "";
-    document.getElementById('panel-user-status').innerText = usuarioActivo;
-    document.getElementById('modal-cuenta').classList.add('active');
-}
+    
+    // Solicitud del nombre/código de operador a través de ventana superior nativa (prompt)
+    let nuevoUsuario = prompt("⚙️ AUTENTICACIÓN DE OPERADORES\n\nIntroduce tu Código o Alias de Operador:", usuarioActivo === "Invitado" ? "" : usuarioActivo);
+    
+    if (nuevoUsuario === null) return; // Cancelado por el usuario
+    nuevoUsuario = nuevoUsuario.trim();
 
-function cerrarModalCuenta() {
-    document.getElementById('modal-cuenta').classList.remove('active');
-}
-
-function cerrarModalCuentaExterno(e) {
-    if (e.target.id === 'modal-cuenta') {
-        cerrarModalCuenta();
-    }
-}
-
-function guardarNombreCuenta() {
-    const userIn = document.getElementById('account-username').value.trim();
-    const passIn = document.getElementById('account-password').value;
-
-    if (!userIn) {
-        alert("Error: El código de operador no puede estar vacío.");
+    if (!nuevoUsuario) {
+        alert("⚠️ Error: El código de operador no puede estar vacío.");
         return;
     }
 
+    // Solicitud de contraseña a través de ventana superior nativa (prompt)
+    let nuevaPassword = prompt("⚙️ AUTENTICACIÓN DE OPERADORES\n\nIntroduce tu Contraseña de Terminal:", c.password || "");
+    if (nuevaPassword === null) return; // Cancelado por el usuario
+
     if (syncTimeout) clearTimeout(syncTimeout);
 
-    usuarioActivo = userIn;
+    usuarioActivo = nuevoUsuario;
     asegurarEstructuraCuenta(usuarioActivo);
     
-    let c = getCuenta();
-    c.password = passIn;
+    c = getCuenta();
+    c.password = nuevaPassword;
 
-    if (passIn === "") {
+    if (nuevaPassword === "") {
         desbloquearLogro("LN10");
     } else {
         desbloquearLogro("L10");
     }
 
-    if (userIn !== "Invitado") {
+    if (nuevoUsuario !== "Invitado") {
         desbloquearLogro("L21");
     }
 
     salvarAStorage();
-    cerrarModalCuenta();
     
+    // Forzar reinicio visual de la terminal limpia para el nuevo perfil cargado
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
@@ -661,7 +655,7 @@ function guardarNombreCuenta() {
     
     if (!c.currentPregunta) {
         if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
+            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
             c.campanaIndex++;
         } else {
             c.currentPregunta = generarPreguntaInfinita();
@@ -685,7 +679,7 @@ function guardarNombreCuenta() {
     document.getElementById('continue-btn').style.display = "none";
 
     renderAllData();
-    alert(`Módulo de Datos cargado para el operador: ${usuarioActivo}`);
+    alert(`🏆 Módulo de Datos cargado para el operador: ${usuarioActivo}`);
     input.focus();
 }
 
@@ -731,7 +725,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let c = getCuenta();
     if (!c.currentPregunta) {
         if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
+            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
             c.campanaIndex++;
         } else {
             c.currentPregunta = generarPreguntaInfinita();
