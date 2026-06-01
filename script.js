@@ -52,7 +52,7 @@ const BASE_LOGROS = [
     { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
     { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
-    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
+    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias unique." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
     { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
@@ -595,7 +595,7 @@ function mostrarDetalleLogro(idLogro) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // GUARDADO SILENCIOSO: Evitamos sobrescribir c.currentPregunta si ya existe una activa
+    // GUARDADO SILENCIOSO: Cambia la configuración del juego de fondo de manera transparente
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
@@ -610,7 +610,8 @@ function seleccionarModoJuego(nuevoModo) {
         if (nuevoModo === "infinito") btnInfi.classList.add('active');
     }
 
-    // Solo se inicializa si el entorno estuviera completamente vacío por un error crítico
+    // ARREGLADO: Si ya hay una pregunta en curso en c.currentPregunta, NO HACEMOS NADA en el chat.
+    // Solo inicializa la pregunta de respaldo si la sesión estuviera recién creada a cero absoluto.
     if (!c.currentPregunta) {
         if (c.modo === "campaña") {
             c.currentPregunta = PREGUNTAS_CAMPANA[0];
