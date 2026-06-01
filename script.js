@@ -282,7 +282,6 @@ function renderAllData() {
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        // CORRECCIÓN SOLICITADA: Ahora filtramos la base completa y mapeamos SOLO los que están obtenidos
         const logrosObtenidos = BASE_LOGROS.filter(logro => c.logrosDesbloqueados.includes(logro.id));
         
         if (logrosObtenidos.length === 0) {
@@ -585,7 +584,7 @@ function mostrarDetalleLogro(idLogro) {
     if (!logro) return;
     
     const desbloqueado = c.logrosDesbloqueados.includes(idLogro);
-    if (!desbloqueado) return; // Protección adicional si se invoca un ID bloqueado
+    if (!desbloqueado) return;
     
     alert(`[REGISTRO MATRIZ DE LOGROS]\n-----------------------------------\nCódigo: ${logro.id}\nNombre: ${logro.nombre}\nEstado: 🔓 DESBLOQUEADO\nTipo: ${logro.tipo.toUpperCase()}\n\nDescripción:\n${logro.desc}`);
 }
@@ -596,6 +595,7 @@ function mostrarDetalleLogro(idLogro) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
+    // GUARDADO SILENCIOSO: Evitamos sobrescribir c.currentPregunta si ya existe una activa
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
@@ -610,6 +610,7 @@ function seleccionarModoJuego(nuevoModo) {
         if (nuevoModo === "infinito") btnInfi.classList.add('active');
     }
 
+    // Solo se inicializa si el entorno estuviera completamente vacío por un error crítico
     if (!c.currentPregunta) {
         if (c.modo === "campaña") {
             c.currentPregunta = PREGUNTAS_CAMPANA[0];
