@@ -3,140 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUGEL: simulador de IA</title>
-    <link class="tema-link" rel="stylesheet" href="style.css">
+    <title>GUGEL: Simulador de IA</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="modo-hacker">
+<body>
 
-    <div id="app-container">
-        <!-- BARRA LATERAL DE CONTROL -->
-        <aside id="sidebar">
-            <div class="menu-section">
-                <div class="section-title">🕹️ MODOS DE CONSULTA</div>
-                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">📌 Panel de Campaña</button>
-                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
+    <div id="pantalla-simulador">
+        <header>
+            <h1>GUGEL: Simulador de IA</h1>
+        </header>
+        
+        <main>
+            <p>El usuario humano está realizando búsquedas en el sistema...</p>
+            <div class="zona-controles">
+                <button onclick="dispararLogroPrueba()">Simular Logro</button>
+                <button onclick="dispararOperadorPrueba()">Simular Alerta Operador</button>
             </div>
-
-            <div class="menu-section">
-                <div class="section-title">👤 MONITOR DE SESIÓN</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">🏆 REGISTRO INTERNO</div>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">📁 REGISTRO CENTRAL</div>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
-            </div>
-
-            <div class="menu-section-footer">
-                <div class="account-badge-sidebar">Operador: <span id="sidebar-user-display">Invitado</span></div>
-                <button id="btn-open-cuenta" class="sub-btn account-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
-            </div>
-        </aside>
-
-        <!-- CONTENIDO PRINCIPAL -->
-        <main id="main-content">
-            <header id="top-bar">
-                <div class="brand-top">GUGEL Core</div>
-                <div class="theme-selector">
-                    <select id="theme-select" onchange="cambiarTema(this.value)">
-                        <option value="modo-hacker">Modo Hacker</option>
-                        <option value="modo-claro">Modo Claro</option>
-                        <option value="modo-oscuro">Modo Oscuro</option>
-                        <option value="modo-rosa">Modo Rosa</option>
-                        <option value="modo-espacial">Modo Espacial 🚀</option>
-                    </select>
-                </div>
-            </header>
-
-            <div id="display-workspace">
-                <!-- PANEL DE CHAT PRINCIPAL -->
-                <section id="view-chat" class="content-panel active">
-                    <div id="chat-messages"></div>
-                    <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
-                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">⭐ Guardar consulta en favoritos</button>
-                    </div>
-                    <form id="chat-form">
-                        <div class="input-wrapper">
-                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                            <button type="submit" id="transmit-btn">ENVIAR</button>
-                        </div>
-                    </form>
-                </section>
-
-                <!-- PANEL DE ESTADO ANALÍTICO -->
-                <section id="view-perfil" class="content-panel">
-                    <div class="card">
-                        <h3>📊 Estado Analítico del Operador</h3>
-                        <p><strong>Identificador de Cuenta Activa:</strong> <span id="prof-usuario">Invitado</span></p>
-                        <div class="opinion-box" id="opinion-container">
-                            <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
-                        </div>
-                        <p><strong>Satisfacción del Sujeto:</strong> <span id="prof-satisfaction">50%</span></p>
-                        <span id="panel-user-status" style="display:none;">Invitado</span>
-                    </div>
-                </section>
-
-                <!-- PANEL DE LOGROS -->
-                <section id="view-logros" class="content-panel">
-                    <div class="card">
-                        <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
-                        <div id="logros-container" class="list-container"></div>
-                    </div>
-                </section>
-
-                <!-- PANEL DE HISTORIAL Y MARCADORES -->
-                <section id="view-historial" class="content-panel">
-                    <div class="card">
-                        <h3>📁 Búfer de Logs y Favoritos</h3>
-                        <div class="action-bar">
-                            <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
-                            <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
-                        </div>
-                        
-                        <h4>⭐ MARCADORES FAVORITOS</h4>
-                        <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
-
-                        <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
-                        <div id="history-list-container" class="list-container"></div>
-                    </div>
-                </section>
-            </div>
-
-            <footer id="bottom-bar">
-                <button id="continue-btn" onclick="clickBotonContinuar()" style="display:none;">SIGUIENTE CONSULTA</button>
-            </footer>
         </main>
     </div>
 
-    <!-- VENTANA MODAL FLOTANTE SUPERIOR PARA GESTIÓN DE CUENTA -->
-    <div id="modal-cuenta-operador" class="modal-overlay">
-        <div class="modal-window">
-            <div class="modal-header">
-                <h3>⚙️ Autenticación de Operadores</h3>
-                <button class="close-modal-btn" onclick="cerrarModalCuenta()">×</button>
-            </div>
-            
-            <div class="account-form-block" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-                <div>
-                    <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Código/Alias de Operador:</label>
-                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;" autocomplete="off">
-                </div>
-                <div>
-                    <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
-                    <input type="password" id="account-password" placeholder="••••••••" style="width:100%; margin-top:5px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-                    <button class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text); border:none;">ACCEDER / REGISTRAR CUENTA</button>
-                    <button class="sub-btn" onclick="cerrarModalCuenta()" style="text-align: center; background: transparent; color: var(--text-muted); border:1px solid var(--bubble-border);">CANCELAR</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Contenedor único y global donde van apareciendo todas las ventanitas del juego -->
+    <div id="contenedor-ventanitas-alertas"></div>
 
     <script src="script.js"></script>
 </body>
