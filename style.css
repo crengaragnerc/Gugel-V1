@@ -312,26 +312,23 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* INTERFAZ DE REGISTRO - ESTILO VENTANITA SUPERIOR FLOTANTE */
+/* ESTRUCTURA DE LA VENTANITA MODAL (CUENTA FLOTANTE) */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.75);
     display: none;
     justify-content: center;
-    align-items: flex-start; /* Posiciona el elemento arriba */
-    padding-top: 24px; /* Separación del borde superior */
+    align-items: center;
     z-index: 9999;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(3px);
 }
-
 .modal-overlay.active {
     display: flex;
 }
-
 .modal-window {
     background-color: var(--bg-panel);
     border: 2px solid var(--accent-color);
@@ -339,47 +336,89 @@ input:focus { outline: none; border-color: var(--accent-color); }
     padding: 24px;
     width: 90%;
     max-width: 460px;
-    box-shadow: 0px 12px 35px rgba(0, 0, 0, 0.7);
+    box-shadow: 0px 0px 25px rgba(0, 255, 0, 0.15);
     box-sizing: border-box;
-    animation: popupSlideDown 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
 }
-
-@keyframes popupSlideDown {
-    from {
-        transform: translateY(-40px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px dashed var(--bubble-border);
-    padding-bottom: 12px;
+    padding-bottom: 10px;
     margin-bottom: 15px;
 }
+.modal-header h3 { margin: 0; color: var(--accent-color); }
+.close-modal-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 0 5px; }
+.close-modal-btn:hover { color: var(--negative-color); }
 
-.modal-header h3 {
-    margin: 0;
+/* ESTILOS PRECISOS PARA EL SISTEMA DE VENTANITAS EMERGENTES (TOASTS) */
+#contenedor-notificaciones-sistema {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10005;
+    pointer-events: none;
+}
+
+.ventanita-notificacion-flotante {
+    pointer-events: auto;
+    background-color: var(--bg-inner);
+    color: var(--text-primary);
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    padding: 14px 18px;
+    width: 320px;
+    font-family: 'Courier New', monospace;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    animation: deslizarEntradaToast 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Modificadores de estado idénticos a tus componentes internos */
+.ventanita-notificacion-flotante.positivo {
+    border-left: 6px solid var(--accent-color);
+}
+
+.ventanita-notificacion-flotante.negativo {
+    border-color: var(--negative-color);
+    border-left: 6px solid var(--negative-color);
+}
+
+.ventanita-notificacion-flotante .toast-titulo {
+    font-weight: bold;
+    font-size: 0.85rem;
     color: var(--accent-color);
-    font-size: 1rem;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.close-modal-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-.close-modal-btn:hover {
+.ventanita-notificacion-flotante.negativo .toast-titulo {
     color: var(--negative-color);
+}
+
+.ventanita-notificacion-flotante .toast-cuerpo {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.ventanita-notificacion-flotante.salida-toast {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+@keyframes deslizarEntradaToast {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
