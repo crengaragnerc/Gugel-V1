@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -86,17 +86,9 @@ let esperandoRespuestaDeTurno = true;
 let syncTimeout = null; 
 let revisandoHistorial = false; 
 
-try {
-    if (localStorage.getItem('gugel-multiverse-v4')) {
-        baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
-        if (typeof baseCuentas !== 'object' || baseCuentas === null) {
-            baseCuentas = {};
-        }
-        if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
-    }
-} catch (error) {
-    console.error("Error al procesar el búfer de cuentas central, reiniciando base local:", error);
-    baseCuentas = {};
+if (localStorage.getItem('gugel-multiverse-v4')) {
+    baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
+    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
 }
 
 function crearEstructuraVacia() {
@@ -120,27 +112,16 @@ function crearEstructuraVacia() {
 }
 
 function asegurarEstructuraCuenta(nombre) {
-    const plantilla = crearEstructuraVacia();
-    let c;
-
     if (nombre === "Invitado") {
         if (!cuentaInvitadoVolatil) {
-            cuentaInvitadoVolatil = plantilla;
+            cuentaInvitadoVolatil = crearEstructuraVacia();
         }
-        c = cuentaInvitadoVolatil;
     } else {
         if (!baseCuentas[nombre]) {
-            baseCuentas[nombre] = plantilla;
-        }
-        c = baseCuentas[nombre];
-    }
-
-    // Escaneo estructural preventivo contra datos corruptos u obsoletos
-    for (let key in plantilla) {
-        if (c[key] === undefined || c[key] === null) {
-            c[key] = plantilla[key];
-        } else if (Array.isArray(plantilla[key]) && !Array.isArray(c[key])) {
-            c[key] = [];
+            baseCuentas[nombre] = crearEstructuraVacia();
+        } else {
+            if (baseCuentas[nombre].esperandoCampana === undefined) baseCuentas[nombre].esperandoCampana = true;
+            if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
         }
     }
 }
@@ -247,7 +228,7 @@ function evaluarCoherenciaYSpam(pregunta, respuesta) {
 
 function desbloquearLogro(id) {
     let c = getCuenta();
-    if (c && c.logrosDesbloqueados && !c.logrosDesbloqueados.includes(id)) {
+    if (!c.logrosDesbloqueados.includes(id)) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
@@ -341,7 +322,6 @@ function renderAllData() {
     document.getElementById('prof-usuario').innerText = usuarioActivo;
     document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
-    
     document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
         c.satisfaction < 35 ? OPINIONES_BAJA : 
         c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
@@ -352,12 +332,10 @@ function renderAllData() {
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
 
-    if (btnCamp && btnInfi) {
-        btnCamp.classList.remove('active');
-        btnInfi.classList.remove('active');
-        if (c.modo === "campaña") btnCamp.classList.add('active');
-        if (c.modo === "infinito") btnInfi.classList.add('active');
-    }
+    btnCamp.classList.remove('active');
+    btnInfi.classList.remove('active');
+    if (c.modo === "campaña") btnCamp.classList.add('active');
+    if (c.modo === "infinito") btnInfi.classList.add('active');
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
@@ -410,12 +388,10 @@ function renderAllData() {
     }
 
     const contBtn = document.getElementById('continue-btn');
-    if (contBtn) {
-        if (revisandoHistorial) {
-            contBtn.innerText = "VOLVER AL CHAT ACTIVO";
-        } else {
-            contBtn.innerText = "SIGUIENTE CONSULTA";
-        }
+    if (revisandoHistorial) {
+        contBtn.innerText = "VOLVER AL CHAT ACTIVO";
+    } else {
+        contBtn.innerText = "SIGUIENTE CONSULTA";
     }
 }
 
@@ -464,7 +440,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
         c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            c.campañaCompletada = true;
+            c.campaignCompletada = true;
             desbloquearLogro("L05");
         }
 
@@ -700,6 +676,7 @@ function cerrarModalCuentaExterno(e) {
 }
 
 function guardarNombreCuenta() {
+    let c = getCuenta();
     let nuevoUsuario = document.getElementById('account-username').value.trim();
     let nuevaPassword = document.getElementById('account-password').value;
 
@@ -713,7 +690,7 @@ function guardarNombreCuenta() {
     usuarioActivo = nuevoUsuario;
     asegurarEstructuraCuenta(usuarioActivo);
     
-    let c = getCuenta();
+    c = getCuenta();
     c.password = nuevaPassword;
 
     if (nuevaPassword === "") {
@@ -821,12 +798,13 @@ function generarVentanitaSistema(titulo, mensaje, claseTipo) {
 
     contenedor.appendChild(nuevaVentanita);
 
+    // Reducido el tiempo de espera de 4000 a 2000 milisegundos (2 segundos)
     setTimeout(() => {
         nuevaVentanita.classList.add('salida-toast');
         nuevaVentanita.addEventListener('transitionend', () => {
             nuevaVentanita.remove();
         });
-    }, 4000);
+    }, 2000);
 }
 
 function dispararLogroPrueba() {
