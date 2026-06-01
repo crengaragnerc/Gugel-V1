@@ -59,7 +59,7 @@ const BASE_LOGROS = [
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
     { id: "L27", tipo: "positivo", nombre: "IA de Confianza", desc: "Gugel te tiene guardado en marcadores mentales." },
     { id: "L28", tipo: "positivo", nombre: "Vocabulario Rico", desc: "Evitaste usar palabras repetitivas en tus envíos." },
-    { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rondas totales combinadas." },
+    { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rounds totales combinadas." },
     { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el reluciente Tema Rosa." },
     { id: "L31", tipo: "positivo", nombre: "Odisea del Espacio", desc: "Estableciste la terminal en órbita con el Modo Espacial." },
     
@@ -748,6 +748,7 @@ function guardarNombreCuenta() {
     renderChatActual();
     renderAllData();
     
+    // AQUÍ ESTABA EL ERROR: Enviaba la alerta a la ventana flotante de la esquina correctamente.
     generarVentanitaSistema("⚙️ GESTIÓN DE CUENTA", `Módulo de Datos cargado para el operador: ${usuarioActivo}`, "positivo");
     if (esperandoRespuestaDeTurno) {
         document.getElementById('user-input').focus();
@@ -785,14 +786,13 @@ function exportarHistorialCompleto() {
 }
 
 /**
- * Crea y muestra de forma dinámica las alertas flotantes del sistema.
+ * CREA LAS PEQUEÑAS ALERTAS FLOTANTES DE LA ESQUINA SUPERIOR DERECHA (TOASTS)
  */
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     const contenedor = document.getElementById('contenedor-notificaciones-sistema');
     if (!contenedor) return;
 
     const nuevaVentanita = document.createElement('div');
-    // Asegura que las clases inyectadas sean exactamente 'positivo' o 'negativo'
     nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
 
     nuevaVentanita.innerHTML = `
@@ -810,6 +810,7 @@ function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     }, 4000);
 }
 
+// Botones de simulación para verificar que el aviso flotante va por su cuenta
 function dispararLogroPrueba() {
     generarVentanitaSistema(
         "🏆 ¡LOGRO DESBLOQUEADO!",
