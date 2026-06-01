@@ -543,19 +543,28 @@ function cargarChatHistorico(index) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // GUARDADO SILENCIOSO: Cambia la configuración de la sesión de fondo transparentemente
+    // GUARDADO TRANSPARENTE: Registramos el nuevo modo en el búfer de la sesión
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
-    // ARREGLADO: Si estás en otra pestaña (Estado Analítico, Logs, etc.) y le das a un modo de juego,
-    // forzamos de forma reactiva la redirección hacia el contenedor del chat para que veas el cambio.
+    // ARREGLO EXPLÍCITO DE INTERRUPTORES: Forzamos la clase .active en el DOM de la barra lateral inmediatamente
+    const btnCamp = document.getElementById('btn-modo-campaña');
+    const btnInfi = document.getElementById('btn-modo-infinito');
+    if (btnCamp && btnInfi) {
+        btnCamp.classList.remove('active');
+        btnInfi.classList.remove('active');
+        if (nuevoModo === "campaña") btnCamp.classList.add('active');
+        if (nuevoModo === "infinito") btnInfi.classList.add('active');
+    }
+
+    // Redirección reactiva: Si el usuario pulsa el panel lateral desde otra pestaña, lo traemos al chat activo
     if (!document.getElementById('view-chat').classList.contains('active')) {
         switchView('view-chat');
     }
 
-    // Mantenemos la protección: si ya hay una pregunta iniciada, NO la pisamos ni la borramos.
+    // PROTECCIÓN DE ENTORNO: Si ya hay un hilo de conversación inicializado en pantalla, NO lo pisamos.
     if (!c.currentPregunta) {
         if (c.modo === "campaña") {
             c.currentPregunta = PREGUNTAS_CAMPANA[0];
