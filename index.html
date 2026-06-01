@@ -41,44 +41,76 @@
             <header id="top-bar">
                 <div class="brand-top">GUGEL Core</div>
                 <div class="theme-selector">
-                    <select id="theme-select" onchange="cambiarTema(this.value)">
-                        <option value="modo-hacker">Modo Hacker</option>
-                        <option value="modo-claro">Modo Claro</option>
-                        <option value="modo-oscuro">Modo Oscuro</option>
-                        <option value="modo-rosa">Modo Rosa</option>
-                        <option value="modo-espacial">Modo Espacial 🚀</option>
+                    <select id="theme-select" onchange="cambiarTemaPantalla(this.value)">
+                        <option value="modo-hacker">🟩 Hacker Neón</option>
+                        <option value="modo-oscuro">🟦 Cyber Oscuro</option>
+                        <option value="modo-claro">⬜ Terminal Claro</option>
+                        <option value="modo-rosa">🌸 Algodón de Azúcar</option>
+                        <option value="modo-espacial">🌌 Odisea Espacial</option>
                     </select>
                 </div>
             </header>
 
-            <div id="display-workspace">
-                <section id="view-chat" class="content-panel active">
-                    <div id="chat-messages"></div>
-                    
-                    <div id="chat-actions-bar" style="display: none;">
-                        <button class="action-btn" onclick="toggleFavoritoActual()">⭐ Alternar Favorito</button>
-                        <button class="action-btn" onclick="denunciarConsulta()">⚠️ Reportar Error</button>
-                    </div>
+            <div id="views-wrapper">
+                <section id="view-juego" class="content-panel active-view">
+                    <div id="game-workspace">
+                        <div class="card terminal-card">
+                            <div class="terminal-header">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                                <span id="modo-badge">MODO: CAMPAÑA</span>
+                            </div>
+                            <div id="peticion-entrada-box">
+                                <span class="prompt-symbol">&gt;&gt;</span> Petición entrante de Gugel:
+                                <p id="texto-pregunta">Cargando núcleo de simulación...</p>
+                            </div>
+                        </div>
 
-                    <div class="chat-input-area">
-                        <input type="text" id="user-input" placeholder="Introduce tu respuesta..." autocomplete="off" onkeydown="if(event.key === 'Enter') enviarRespuestaIA()">
-                        <button id="transmit-btn" onclick="enviarRespuestaIA()">TRANSMITIR DATOS</button>
+                        <div class="card opinion-card">
+                            <h3>🧠 Estado Cognitivo de Gugel</h3>
+                            <p id="texto-opinion" class="opinion-box">(Evaluando comportamiento del operador...)</p>
+                        </div>
+
+                        <div class="card chat-card">
+                            <h3>💬 Historial de Entrada / Salida</h3>
+                            <div id="chat-logs-render"></div>
+                            
+                            <form id="chat-form" onsubmit="return false;">
+                                <div class="input-container">
+                                    <textarea id="user-response-input" placeholder="Escribe aquí tu respuesta lógica como IA..." rows="3" required></textarea>
+                                    <button type="submit" id="send-btn">PROCESAR RESPUESTA</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </section>
 
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
-                        <h3>👤 Análisis de la Terminal Activa</h3>
-                        <div class="metric-row"><strong>Código Operador:</strong> <span id="prof-usuario">Invitado</span></div>
-                        <div class="metric-row"><strong>Nivel de Estabilidad:</strong> <span id="prof-satisfaction">50%</span></div>
-                        <div class="opinion-box" id="prof-opinion">(Cargando datos relacionales...)</div>
-                        <button class="danger-btn" onclick="destruirTodoElProgresoSistema()">RESETEAR REGISTRO CENTRAL</button>
+                        <h3>📊 Estado Analítico del Sistema</h3>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <span class="stat-label">Grado de Satisfacción</span>
+                                <div class="progress-bar-container">
+                                    <div id="satisfaction-bar" class="progress-fill" style="width: 50%;"></div>
+                                </div>
+                                <span id="satisfaction-value" class="stat-number">50%</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Consultas Procesadas</span>
+                                <span id="total-queries-value" class="stat-number">0</span>
+                            </div>
+                        </div>
+                        <div style="margin-top:25px;">
+                            <button class="sub-btn" onclick="reiniciarProgresoCompleto()" style="background:var(--negative-color); color:#fff; border:none;">FORMATEAR NÚCLEO (BORRAR PROGRESO)</button>
+                        </div>
                     </div>
                 </section>
 
                 <section id="view-logros" class="content-panel">
                     <div class="card">
-                        <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/41)</h3>
+                        <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
                         <div id="logros-container" class="list-container"></div>
                     </div>
                 </section>
@@ -92,7 +124,7 @@
                         </div>
                         
                         <h4>⭐ MARCADORES FAVORITOS</h4>
-                        <div id=\"favorites-list-container\" class=\"list-container\" style=\"margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;\"></div>
+                        <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
 
                         <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
                         <div id="history-list-container" class="list-container"></div>
@@ -105,6 +137,32 @@
             </footer>
         </main>
     </div>
+
+    <div id="modal-cuenta-sistema" class="modal-overlay" style="display: none;">
+        <div class="modal-content card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--bubble-border); padding-bottom: 8px;">
+                <h3 style="margin:0;">⚙️ GESTIÓN DE CUENTA MULTIOPERADOR</h3>
+                <button class="close-modal-btn" onclick="cerrarModalCuenta()">×</button>
+            </div>
+            <p>Sesión actual activa: <strong id=\"panel-user-status\">Invitado</strong></p>
+            
+            <div class="account-form-block" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <div>
+                    <label for="account-username" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Código/Alias de Operador:</label>
+                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" style="width:100%; margin-top:5px;" autocomplete="off">
+                </div>
+                <div>
+                    <label for="account-password" style="font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
+                    <input type="password" id="account-password" placeholder="••••••••" style="width:100%; margin-top:5px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <button class="sub-btn" onclick="guardarNombreCuenta()" style="text-align: center; background: var(--accent-color); color: var(--accent-text);">ACCEDER / REGISTRAR CUENTA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificaciones-sistema" class="toast-wrapper"></div>
 
     <script src="script.js"></script>
 </body>
