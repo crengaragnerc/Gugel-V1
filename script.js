@@ -242,7 +242,10 @@ function appendMessage(sender, text) {
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'OPERADOR';
+        // Corrección canónica de roles: 
+        // sender 'gugel' -> el operador de la IA responde (OPERADOR)
+        // sender 'usuario' -> el humano realiza consultas (GUGEL)
+        let etiqueta = sender === 'gugel' ? 'OPERADOR' : 'GUGEL';
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
@@ -543,13 +546,18 @@ function cargarChatHistorico(index) {
 function seleccionarModoJuego(nuevoModo) {
     let c = getCuenta();
     
-    // GUARDADO TRANSPARENTE: Registramos el nuevo modo en el búfer de la sesión
+    if (c.modo === nuevoModo && c.currentPregunta) {
+        if (!document.getElementById('view-chat').classList.contains('active')) {
+            switchView('view-chat');
+        }
+        return;
+    }
+
     c.modo = nuevoModo;
     if (nuevoModo === "infinito") {
         desbloquearLogro("L14");
     }
 
-    // ARREGLO EXPLÍCITO DE INTERRUPTORES: Forzamos la clase .active en el DOM de la barra lateral inmediatamente
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
     if (btnCamp && btnInfi) {
@@ -559,21 +567,37 @@ function seleccionarModoJuego(nuevoModo) {
         if (nuevoModo === "infinito") btnInfi.classList.add('active');
     }
 
-    // Redirección reactiva: Si el usuario pulsa el panel lateral desde otra pestaña, lo traemos al chat activo
     if (!document.getElementById('view-chat').classList.contains('active')) {
         switchView('view-chat');
     }
 
-    // PROTECCIÓN DE ENTORNO: Si ya hay un hilo de conversación inicializado en pantalla, NO lo pisamos.
-    if (!c.currentPregunta) {
+    // RESPUESTA VISUAL REACTIVA: Si se cambia el modo en mitad de un turno vacío, se regenera la pregunta inmediatamente
+    if (esperandoRespuestaDeTurno) {
         if (c.modo === "campaña") {
-            c.currentPregunta = PREGUNTAS_CAMPANA[0];
-            c.campanaIndex = 1;
+            if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
+                c.currentPregunta = generarPreguntaInfinita();
+            } else {
+                c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
+            }
         } else {
             c.currentPregunta = generarPreguntaInfinita();
         }
         document.getElementById('chat-messages').innerHTML = "";
         appendMessage('usuario', c.currentPregunta);
+
+        const input = document.getElementById('user-input');
+        const tBtn = document.getElementById('transmit-btn');
+        if (input && tBtn) {
+            input.value = "";
+            input.style.display = "block";
+            input.disabled = false;
+            input.placeholder = "Introduce tu respuesta...";
+            tBtn.style.display = "block";
+            tBtn.disabled = false;
+            input.focus();
+        }
+        document.getElementById('chat-actions-bar').style.display = "none";
+        document.getElementById('continue-btn').style.display = "none";
     }
 
     salvarAStorage();
