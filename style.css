@@ -312,7 +312,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* ESTRUCTURA DE LA VENTANITA MODAL (CUENTA FLOTANTE) */
+/* ESTRUCTURA DE LA VENTANITA MODAL */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -326,9 +326,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
     z-index: 9999;
     backdrop-filter: blur(3px);
 }
-.modal-overlay.active {
-    display: flex;
-}
+.modal-overlay.active { display: flex; }
 .modal-window {
     background-color: var(--bg-panel);
     border: 2px solid var(--accent-color);
@@ -351,7 +349,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .close-modal-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 0 5px; }
 .close-modal-btn:hover { color: var(--negative-color); }
 
-/* ESTILOS PRECISOS PARA EL SISTEMA DE VENTANITAS EMERGENTES (TOASTS) */
+/* SISTEMA UNIFICADO DE TOASTS FLOTANTES */
 #contenedor-notificaciones-sistema {
     position: fixed;
     top: 24px;
@@ -367,10 +365,10 @@ input:focus { outline: none; border-color: var(--accent-color); }
     pointer-events: auto;
     background-color: var(--bg-inner);
     color: var(--text-primary);
-    border: 2px solid var(--accent-color);
+    border: 2px solid var(--bubble-border);
     border-radius: 8px;
     padding: 14px 18px;
-    width: 320px;
+    width: 340px;
     font-family: 'Courier New', monospace;
     box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
@@ -378,8 +376,8 @@ input:focus { outline: none; border-color: var(--accent-color); }
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* Modificadores de estado */
 .ventanita-notificacion-flotante.positivo {
+    border-color: var(--accent-color);
     border-left: 6px solid var(--accent-color);
 }
 
@@ -392,7 +390,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
     font-weight: bold;
     font-size: 0.85rem;
     color: var(--accent-color);
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -413,12 +411,6 @@ input:focus { outline: none; border-color: var(--accent-color); }
 }
 
 @keyframes deslizarEntradaToast {
-    from {
-        transform: translateX(120%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
