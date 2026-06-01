@@ -320,7 +320,10 @@ function renderAllData() {
 
     document.getElementById('sidebar-user-display').innerText = usuarioActivo;
     document.getElementById('prof-usuario').innerText = usuarioActivo;
-    document.getElementById('panel-user-status').innerText = usuarioActivo;
+    
+    const statusPanel = document.getElementById('panel-user-status');
+    if (statusPanel) statusPanel.innerText = usuarioActivo;
+    
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
     document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
         c.satisfaction < 35 ? OPINIONES_BAJA : 
@@ -332,10 +335,12 @@ function renderAllData() {
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
 
-    btnCamp.classList.remove('active');
-    btnInfi.classList.remove('active');
-    if (c.modo === "campaña") btnCamp.classList.add('active');
-    if (c.modo === "infinito") btnInfi.classList.add('active');
+    if (btnCamp && btnInfi) {
+        btnCamp.classList.remove('active');
+        btnInfi.classList.remove('active');
+        if (c.modo === "campaña") btnCamp.classList.add('active');
+        if (c.modo === "infinito") btnInfi.classList.add('active');
+    }
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
     const logrosContainer = document.getElementById('logros-container');
@@ -366,7 +371,7 @@ function renderAllData() {
                         <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
                     </div>
                     <div class="log-item-action" onclick="event.stopPropagation();">
-                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
+                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})" style="padding: 6px 12px; background: var(--bg-inner); color: #ffd700; border: 1px solid #ffd700; border-radius: 4px; font-size: 0.75rem;">⭐ Guardar</button>
                     </div>
                 </div>
             `).join('');
@@ -388,10 +393,12 @@ function renderAllData() {
     }
 
     const contBtn = document.getElementById('continue-btn');
-    if (revisandoHistorial) {
-        contBtn.innerText = "VOLVER AL CHAT ACTIVO";
-    } else {
-        contBtn.innerText = "SIGUIENTE CONSULTA";
+    if (contBtn) {
+        if (revisandoHistorial) {
+            contBtn.innerText = "VOLVER AL CHAT ACTIVO";
+        } else {
+            contBtn.innerText = "SIGUIENTE CONSULTA";
+        }
     }
 }
 
@@ -440,7 +447,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
         c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            c.campaignCompletada = true;
+            c.campañaCompletada = true;
             desbloquearLogro("L05");
         }
 
@@ -798,7 +805,6 @@ function generarVentanitaSistema(titulo, mensaje, claseTipo) {
 
     contenedor.appendChild(nuevaVentanita);
 
-    // Reducido el tiempo de espera de 4000 a 2000 milisegundos (2 segundos)
     setTimeout(() => {
         nuevaVentanita.classList.add('salida-toast');
         nuevaVentanita.addEventListener('transitionend', () => {
