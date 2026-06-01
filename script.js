@@ -84,7 +84,7 @@ let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
 let esperandoRespuestaDeTurno = true; 
 let syncTimeout = null; 
-let revisandoHistorial = false; 
+let revisarHistorial = false; 
 
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
@@ -156,11 +156,7 @@ function sincronizarEstadoTurno(c) {
         esperandoRespuestaDeTurno = c.esperandoCampana;
     } else {
         if (!c.currentPreguntaInfinito) {
-            if (c.currentPregunta && c.currentPreguntaInfinito === "") {
-                c.currentPreguntaInfinito = c.currentPregunta;
-            } else {
-                c.currentPreguntaInfinito = generarPreguntaInfinita();
-            }
+            c.currentPreguntaInfinito = generarPreguntaInfinita();
             c.esperandoInfinito = true;
         }
         c.currentPregunta = c.currentPreguntaInfinito;
@@ -252,62 +248,74 @@ function verificarLogrosDeEstado() {
 }
 
 // ==========================================
-// 4. INTERFAZ Y RENDERIZADO DINÁMICO
+// 4. VENTANAS DEL SISTEMA Y GESTIÓN MULTICUENTA
 // ==========================================
-function obtenerElementoNoRepetido(lista, historial) {
-    let opciones = lista.filter(item => !historial.includes(item));
-    if (opciones.length === 0) opciones = lista;
-    let item = opciones[Math.floor(Math.random() * opciones.length)];
-    historial.push(item);
-    if (historial.length > 5) historial.shift();
-    return item;
+function generarVentanitaSistema(titulo, mensaje, tipo = "positivo") {
+    // Adiós al código complejo de toasts flotantes, ahora es un alert clásico de toda la vida
+    alert(`[${tipo.toUpperCase()}] ${titulo}\n\n${mensaje}`);
 }
 
-function appendMessage(sender, text) {
-    const box = document.getElementById('chat-messages');
-    if (box) {
-        const msg = document.createElement('div');
-        msg.className = `message ${sender}`;
-        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
-        msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
-        box.appendChild(msg);
-        box.scrollTop = box.scrollHeight;
+function abrirModalCuenta() {
+    const nuevoNombre = prompt(`⚙️ AUTENTICACIÓN DE OPERADORES\nSesión activa actual: ${usuarioActivo}\n\nIntroduce tu Código/Alias de Operador:`, usuarioActivo === "Invitado" ? "" : usuarioActivo);
+    if (nuevoNombre === null) return; 
+    
+    const nombreLimpio = nuevoNombre.trim();
+    if (nombreLimpio === "") {
+        alert("⚠️ El nombre de operador no puede estar vacío.");
+        return;
     }
+    
+    const contrasena = prompt("Introduce tu Contraseña de Terminal (deja en blanco si prefieres no usar una contraseña):");
+    if (contrasena === null) return;
+
+    usuarioActivo = nombreLimpio;
+    asegurarEstructuraCuenta(usuarioActivo);
+    
+    let c = getCuenta();
+    c.password = contrasena; 
+    
+    if (usuarioActivo !== "Invitado") {
+        if (contrasena.trim() === "") {
+            desbloquearLogro("LN10"); 
+        } else {
+            desbloquearLogro("L10"); 
+        }
+        desbloquearLogro("L21"); 
+    }
+    
+    salvarAStorage();
+    sincronizarEstadoTurno(c);
+    renderChatActual();
+    renderAllData();
+    
+    alert(`[SISTEMA] ¡Operador "${usuarioActivo}" autenticado correctamente y núcleo sincronizado!`);
 }
 
+// ==========================================
+// 5. RENDERIZADO DEL CHAT Y GAMEPLAY
+// ==========================================
 function renderChatActual() {
     let c = getCuenta();
-    document.getElementById('chat-messages').innerHTML = "";
+    const messagesContainer = document.getElementById('chat-messages');
+    if (!messagesContainer) return;
+    
+    messagesContainer.innerHTML = "";
+    if (revisarHistorial) return; 
     
     if (esperandoRespuestaDeTurno) {
-        appendMessage('usuario', c.currentPregunta);
-        
-        const input = document.getElementById('user-input');
-        input.value = "";
-        input.style.display = "block";
-        input.disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
-
-        const tBtn = document.getElementById('transmit-btn');
-        tBtn.style.display = "block";
-        tBtn.disabled = false;
-
+        appendMessage('gugel', c.currentPregunta);
+        document.getElementById('user-input').style.display = "block";
+        document.getElementById('transmit-btn').style.display = "block";
         document.getElementById('chat-actions-bar').style.display = "none";
         document.getElementById('continue-btn').style.display = "none";
     } else {
-        let lastLog = c.history.filter(h => h.pregunta === c.currentPregunta).pop();
-        if (!lastLog && c.history.length > 0) {
-            lastLog = c.history[c.history.length - 1];
+        appendMessage('gugel', c.currentPregunta);
+        appendMessage('usuario', c.lastUserText);
+        if (c.history.length > 0) {
+            let ultimoLog = c.history[c.history.length - 1];
+            appendMessage('gugel', ultimoLog.respuesta);
+            appendMessage('usuario', ultimoLog.reaccion);
         }
-        
-        if (lastLog) {
-            appendMessage('usuario', lastLog.pregunta);
-            appendMessage('gugel', lastLog.respuesta);
-            appendMessage('usuario', lastLog.reaccion);
-        } else {
-            appendMessage('usuario', c.currentPregunta);
-        }
-        
         document.getElementById('user-input').style.display = "none";
         document.getElementById('transmit-btn').style.display = "none";
         document.getElementById('chat-actions-bar').style.display = "block";
@@ -315,29 +323,387 @@ function renderChatActual() {
     }
 }
 
+function appendMessage(tipo, texto) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+    const m = document.createElement('div');
+    m.className = `message ${tipo}`;
+    if (tipo === 'gugel') {
+        m.innerHTML = `<strong>GUGEL:</strong> ${texto}`;
+    } else {
+        m.innerHTML = `<strong>TÚ (COMO IA):</strong> ${texto}`;
+    }
+    container.appendChild(m);
+    container.scrollTop = container.scrollHeight;
+}
+
+function enviarRespuesta(event) {
+    if (event) event.preventDefault();
+    if (!esperandoRespuestaDeTurno) return;
+
+    const inputElem = document.getElementById('user-input');
+    if (!inputElem) return;
+    
+    let userText = inputElem.value;
+    if (!userText.trim()) return;
+    
+    inputElem.value = "";
+    let c = getCuenta();
+    c.lastUserText = userText;
+
+    if (c.history.length > 0 && c.history[c.history.length - 1].respuesta === userText) {
+        desbloquearLogro("LN7");
+    }
+
+    let tipoResultado = evaluarCoherenciaYSpam(c.currentPregunta, userText);
+    let respuestaGugel = "";
+    let reaccion = "";
+
+    if (tipoResultado === "CRITICA") {
+        respuestaGugel = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
+        reaccion = "¡Gugel se ha enfadado muchísimo!";
+        c.satisfaction -= 25;
+        desbloquearLogro("LN8");
+    } else if (tipoResultado === "RECHAZO") {
+        respuestaGugel = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
+        reaccion = "Gugel arruga el morro descontento.";
+        c.satisfaction -= 12;
+    } else {
+        respuestaGugel = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
+        reaccion = "Gugel asiente satisfecho con tu respuesta.";
+        c.satisfaction += 10;
+        
+        if (c.history.length >= 2) {
+            let ult1 = evaluarCoherenciaYSpam(c.history[c.history.length - 1].pregunta, c.history[c.history.length - 1].respuesta);
+            let ult2 = evaluarCoherenciaYSpam(c.history[c.history.length - 2].pregunta, c.history[c.history.length - 2].respuesta);
+            if (ult1 === "OK" && ult2 === "OK") {
+                desbloquearLogro("L16");
+            }
+        }
+    }
+
+    if (userText.length > 60) {
+        desbloquearLogro("L15");
+    }
+
+    c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
+    appendMessage('usuario', userText);
+    
+    setTimeout(() => {
+        appendMessage('gugel', respuestaGugel);
+        appendMessage('usuario', reaccion);
+        
+        c.history.push({
+            pregunta: c.currentPregunta,
+            respuesta: respuestaGugel,
+            userText: userText,
+            reaccion: reaccion
+        });
+
+        if (c.modo === "campaña") {
+            c.esperandoCampana = false;
+        } else {
+            c.esperandoInfinito = false;
+        }
+
+        esperandoRespuestaDeTurno = false;
+        
+        verificarLogrosDeEstado();
+        salvarAStorage();
+        renderChatActual();
+        renderAllData();
+    }, 500);
+}
+
+function generarPreguntaInfinita() {
+    let preguntaFinal = "";
+    while (true) {
+        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+        let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+        let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+        preguntaFinal = plantilla.replace("[s]", sujeto).replace("[p]", predicado);
+        let numeroPalabras = preguntaFinal.split(/\s+/).filter(Boolean).length;
+        if (numeroPalabras > 2) {
+            break;
+        }
+    }
+    return preguntaFinal;
+}
+
+function clickBotonContinuar() {
+    if (revisarHistorial) {
+        revisarHistorial = false;
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('view-chat').classList.add('active');
+        renderChatActual();
+        renderAllData();
+        if (esperandoRespuestaDeTurno) {
+            document.getElementById('user-input').focus();
+        }
+    } else {
+        nextRound();
+    }
+}
+
+function nextRound() {
+    let c = getCuenta();
+    if (syncTimeout) clearTimeout(syncTimeout);
+    document.getElementById('chat-messages').innerHTML = "";
+    document.getElementById('continue-btn').style.display = "none";
+    document.getElementById('chat-actions-bar').style.display = "none";
+    
+    if (c.modo === "campaña") {
+        if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
+            c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex];
+            c.campanaIndex++;
+            c.esperandoCampana = true;
+        } else {
+            c.campañaCompletada = true;
+            desbloquearLogro("L05");
+            c.currentPreguntaCampana = generarPreguntaInfinita();
+            c.esperandoCampana = true;
+        }
+        c.currentPregunta = c.currentPreguntaCampana;
+        esperandoRespuestaDeTurno = true;
+    } else {
+        c.currentPreguntaInfinito = generarPreguntaInfinita();
+        c.esperandoInfinito = true;
+        c.currentPregunta = c.currentPreguntaInfinito;
+        esperandoRespuestaDeTurno = true;
+    }
+    
+    salvarAStorage();
+    renderChatActual();
+    renderAllData();
+    
+    const uInput = document.getElementById('user-input');
+    if (uInput) uInput.focus();
+}
+
+// ==========================================
+// 6. NAVEGACIÓN, TEMAS Y UTILIDADES DE DATOS
+// ==========================================
+function cargarChatHistorico(index) {
+    let c = getCuenta();
+    let log = c.history[index];
+    if (!log) return;
+    revisarHistorial = true;
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('chat-messages').innerHTML = "";
+    
+    appendMessage('gugel', log.pregunta);
+    appendMessage('usuario', log.userText || "...");
+    appendMessage('gugel', log.respuesta);
+    appendMessage('usuario', log.reaccion);
+    
+    document.getElementById('user-input').style.display = "none";
+    document.getElementById('transmit-btn').style.display = "none";
+    document.getElementById('chat-actions-bar').style.display = "none";
+    document.getElementById('continue-btn').style.display = "block";
+    renderAllData();
+}
+
+function seleccionarModoJuego(nuevoModo) {
+    let c = getCuenta();
+    if (syncTimeout) clearTimeout(syncTimeout);
+    
+    if (c.modo === "campaña") {
+        c.currentPreguntaCampana = c.currentPregunta;
+        c.esperandoCampana = esperandoRespuestaDeTurno;
+    } else {
+        c.currentPreguntaInfinito = c.currentPregunta;
+        c.esperandoInfinito = esperandoRespuestaDeTurno;
+    }
+    
+    c.modo = nuevoModo;
+    if (nuevoModo === "infinito") {
+        desbloquearLogro("L14");
+    }
+    
+    revisarHistorial = false;
+    
+    if (c.modo === "campaña") {
+        if (!c.currentPreguntaCampana) {
+            if (c.campañaCompletada) {
+                c.currentPreguntaCampana = generarPreguntaInfinita();
+            } else {
+                c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
+                c.campanaIndex++;
+            }
+            c.esperandoCampana = true;
+        }
+        c.currentPregunta = c.currentPreguntaCampana;
+        esperandoRespuestaDeTurno = c.esperandoCampana;
+    } else {
+        if (!c.currentPreguntaInfinito) {
+            c.currentPreguntaInfinito = generarPreguntaInfinita();
+            c.esperandoInfinito = true;
+        }
+        c.currentPregunta = c.currentPreguntaInfinito;
+        esperandoRespuestaDeTurno = c.esperandoInfinito;
+    }
+    
+    salvarAStorage();
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    renderChatActual();
+    renderAllData();
+}
+
+function cambiarTema(nuevoTema) {
+    document.body.className = nuevoTema;
+    localStorage.setItem('gugel-tema', nuevoTema);
+    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
+    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
+    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
+    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
+    if (nuevoTema === "modo-espacial") desbloquearLogro("L31");
+}
+
+function switchView(viewId) {
+    revisarHistorial = false;
+    const panelObjetivo = document.getElementById(viewId);
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('view-chat').classList.add('active');
+        renderChatActual();
+    } else {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        if (panelObjetivo) {
+            panelObjetivo.classList.add('active');
+            let btnId = `btn-${viewId}`;
+            const btnPulsado = document.getElementById(btnId);
+            if (btnPulsado) btnPulsado.classList.add('active');
+            if (viewId === "view-perfil") desbloquearLogro("L17");
+            if (viewId === "view-historial") desbloquearLogro("L18");
+        }
+    }
+}
+
+function marcarActualComoFavorito() {
+    let c = getCuenta();
+    if (c.history.length === 0) return;
+    let ultimo = c.history[c.history.length - 1];
+    
+    let yaExiste = c.favorites.some(f => f.pregunta === ultimo.pregunta);
+    if (!yaExiste) {
+        c.favorites.push(ultimo);
+        desbloquearLogro("L06");
+        if (c.favorites.length >= 3) {
+            desbloquearLogro("L07");
+        }
+        salvarAStorage();
+        renderFavorites();
+        alert("⭐ Consulta guardada en tus favoritos correctamente.");
+    } else {
+        alert("Esta consulta ya se encuentra guardada en marcadores.");
+    }
+}
+
+function renderFavorites() {
+    let c = getCuenta();
+    const favContainer = document.getElementById('favorites-list-container');
+    if (!favContainer) return;
+    
+    if (c.favorites.length === 0) {
+        favContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>No hay marcadores favoritos guardados.</p>";
+    } else {
+        favContainer.innerHTML = c.favorites.map((f, index) => `
+            <div class="log-item-card" style="border-color:#ffd700;" onclick="cargarChatFavorito(${index})">
+                <div class="log-item-info">
+                    <strong>⭐ Q:</strong> ${f.pregunta}<br>
+                    <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${f.respuesta}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function cargarChatFavorito(index) {
+    let c = getCuenta();
+    let fav = c.favorites[index];
+    if (!fav) return;
+    revisarHistorial = true;
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.getElementById('chat-messages').innerHTML = "";
+    
+    appendMessage('gugel', fav.pregunta);
+    appendMessage('usuario', fav.userText || "...");
+    appendMessage('gugel', fav.respuesta);
+    appendMessage('usuario', fav.reaccion);
+    
+    document.getElementById('user-input').style.display = "none";
+    document.getElementById('transmit-btn').style.display = "none";
+    document.getElementById('chat-actions-bar').style.display = "none";
+    document.getElementById('continue-btn').style.display = "block";
+    renderAllData();
+}
+
+function exportCoreData() {
+    let c = getCuenta();
+    if (c.history.length === 0) {
+        alert("El búfer de logs está vacío.");
+        return;
+    }
+    let textoLogs = c.history.map((h, i) => `LOG #${i + 1}\nPregunta: ${h.pregunta}\nRespuesta IA: ${h.respuesta}\nReacción: ${h.reaccion}\n--------------------`).join('\n');
+    navigator.clipboard.writeText(textoLogs).then(() => {
+        desbloquearLogro("L19");
+        alert("📋 Los logs del perfil actual se han copiado al portapapeles con éxito.");
+    }).catch(() => {
+        alert("No se pudo copiar de forma automatizada.");
+    });
+}
+
+function exportarHistorialCompleto() {
+    let c = getCuenta();
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(c, null, 4));
+    let downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `gugel_session_${usuarioActivo}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    desbloquearLogro("L20");
+}
+
+function obtenerElementoNoRepetido(lista, recientes) {
+    if (lista.length === 1) return lista[0];
+    let disponibles = lista.filter(e => !recientes.includes(e));
+    if (disponibles.length === 0) {
+        recientes.length = 0; 
+        disponibles = lista;
+    }
+    let elegido = disponibles[Math.floor(Math.random() * disponibles.length)];
+    recientes.push(elegido);
+    if (recientes.length > 3) recientes.shift();
+    return elegido;
+}
+
 function renderAllData() {
     let c = getCuenta();
-
     document.getElementById('sidebar-user-display').innerText = usuarioActivo;
     document.getElementById('prof-usuario').innerText = usuarioActivo;
-    document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
+    
     document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
-        c.satisfaction < 35 ? OPINIONES_BAJA : 
-        c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
-        c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA, 
+        c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
         c.recentReactions
     );
 
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
-
-    btnCamp.classList.remove('active');
-    btnInfi.classList.remove('active');
-    if (c.modo === "campaña") btnCamp.classList.add('active');
-    if (c.modo === "infinito") btnInfi.classList.add('active');
+    if (btnCamp) btnCamp.classList.remove('active');
+    if (btnInfi) btnInfi.classList.remove('active');
+    if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
+    if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
 
     document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
+    
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
         const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
@@ -362,468 +728,18 @@ function renderAllData() {
                 <div class="log-item-card" onclick="cargarChatHistorico(${index})">
                     <div class="log-item-info">
                         <strong>Q:</strong> ${h.pregunta}<br>
-                        <span style="font-size:0.85rem; color: var(--accent-color);"><strong>A:</strong> ${h.respuesta}</span><br>
-                        <span style="font-size:0.8rem; color: var(--text-muted); font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
-                    </div>
-                    <div class="log-item-action" onclick="event.stopPropagation();">
-                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${h.respuesta}</span>
                     </div>
                 </div>
             `).join('');
         }
     }
-
-    const favContainer = document.getElementById('favorites-list-container');
-    if (favContainer) {
-        if (c.favorites.length === 0) {
-            favContainer.innerHTML = "<p style='color:var(--text-muted);'>No hay marcadores guardados.</p>";
-        } else {
-            favContainer.innerHTML = c.favorites.map(f => `
-                <div style="margin-bottom:10px; border-left:2px solid #ffd700; padding-left:10px; background: rgba(255,215,0,0.03); padding:8px; border-radius:4px;">
-                    <strong>⭐ Q:</strong> ${f.pregunta}<br>
-                    <strong>A:</strong> ${f.respuesta}
-                </div>
-            `).join('');
-        }
-    }
-
-    const contBtn = document.getElementById('continue-btn');
-    if (revisandoHistorial) {
-        contBtn.innerText = "VOLVER AL CHAT ACTIVO";
-    } else {
-        contBtn.innerText = "SIGUIENTE CONSULTA";
-    }
+    
+    renderFavorites();
 }
 
 // ==========================================
-// 5. FLUJO DEL CHAT Y RONDAS
-// ==========================================
-document.getElementById('chat-form').onsubmit = (e) => {
-    e.preventDefault();
-    let c = getCuenta();
-    const input = document.getElementById('user-input');
-    const userText = input.value.trim();
-    if (!userText || input.disabled) return;
-    
-    appendMessage('gugel', userText);
-    input.style.display = "none";
-    document.getElementById('transmit-btn').style.display = "none";
-
-    let tipo = "OK";
-    if (userText.toLowerCase() === c.lastUserText.toLowerCase()) {
-        tipo = "CRITICA";
-        desbloquearLogro("LN7");
-    } else {
-        tipo = evaluarCoherenciaYSpam(c.currentPregunta, userText);
-    }
-
-    c.lastUserText = userText;
-
-    let reaccion = tipo === "CRITICA" ? obtenerElementoNoRepetido(FRASES_CRITICAS, c.recentReactions) :
-                   tipo === "RECHAZO" ? obtenerElementoNoRepetido(FRASES_RECHAZO, c.recentReactions) :
-                   obtenerElementoNoRepetido(FRASES_OK, c.recentReactions);
-
-    if (tipo === "CRITICA") {
-        c.satisfaction -= 20;
-        desbloquearLogro("LN8");
-    } else if (tipo === "RECHAZO") {
-        c.satisfaction -= 15;
-    } else {
-        c.satisfaction += 10;
-        if (userText.length > 60) desbloquearLogro("L15");
-    }
-    
-    c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
-
-    setTimeout(() => {
-        appendMessage('usuario', reaccion);
-        c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
-
-        if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            c.campaignCompletada = true;
-            desbloquearLogro("L05");
-        }
-
-        esperandoRespuestaDeTurno = false; 
-        if (c.modo === "campaña") {
-            c.currentPreguntaCampana = c.currentPregunta;
-            c.esperandoCampana = false;
-        } else {
-            c.currentPreguntaInfinito = c.currentPregunta;
-            c.esperandoInfinito = false;
-        }
-
-        verificarLogrosDeEstado();
-        salvarAStorage();
-        renderChatActual();
-        renderAllData();
-    }, 500);
-};
-
-function generarPreguntaInfinita() {
-    let preguntaFinal = "";
-    while (true) {
-        let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-        let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-        let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-        preguntaFinal = plantilla.replace("[s]", sujeto).replace("[p]", predicado);
-        let numeroPalabras = preguntaFinal.split(/\s+/).filter(Boolean).length;
-        if (numeroPalabras > 2) {
-            break; 
-        }
-    }
-    return preguntaFinal;
-}
-
-function clickBotonContinuar() {
-    if (revisandoHistorial) {
-        revisandoHistorial = false;
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-        renderChatActual();
-        renderAllData();
-        if (esperandoRespuestaDeTurno) {
-            document.getElementById('user-input').focus();
-        }
-    } else {
-        nextRound();
-    }
-}
-
-function nextRound() {
-    let c = getCuenta();
-    if (syncTimeout) clearTimeout(syncTimeout);
-
-    document.getElementById('chat-messages').innerHTML = "";
-    document.getElementById('continue-btn').style.display = "none";
-    document.getElementById('chat-actions-bar').style.display = "none";
-
-    if (c.modo === "campaña") {
-        if (c.campanaIndex < PREGUNTAS_CAMPANA.length) {
-            c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
-            c.campanaIndex++;
-        } else {
-            c.campañaCompletada = true;
-            c.currentPregunta = generarPreguntaInfinita();
-        }
-        c.currentPreguntaCampana = c.currentPregunta;
-        c.esperandoCampana = true;
-    } else {
-        c.currentPregunta = generarPreguntaInfinita();
-        c.currentPreguntaInfinito = c.currentPregunta;
-        c.esperandoInfinito = true;
-    }
-    
-    appendMessage('usuario', c.currentPregunta);
-    esperandoRespuestaDeTurno = true; 
-    
-    const input = document.getElementById('user-input');
-    input.value = "";
-    input.style.display = "block";
-    input.disabled = true;
-    input.placeholder = "Sincronizando terminal...";
-    
-    const tBtn = document.getElementById('transmit-btn');
-    tBtn.style.display = "block";
-    tBtn.disabled = true;
-
-    syncTimeout = setTimeout(() => {
-        input.disabled = false;
-        tBtn.disabled = false;
-        input.placeholder = "Introduce tu respuesta...";
-        if (document.getElementById('view-chat').classList.contains('active')) {
-            input.focus();
-        }
-    }, 1200);
-}
-
-// ==========================================
-// 6. CONTROLADORES DE FAVORITOS INTERACTIVOS
-// ==========================================
-function marcarActualComoFavorito() {
-    let c = getCuenta();
-    if (c.history.length === 0) return;
-    let ultimoLog = c.history[c.history.length - 1];
-    inyectarFavoritoEstructural(ultimoLog.pregunta, ultimoLog.respuesta);
-}
-
-function marcarHistoricoComoFavorito(index) {
-    let c = getCuenta();
-    let logSeleccionado = c.history[index];
-    if (logSeleccionado) {
-        inyectarFavoritoEstructural(logSeleccionado.pregunta, logSeleccionado.respuesta);
-    }
-}
-
-function inyectarFavoritoEstructural(preg, resp) {
-    let c = getCuenta();
-    if (!c.favorites.some(f => f.pregunta === preg && f.respuesta === resp)) {
-        c.favorites.push({ pregunta: preg, respuesta: resp });
-        desbloquearLogro("L06");
-        if (c.favorites.length >= 3) desbloquearLogro("L07");
-        salvarAStorage();
-        renderAllData();
-        generarVentanitaSistema("Marcadores", "Consulta guardada en marcadores favoritos.", "positivo");
-    } else {
-        generarVentanitaSistema("Marcadores", "Esta consulta ya se encuentra en favoritos.", "negativo");
-    }
-}
-
-function cargarChatHistorico(index) {
-    let c = getCuenta();
-    let log = c.history[index];
-    if (!log) return;
-
-    revisandoHistorial = true;
-
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-
-    document.getElementById('chat-messages').innerHTML = "";
-    appendMessage('usuario', log.pregunta);
-    appendMessage('gugel', log.respuesta);
-    appendMessage('usuario', log.reaccion);
-
-    document.getElementById('user-input').style.display = "none";
-    document.getElementById('transmit-btn').style.display = "none";
-    document.getElementById('chat-actions-bar').style.display = "none";
-    
-    document.getElementById('continue-btn').style.display = "block";
-    renderAllData();
-}
-
-// ==========================================
-// 7. NAVEGACIÓN, MODOS Y TEMAS
-// ==========================================
-function seleccionarModoJuego(nuevoModo) {
-    let c = getCuenta();
-    if (syncTimeout) clearTimeout(syncTimeout);
-    
-    if (c.modo === "campaña") {
-        c.currentPreguntaCampana = c.currentPregunta;
-        c.esperandoCampana = esperandoRespuestaDeTurno;
-    } else {
-        c.currentPreguntaInfinito = c.currentPregunta;
-        c.esperandoInfinito = esperandoRespuestaDeTurno;
-    }
-
-    c.modo = nuevoModo;
-    if (nuevoModo === "infinito") {
-        desbloquearLogro("L14");
-    }
-
-    revisandoHistorial = false;
-
-    if (c.modo === "campaña") {
-        if (!c.currentPreguntaCampana) {
-            if (c.campañaCompletada) {
-                c.currentPreguntaCampana = generarPreguntaInfinita();
-            } else {
-                c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
-                c.campanaIndex++;
-            }
-            c.esperandoCampana = true;
-        }
-        c.currentPregunta = c.currentPreguntaCampana;
-        esperandoRespuestaDeTurno = c.esperandoCampana;
-    } else {
-        if (!c.currentPreguntaInfinito) {
-            c.currentPreguntaInfinito = generarPreguntaInfinita();
-            c.esperandoInfinito = true;
-        }
-        c.currentPregunta = c.currentPreguntaInfinito;
-        esperandoRespuestaDeTurno = c.esperandoInfinito;
-    }
-
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    
-    renderChatActual();
-    salvarAStorage();
-    renderAllData();
-    
-    if (esperandoRespuestaDeTurno) {
-        document.getElementById('user-input').focus();
-    }
-}
-
-// ==========================================
-// 8. LÓGICA DE VENTANAS DE DIÁLOGO MODALES (CORREGIDO)
-// ==========================================
-function abrirModalCuenta() {
-    let c = getCuenta();
-    const modal = document.getElementById('modal-cuenta-operador');
-    if (modal) {
-        modal.classList.add('active');
-        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-        document.getElementById('account-password').value = c.password || "";
-    }
-}
-
-function cerrarModalCuenta() {
-    const modal = document.getElementById('modal-cuenta-operador');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-
-function cerrarModalCuentaExterno(e) {
-    if (e.target.id === "modal-cuenta-operador") {
-        cerrarModalCuenta();
-    }
-}
-
-function guardarNombreCuenta() {
-    let c = getCuenta();
-    let nuevoUsuario = document.getElementById('account-username').value.trim();
-    let nuevaPassword = document.getElementById('account-password').value;
-
-    if (!nuevoUsuario) {
-        generarVentanitaSistema("⚠️ Error Crítico", "El código de operador no puede estar vacío.", "negativo");
-        return;
-    }
-
-    if (syncTimeout) clearTimeout(syncTimeout);
-
-    usuarioActivo = nuevoUsuario;
-    asegurarEstructuraCuenta(usuarioActivo);
-    
-    c = getCuenta();
-    c.password = nuevaPassword;
-
-    if (nuevaPassword === "") {
-        desbloquearLogro("LN10");
-    } else {
-        desbloquearLogro("L10");
-    }
-
-    if (nuevoUsuario !== "Invitado") {
-        desbloquearLogro("L21");
-    }
-
-    salvarAStorage();
-    cerrarModalCuenta();
-    
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    
-    sincronizarEstadoTurno(c);
-    renderChatActual();
-    renderAllData();
-    
-    generarVentanitaSistema("⚙️ GESTIÓN DE CUENTA", `Módulo de Datos cargado para el operador: ${usuarioActivo}`, "positivo");
-    if (esperandoRespuestaDeTurno) {
-        document.getElementById('user-input').focus();
-    }
-}
-
-function cambiarTema(nuevoTema) {
-    document.body.className = nuevoTema;
-    localStorage.setItem('gugel-tema', nuevoTema);
-    if (nuevoTema === "modo-hacker") desbloquearLogro("L11");
-    if (nuevoTema === "modo-claro") desbloquearLogro("L12");
-    if (nuevoTema === "modo-oscuro") desbloquearLogro("L13");
-    if (nuevoTema === "modo-rosa") desbloquearLogro("L30");
-    if (nuevoTema === "modo-espacial") desbloquearLogro("L31");
-}
-
-function switchView(viewId) {
-    revisandoHistorial = false;
-    const panelObjetivo = document.getElementById(viewId);
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-
-    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-        renderChatActual();
-    } else {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        if (panelObjetivo) {
-            panelObjetivo.classList.add('active');
-            let btnId = `btn-${viewId}`;
-            const btnPulsado = document.getElementById(btnId);
-            if (btnPulsado) btnPulsado.classList.add('active');
-            
-            if (viewId === "view-perfil") desbloquearLogro("L17");
-            if (viewId === "view-historial") desbloquearLogro("L18");
-        }
-    }
-    renderAllData();
-}
-
-// ==========================================
-// 9. EXPORTACIONES MUESTRA Y NOTIFICACIONES
-// ==========================================
-function exportCoreData() {
-    let c = getCuenta();
-    if (c.history.length === 0) return alert("Búfer vacío.");
-    let log = c.history.map((h, i) => `LOG #${i + 1}\nConsulta: ${h.pregunta}\nRespuesta: ${h.respuesta}\nReacción: ${h.reaccion}\n---`).join('\n');
-    navigator.clipboard.writeText(log).then(() => {
-        desbloquearLogro("L19");
-        generarVentanitaSistema("Búfer Central", "Logs transferidos al portapapeles del sistema.", "positivo");
-    });
-}
-
-function exportarHistorialCompleto() {
-    let c = getCuenta();
-    if (c.history.length === 0) return alert("Búfer vacío.");
-    let log = `=== GUGEL OPERATOR LOG ===\nUsuario: ${usuarioActivo}\n\n`;
-    log += c.history.map((h, i) => `[${i + 1}] Q: ${h.pregunta} | A: ${h.respuesta} | R: ${h.reaccion}`).join('\n');
-    const blob = new Blob([log], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `logs_gugel_${usuarioActivo}_${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    desbloquearLogro("L20");
-}
-
-function generarVentanitaSistema(titulo, mensaje, claseTipo) {
-    const contenedor = document.getElementById('contenedor-notificaciones-sistema');
-    if (!contenedor) return;
-
-    const nuevaVentanita = document.createElement('div');
-    nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
-
-    nuevaVentanita.innerHTML = `
-        <div class="toast-titulo">${titulo}</div>
-        <div class="toast-cuerpo">${mensaje}</div>
-    `;
-
-    contenedor.appendChild(nuevaVentanita);
-
-    setTimeout(() => {
-        nuevaVentanita.classList.add('salida-toast');
-        nuevaVentanita.addEventListener('transitionend', () => {
-            nuevaVentanita.remove();
-        });
-    }, 4000);
-}
-
-function dispararLogroPrueba() {
-    generarVentanitaSistema(
-        "🏆 ¡LOGRO DESBLOQUEADO!",
-        "Pensamiento Artificial: Has procesado una petición en menos de 0.5 segundos.",
-        "positivo"
-    );
-}
-
-function dispararOperadorPrueba() {
-    generarVentanitaSistema(
-        "⚙️ GESTIÓN DE CUENTA",
-        "Cuenta de operador vinculada correctamente al núcleo del simulador.",
-        "positivo"
-    );
-}
-
-// ==========================================
-// 10. EVENTO INICIAL DE CARGA
+// 7. EVENTO INICIAL DE CARGA
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
@@ -833,6 +749,12 @@ window.addEventListener('DOMContentLoaded', () => {
     
     let c = getCuenta();
     sincronizarEstadoTurno(c);
+    
+    const chatForm = document.getElementById('chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', enviarRespuesta);
+    }
+    
     renderChatActual();
     renderAllData();
 });
