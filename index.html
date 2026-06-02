@@ -11,23 +11,23 @@
     <div id="app-container">
         <aside id="sidebar">
             <div class="menu-section">
-                <div class="section-title">🕹️ MODOS DE CONSULTA</div>
-                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">📌 Panel de Campaña</button>
-                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
+                <div class="section-title">MODOS DE CONSULTA</div>
+                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">Panel de Campaña</button>
+                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">Consultas Infinitas</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">👤 MONITOR DE SESIÓN</div>
+                <div class="section-title">MONITOR DE SESIÓN</div>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">🏆 REGISTRO INTERNO</div>
+                <div class="section-title">REGISTRO INTERNO</div>
                 <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">📁 REGISTRO CENTRAL</div>
+                <div class="section-title">REGISTRO CENTRAL</div>
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
             </div>
 
@@ -46,7 +46,7 @@
                         <option value="modo-claro">Modo Claro</option>
                         <option value="modo-oscuro">Modo Oscuro</option>
                         <option value="modo-rosa">Modo Rosa</option>
-                        <option value="modo-espacial">Modo Espacial 🚀</option>
+                        <option value="modo-espacial">Modo Espacial</option>
                     </select>
                 </div>
             </header>
@@ -55,7 +55,7 @@
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
                     <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
-                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">⭐ Guardar consulta en favoritos</button>
+                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">Guardar consulta en favoritos</button>
                     </div>
                     <form id="chat-form">
                         <div class="input-wrapper">
@@ -67,7 +67,7 @@
 
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
-                        <h3>📊 Estado Analítico del Operador</h3>
+                        <h3>Estado Analítico del Operador</h3>
                         <p><strong>Identificador de Cuenta Activa:</strong> <span id="prof-usuario">Invitado</span></p>
                         <div class="opinion-box" id="opinion-container">
                             <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
@@ -78,23 +78,23 @@
 
                 <section id="view-logros" class="content-panel">
                     <div class="card">
-                        <h3>🏆 Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
+                        <h3>Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
                         <div id="logros-container" class="list-container"></div>
                     </div>
                 </section>
 
                 <section id="view-historial" class="content-panel">
                     <div class="card">
-                        <h3>📁 Búfer de Logs y Favoritos</h3>
+                        <h3>Búfer de Logs y Favoritos</h3>
                         <div class="action-bar">
                             <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
                             <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
                         </div>
                         
-                        <h4>⭐ MARCADORES FAVORITOS</h4>
+                        <h4>MARCADORES FAVORITOS</h4>
                         <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
 
-                        <h4>📜 HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
+                        <h4>HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
                         <div id="history-list-container" class="list-container"></div>
                     </div>
                 </section>
@@ -111,7 +111,7 @@
     <div id="modal-cuenta" class="modal" style="display: none;">
         <div class="modal-contenido">
             <div class="modal-cabecera">
-                <h4>⚙️ TERMINAL DE AUTENTICACIÓN</h4>
+                <h4>TERMINAL DE AUTENTICACIÓN</h4>
                 <button class="close-modal-btn" onclick="cerrarModalCuenta()">×</button>
             </div>
             <p>Sesión actual activa: <strong id="panel-user-status">Invitado</strong></p>
