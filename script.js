@@ -1,16 +1,82 @@
 // ==========================================
 // 1. CONSTANTES, PLANTILLAS Y DICCIONARIOS
 // ==========================================
-const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
+const PLANTILLAS_PREGUNTAS = [
+    "[s] [p]", 
+    "porque [s] [p]", 
+    "como hacer que [s] [p]", 
+    "que pasa si [s] [p]", 
+    "ayuda mi [s] [p]",
+    "es normal que [s] [p]",
+    "tutorial de como evitar que [s] [p]",
+    "puedo reparar si [s] [p]",
+    "motivos por los que [s] [p]",
+    "que significa cuando [s] [p]"
+];
+
 const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
 
-const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
-const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "explicate mejor q no me entero de nada"];
-const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura", "deja de repetirme lo mismo pesado", "vaya respuesta absurda, eso no tiene nada que ver"];
-const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no", "uwu", "xd"];
+const FRASES_OK = [
+    "vale me cuadra tiene logica", 
+    "aah ya veo gracias me sirve", 
+    "cierto buen punto no habia caido", 
+    "ni tan mal tiene sentido", 
+    "ok eso responde lo que queria",
+    "perfecto, duda aclarada en el buffer",
+    "entendido, me sirve la explicacion",
+    "aaah vale, ahora todo encaja",
+    "buen analisis, directo al grano",
+    "ok, procesando la informacion"
+];
 
-const INFINITO_SUJETOS = ["mi gato", "el vecino del quinto", "el mando de la tele", "un rubik 3x3", "mi conexion de fibra", "el servidor de minecraft", "la tostadora inteligente", "el teclado mecanico", "mi cuenta bancaria", "el profesor de historia"];
-const INFINITO_PREDICADOS = ["esta haciendo ruidos extraños", "ha entrado en un bucle infinito", "no responde al boton de encendido", "gira demasiado lento hoy", "se ha configurado en idioma alienigena", "irradia una luz verde sospechosa", "ha cobrado autoconciencia", "flota en el espacio-tiempo", "se niega a cooperar con el sistema", "ha desaparecido sin dejar rastro"];
+const FRASES_RECHAZO = [
+    "vaya respuesta mas corta y vaga no aclaras nada", 
+    "ya esta? solo eso me vas a decir?", 
+    "explicate mejor q no me entero de nada",
+    "esto se queda a medias, extiende el algoritmo",
+    "un poco flojo, esperaba mas desarrollo",
+    "menuda respuesta mas estandar, pareces un bot de spam",
+    "eso no aclara mi duda principal, especifica mas"
+];
+
+const FRASES_CRITICAS = [
+    "te estas riendo de mi? eso son letras al azar", 
+    "vaya troleo de ia para responderme esta basura", 
+    "deja de repetirme lo mismo pesado", 
+    "vaya respuesta absurda, eso no tiene nada que ver",
+    "¿en serio has tardado tanto para responder esta tonteria?",
+    "esto es el peor procesamiento de datos de la historia",
+    "vaya desastre de respuesta, voy a reportar este bucle"
+];
+
+const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no", "uwu", "xd", "quizas", "error 404", "procesando...", "recalculando", "pfff"];
+
+const INFINITO_SUJETOS = [
+    "mi gato", "el vecino del quinto", "el mando de la tele", "un rubik 3x3", 
+    "mi conexion de fibra", "el servidor de minecraft", "la tostadora inteligente", 
+    "el teclado mecanico", "mi cuenta bancaria", "el profesor de historia",
+    "mi coleccion de lego", "el rodamiento del fingerboard", "la IA de gugel",
+    "un patito de goma", "el cable del cargador", "mi ultima neurona",
+    "el ventilador de la torre", "el microondas de la cocina", "un bloque de comandos",
+    "el heroe del videojuego", "la rueda del raton", "mi almohada para dormir",
+    "el dispensador de agua", "un mii de la isla", "mi taza de cafe",
+    "el bot de discord", "un pixel de la pantalla", "el router del pasillo"
+];
+
+const INFINITO_PREDICADOS = [
+    "esta haciendo ruidos extraños", "ha entrado en un bucle infinito", 
+    "no responde al boton de encendido", "gira demasiado lento hoy", 
+    "se ha configurado en idioma alienigena", "irradia una luz verde sospechosa", 
+    "ha cobrado autoconciencia", "flota en el espacio-tiempo", 
+    "se niega a cooperar con el sistema", "ha desaparecido sin dejar rastro",
+    "esta ejecutando un script malicioso", "se ha quedado atascado a 180 grados",
+    "pide clemencia en codigo binario", "intenta dominar los electrodomesticos",
+    "necesita lubricacion de forma urgente", "se cree un desarrollador senior",
+    "parpadea con un patron bastante siniestro", "se ha puesto a bailar breakdance",
+    "emite musica de 8 bits a medianoche", "ha decidido declararse en huelga",
+    "absorbe los objetos cercanos", "intenta saltar desde la rampa",
+    "ha olvidado su propia configuracion", "se calienta mas de lo normal"
+];
 
 const RESPUESTAS_LOGRO_RAPIDO = [
     "Vaya rapidez analítica, ¿eres una IA cuántica?",
@@ -19,26 +85,52 @@ const RESPUESTAS_LOGRO_RAPIDO = [
 ];
 
 const REACCIONES_COMENTARIOS = {
-    critica: ["El usuario parece indignado.", "Nivel de paciencia del usuario críticamente bajo.", "Feedback negativo registrado en el núcleo."],
-    rechazo: ["El usuario no se muestra conforme.", "La respuesta no ha cumplido las expectativas.", "Analizando carencias en la base de datos."],
-    ok: ["El usuario ha aceptado la respuesta.", "Satisfacción en rangos nominales.", "Interacción fructífera registrada."]
+    critica: [
+        "El usuario parece indignado.", 
+        "Nivel de paciencia del usuario críticamente bajo.", 
+        "Feedback negativo registrado en el núcleo.",
+        "Alerta: El usuario esta a punto de cerrar la pestaña.",
+        "Se detectan picos de frustración en los datos de entrada."
+    ],
+    rechazo: [
+        "El usuario no se muestra conforme.", 
+        "La respuesta no ha cumplido las expectativas.", 
+        "Analizando carencias en la base de datos.",
+        "El usuario frunce el ceño virtualmente.",
+        "Desviacion de respuesta detectada por el cliente."
+    ],
+    ok: [
+        "El usuario ha aceptado la respuesta.", 
+        "Satisfacción en rangos nominales.", 
+        "Interacción fructífera registrada.",
+        "El usuario asiente con la cabeza satisfactoriamente.",
+        "Indexacion correcta en la memoria del usuario."
+    ]
 };
 
 const OPINIONES_BAJA = [
     "«Esta IA parece un bot de mensajería de los noventa. Respuestas absurdas y evasivas constantes.»",
-    "«Inútil. Le pides ayuda con algo complejo y te contesta con un 'no se'. Desinstalando.»"
+    "«Inútil. Le pides ayuda con algo complejo y te contesta con un 'no se'. Desinstalando.»",
+    "«Un desastre absoluto. Tiene menos logica que un rubik con dos caras del mismo color.»",
+    "«No entiende nada. Le hablas de sistemas y te salta con evasivas basicas. Fatal.»"
 ];
 const OPINIONES_MEDIA_BAJA = [
     "«A veces acierta de milagro, pero la mayoría de las veces se va por las ramas. Regular.»",
-    "«Es como hablar con una pared que ha leído la Wikipedia a medias. Podría mejorar.»"
+    "«Es como hablar con una pared que ha leído la Wikipedia a medias. Podría mejorar.»",
+    "«Cumple a duras penas. Si le mandas respuestas vacias o cortas se rompe por completo.»",
+    "«Un simulador curioso, pero la IA que controlamos se vuelve vaga muy facilmente.»"
 ];
 const OPINIONES_MEDIA_ALT_A = [
     "«Bastante decente. Si sabes cómo guiarla, te da respuestas útiles y te saca de un apuro.»",
-    "«Me gusta el estilo técnico. No es perfecta, pero cumple con su cometido simulado.»"
+    "«Me gusta el estilo técnico. No es perfecta, pero cumple con su cometido simulado.»",
+    "«Rendimiento estable. Las respuestas del operador mantienen bien la satisfaccion.»",
+    "«Una buena herramienta de entrenamiento, responde con coherencia la mayor parte del tiempo.»"
 ];
 const OPINIONES_ALTA = [
     "«¡Increíble simulación! El procesamiento es sublime y las respuestas se adaptan con coherencia.»",
-    "«La mejor IA del multiverso. Entiende perfectamente las consultas y da soluciones óptimas.»"
+    "«La mejor IA del multiverso. Entiende perfectamente las consultas y da soluciones óptimas.»",
+    "«Lógica impecable. Si detallas bien los argumentos, la barra de satisfaccion vuela al 100%.»",
+    "«Una delicia de optimizacion de datos. El sistema de logros añade un reto magistral.»"
 ];
 
 const LOGROS_SISTEMA = {
@@ -50,7 +142,7 @@ const LOGROS_SISTEMA = {
     "L06": { titulo: "Crisis de Identidad", desc: "Tu satisfacción ha caído por debajo del 20%. El usuario te odia.", oculto: false },
     "L07": { titulo: "La Evasiva Perfecta", desc: "Has respondido usando exactamente un término de la lista de evasivas oficiales.", oculto: false },
     "L08": { titulo: "Coleccionista de Datos", desc: "Has guardado al menos 5 consultas diferentes en tu sección de Favoritos.", oculto: false },
-    "L09": { titulo: "Fidelidad Absoluta", desc: "Has alcanzado el 100% exacto de satisfacción del cliente.", oculto: false },
+    "L09": { titulo: "Fidelidad Absoluta", desc: "Has alcanzó el 100% exacto de satisfacción del cliente.", oculto: false },
     "L10": { titulo: "Modo Hacker Activo", desc: "Has cambiado la interfaz visual al tema de terminal de hacker.", oculto: true },
     "L11": { titulo: "Silencio Administrativo", desc: "Has enviado una respuesta completamente vacía al usuario.", oculto: true },
     "L12": { titulo: "Persistencia Infinita", desc: "Has procesado un total de 15 consultas en el modo infinito.", oculto: false },
@@ -577,6 +669,9 @@ function calcularCambioSatisfaccion(texto) {
     return ganancia;
 }
 
+// ==========================================
+// 6. FLUJO DE TRABAJO E INTERACCIÓN PRINCIPAL (CONTINUACIÓN)
+// ==========================================
 function nextRound() {
     if (reaccionBloqueada) return;
     let c = getCuenta();
