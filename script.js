@@ -69,7 +69,7 @@ let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null;
 
-let esperandoRespuesta DeTurno = true;
+let esperandoRespuestaDeTurno = true;
 let revisarHistorial = false;
 let revisarFavorito = false;
 let revisarHistorialIndex = null;
@@ -275,7 +275,6 @@ function renderAllData() {
         }
     }
 
-    // RENDERIZADO DEL BÚFER DE LOGS CON HERRAMIENTAS DE COPIADO Y EXPORTACIÓN
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
         if (c.history.length === 0) {
@@ -666,7 +665,6 @@ function cargarChatFavorito(index) {
     renderAllData();
 }
 
-// HERRAMIENTA: COPIAR TODO EL HISTORIAL AL PORTAPAPELES
 function copiarHistorialPortapapeles() {
     let c = getCuenta();
     if (!c.history || c.history.length === 0) {
@@ -705,7 +703,7 @@ function exportarHistorialJSON() {
     document.body.removeChild(linkDescarga);
     URL.revokeObjectURL(url);
     
-    generarVentanitaSistema("📥 EXPORTACIÓN REALIZADA", "Archivo JSON generado y descargado correctamente.", "positivo");
+    generarVentanitaSistema("📥 EXPORTACIÓN REALIZADA", "Archivo JSON generado y downloaded correctamente.", "positivo");
 }
 
 // ==========================================
@@ -734,7 +732,6 @@ function switchView(viewId) {
             if (viewId === "view-historial") desbloquearLogro("L18");
         }
     }
-    // CORRECCIÓN ESENCIAL: Forzar actualización de listas al cambiar de pestaña
     renderAllData();
 }
 
@@ -761,15 +758,13 @@ function seleccionarModoJuego(nuevoModo) {
     }
 }
 
-// NUEVO GESTOR DE CUENTAS DINÁMICO EN BASE A LA CAPTURA (TOAST FLOTANTE INTEGRADO)
 function abrirModalCuenta() {
-    cerrarModalCuenta(); // Prevenir duplicados en pantalla
+    cerrarModalCuenta(); 
 
     let c = getCuenta();
     let aliasPrevio = usuarioActivo === "Invitado" ? "" : usuarioActivo;
     let clavePrevia = usuarioActivo === "Invitado" ? "" : (c.password || "");
 
-    // Capa de fondo oscura (Overlay)
     const overlay = document.createElement('div');
     overlay.id = 'custom-account-popup-overlay';
     overlay.style.position = 'fixed';
@@ -783,11 +778,10 @@ function abrirModalCuenta() {
     overlay.style.alignItems = 'center';
     overlay.style.zIndex = '99999';
 
-    // Contenedor principal con el estilo exacto de los Toasts positivos de la captura
     const popup = document.createElement('div');
     popup.className = 'ventanita-notificacion-flotante positivo';
     popup.style.width = '360px';
-    popup.style.animation = 'none'; // Desactivar animación de salida automática
+    popup.style.animation = 'none'; 
     popup.style.pointerEvents = 'auto';
 
     popup.innerHTML = `
@@ -815,7 +809,6 @@ function abrirModalCuenta() {
     overlay.appendChild(popup);
     document.body.appendChild(overlay);
     
-    // Autoenfoque en el campo de texto
     setTimeout(() => {
         const inputUser = document.getElementById('custom-account-username');
         if (inputUser) inputUser.focus();
@@ -917,7 +910,6 @@ function appendMessage(tipo, texto) {
     container.scrollTop = container.scrollHeight;
 }
 
-// Ventanitas flotantes (Toasts) de estado del sistema
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     const contenedor = document.getElementById('notificaciones-sistema');
     if (!contenedor) return;
@@ -973,7 +965,6 @@ window.addEventListener('DOMContentLoaded', () => {
         chatForm.addEventListener('submit', enviarRespuesta);
     }
 
-    // Asegurar vinculación del click del panel del monitor de sesión si hiciese falta
     const sidebarUser = document.getElementById('sidebar-user-display');
     if (sidebarUser) {
         sidebarUser.style.cursor = 'pointer';
