@@ -50,7 +50,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -77,6 +77,15 @@ let cuentaInvitadoVolatil = null;
 let esperandoRespuestaDeTurno = true; 
 let syncTimeout = null; 
 let revisarHistorial = false; 
+
+// Variables para el control de los temporizadores de 5 segundos
+let segundosPregunta = 5;
+let intervaloPregunta = null;
+let preguntaBloqueada = false;
+
+let segundosReaccion = 5;
+let intervaloReaccion = null;
+let reaccionBloqueada = false;
 
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
@@ -238,6 +247,67 @@ function verificarLogrosDeEstado() {
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
 
+function iniciarContadorPregunta() {
+    if (intervaloPregunta) clearInterval(intervaloPregunta);
+    segundosPregunta = 5;
+    preguntaBloqueada = true;
+    
+    const timerElem = document.getElementById('timer-lock-info');
+    const inputElem = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    
+    if (timerElem) {
+        timerElem.style.display = "block";
+        timerElem.innerText = `SINCRO DE ENTRADA: Bloqueo de respuesta activo por ${segundosPregunta}s...`;
+    }
+    if (inputElem) inputElem.disabled = true;
+    if (transmitBtn) transmitBtn.disabled = true;
+
+    intervaloPregunta = setInterval(() => {
+        segundosPregunta--;
+        if (segundosPregunta <= 0) {
+            clearInterval(intervaloPregunta);
+            preguntaBloqueada = false;
+            if (timerElem) timerElem.style.display = "none";
+            if (inputElem) inputElem.disabled = false;
+            if (transmitBtn) transmitBtn.disabled = false;
+            if (inputElem) inputElem.focus();
+        } else {
+            if (timerElem) {
+                timerElem.innerText = `SINCRO DE ENTRADA: Bloqueo de respuesta activo por ${segundosPregunta}s...`;
+            }
+        }
+    }, 1000);
+}
+
+function iniciarContadorReaccion() {
+    if (intervaloReaccion) clearInterval(intervaloReaccion);
+    segundosReaccion = 5;
+    reaccionBloqueada = true;
+    
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+        continueBtn.disabled = true;
+        continueBtn.innerText = `SIGUIENTE CONSULTA (${segundosReaccion}s)`;
+    }
+
+    intervaloReaccion = setInterval(() => {
+        segundosReaccion--;
+        if (segundosReaccion <= 0) {
+            clearInterval(intervaloReaccion);
+            reaccionBloqueada = false;
+            if (continueBtn) {
+                continueBtn.disabled = false;
+                continueBtn.innerText = "SIGUIENTE CONSULTA";
+            }
+        } else {
+            if (continueBtn) {
+                continueBtn.innerText = `SIGUIENTE CONSULTA (${segundosReaccion}s)`;
+            }
+        }
+    }, 1000);
+}
+
 function abrirModalCuenta() {
     let nuevoNombre = prompt("TERMINAL DE AUTENTICACIÓN\n\nIntroduce tu Código/Alias de Operador:", usuarioActivo === "Invitado" ? "" : usuarioActivo);
     if (nuevoNombre === null) return; 
@@ -268,8 +338,16 @@ function abrirModalCuenta() {
     
     salvarAStorage();
     sincronizarEstadoTurno(c);
+    
+    if (intervaloPregunta) clearInterval(intervaloPregunta);
+    preguntaBloqueada = false;
+    
     renderChatActual();
     renderAllData();
+    
+    if (esperandoRespuestaDeTurno) {
+        iniciarContadorPregunta();
+    }
     
     alert(`⚙️ CONEXIÓN ESTABLECIDA\n\nOperador "${usuarioActivo}" sincronizado en el núcleo central.`);
 }
@@ -282,12 +360,34 @@ function renderChatActual() {
     messagesContainer.innerHTML = "";
     if (revisarHistorial) return; 
     
+    const timerElem = document.getElementById('timer-lock-info');
+    const inputElem = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    
     if (esperandoRespuestaDeTurno) {
         appendMessage('gugel', c.currentPregunta);
-        document.getElementById('user-input').style.display = "block";
-        document.getElementById('transmit-btn').style.display = "block";
+        if (inputElem) inputElem.style.display = "block";
+        if (transmitBtn) transmitBtn.style.display = "block";
         document.getElementById('chat-actions-bar').style.display = "none";
-        document.getElementById('continue-btn').style.display = "none";
+        if (continueBtn) {
+            continueBtn.style.display = "none";
+            continueBtn.disabled = false;
+            continueBtn.innerText = "SIGUIENTE CONSULTA";
+        }
+        
+        if (preguntaBloqueada) {
+            if (inputElem) inputElem.disabled = true;
+            if (transmitBtn) transmitBtn.disabled = true;
+            if (timerElem) {
+                timerElem.style.display = "block";
+                timerElem.innerText = `SINCRO DE ENTRADA: Bloqueo de respuesta activo por ${segundosPregunta}s...`;
+            }
+        } else {
+            if (inputElem) inputElem.disabled = false;
+            if (transmitBtn) transmitBtn.disabled = false;
+            if (timerElem) timerElem.style.display = "none";
+        }
     } else {
         appendMessage('gugel', c.currentPregunta);
         appendMessage('usuario', c.lastUserText);
@@ -295,10 +395,20 @@ function renderChatActual() {
             let ultimoLog = c.history[c.history.length - 1];
             appendMessage('gugel', ultimoLog.respuesta);
         }
-        document.getElementById('user-input').style.display = "none";
-        document.getElementById('transmit-btn').style.display = "none";
+        if (inputElem) inputElem.style.display = "none";
+        if (transmitBtn) transmitBtn.style.display = "none";
         document.getElementById('chat-actions-bar').style.display = "block";
-        document.getElementById('continue-btn').style.display = "block";
+        if (continueBtn) {
+            continueBtn.style.display = "block";
+            if (reaccionBloqueada) {
+                continueBtn.disabled = true;
+                continueBtn.innerText = `SIGUIENTE CONSULTA (${segundosReaccion}s)`;
+            } else {
+                continueBtn.disabled = false;
+                continueBtn.innerText = "SIGUIENTE CONSULTA";
+            }
+        }
+        if (timerElem) timerElem.style.display = "none";
     }
 }
 
@@ -318,7 +428,7 @@ function appendMessage(tipo, texto) {
 
 function enviarRespuesta(event) {
     if (event) event.preventDefault();
-    if (!esperandoRespuestaDeTurno) return;
+    if (!esperandoRespuestaDeTurno || preguntaBloqueada) return;
 
     const inputElem = document.getElementById('user-input');
     if (!inputElem) return;
@@ -383,6 +493,7 @@ function enviarRespuesta(event) {
         salvarAStorage();
         renderChatActual();
         renderAllData();
+        iniciarContadorReaccion();
     }, 500);
 }
 
@@ -402,13 +513,14 @@ function generarPreguntaInfinita() {
 }
 
 function clickBotonContinuar() {
+    if (reaccionBloqueada) return;
     if (revisarHistorial) {
         revisarHistorial = false;
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
         renderChatActual();
         renderAllData();
-        if (esperandoRespuestaDeTurno) {
+        if (esperandoRespuestaDeTurno && !preguntaBloqueada) {
             document.getElementById('user-input').focus();
         }
     } else {
@@ -443,12 +555,13 @@ function nextRound() {
         esperandoRespuestaDeTurno = true;
     }
     
+    if (intervaloReaccion) clearInterval(intervaloReaccion);
+    reaccionBloqueada = false;
+    
     salvarAStorage();
     renderChatActual();
     renderAllData();
-    
-    const uInput = document.getElementById('user-input');
-    if (uInput) uInput.focus();
+    iniciarContadorPregunta();
 }
 
 function cargarChatHistorico(index) {
@@ -468,7 +581,13 @@ function cargarChatHistorico(index) {
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
-    document.getElementById('continue-btn').style.display = "block";
+    
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+        continueBtn.style.display = "block";
+        continueBtn.disabled = false;
+        continueBtn.innerText = "SIGUIENTE CONSULTA";
+    }
     renderAllData();
 }
 
@@ -512,11 +631,21 @@ function seleccionarModoJuego(nuevoModo) {
         esperandoRespuestaDeTurno = c.esperandoInfinito;
     }
     
+    if (intervaloPregunta) clearInterval(intervaloPregunta);
+    preguntaBloqueada = false;
+    if (intervaloReaccion) clearInterval(intervaloReaccion);
+    reaccionBloqueada = false;
+    
     salvarAStorage();
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('view-chat').classList.add('active');
+    
     renderChatActual();
     renderAllData();
+    
+    if (esperandoRespuestaDeTurno) {
+        iniciarContadorPregunta();
+    }
 }
 
 function cambiarTema(nuevoTema) {
@@ -607,10 +736,17 @@ function cargarChatFavorito(index) {
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
     document.getElementById('chat-actions-bar').style.display = "none";
-    document.getElementById('continue-btn').style.display = "block";
+    
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+        continueBtn.style.display = "block";
+        continueBtn.disabled = false;
+        continueBtn.innerText = "SIGUIENTE CONSULTA";
+    }
     renderAllData();
 }
 
+// Envío simplificado y directo de logs al portapapeles
 function exportCoreData() {
     let c = getCuenta();
     if (c.history.length === 0) {
@@ -721,4 +857,8 @@ window.addEventListener('DOMContentLoaded', () => {
     
     renderChatActual();
     renderAllData();
+    
+    if (esperandoRespuestaDeTurno) {
+        iniciarContadorPregunta();
+    }
 });
