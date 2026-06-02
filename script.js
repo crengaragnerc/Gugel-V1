@@ -40,7 +40,7 @@ const BASE_LOGROS = [
     { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
     { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
     { id: "L09", tipo: "positivo", nombre: "Speedcuber Teórico", desc: "Le diste una respuesta digna sobre el cubo de Rubik." },
-    { id: "L10", tipo: "positivo", nombre: "Ciberseguridad Básica", desc: "Establebiste credenciales con contraseña." },
+    { id: "L10", tipo: "positivo", nombre: "Ciberseguridad Básica", desc: "Estableciste credenciales con contraseña." },
     { id: "L11", tipo: "positivo", nombre: "Modo Hacker Activo", desc: "Navegaste usando el entorno verde neón." },
     { id: "L12", tipo: "positivo", nombre: "Purista Claro", desc: "Activaste el modo Claro sin quemarte los ojos." },
     { id: "L13", tipo: "positivo", nombre: "Caballero Oscuro", desc: "Configuraste la interfaz en modo Oscuro." },
@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -82,7 +82,7 @@ const BASE_LOGROS = [
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
-let esperandoRespuesta DeTurno = true; 
+let esperandoRespuestaDeTurno = true; 
 let syncTimeout = null; 
 let revisarHistorial = false; 
 
@@ -247,24 +247,56 @@ function verificarLogrosDeEstado() {
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
 
-function generarVentanitaSistema(titulo, mensaje, tipo = "positivo") {
-    alert(`[${tipo.toUpperCase()}] ${titulo}\n\n${mensaje}`);
+function generarVentanitaSistema(titulo, mensaje, claseTipo = "positivo") {
+    const contenedor = document.getElementById('notificaciones-sistema');
+    if (!contenedor) return;
+
+    const nuevaVentanita = document.createElement('div');
+    nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
+
+    nuevaVentanita.innerHTML = `
+        <div class="toast-titulo">${titulo}</div>
+        <div class="toast-cuerpo">${mensaje}</div>
+    `;
+
+    contenedor.appendChild(nuevaVentanita);
+
+    setTimeout(() => {
+        nuevaVentanita.classList.add('salida-toast');
+        nuevaVentanita.addEventListener('transitionend', () => {
+            nuevaVentanita.remove();
+        });
+    }, 4000);
 }
 
 function abrirModalCuenta() {
-    const nuevoNombre = prompt(`⚙️ AUTENTICACIÓN DE OPERADORES\nSesión activa actual: ${usuarioActivo}\n\nIntroduce tu Código/Alias de Operador:`, usuarioActivo === "Invitado" ? "" : usuarioActivo);
-    if (nuevoNombre === null) return; 
-    
-    const nombreLimpio = nuevoNombre.trim();
-    if (nombreLimpio === "") {
-        alert("⚠️ El nombre de operador no puede estar vacío.");
+    const modal = document.getElementById('modal-cuenta');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('panel-user-status').innerText = usuarioActivo;
+        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
+        document.getElementById('account-password').value = "";
+    }
+}
+
+function cerrarModalCuenta() {
+    const modal = document.getElementById('modal-cuenta');
+    if (modal) modal.style.display = 'none';
+}
+
+function guardarNombreCuenta() {
+    const userIn = document.getElementById('account-username');
+    const passIn = document.getElementById('account-password');
+    if (!userIn) return;
+
+    let nuevoNombre = userIn.value.trim();
+    if (nuevoNombre === "") {
+        generarVentanitaSistema("⚠️ ERROR DETECTADO", "El identificador de cuenta no puede permanecer vacío.", "negativo");
         return;
     }
-    
-    const contrasena = prompt("Introduce tu Contraseña de Terminal (deja en blanco si prefieres no usar una contraseña):");
-    if (contrasena === null) return;
 
-    usuarioActivo = nombreLimpio;
+    let contrasena = passIn ? passIn.value : "";
+    usuarioActivo = nuevoNombre;
     asegurarEstructuraCuenta(usuarioActivo);
     
     let c = getCuenta();
@@ -283,8 +315,9 @@ function abrirModalCuenta() {
     sincronizarEstadoTurno(c);
     renderChatActual();
     renderAllData();
+    cerrarModalCuenta();
     
-    alert(`[SISTEMA] ¡Operador "${usuarioActivo}" autenticado correctamente y núcleo sincronizado!`);
+    generarVentanitaSistema("⚙️ CONEXIÓN ESTABLECIDA", `Operador "${usuarioActivo}" sincronizado en el núcleo central.`, "positivo");
 }
 
 // ==========================================
@@ -346,31 +379,27 @@ function enviarRespuesta(event) {
     let c = getCuenta();
     c.lastUserText = userText;
 
-    if (c.history.length > 0 && c.history[c.history.length - 1].respuesta === userText) {
+    if (c.history.length > 0 && c.history[c.history.length - 1].userText === userText) {
         desbloquearLogro("LN7");
     }
 
     let tipoResultado = evaluarCoherenciaYSpam(c.currentPregunta, userText);
     let respuestaGugel = "";
-    let reaccion = "";
 
     if (tipoResultado === "CRITICA") {
         respuestaGugel = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
-        reaccion = "Gugel se ha enfadado muchísimo";
         c.satisfaction -= 25;
         desbloquearLogro("LN8");
     } else if (tipoResultado === "RECHAZO") {
         respuestaGugel = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
-        reaccion = "Gugel arruga el morro descontento";
         c.satisfaction -= 12;
     } else {
         respuestaGugel = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
-        reaccion = "Gugel asiente satisfecho con tu respuesta";
         c.satisfaction += 10;
         
         if (c.history.length >= 2) {
-            let ult1 = evaluarCoherenciaYSpam(c.history[c.history.length - 1].pregunta, c.history[c.history.length - 1].respuesta);
-            let ult2 = evaluarCoherenciaYSpam(c.history[c.history.length - 2].pregunta, c.history[c.history.length - 2].respuesta);
+            let ult1 = evaluarCoherenciaYSpam(c.history[c.history.length - 1].pregunta, c.history[c.history.length - 1].userText || "");
+            let ult2 = evaluarCoherenciaYSpam(c.history[c.history.length - 2].pregunta, c.history[c.history.length - 2].userText || "");
             if (ult1 === "OK" && ult2 === "OK") {
                 desbloquearLogro("L16");
             }
@@ -388,8 +417,7 @@ function enviarRespuesta(event) {
         c.history.push({
             pregunta: c.currentPregunta,
             respuesta: respuestaGugel,
-            userText: userText,
-            reaccion: reaccion
+            userText: userText
         });
 
         if (c.modo === "campaña") {
@@ -589,9 +617,9 @@ function marcarActualComoFavorito() {
         }
         salvarAStorage();
         renderFavorites();
-        alert("⭐ Consulta guardada en tus favoritos correctamente.");
+        generarVentanitaSistema("⭐ REGISTRO", "Consulta almacenada en marcadores favoritos.", "positivo");
     } else {
-        alert("Esta consulta ya se encuentra guardada en marcadores.");
+        generarVentanitaSistema("⚠️ AVISO", "Esta consulta ya se encuentra registrada en favoritos.", "positivo");
     }
 }
 
@@ -637,15 +665,15 @@ function cargarChatFavorito(index) {
 function exportCoreData() {
     let c = getCuenta();
     if (c.history.length === 0) {
-        alert("El búfer de logs está vacío.");
+        generarVentanitaSistema("⚠️ ERROR", "El búfer de logs se encuentra vacío.", "negativo");
         return;
     }
-    let textoLogs = c.history.map((h, i) => `LOG #${i + 1}\nPregunta: ${h.pregunta}\nRespuesta IA: ${h.respuesta}\nReacción: ${h.reaccion}\n--------------------`).join('\n');
+    let textoLogs = c.history.map((h, i) => `LOG #${i + 1}\nPregunta: ${h.pregunta}\nRespuesta IA: ${h.respuesta}\n--------------------`).join('\n');
     navigator.clipboard.writeText(textoLogs).then(() => {
         desbloquearLogro("L19");
-        alert("📋 Los logs del perfil actual se han copiado al portapapeles con éxito.");
+        generarVentanitaSistema("📋 COPIA COMPLETADA", "Los logs del perfil actual se han transferido al portapapeles.", "positivo");
     }).catch(() => {
-        alert("No se pudo copiar de forma automatizada.");
+        generarVentanitaSistema("⚠️ ERROR", "No se pudo copiar de forma automatizada.", "negativo");
     });
 }
 
