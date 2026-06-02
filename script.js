@@ -217,9 +217,11 @@ function desbloquearLogro(id) {
         c.logrosDesbloqueados.push(id);
         const logro = BASE_LOGROS.find(l => l.id === id);
         if (logro) {
-            const tituloToast = logro.tipo === 'negativo' ? "⚠️ LOGRO NEGATIVO" : "🏆 ¡LOGRO DESBLOQUEADO!";
-            const cuerpoToast = `[${usuarioActivo}] ${logro.nombre.toUpperCase()}: ${logro.desc}`;
-            generarVentanitaSistema(tituloToast, cuerpoToast, logro.tipo);
+            if (logro.tipo === 'negativo') {
+                alert(`[LOGRO NEGATIVO - OPERADOR: ${usuarioActivo}] ⚠️ ${logro.nombre.toUpperCase()}`);
+            } else {
+                alert(`[LOGRO DESBLOQUEADO - OPERADOR: ${usuarioActivo}] 🏆 ${logro.nombre.toUpperCase()}`);
+            }
         }
         salvarAStorage();
     }
@@ -236,55 +238,19 @@ function verificarLogrosDeEstado() {
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
 
-function generarVentanitaSistema(titulo, mensaje, claseTipo = "positivo") {
-    const contenedor = document.getElementById('notificaciones-sistema');
-    if (!contenedor) return;
-
-    const nuevaVentanita = document.createElement('div');
-    nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
-
-    nuevaVentanita.innerHTML = `
-        <div class="toast-titulo">${titulo}</div>
-        <div class="toast-cuerpo">${mensaje}</div>
-    `;
-
-    contenedor.appendChild(nuevaVentanita);
-
-    setTimeout(() => {
-        nuevaVentanita.classList.add('salida-toast');
-        nuevaVentanita.addEventListener('transitionend', () => {
-            nuevaVentanita.remove();
-        });
-    }, 4000);
-}
-
 function abrirModalCuenta() {
-    const modal = document.getElementById('modal-cuenta');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.getElementById('panel-user-status').innerText = usuarioActivo;
-        document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-        document.getElementById('account-password').value = "";
-    }
-}
-
-function cerrarModalCuenta() {
-    const modal = document.getElementById('modal-cuenta');
-    if (modal) modal.style.display = 'none';
-}
-
-function guardarNombreCuenta() {
-    const userIn = document.getElementById('account-username');
-    const passIn = document.getElementById('account-password');
-    if (!userIn) return;
-
-    let nuevoNombre = userIn.value.trim();
+    let nuevoNombre = prompt("TERMINAL DE AUTENTICACIÓN\n\nIntroduce tu Código/Alias de Operador:", usuarioActivo === "Invitado" ? "" : usuarioActivo);
+    if (nuevoNombre === null) return; 
+    
+    nuevoNombre = nuevoNombre.trim();
     if (nuevoNombre === "") {
-        generarVentanitaSistema("⚠️ ERROR DETECTADO", "El identificador de cuenta no puede permanecer vacío.", "negativo");
+        alert("⚠️ ERROR DETECTADO\n\nEl identificador de cuenta no puede permanecer vacío.");
         return;
     }
 
-    let contrasena = passIn ? passIn.value : "";
+    let contrasena = prompt("TERMINAL DE AUTENTICACIÓN\n\nIntroduce tu Contraseña de Terminal (deja vacío si no deseas usar):");
+    if (contrasena === null) contrasena = "";
+
     usuarioActivo = nuevoNombre;
     asegurarEstructuraCuenta(usuarioActivo);
     
@@ -304,9 +270,8 @@ function guardarNombreCuenta() {
     sincronizarEstadoTurno(c);
     renderChatActual();
     renderAllData();
-    cerrarModalCuenta();
     
-    generarVentanitaSistema("⚙️ CONEXIÓN ESTABLECIDA", `Operador "${usuarioActivo}" sincronizado en el núcleo central.`, "positivo");
+    alert(`⚙️ CONEXIÓN ESTABLECIDA\n\nOperador "${usuarioActivo}" sincronizado en el núcleo central.`);
 }
 
 function renderChatActual() {
@@ -601,9 +566,9 @@ function marcarActualComoFavorito() {
         }
         salvarAStorage();
         renderFavorites();
-        generarVentanitaSistema("⭐ REGISTRO", "Consulta almacenada en marcadores favoritos.", "positivo");
+        alert("⭐ REGISTRO\n\nConsulta almacenada en marcadores favoritos.");
     } else {
-        generarVentanitaSistema("⚠️ AVISO", "Esta consulta ya se encuentra registrada en favoritos.", "positivo");
+        alert("⚠️ AVISO\n\nEsta consulta ya se encuentra registrada en favoritos.");
     }
 }
 
@@ -649,15 +614,15 @@ function cargarChatFavorito(index) {
 function exportCoreData() {
     let c = getCuenta();
     if (c.history.length === 0) {
-        generarVentanitaSistema("⚠️ ERROR", "El búfer de logs se encuentra vacío.", "negativo");
+        alert("⚠️ ERROR\n\nEl búfer de logs se encuentra vacío.");
         return;
     }
     let textoLogs = c.history.map((h, i) => `LOG #${i + 1}\nPregunta: ${h.pregunta}\nRespuesta IA: ${h.respuesta}\n--------------------`).join('\n');
     navigator.clipboard.writeText(textoLogs).then(() => {
         desbloquearLogro("L19");
-        generarVentanitaSistema("📋 COPIA COMPLETADA", "Los logs del perfil actual se han transferido al portapapeles.", "positivo");
+        alert("📋 COPIA COMPLETADA\n\nLos logs del perfil actual se han transferido al portapapeles.");
     }).catch(() => {
-        generarVentanitaSistema("⚠️ ERROR", "No se pudo copiar de forma automatizada.", "negativo");
+        alert("⚠️ ERROR\n\nNo se pudo copiar de forma automatizada.");
     });
 }
 
