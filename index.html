@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL: simulador de IA</title>
-    <link class="tema-link" rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="modo-hacker">
 
@@ -58,7 +58,7 @@
                         <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">Guardar consulta en favoritos</button>
                     </div>
                     <form id="chat-form">
-                        <div id="timer-lock-info" style="display:none; color:var(--accent-color); margin-bottom: 10px; font-size: 0.85rem; font-weight: bold; font-family: 'Courier New', monospace;"></div>
+                        <div id="timer-lock-info" style="display:none; color:var(--accent-color); margin-bottom: 10px; font-size: 0.85rem; font-weight: bold; font-family: monospace;"></div>
                         <div class="input-wrapper">
                             <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                             <button type="submit" id="transmit-btn">ENVIAR</button>
@@ -106,6 +106,8 @@
             </footer>
         </main>
     </div>
+
+    <div id="notificaciones-sistema"></div>
 
     <script src="script.js"></script>
 </body>
