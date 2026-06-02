@@ -209,7 +209,7 @@ function renderChatActual() {
         
         appendMessage('gugel', c.currentPregunta);
         appendMessage('usuario', c.lastUserText);
-        if (c.history.length > 0) {
+        if (c.history && c.history.length > 0) {
             let ultimoLog = c.history[c.history.length - 1];
             appendMessage('gugel', ultimoLog.respuesta);
         }
@@ -268,9 +268,9 @@ function renderAllData() {
                 .map(key => {
                     let item = LOGROS_SISTEMA[key];
                     return `
-                        <div class="logro-card desbloqueado">
+                        <div class="logro-card unlocked" style="margin-bottom:8px; padding:10px; background:var(--bg-inner); border-left:3px solid gold;">
                             <div class="logro-titulo">🏆 ${item.titulo}</div>
-                            <div class="logro-desc">${item.desc}</div>
+                            <div class="logro-desc" style="font-size:0.85rem; color:var(--text-muted);">${item.desc}</div>
                         </div>
                     `;
                 }).join('');
@@ -352,7 +352,7 @@ function sincronizarEstadoTurno(c) {
         esperandoRespuestaDeTurno = c.esperandoInfinito;
     }
 
-    if (c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
+    if (c.history && c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
         esperandoRespuestaDeTurno = false;
         if (c.modo === "campaña") c.esperandoCampana = false;
         else c.esperandoInfinito = false;
@@ -506,6 +506,7 @@ function procesarRespuestaIA(texto) {
         if (totalInfinito >= 15) desbloquearLogro("L12");
     }
 
+    if (!c.history) c.history = [];
     c.history.push({
         pregunta: c.currentPregunta,
         respuesta: respuestaGugel,
@@ -630,7 +631,7 @@ function cargarChatFavorito(index) {
 
 function agregarAFavoritos() {
     let c = getCuenta();
-    if (c.history.length === 0) return;
+    if (!c.history || c.history.length === 0) return;
 
     let ultimoLog = c.history[c.history.length - 1];
     if (!c.favorites) c.favorites = [];
@@ -876,6 +877,7 @@ function cambiarTema() {
 
 function desbloquearLogro(codigo) {
     let c = getCuenta();
+    if (!c.logrosDesbloqueados) c.logrosDesbloqueados = [];
     if (c.logrosDesbloqueados.includes(codigo)) return;
     
     c.logrosDesbloqueados.push(codigo);
@@ -943,71 +945,5 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
-    // 1. Sincronizar estado interno
     let c = getCuenta();
-    sincronizarEstadoTurno(c);
-    
-    // 2. Renderizar el estado visual del chat principal
-    renderChatActual();
-    
-    // 3. Vincular el formulario de envío de mensajes
-    const chatForm = document.getElementById('chat-form');
-    if (chatForm) {
-        chatForm.addEventListener('submit', enviarRespuesta);
-    }
-
-    // 4. Vincular clics de elementos estáticos
-    const sidebarUser = document.getElementById('sidebar-user-display');
-    if (sidebarUser) {
-        sidebarUser.style.cursor = 'pointer';
-        sidebarUser.addEventListener('click', abrirModalCuenta);
-    }
-    
-    const continueBtn = document.getElementById('continue-btn');
-    if (continueBtn) {
-        continueBtn.addEventListener('click', clickBotonContinuar);
-    }
-    
-    // 5. Renderizado diferido de datos secundarios
-    setTimeout(() => {
-        renderAllData();
-    }, 100);
-});
-
-// Vinculación estricta al objeto global window para que se lean desde el HTML
-window.cargarChatHistorico = cargarChatHistorico;
-window.cargarChatFavorito = cargarChatFavorito;
-window.eliminarDeFavoritos = eliminarDeFavoritos;
-window.switchView = switchView;
-window.seleccionarModoJuego = seleccionarModoJuego;
-window.abrirModalCuenta = abrirModalCuenta;
-window.cerrarModalCuenta = cerrarModalCuenta;
-window.guardarNombreCuentaCustom = guardarNombreCuentaCustom;
-window.cambiarTema = cambiarTema;
-window.clickBotonContinuar = clickBotonContinuar;
-window.nextRound = nextRound;
-window.enviarRespuesta = enviarRespuesta;
-
-// Mapeos y alias de compatibilidad directa para los botones de tu HTML
-window.agregarAFavoritos = agregarAFavoritos;
-window.marcarActualComoFavorito = agregarAFavoritos;
-window.copiarHistorialPortapapeles = copiarHistorialPortapapeles;
-window.exportCoreData = copiarHistorialPortapapeles;
-window.exportarHistorialJSON = exportarHistorialJSON;
-window.exportarHistorialCompleto = exportarHistorialJSON;
-
-window.marcarHistoricoComoFavorito = function(index) {
-    let c = getCuenta();
-    if (!c.history || !c.history[index]) return;
-    let log = c.history[index];
-    if (!c.favorites) c.favorites = [];
-    let yaExiste = c.favorites.some(f => f.pregunta === log.pregunta && f.userText === log.userText);
-    if (yaExiste) {
-        generarVentanitaSistema("📁 REGISTRO EXISTENTE", "Esta consulta ya está en tus favoritos.", "negativo");
-        return;
-    }
-    c.favorites.push({ pregunta: log.pregunta, respuesta: log.respuesta, userText: log.userText });
-    salvarAStorage();
-    renderAllData();
-    generarVentanitaSistema("⭐️ FAVORITO GUARDADO", "Consulta enviada al almacén de favoritos.", "positivo");
-};
+    sincronizarEstado
