@@ -273,26 +273,19 @@ function renderAllData() {
         }
     }
 
-    // ==========================================
-    // 4. RENDERIZADO CORREGIDO DEL BÚFER
-    // ==========================================
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
-        // Aseguramos que limpiamos antes de rellenar
         histContainer.innerHTML = ""; 
-        
-        let c = getCuenta();
         
         if (!c.history || c.history.length === 0) {
             histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Búfer de logs vacío. Realiza consultas para generar registros.</p>";
         } else {
-            // Usamos un bucle seguro para mapear los logs
             let htmlLogs = c.history.map((h, index) => `
                 <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; margin-bottom:10px; padding:10px; background:var(--bg-inner); border-left:3px solid var(--accent-color);">
                     <div class="log-item-info">
                         <strong style="color:var(--accent-color);">Q:</strong> ${h.pregunta}<br>
                         <span style="font-size:0.85rem;"><strong>A:</strong> ${h.respuesta}</span><br>
-                        <span style="font-size:0.75rem; color: var(--text-muted);"><em>Reacción:</em> "${h.reaccion}"</span>
+                        <span style="font-size:0.75rem; color: var(--text-muted);"><em>Reacción:</em> "${h.reaccion || 'Analizada'}"</span>
                     </div>
                     <div class="log-item-action" onclick="event.stopPropagation();" style="margin-top:5px;">
                         <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
@@ -512,7 +505,8 @@ function procesarRespuestaIA(texto) {
     c.history.push({
         pregunta: c.currentPregunta,
         respuesta: respuestaGugel,
-        userText: texto
+        userText: texto,
+        reaccion: comentarioLog
     });
 
     salvarAStorage();
@@ -733,7 +727,6 @@ function switchView(viewId) {
             if (viewId === "view-historial") desbloquearLogro("L18");
         }
     }
-    // Forzamos la actualización de datos completa al cambiar de vista para rellenar los contenedores dinámicos
     renderAllData();
 }
 
@@ -783,7 +776,6 @@ function abrirModalCuenta() {
     const popup = document.createElement('div');
     popup.className = 'ventanita-notificacion-flotante positivo';
     popup.style.width = '360px';
-    popup.style.animation = 'none'; 
     popup.style.pointerEvents = 'auto';
 
     popup.innerHTML = `
@@ -913,8 +905,12 @@ function appendMessage(tipo, texto) {
 }
 
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
-    const contenedor = document.getElementById('notificaciones-sistema');
-    if (!contenedor) return;
+    let contenedor = document.getElementById('notificaciones-sistema');
+    if (!contenedor) {
+        contenedor = document.createElement('div');
+        contenedor.id = 'notificaciones-sistema';
+        document.body.appendChild(contenedor);
+    }
 
     const nuevaVentanita = document.createElement('div');
     nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
@@ -934,22 +930,6 @@ function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     }, 4000);
 }
 
-function dispararLogroPrueba() {
-    generarVentanitaSistema(
-        "🏆 ¡LOGRO DESBLOQUEADO!",
-        "Pensamiento Artificial: Has procesado una petición en menos de 0.5 segundos.",
-        "positivo"
-    );
-}
-
-function dispararOperadorPrueba() {
-    generarVentanitaSistema(
-        "⚙️ GESTIÓN DE CUENTA",
-        "Cuenta de operador vinculada correctamente al núcleo del simulador.",
-        "positivo"
-    );
-}
-
 // ==========================================
 // 10. EVENTO INICIAL DE CARGA Y EXPOSICIÓN GLOBAL
 // ==========================================
@@ -959,20 +939,20 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
-    // 1. Primero sincronizamos el estado interno
+    // 1. Sincronizar estado interno
     let c = getCuenta();
     sincronizarEstadoTurno(c);
     
-    // 2. Primero renderizamos el chat
+    // 2. Renderizar el estado visual del chat principal
     renderChatActual();
     
-    // 3. Forzamos renderizado de datos (Historial incluido) con un pequeño delay
-    // para asegurar que el DOM esté listo para los innerHTML
-    setTimeout(() => {
-        renderAllData();
-    }, 100);
-});
+    // 3. Vincular el formulario de envío de mensajes
+    const chatForm = document.getElementById('chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', enviarRespuesta);
+    }
 
+    // 4. Vincular clics de elementos estáticos
     const sidebarUser = document.getElementById('sidebar-user-display');
     if (sidebarUser) {
         sidebarUser.style.cursor = 'pointer';
@@ -984,16 +964,16 @@ window.addEventListener('DOMContentLoaded', () => {
         continueBtn.addEventListener('click', clickBotonContinuar);
     }
     
-    renderChatActual();
-    renderAllData();
+    // 5. Renderizado diferido de datos secundarios
+    setTimeout(() => {
+        renderAllData();
+    }, 100);
 });
 
-// Vinculación explícita al objeto window para evitar fallos de aislamiento o type="module"
+// Vinculación estricta al objeto global window para que se lean desde el HTML
 window.cargarChatHistorico = cargarChatHistorico;
 window.cargarChatFavorito = cargarChatFavorito;
 window.eliminarDeFavoritos = eliminarDeFavoritos;
-window.copiarHistorialPortapapeles = copiarHistorialPortapapeles;
-window.exportarHistorialJSON = exportarHistorialJSON;
 window.switchView = switchView;
 window.seleccionarModoJuego = seleccionarModoJuego;
 window.abrirModalCuenta = abrirModalCuenta;
@@ -1003,4 +983,27 @@ window.cambiarTema = cambiarTema;
 window.clickBotonContinuar = clickBotonContinuar;
 window.nextRound = nextRound;
 window.enviarRespuesta = enviarRespuesta;
+
+// Mapeos y alias de compatibilidad directa para los botones de tu HTML
 window.agregarAFavoritos = agregarAFavoritos;
+window.marcarActualComoFavorito = agregarAFavoritos;
+window.copiarHistorialPortapapeles = copiarHistorialPortapapeles;
+window.exportCoreData = copiarHistorialPortapapeles;
+window.exportarHistorialJSON = exportarHistorialJSON;
+window.exportarHistorialCompleto = exportarHistorialJSON;
+
+window.marcarHistoricoComoFavorito = function(index) {
+    let c = getCuenta();
+    if (!c.history || !c.history[index]) return;
+    let log = c.history[index];
+    if (!c.favorites) c.favorites = [];
+    let yaExiste = c.favorites.some(f => f.pregunta === log.pregunta && f.userText === log.userText);
+    if (yaExiste) {
+        generarVentanitaSistema("📁 REGISTRO EXISTENTE", "Esta consulta ya está en tus favoritos.", "negativo");
+        return;
+    }
+    c.favorites.push({ pregunta: log.pregunta, respuesta: log.respuesta, userText: log.userText });
+    salvarAStorage();
+    renderAllData();
+    generarVentanitaSistema("⭐️ FAVORITO GUARDADO", "Consulta enviada al almacén de favoritos.", "positivo");
+};
