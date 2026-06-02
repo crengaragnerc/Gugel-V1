@@ -954,13 +954,19 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
+    // 1. Primero sincronizamos el estado interno
     let c = getCuenta();
     sincronizarEstadoTurno(c);
     
-    const chatForm = document.getElementById('chat-form');
-    if (chatForm) {
-        chatForm.addEventListener('submit', enviarRespuesta);
-    }
+    // 2. Primero renderizamos el chat
+    renderChatActual();
+    
+    // 3. Forzamos renderizado de datos (Historial incluido) con un pequeño delay
+    // para asegurar que el DOM esté listo para los innerHTML
+    setTimeout(() => {
+        renderAllData();
+    }, 100);
+});
 
     const sidebarUser = document.getElementById('sidebar-user-display');
     if (sidebarUser) {
