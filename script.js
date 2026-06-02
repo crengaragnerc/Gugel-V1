@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -81,10 +81,7 @@ let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null;
 let esperandoRespuestaDeTurno = true;
-let syncTimeout = null;
-let revisandoHistorial = false;
 
-// VARIABLES DE TEMPORIZADORES REALES
 let globalSeconds = 0;
 let querySeconds = 0;
 let globalTimerInterval = null;
@@ -108,10 +105,6 @@ function crearEstructuraVacia() {
         password: "",
         campañaCompletada: false,
         currentPregunta: "",
-        currentPreguntaCampana: "",
-        currentPreguntaInfinito: "",
-        esperandoCampana: true,
-        esperandoInfinito: true,
         consecutiveOks: 0
     };
 }
@@ -123,12 +116,8 @@ function asegurarEstructuraCuenta(nombre) {
         if (!baseCuentas[nombre]) {
             baseCuentas[nombre] = crearEstructuraVacia();
         } else {
-            if (baseCuentas[nombre].esperandoCampana === undefined) baseCuentas[nombre].esperandoCampana = true;
-            if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
             if (baseCuentas[nombre].consecutiveOks === undefined) baseCuentas[nombre].consecutiveOks = 0;
-            if (baseCuentas[nombre].campañaCompletada === undefined) {
-                baseCuentas[nombre].campañaCompletada = baseCuentas[nombre].campaignCompletada || false;
-            }
+            if (baseCuentas[nombre].campañaCompletada === undefined) baseCuentas[nombre].campañaCompletada = false;
         }
     }
 }
@@ -146,7 +135,7 @@ function getCuenta() {
 }
 
 // ==========================================
-// 3. NÚCLEO DE TIEMPO (CRONÓMETROS ACTIVOS)
+// 3. CRONÓMETROS ACTIVOS
 // ==========================================
 function iniciarCronometros() {
     if (globalTimerInterval) clearInterval(globalTimerInterval);
@@ -244,11 +233,9 @@ function verificarLogrosDeEstado() {
 }
 
 // ==========================================
-// 5. RENDERIZACIÓN Y PANELES (SWITCHVIEW)
+// 5. RENDERS Y NAVEGACIÓN
 // ==========================================
 function switchView(viewId) {
-    revisandoHistorial = false;
-    
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
 
@@ -337,7 +324,62 @@ function renderAllData() {
 }
 
 // ==========================================
-// 6. GESTIÓN DE VENTANAS EMERGENTES (MODALES)
+// 6. OPERACIONES CENTRALES DE BOTONES
+// ==========================================
+function exportCoreData() {
+    let c = getCuenta();
+    let texto = JSON.stringify(c.history, null, 2);
+    navigator.clipboard.writeText(texto).then(() => {
+        generarVentanitaSistema("SISTEMA", "Logs copiados al portapapeles.", "positivo");
+        desbloquearLogro("L19");
+    });
+}
+
+function exportarHistorialCompleto() {
+    let c = getCuenta();
+    let texto = JSON.stringify(c, null, 2);
+    let blob = new Blob([texto], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = `gugel_session_${usuarioActivo}.json`;
+    a.click();
+    desbloquearLogro("L20");
+}
+
+function borrarTodoElProgreso() {
+    if (confirm("¿Seguro que quieres purgar toda la memoria? Esto reiniciará tu progreso.")) {
+        if (usuarioActivo === "Invitado") {
+            cuentaInvitadoVolatil = crearEstructuraVacia();
+        } else {
+            baseCuentas[usuarioActivo] = crearEstructuraVacia();
+        }
+        desbloquearLogro("LN9");
+        salvarAStorage();
+        nextRound();
+        renderAllData();
+        generarVentanitaSistema("SISTEMA", "Memoria purgada con éxito.", "negativo");
+    }
+}
+
+function marcarActualComoFavorito() {
+    let c = getCuenta();
+    let lastLog = c.history[c.history.length - 1];
+    if (lastLog) {
+        let yaExiste = c.favorites.some(f => f.pregunta === lastLog.pregunta && f.respuesta === lastLog.respuesta);
+        if (!yaExiste) {
+            c.favorites.push({ pregunta: lastLog.pregunta, respuesta: lastLog.respuesta });
+            desbloquearLogro("L06");
+            if (c.favorites.length >= 3) desbloquearLogro("L07");
+            salvarAStorage();
+            renderAllData();
+            generarVentanitaSistema("FAVORITOS", "Consulta guardada en marcadores.", "positivo");
+        }
+    }
+}
+
+// ==========================================
+// 7. VENTANAS EMERGENTES (MODALES)
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
@@ -399,7 +441,7 @@ function cerrarTodosLosModales() {
 }
 
 // ==========================================
-// 7. FLUJO DE RONDAS Y LÓGICA COMÚN
+// 8. LOGICA DE JUEGO Y FLUJOS
 // ==========================================
 function seleccionarModoJuego(modo) {
     let c = getCuenta();
@@ -433,8 +475,7 @@ function generarPreguntaInfinita() {
     return plantilla.replace("[s]", sujeto).replace("[p]", predicado);
 }
 
-document.getElementById('chat-form').onsubmit = (e) => {
-    e.preventDefault();
+function procesarEnvioFormulario() {
     let c = getCuenta();
     const input = document.getElementById('user-input');
     const text = input.value.trim();
@@ -478,7 +519,7 @@ document.getElementById('chat-form').onsubmit = (e) => {
         renderChatActual();
         renderAllData();
     }, 600);
-};
+}
 
 function nextRound() {
     let c = getCuenta();
@@ -519,11 +560,20 @@ function generarVentanitaSistema(titulo, mensaje, tipo) {
     setTimeout(() => div.remove(), 4000);
 }
 
+// INTERCEPCIÓN SEGURA DE EVENTOS DE CARGA
 window.addEventListener('DOMContentLoaded', () => {
     const tema = localStorage.getItem('gugel-tema') || 'modo-hacker';
     cambiarTema(tema);
     document.getElementById('theme-select').value = tema;
     iniciarCronometros();
+    
+    const form = document.getElementById('chat-form');
+    if (form) {
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            procesarEnvioFormulario();
+        };
+    }
     
     let c = getCuenta();
     seleccionarModoJuego(c.modo || 'infinito');
