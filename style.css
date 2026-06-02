@@ -123,13 +123,18 @@ button {
     font-size: 0.85rem;
 }
 
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .sub-btn {
     background-color: var(--bg-inner);
     color: var(--text-primary);
     border: 1px solid var(--bubble-border);
 }
 
-.sub-btn:hover {
+.sub-btn:hover:not(:disabled) {
     background-color: var(--bubble-border);
 }
 
@@ -261,7 +266,12 @@ input[type="text"] {
     box-sizing: border-box;
 }
 
-input:focus { outline: none; border-color: var(--accent-color); }
+input[type="text"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+input:focus:not(:disabled) { outline: none; border-color: var(--accent-color); }
 
 #transmit-btn {
     background-color: var(--bg-inner);
@@ -270,7 +280,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
     padding: 0 24px;
 }
 
-#transmit-btn:hover { background-color: var(--accent-color); color: var(--accent-text); }
+#transmit-btn:hover:not(:disabled) { background-color: var(--accent-color); color: var(--accent-text); }
 
 .card {
     background-color: var(--bg-inner);
@@ -310,4 +320,4 @@ input:focus { outline: none; border-color: var(--accent-color); }
 
 #bottom-bar { padding: 20px 30px; border-top: 1px solid var(--bubble-border); background-color: rgba(0, 0, 0, 0.02); display: flex; justify-content: center; }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
-#continue-btn:hover { opacity: 0.9; }
+#continue-btn:hover:not(:disabled) { opacity: 0.9; }
