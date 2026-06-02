@@ -185,13 +185,14 @@ function renderChatActual() {
     if (esperandoRespuestaDeTurno) {
         appendMessage('gugel', c.currentPregunta);
         if (timerElem) {
-            timerElem.style.display = "block";
             if (preguntaBloqueada) {
+                timerElem.style.display = "block";
                 timerElem.innerText = `⏳ Procesando buffers de entrada... (${segundosPregunta}s)`;
                 if (inputElem) inputElem.style.display = "none";
                 if (transmitBtn) transmitBtn.style.display = "none";
             } else {
-                timerElem.innerText = `⚡ Conexión establecida. Tiempo de respuesta restante: ${segundosPregunta}s`;
+                timerElem.style.display = "none";
+                timerElem.innerText = "";
                 if (inputElem) inputElem.style.display = "block";
                 if (transmitBtn) transmitBtn.style.display = "block";
             }
@@ -311,26 +312,18 @@ function renderFavorites() {
 function sincronizarEstadoTurno(c) {
     if (c.modo === "campaña") {
         if (!c.currentPreguntaCampana) {
-            if (c.currentPregunta) {
-                c.currentPreguntaCampana = c.currentPregunta;
-            } else {
-                c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
-                c.campanaIndex++;
-            }
+            c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
+            c.campanaIndex++;
             c.esperandoCampana = true;
         }
         c.currentPregunta = c.currentPreguntaCampana;
         esperandoRespuestaDeTurno = c.esperandoCampana;
     } else {
         if (!c.currentPreguntaInfinito) {
-            if (c.currentPregunta) {
-                c.currentPreguntaInfinito = c.currentPregunta;
-            } else {
-                let s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-                let p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-                let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-                c.currentPreguntaInfinito = plantilla.replace("[s]", s).replace("[p]", p);
-            }
+            let s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+            let p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+            let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+            c.currentPreguntaInfinito = plantilla.replace("[s]", s).replace("[p]", p);
             c.esperandoInfinito = true;
         }
         c.currentPregunta = c.currentPreguntaInfinito;
