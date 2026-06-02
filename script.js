@@ -596,6 +596,38 @@ function clickBotonContinuar() {
 // ==========================================
 // 7. FAVORITOS Y GESTIÓN DE LOGS HISTÓRICOS
 // ==========================================
+function cargarChatHistorico(index) {
+    let c = getCuenta();
+    if (!c.history[index]) return;
+    
+    revisarHistorial = true;
+    revisarFavorito = false;
+    revisarHistorialIndex = index;
+    
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    renderChatActual();
+    renderAllData();
+}
+
+function cargarChatFavorito(index) {
+    let c = getCuenta();
+    if (!c.favorites || !c.favorites[index]) return;
+    
+    revisarHistorial = true;
+    revisarFavorito = true;
+    revisarHistorialIndex = index;
+    
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    renderChatActual();
+    renderAllData();
+}
+
 function agregarAFavoritos() {
     let c = getCuenta();
     if (c.history.length === 0) return;
@@ -633,38 +665,6 @@ function eliminarDeFavoritos(index) {
     generarVentanitaSistema("🗑️ REGISTRO ELIMINADO", "Se ha removido el elemento seleccionado de tus favoritos.", "negativo");
 }
 
-function cargarChatHistorico(index) {
-    let c = getCuenta();
-    if (!c.history[index]) return;
-    
-    revisarHistorial = true;
-    revisarFavorito = false;
-    revisarHistorialIndex = index;
-    
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    
-    renderChatActual();
-    renderAllData();
-}
-
-function cargarChatFavorito(index) {
-    let c = getCuenta();
-    if (!c.favorites || !c.favorites[index]) return;
-    
-    revisarHistorial = true;
-    revisarFavorito = true;
-    revisarHistorialIndex = index;
-    
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    
-    renderChatActual();
-    renderAllData();
-}
-
 function copiarHistorialPortapapeles() {
     let c = getCuenta();
     if (!c.history || c.history.length === 0) {
@@ -683,7 +683,6 @@ function copiarHistorialPortapapeles() {
     });
 }
 
-// HERRAMIENTA: EXPORTAR HISTORIAL COMPLETO COMO ARCHIVO JSON
 function exportarHistorialJSON() {
     let c = getCuenta();
     if (!c.history || c.history.length === 0) {
@@ -815,6 +814,9 @@ function abrirModalCuenta() {
     }, 50);
 }
 
+// ==========================================
+// 9. RECURSOS COMPLEMENTARIOS Y TOASTS
+// ==========================================
 function cerrarModalCuenta() {
     const overlay = document.getElementById('custom-account-popup-overlay');
     if (overlay) overlay.remove();
@@ -873,9 +875,6 @@ function cambiarTema() {
     if (t === "modo-hacker") desbloquearLogro("L10");
 }
 
-// ==========================================
-// 9. RECURSOS COMPLEMENTARIOS Y TOASTS
-// ==========================================
 function desbloquearLogro(codigo) {
     let c = getCuenta();
     if (c.logrosDesbloqueados.includes(codigo)) return;
@@ -949,7 +948,7 @@ function dispararOperadorPrueba() {
 }
 
 // ==========================================
-// 10. EVENTO INICIAL DE CARGA
+// 10. EVENTO INICIAL DE CARGA Y EXPOSICIÓN GLOBAL
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
@@ -971,6 +970,28 @@ window.addEventListener('DOMContentLoaded', () => {
         sidebarUser.addEventListener('click', abrirModalCuenta);
     }
     
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', clickBotonContinuar);
+    }
+    
     renderChatActual();
     renderAllData();
 });
+
+// Vinculación explícita al objeto window para evitar fallos de aislamiento o type="module"
+window.cargarChatHistorico = cargarChatHistorico;
+window.cargarChatFavorito = cargarChatFavorito;
+window.eliminarDeFavoritos = eliminarDeFavoritos;
+window.copiarHistorialPortapapeles = copiarHistorialPortapapeles;
+window.exportarHistorialJSON = exportarHistorialJSON;
+window.switchView = switchView;
+window.seleccionarModoJuego = seleccionarModoJuego;
+window.abrirModalCuenta = abrirModalCuenta;
+window.cerrarModalCuenta = cerrarModalCuenta;
+window.guardarNombreCuentaCustom = guardarNombreCuentaCustom;
+window.cambiarTema = cambiarTema;
+window.clickBotonContinuar = clickBotonContinuar;
+window.nextRound = nextRound;
+window.enviarRespuesta = enviarRespuesta;
+window.agregarAFavoritos = agregarAFavoritos;
