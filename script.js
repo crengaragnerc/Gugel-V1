@@ -2,7 +2,7 @@
 // 1. CONSTANTES, PLANTILLAS Y DICCIONARIOS
 // ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
-const PREGUNTAS_CAMPANA = ["cagar verde normal", "como hacer cubo rubik", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
+const PREGUNTAS_CAMPANA = ["como hacer cubo rubik", "cagar verde normal", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
 
 const FRASES_OK = ["vale me cuadra tiene logica", "aah ya veo gracias me sirve", "cierto buen punto no habia caido", "ni tan mal tiene sentido", "ok eso responde lo que queria"];
 const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya esta? solo eso me vas a decir?", "explicate mejor q no me entero de nada"];
@@ -82,7 +82,7 @@ const BASE_LOGROS = [
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
-let esperandoRespuestaDeTurno = true; 
+let esperandoRespuesta DeTurno = true; 
 let syncTimeout = null; 
 let revisarHistorial = false; 
 
@@ -288,7 +288,7 @@ function abrirModalCuenta() {
 }
 
 // ==========================================
-// 4. CORRECCIÓN DEL CICLO DE RONDAS (CHAT)
+// 4. GESTIÓN DEL CICLO DE RONDAS (CHAT)
 // ==========================================
 function renderChatActual() {
     let c = getCuenta();
@@ -309,8 +309,7 @@ function renderChatActual() {
         appendMessage('usuario', c.lastUserText);
         if (c.history.length > 0) {
             let ultimoLog = c.history[c.history.length - 1];
-            // SOLUCIÓN: Fusionamos la respuesta y la reacción dentro de la misma burbuja de Gugel
-            appendMessage('gugel', `${ultimoLog.respuesta} <br><span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">(${ultimoLog.reaccion})</span>`);
+            appendMessage('gugel', ultimoLog.respuesta);
         }
         document.getElementById('user-input').style.display = "none";
         document.getElementById('transmit-btn').style.display = "none";
@@ -386,7 +385,6 @@ function enviarRespuesta(event) {
     appendMessage('usuario', userText);
     
     setTimeout(() => {
-        // SOLUCIÓN: Eliminamos los appendMessage manuales duplicados y dejamos que renderChatActual() dibuje la estructura unificada de 3 elementos
         c.history.push({
             pregunta: c.currentPregunta,
             respuesta: respuestaGugel,
@@ -475,7 +473,7 @@ function nextRound() {
 }
 
 // ==========================================
-// 5. NAVEGACIÓN, TEMAS Y HISTORIAL UNIFICADO
+// 5. NAVEGACIÓN, TEMAS Y VISTAS SECUNDARIAS
 // ==========================================
 function cargarChatHistorico(index) {
     let c = getCuenta();
@@ -489,8 +487,7 @@ function cargarChatHistorico(index) {
     
     appendMessage('gugel', log.pregunta);
     appendMessage('usuario', log.userText || "...");
-    // SOLUCIÓN: Estructura unificada también en la vista de historial
-    appendMessage('gugel', `${log.respuesta} <br><span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">(${log.reaccion})</span>`);
+    appendMessage('gugel', log.respuesta);
     
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
@@ -628,8 +625,7 @@ function cargarChatFavorito(index) {
     
     appendMessage('gugel', fav.pregunta);
     appendMessage('usuario', fav.userText || "...");
-    // SOLUCIÓN: Estructura unificada también en la vista de favoritos
-    appendMessage('gugel', `${fav.respuesta} <br><span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">(${fav.reaccion})</span>`);
+    appendMessage('gugel', fav.respuesta);
     
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
