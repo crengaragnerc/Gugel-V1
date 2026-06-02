@@ -13,7 +13,8 @@
         <aside id="sidebar">
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE CONSULTA</div>
-                <button id="btn-view-chat" class="sub-btn active" onclick="seleccionarModoJuego('infinito')">∞ Consultas Infinitas</button>
+                <button id="btn-mode-infinito" class="sub-btn active" onclick="seleccionarModoJuego('infinito')">∞ Consultas Infinitas</button>
+                <button id="btn-mode-campana" class="sub-btn" onclick="seleccionarModoJuego('campaña')">⏱️ Modo Campaña</button>
             </div>
 
             <div class="menu-section">
@@ -39,7 +40,7 @@
                 <!-- LECTURA DE TEMPORIZADORES (TEXTO PLANO DE SISTEMA) -->
                 <div class="system-status-readout">
                     <div>Tiempo Consulta: <span id="timer-consulta-val">0s</span></div>
-                    <div>Sesión Activa: <span id="timer-global-val">00:00</span></div>
+                    <div>Sesión Active: <span id="timer-global-val">00:00</span></div>
                 </div>
             </div>
         </aside>
