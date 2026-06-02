@@ -53,7 +53,7 @@ const LOGROS_SISTEMA = {
     "L09": { titulo: "Fidelidad Absoluta", desc: "Has alcanzado el 100% exacto de satisfacción del cliente.", oculto: false },
     "L10": { titulo: "Modo Hacker Activo", desc: "Has cambiado la interfaz visual al tema de terminal de hacker.", oculto: true },
     "L11": { titulo: "Silencio Administrativo", desc: "Has enviado una respuesta completamente vacía al usuario.", oculto: true },
-    "L12": { titulo: "Persistencia Infinita", desc: "Has processed un total de 15 consultas en el modo infinito.", oculto: false },
+    "L12": { titulo: "Persistencia Infinita", desc: "Has procesado un total de 15 consultas en el modo infinito.", oculto: false },
     "L13": { titulo: "Lector de Mentes", desc: "Tu respuesta coincide exactamente con una de las frases analíticas del usuario.", oculto: true },
     "L14": { titulo: "Crítica Destructiva", desc: "Has recibido 3 valoraciones críticas consecutivas por parte del usuario.", oculto: false },
     "L15": { titulo: "Estabilidad del Sistema", desc: "Has mantenido la satisfacción entre el 45% y el 55% durante 5 turnos seguidos.", oculto: true },
@@ -69,7 +69,7 @@ let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null;
 
-let esperandoRespuestaDeTurno = true;
+let esperandoRespuesta DeTurno = true;
 let revisarHistorial = false;
 let revisarFavorito = false;
 let revisarHistorialIndex = null;
@@ -140,10 +140,12 @@ function asegurarEstructuraCuenta(nombre) {
         cuentaDestino = baseCuentas[nombre];
     }
 
-    // Inyección defensiva de claves ausentes debido a herencia de versiones antiguas
+    // Inyección defensiva estricta de claves y tipos válidos
     Object.keys(plantilla).forEach(key => {
-        if (cuentaDestino[key] === undefined) {
+        if (cuentaDestino[key] === undefined || cuentaDestino[key] === null) {
             cuentaDestino[key] = plantilla[key];
+        } else if (Array.isArray(plantilla[key]) && !Array.isArray(cuentaDestino[key])) {
+            cuentaDestino[key] = [];
         }
     });
 }
@@ -157,7 +159,7 @@ function salvarAStorage() {
 asegurarEstructuraCuenta(usuarioActivo);
 
 // ==========================================
-// 4. SISTEMA DE RENDERIZADO UNIFICADO
+// 4. SISTEMA DE RENDERIZADO AISLADO EN BLOQUES
 // ==========================================
 function renderChatActual() {
     let c = getCuenta();
@@ -239,76 +241,104 @@ function renderChatActual() {
 function renderAllData() {
     let c = getCuenta();
     
-    const userDisplay = document.getElementById('sidebar-user-display');
-    if (userDisplay) userDisplay.innerText = usuarioActivo;
-    
-    const profUsuario = document.getElementById('prof-usuario');
-    if (profUsuario) profUsuario.innerText = usuarioActivo;
-    
-    const profSatis = document.getElementById('prof-satisfaction');
-    if (profSatis) profSatis.innerText = `${c.satisfaction}%`;
-    
-    const profOpin = document.getElementById('prof-opinion');
-    if (profOpin) {
-        profOpin.innerText = obtenerElementoNoRepetido(
-            c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
-            c.recentReactions
-        );
-    }
-
-    const btnCamp = document.getElementById('btn-modo-campaña');
-    const btnInfi = document.getElementById('btn-modo-infinito');
-    if (btnCamp) btnCamp.classList.remove('active');
-    if (btnInfi) btnInfi.classList.remove('active');
-    if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
-    if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
-
-    const logrosCount = document.getElementById('logros-count');
-    if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados ? c.logrosDesbloqueados.length : 0;
-    
-    const logrosContainer = document.getElementById('logros-container');
-    if (logrosContainer) {
-        if (!c.logrosDesbloqueados || c.logrosDesbloqueados.length === 0) {
-            logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Ningún logro registrado en esta cuenta todavía.</p>";
-        } else {
-            logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA)
-                .filter(key => c.logrosDesbloqueados.includes(key))
-                .map(key => {
-                    let item = LOGROS_SISTEMA[key];
-                    return `
-                        <div class="logro-card desbloqueado">
-                            <div class="logro-titulo">🏆 ${item.titulo}</div>
-                            <div class="logro-desc">${item.desc}</div>
-                        </div>
-                    `;
-                }).join('');
-        }
-    }
-
-    const histContainer = document.getElementById('history-list-container');
-    if (histContainer) {
-        histContainer.innerHTML = ""; 
+    // Bloque 1: Perfiles e Identificadores Básicos
+    try {
+        const userDisplay = document.getElementById('sidebar-user-display');
+        if (userDisplay) userDisplay.innerText = usuarioActivo;
         
-        if (!c.history || c.history.length === 0) {
-            histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Búfer de logs vacío. Realiza consultas para generar registros.</p>";
-        } else {
-            let htmlLogs = c.history.map((h, index) => `
-                <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; margin-bottom:10px; padding:10px; background:var(--bg-inner); border-left:3px solid var(--accent-color);">
-                    <div class="log-item-info">
-                        <strong style="color:var(--accent-color);">Q:</strong> ${h.pregunta}<br>
-                        <span style="font-size:0.85rem;"><strong>A:</strong> ${h.respuesta}</span><br>
-                        <span style="font-size:0.75rem; color: var(--text-muted);"><em>Reacción:</em> "${h.reaccion || 'Analizada'}"</span>
+        const profUsuario = document.getElementById('prof-usuario');
+        if (profUsuario) profUsuario.innerText = usuarioActivo;
+        
+        const profSatis = document.getElementById('prof-satisfaction');
+        if (profSatis) profSatis.innerText = `${c.satisfaction}%`;
+        
+        const profOpin = document.getElementById('prof-opinion');
+        if (profOpin) {
+            profOpin.innerText = obtenerElementoNoRepetido(
+                c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
+                c.recentReactions
+            );
+        }
+    } catch (err) {
+        console.error("Fallo controlado en sección Perfil:", err);
+    }
+
+    // Bloque 2: Estado de Botones de Modos
+    try {
+        const btnCamp = document.getElementById('btn-modo-campaña');
+        const btnInfi = document.getElementById('btn-modo-infinito');
+        if (btnCamp) btnCamp.classList.remove('active');
+        if (btnInfi) btnInfi.classList.remove('active');
+        if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
+        if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
+    } catch (err) {
+        console.error("Fallo controlado en sección Modos:", err);
+    }
+
+    // Bloque 3: Módulo de Logros
+    try {
+        const logrosCount = document.getElementById('logros-count');
+        if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados ? c.logrosDesbloqueados.length : 0;
+        
+        const logrosContainer = document.getElementById('logros-container');
+        if (logrosContainer) {
+            if (!c.logrosDesbloqueados || c.logrosDesbloqueados.length === 0) {
+                logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Ningún logro registrado en esta cuenta todavía.</p>";
+            } else {
+                logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA)
+                    .filter(key => Array.isArray(c.logrosDesbloqueados) && c.logrosDesbloqueados.includes(key))
+                    .map(key => {
+                        let item = LOGROS_SISTEMA[key];
+                        return `
+                            <div class="logro-card desbloqueado">
+                                <div class="logro-titulo">🏆 ${item.titulo}</div>
+                                <div class="logro-desc">${item.desc}</div>
+                            </div>
+                        `;
+                    }).join('');
+            }
+        }
+    } catch (err) {
+        console.error("Fallo controlado en sección Logros:", err);
+    }
+
+    // Bloque 4: HISTORIAL DE CHATS GENERAL (Garantiza renderizado pase lo que pase)
+    try {
+        const histContainer = document.getElementById('history-list-container');
+        if (histContainer) {
+            histContainer.innerHTML = ""; 
+            
+            if (!c.history || !Array.isArray(c.history) || c.history.length === 0) {
+                histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding: 10px 0;'>Búfer de logs vacío. Realiza consultas para generar registros.</p>";
+            } else {
+                histContainer.innerHTML = c.history.map((h, index) => `
+                    <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; margin-bottom:10px; padding:12px; background:var(--bg-inner); border-left:3px solid var(--accent-color); border-radius:4px;">
+                        <div class="log-item-info">
+                            <strong style="color:var(--accent-color);">Q:</strong> ${h.pregunta || ''}<br>
+                            <span style="font-size:0.85rem;"><strong>A:</strong> ${h.respuesta || ''}</span><br>
+                            <span style="font-size:0.75rem; color: var(--text-muted);"><em>Reacción:</em> "${h.reaccion || 'Analizada'}"</span>
+                        </div>
+                        <div class="log-item-action" onclick="event.stopPropagation();" style="margin-top:8px;">
+                            <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar en Favoritos</button>
+                        </div>
                     </div>
-                    <div class="log-item-action" onclick="event.stopPropagation();" style="margin-top:5px;">
-                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
-                    </div>
-                </div>
-            `).join('');
-            histContainer.innerHTML = htmlLogs;
+                `).join('');
+            }
+        }
+    } catch (err) {
+        console.error("Error crítico recuperado al pintar el Historial Central:", err);
+        const histContainer = document.getElementById('history-list-container');
+        if (histContainer) {
+            histContainer.innerHTML = "<p style='color:#e53e3e; font-style:italic;'>Error estructural en lectura de buffers de logs.</p>";
         }
     }
     
-    renderFavorites();
+    // Bloque 5: Favoritos
+    try {
+        renderFavorites();
+    } catch (err) {
+        console.error("Fallo controlado en sección Favoritos:", err);
+    }
 }
 
 function renderFavorites() {
@@ -316,16 +346,16 @@ function renderFavorites() {
     const favContainer = document.getElementById('favorites-list-container');
     if (!favContainer) return;
 
-    if (!c.favorites || c.favorites.length === 0) {
+    if (!c.favorites || !Array.isArray(c.favorites) || c.favorites.length === 0) {
         favContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding:10px 0;'>No hay registros marcados como favoritos.</p>";
     } else {
         favContainer.innerHTML = c.favorites.map((f, index) => `
-            <div class="log-item-card favorito" style="position:relative; margin-bottom:8px; padding:10px; background:rgba(255,215,0,0.02); border:1px solid rgba(255,215,0,0.2); border-radius:4px;">
+            <div class="log-item-card favorito" style="position:relative; margin-bottom:8px; padding:12px; background:rgba(255,215,0,0.01); border:1px solid var(--bubble-border); border-radius:4px;">
                 <div class="log-item-info" onclick="cargarChatFavorito(${index})" style="cursor:pointer; padding-right:30px;">
-                    <strong>Q:</strong> ${f.pregunta}<br>
-                    <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${f.respuesta}</span>
+                    <strong>Q:</strong> ${f.pregunta || ''}<br>
+                    <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${f.respuesta || ''}</span>
                 </div>
-                <button class="remove-fav-btn" onclick="eliminarDeFavoritos(${index}); event.stopPropagation();" style="position:absolute; right:10px; top:10px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">×</button>
+                <button class="remove-fav-btn" onclick="eliminarDeFavoritos(${index}); event.stopPropagation();" style="position:absolute; right:12px; top:12px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem; line-height:1;">×</button>
             </div>
         `).join('');
     }
@@ -897,7 +927,8 @@ function desbloquearLogro(codigo) {
 }
 
 function obtenerElementoNoRepetido(pool, historialReciente) {
-    let h = historialReciente || [];
+    let h = Array.isArray(historialReciente) ? historialReciente : [];
+    if (!Array.isArray(pool) || pool.length === 0) return "...";
     if (pool.length === 1) return pool[0];
     let filtrado = pool.filter(elem => !h.includes(elem));
     if (filtrado.length === 0) return pool[Math.floor(Math.random() * pool.length)];
@@ -973,7 +1004,7 @@ window.addEventListener('DOMContentLoaded', () => {
         sidebarUser.addEventListener('click', abrirModalCuenta);
     }
     
-    // 5. Renderizado diferido de datos secundarios
+    // 5. Renderizado diferido de datos secundarios seguro
     setTimeout(() => {
         renderAllData();
     }, 100);
