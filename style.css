@@ -1,4 +1,3 @@
-/* PALETAS DE COLORES SEGÚN EL TEMA */
 .modo-hacker {
     --bg-main: #0a0a0a;
     --bg-panel: #111111;
@@ -278,6 +277,10 @@ input:focus { outline: none; border-color: var(--accent-color); }
     padding: 24px;
     border-radius: 10px;
     border: 1px solid var(--bubble-border);
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .card h3 { margin-top: 0; color: var(--accent-color); border-bottom: 1px dashed var(--bubble-border); padding-bottom: 12px; }
@@ -285,7 +288,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .action-bar { margin-bottom: 20px; display: flex; gap: 10px; }
 .action-btn { background-color: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--bubble-border); text-align: center; }
 
-.list-container { max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.list-container { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 
 .item-logro { padding: 12px; border-radius: 6px; background: var(--bg-panel); border: 1px solid var(--bubble-border); }
 .item-logro.positivo { border-left: 4px solid var(--accent-color); }
@@ -309,18 +312,17 @@ input:focus { outline: none; border-color: var(--accent-color); }
 #continue-btn { width: 100%; background-color: var(--text-primary); color: var(--bg-panel); text-align: center; font-size: 0.95rem; padding: 16px; text-transform: uppercase; }
 #continue-btn:hover { opacity: 0.9; }
 
-/* Estilos de la Ventana Modal */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000;
+    z-index: 100000;
 }
 .modal-contenido {
     background-color: var(--bg-panel);
@@ -341,7 +343,6 @@ input:focus { outline: none; border-color: var(--accent-color); }
 .modal-cabecera h4 { margin: 0; color: var(--accent-color); }
 .close-modal-btn { background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; padding: 0; }
 
-/* Contenedor de Avisos Flotantes */
 .contenedor-toast {
     position: fixed;
     bottom: 20px;
@@ -349,7 +350,7 @@ input:focus { outline: none; border-color: var(--accent-color); }
     display: flex;
     flex-direction: column;
     gap: 10px;
-    z-index: 10005;
+    z-index: 100005;
     pointer-events: none;
 }
 .ventanita-notificacion-flotante {
