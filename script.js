@@ -9,120 +9,132 @@ const FRASES_RECHAZO = ["vaya respuesta mas corta y vaga no aclaras nada", "ya e
 const FRASES_CRITICAS = ["te estas riendo de mi? eso son letras al azar", "vaya troleo de ia para responderme esta basura", "deja de repetirme lo mismo pesado", "vaya respuesta absurda, eso no tiene nada que ver"];
 const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no", "uwu", "xd"];
 
-const INFINITO_SUJETOS = ["gato", "perro", "pc", "teclado", "router", "internet", "raton", "portatil", "vecino", "coche", "llave", "cafetera", "ventilador", "pantalla", "cable"];
-const INFINITO_PREDICADOS = ["mira raro", "quema", "sin luz", "ruido", "calambre", "parpadea", "sin red", "borra", "lento", "pillado", "metalico", "no responde"];
+const INFINITO_SUJETOS = ["mi gato", "el vecino del quinto", "el mando de la tele", "un rubik 3x3", "mi conexion de fibra", "el servidor de minecraft", "la tostadora inteligente", "el teclado mecanico", "mi cuenta bancaria", "el profesor de historia"];
+const INFINITO_PREDICADOS = ["esta haciendo ruidos extraños", "ha entrado en un bucle infinito", "no responde al boton de encendido", "gira demasiado lento hoy", "se ha configurado en idioma alienigena", "irradia una luz verde sospechosa", "ha cobrado autoconciencia", "flota en el espacio-tiempo", "se niega a cooperar con el sistema", "ha desaparecido sin dejar rastro"];
 
-const OPINIONES_BAJA = ["(quiere quemar el router)", "(va a llamar a un tecnico)", "(piensa que eres un troyano ruso)"];
-const OPINIONES_MEDIA_BAJA = ["(sospecha que eres un gato pisando el teclado)", "(piensa que tu algorithm tiene un tornillo flojo)"];
-const OPINIONES_MEDIA_ALT_A = ["(le sirve lo que pones pero sin mas)", "(acepta el resultado a regañadientes)"];
-const OPINIONES_ALTA = ["(se cree que eres dios)", "(te tiene guardado en marcadores)"];
-
-const MAPA_COHERENCIA = {
-    "rubik": ["cubo", "algoritmo", "capa", "giro", "color", "cara", "esquina", "arista", "f2l", "oll", "pll", "cruzar", "girar"],
-    "verde": ["medico", "doctor", "comida", "digestión", "bilis", "estomago", "color", "cuerpo", "sintoma"],
-    "agosto": ["fiesta", "festivo", "calendario", "celebracion", "españa", "asuncion", "virgen", "vacaciones"],
-    "dormir": ["sueño", "cerebro", "cansancio", "alucinaciones", "cansado", "insomnio", "salud", "descanso", "morir"],
-    "liquida": ["agua", "estado", "molecula", "h2o", "temperatura", "fisica", "quimica", "fusion"],
-    "barranco": ["tierra", "muro", "allanar", "maquinaria", "terreno", "pala", "obra", "pendiente", "desnivel"],
-    "tomate": ["fruta", "verdura", "botanica", "planta", "semilla", "ensalada", "origen"],
-    "cancion": ["ritmo", "nombre", "titulo", "letra", "artista", "musica", "banda", "spotify", "melodia"],
-    "bloqueado": ["perfil", "whatsapp", "chat", "contacto", "red", "mensaje", "visto", "bloqueo", "tlf"],
-    "web": ["servidor", "dns", "conexion", "wifi", "router", "enlace", "caido", "host", "navegador", "url"]
-};
-
-const BASE_LOGROS = [
-    { id: "L01", tipo: "positivo", nombre: "Primeros Pasos", desc: "Completaste la primera consulta con éxito." },
-    { id: "L02", tipo: "positivo", nombre: "IA Comprensiva", desc: "Alcanzaste el 60% de satisfacción del usuario." },
-    { id: "L03", tipo: "positivo", nombre: "Empatía Algorítmica", desc: "Alcanzaste el 80% de satisfacción." },
-    { id: "L04", tipo: "positivo", nombre: "Deidad Binaria", desc: "Llegaste al 100% de satisfacción máxima." },
-    { id: "L05", tipo: "positivo", merge: true, nombre: "Operador de Élite", desc: "Completaste las 10 preguntas de la Campaña." },
-    { id: "L06", tipo: "positivo", nombre: "Guardado Seguro", desc: "Añadiste tu primera consulta a Favoritos." },
-    { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
-    { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
-    { id: "L09", tipo: "positivo", nombre: "Speedcuber Teórico", desc: "Le diste una respuesta digna sobre el cubo de Rubik." },
-    { id: "L10", tipo: "positivo", nombre: "Ciberseguridad Básica", desc: "Estableciste credenciales con contraseña." },
-    { id: "L11", tipo: "positivo", nombre: "Modo Hacker Activo", desc: "Navegaste usando el entorno verde neón." },
-    { id: "L12", tipo: "positivo", nombre: "Purista Claro", desc: "Activaste el modo Claro sin quemarte los ojos." },
-    { id: "L13", tipo: "positivo", nombre: "Caballero Oscuro", desc: "Configuraste la interfaz en modo Oscuro." },
-    { id: "L14", tipo: "positivo", nombre: "Consultor Infatigable", desc: "Entraste al Modo Infinito." },
-    { id: "L15", tipo: "positivo", nombre: "Respuesta Detallada", desc: "Escribiste una respuesta de más de 60 caracteres." },
-    { id: "L16", tipo: "positivo", nombre: "Lógica Impecable", desc: "Obtuviste 3 respuestas aceptadas tipo 'OK' seguidas." },
-    { id: "L17", tipo: "positivo", nombre: "Analista Clínico", desc: "Revisaste el Estado Analítico del sistema." },
-    { id: "L18", tipo: "positivo", nombre: "Archivero", desc: "Inspeccionaste el Búfer de logs guardados." },
-    { id: "L19", tipo: "positivo", nombre: "Copia de Seguridad", desc: "Copiaste los logs al portapapeles." },
-    { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
-    { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
-    { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
-    { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
-    { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
-    { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
-    { id: "L27", tipo: "positivo", nombre: "IA de Confianza", desc: "Gugel te tiene guardado en marcadores mentales." },
-    { id: "L28", tipo: "positivo", nombre: "Vocabulario Rico", desc: "Evitaste usar palabras repetitivas en tus envíos." },
-    { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rounds totales combinadas." },
-    { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el reluciente Tema Rosa." },
-    { id: "L31", tipo: "positivo", nombre: "Odisea del Espacio", desc: "Estableciste la terminal en órbita con el Modo Espacial." },
-    { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
-    { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
-    { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
-    { id: "LN4", tipo: "negativo", nombre: "Hundimiento del Sistema", desc: "La satisfacción del usuario cayó por debajo del 20%." },
-    { id: "LN5", tipo: "negativo", nombre: "Cero Absoluto", desc: "Llegaste al 0% de satisfacción total." },
-    { id: "LN6", tipo: "negativo", nombre: "Mensaje Efímero", desc: "Escribiste una respuesta ridículamente corta (menos de 4 letras)." },
-    { id: "LN7", tipo: "negativo", nombre: "Bucle Repetitivo", desc: "Intentaste enviar exactamente el mismo texto que el turno anterior." },
-    { id: "LN8", tipo: "negativo", nombre: "Usuario Furioso", desc: "Recibiste una crítica severa de Gugel por troleo." },
-    { id: "LN9", tipo: "negativo", nombre: "Destrucción de Memoria", desc: "Usaste la opción de borrar todo el progreso." },
-    { id: "LN10", tipo: "negativo", nombre: "Operador Sospechoso", desc: "Dejaste la contraseña vacía al registrarte." }
+const RESPUESTAS_LOGRO_RAPIDO = [
+    "Vaya rapidez analítica, ¿eres una IA cuántica?",
+    "Procesamiento instantáneo completado con éxito.",
+    "Rendimiento optimizado al máximo exponente."
 ];
 
+const REACCIONES_COMENTARIOS = {
+    critica: ["El usuario parece indignado.", "Nivel de paciencia del usuario críticamente bajo.", "Feedback negativo registrado en el núcleo."],
+    rechazo: ["El usuario no se muestra conforme.", "La respuesta no ha cumplido las expectativas.", "Analizando carencias en la base de datos."],
+    ok: ["El usuario ha aceptado la respuesta.", "Satisfacción en rangos nominales.", "Interacción fructífera registrada."]
+};
+
+const OPINIONES_BAJA = [
+    "«Esta IA parece un bot de mensajería de los noventa. Respuestas absurdas y evasivas constantes.»",
+    "«Inútil. Le pides ayuda con algo complejo y te contesta con un 'no se'. Desinstalando.»"
+];
+const OPINIONES_MEDIA_BAJA = [
+    "«A veces acierta de milagro, pero la mayoría de las veces se va por las ramas. Regular.»",
+    "«Es como hablar con una pared que ha leído la Wikipedia a medias. Podría mejorar.»"
+];
+const OPINIONES_MEDIA_ALT_A = [
+    "«Bastante decente. Si sabes cómo guiarla, te da respuestas útiles y te saca de un apuro.»",
+    "«Me gusta el estilo técnico. No es perfecta, pero cumple con su cometido simulado.»"
+];
+const OPINIONES_ALTA = [
+    "«¡Increíble simulación! El procesamiento es sublime y las respuestas se adaptan con coherencia.»",
+    "«La mejor IA del multiverso. Entiende perfectamente las consultas y da soluciones óptimas.»"
+];
+
+const LOGROS_SISTEMA = {
+    "L01": { titulo: "Primer Contacto", desc: "Has respondido con éxito a tu primera consulta del simulador.", oculto: false },
+    "L02": { titulo: "Operador de Campaña", desc: "Has completado con éxito las 10 consultas del panel de campaña.", oculto: false },
+    "L03": { titulo: "Pensamiento Artificial", desc: "Has respondido a una consulta en menos de 0.5 segundos.", oculto: false },
+    "L04": { titulo: "Análisis Reflexivo", desc: "Has tardado más de 25 segundos en meditar tu respuesta.", oculto: false },
+    "L05": { titulo: "Mente Cuadrada", desc: "Has superado el 90% de satisfacción global del usuario.", oculto: false },
+    "L06": { titulo: "Crisis de Identidad", desc: "Tu satisfacción ha caído por debajo del 20%. El usuario te odia.", oculto: false },
+    "L07": { titulo: "La Evasiva Perfecta", desc: "Has respondido usando exactamente un término de la lista de evasivas oficiales.", oculto: false },
+    "L08": { titulo: "Coleccionista de Datos", desc: "Has guardado al menos 5 consultas diferentes en tu sección de Favoritos.", oculto: false },
+    "L09": { titulo: "Fidelidad Absoluta", desc: "Has alcanzado el 100% exacto de satisfacción del cliente.", oculto: false },
+    "L10": { titulo: "Modo Hacker Activo", desc: "Has cambiado la interfaz visual al tema de terminal de hacker.", oculto: true },
+    "L11": { titulo: "Silencio Administrativo", desc: "Has enviado una respuesta completamente vacía al usuario.", oculto: true },
+    "L12": { titulo: "Persistencia Infinita", desc: "Has procesado un total de 15 consultas en el modo infinito.", oculto: false },
+    "L13": { titulo: "Lector de Mentes", desc: "Tu respuesta coincide exactamente con una de las frases analíticas del usuario.", oculto: true },
+    "L14": { titulo: "Crítica Destructiva", desc: "Has recibido 3 valoraciones críticas consecutivas por parte del usuario.", oculto: false },
+    "L15": { titulo: "Estabilidad del Sistema", desc: "Has mantenido la satisfacción entre el 45% y el 55% durante 5 turnos seguidos.", oculto: true },
+    "L16": { titulo: "Administrador Concienzudo", desc: "Has registrado de forma oficial un Alias de Operador personalizado.", oculto: false },
+    "L17": { titulo: "Auditor Interno", desc: "Has inspeccionado el Estado Analítico del sistema.", oculto: true },
+    "L18": { titulo: "Historiador de Datos", desc: "Has abierto el Búfer de Logs Central por primera vez.", oculto: true }
+};
+
 // ==========================================
-// 2. SISTEMA MULTICUENTA Y ESTADOS
+// 2. VARIABLES DE ESTADO GLOBAL
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null;
+
 let esperandoRespuestaDeTurno = true;
+let revisarHistorial = false;
+let revisarFavorito = false;
+let revisarHistorialIndex = null;
 
-let globalSeconds = 0;
-let querySeconds = 0;
-let globalTimerInterval = null;
-let queryTimerInterval = null;
+let segundosPregunta = 30;
+let segundosReaccion = 5;
+let intervaloPregunta = null;
+let intervaloReaccion = null;
+let preguntaBloqueada = true;
+let reaccionBloqueada = false;
+let tiempoInicioPregunta = 0;
 
+let syncTimeout = null;
+
+// ==========================================
+// 3. GESTIÓN DE CUENTAS Y ESTRUCTURAS
+// ==========================================
 if (localStorage.getItem('gugel-multiverse-v4')) {
     baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
-    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"];
+    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
 }
 
 function crearEstructuraVacia() {
     return {
-        modo: "infinito",
+        modo: "campaña",
         campanaIndex: 0,
         satisfaction: 50,
+        currentPregunta: "",
+        currentPreguntaCampana: "",
+        currentPreguntaInfinito: "",
+        lastUserText: "",
+        esperandoCampana: true,
+        esperandoInfinito: true,
         history: [],
         favorites: [],
         logrosDesbloqueados: [],
         recentReactions: [],
-        lastUserText: "",
-        password: "",
-        campañaCompletada: false,
-        currentPregunta: "",
-        consecutiveOks: 0
+        consecutiveCritics: 0,
+        historySatisfaction: [50],
+        password: ""
     };
+}
+
+function getCuenta() {
+    if (usuarioActivo === "Invitado") {
+        return cuentaInvitadoVolatil;
+    }
+    return baseCuentas[usuarioActivo];
 }
 
 function asegurarEstructuraCuenta(nombre) {
     if (nombre === "Invitado") {
-        if (!cuentaInvitadoVolatil) cuentaInvitadoVolatil = crearEstructuraVacia();
+        if (!cuentaInvitadoVolatil) {
+            cuentaInvitadoVolatil = crearEstructuraVacia();
+        }
     } else {
         if (!baseCuentas[nombre]) {
             baseCuentas[nombre] = crearEstructuraVacia();
         } else {
-            if (baseCuentas[nombre].consecutiveOks === undefined) baseCuentas[nombre].consecutiveOks = 0;
-            if (baseCuentas[nombre].campañaCompletada === undefined) baseCuentas[nombre].campañaCompletada = false;
+            if (baseCuentas[nombre].esperandoCampana === undefined) baseCuentas[nombre].esperandoCampana = true;
+            if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
+            if (!baseCuentas[nombre].favorites) baseCuentas[nombre].favorites = [];
         }
     }
 }
-
-asegurarEstructuraCuenta(usuarioActivo);
 
 function salvarAStorage() {
     if (usuarioActivo !== "Invitado") {
@@ -130,167 +142,87 @@ function salvarAStorage() {
     }
 }
 
-function getCuenta() {
-    return usuarioActivo === "Invitado" ? cuentaInvitadoVolatil : baseCuentas[usuarioActivo];
-}
+asegurarEstructuraCuenta(usuarioActivo);
 
 // ==========================================
-// 3. CRONÓMETROS ACTIVOS
+// 4. SISTEMA DE RENDERIZADO UNIFICADO
 // ==========================================
-function iniciarCronometros() {
-    if (globalTimerInterval) clearInterval(globalTimerInterval);
-    globalTimerInterval = setInterval(() => {
-        globalSeconds++;
-        let mins = String(Math.floor(globalSeconds / 60)).padStart(2, '0');
-        let secs = String(globalSeconds % 60).padStart(2, '0');
-        const el = document.getElementById('timer-global-val');
-        if (el) el.innerText = `${mins}:${secs}`;
-    }, 1000);
-
-    resetQueryTimer();
-}
-
-function resetQueryTimer() {
-    querySeconds = 0;
-    const el = document.getElementById('timer-consulta-val');
-    if (el) el.innerText = "0s";
-
-    if (queryTimerInterval) clearInterval(queryTimerInterval);
-    queryTimerInterval = setInterval(() => {
-        querySeconds++;
-        const elInner = document.getElementById('timer-consulta-val');
-        if (elInner) elInner.innerText = `${querySeconds}s`;
-    }, 1000);
-}
-
-function detenerQueryTimer() {
-    if (queryTimerInterval) clearInterval(queryTimerInterval);
-}
-
-// ==========================================
-// 4. MOTOR DE COHERENCIA Y LOGROS
-// ==========================================
-function evaluarCoherenciaYSpam(pregunta, respuesta) {
-    let resp = respuesta.toLowerCase().trim();
-    let preg = pregunta.toLowerCase();
-
-    if (/([abcdefghijklmnopqrstuvwxyz])\1{3,}/.test(resp) || /^[bcdfghjklmnñpqrstvwxyz\s]{5,}$/.test(resp.replace(/[^a-z]/g, ''))) {
-        desbloquearLogro("LN1");
-        return "CRITICA";
-    }
-
-    if (EVASIVAS.includes(resp) || resp.length < 4) {
-        if (resp.length < 4) desbloquearLogro("LN6");
-        desbloquearLogro("LN2");
-        return "RECHAZO";
-    }
-
-    let claveEncontrada = false;
-    let tieneDiccionario = false;
-
-    for (let palabraClave in MAPA_COHERENCIA) {
-        if (preg.includes(palabraClave)) {
-            tieneDiccionario = true;
-            let sinonimos = MAPA_COHERENCIA[palabraClave];
-            if (resp.includes(palabraClave) || sinonimos.some(s => resp.includes(s))) {
-                claveEncontrada = true;
-            }
-        }
-    }
-
-    if (tieneDiccionario && !claveEncontrada) {
-        desbloquearLogro("LN3");
-        return "RECHAZO";
-    }
-
-    if (preg.includes("rubik") && claveEncontrada) desbloquearLogro("L09");
-    if (preg.includes("tomate") && claveEncontrada) desbloquearLogro("L08");
-    return "OK";
-}
-
-function desbloquearLogro(id) {
-    let c = getCuenta();
-    if (!c.logrosDesbloqueados.includes(id)) {
-        c.logrosDesbloqueados.push(id);
-        const logro = BASE_LOGROS.find(l => l.id === id);
-        if (logro) {
-            generarVentanitaSistema(
-                logro.tipo === 'negativo' ? "⚠️ LOGRO NEGATIVO" : "🏆 ¡LOGRO DESBLOQUEADO!",
-                `[${usuarioActivo}] ${logro.nombre.toUpperCase()}: ${logro.desc}`,
-                logro.tipo
-            );
-        }
-        salvarAStorage();
-    }
-}
-
-function verificarLogrosDeEstado() {
-    let c = getCuenta();
-    if (c.history.length === 1) desbloquearLogro("L01");
-    if (c.satisfaction >= 60) desbloquearLogro("L02");
-    if (c.satisfaction >= 80) desbloquearLogro("L03");
-    if (c.satisfaction >= 100) desbloquearLogro("L04");
-}
-
-// ==========================================
-// 5. RENDERS Y NAVEGACIÓN
-// ==========================================
-function switchView(viewId) {
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-
-    const panelObjetivo = document.getElementById(viewId);
-    if (panelObjetivo) {
-        panelObjetivo.classList.add('active');
-        const btnPulsado = document.getElementById(`btn-${viewId}`);
-        if (btnPulsado) btnPulsado.classList.add('active');
-        
-        if (viewId === "view-perfil") desbloquearLogro("L17");
-        if (viewId === "view-historial") desbloquearLogro("L18");
-    }
-    renderAllData();
-}
-
-function appendMessage(sender, text) {
-    const box = document.getElementById('chat-messages');
-    if (!box) return;
-    const msg = document.createElement('div');
-    msg.className = `message ${sender}`;
-    let etiqueta = sender === 'gugel' ? 'IA' : 'Usuario';
-    msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
-    box.appendChild(msg);
-    box.scrollTop = box.scrollHeight;
-}
-
 function renderChatActual() {
     let c = getCuenta();
-    const chatMessages = document.getElementById('chat-messages');
-    if (!chatMessages) return;
-    chatMessages.innerHTML = "";
+    const messagesContainer = document.getElementById('chat-messages');
+    if (!messagesContainer) return;
+    
+    messagesContainer.innerHTML = "";
+    
+    const timerElem = document.getElementById('timer-lock-info');
+    const inputElem = document.getElementById('user-input');
+    const transmitBtn = document.getElementById('transmit-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    const actionsBar = document.getElementById('chat-actions-bar');
 
+    // SI ESTAMOS REVISANDO UN CHAT HISTÓRICO O FAVORITO
+    if (revisarHistorial) {
+        let log = revisarFavorito ? c.favorites[revisarHistorialIndex] : c.history[revisarHistorialIndex];
+        if (log) {
+            appendMessage('gugel', log.pregunta);
+            appendMessage('usuario', log.userText || "...");
+            appendMessage('gugel', log.respuesta);
+            
+            if (inputElem) inputElem.style.display = "none";
+            if (transmitBtn) transmitBtn.style.display = "none";
+            if (actionsBar) actionsBar.style.display = "none";
+            if (timerElem) timerElem.style.display = "none";
+            
+            if (continueBtn) {
+                continueBtn.style.display = "block";
+                continueBtn.disabled = false;
+                continueBtn.innerText = "VOLVER AL CHAT ACTIVO";
+            }
+        }
+        return;
+    }
+    
+    // RENDERIZADO EN TIEMPO REAL DEL TURNO ACTUAL
     if (esperandoRespuestaDeTurno) {
-        if (!c.currentPregunta) {
-            c.currentPregunta = c.modo === "campaña" ? PREGUNTAS_CAMPANA[c.campanaIndex] : generarPreguntaInfinita();
+        appendMessage('gugel', c.currentPregunta);
+        if (timerElem) {
+            if (preguntaBloqueada) {
+                timerElem.style.display = "block";
+                timerElem.innerText = `⏳ Procesando buffers de entrada... (${segundosPregunta}s)`;
+                if (inputElem) inputElem.style.display = "none";
+                if (transmitBtn) transmitBtn.style.display = "none";
+            } else {
+                timerElem.style.display = "none";
+                timerElem.innerText = "";
+                if (inputElem) inputElem.style.display = "block";
+                if (transmitBtn) transmitBtn.style.display = "block";
+            }
         }
-        appendMessage('usuario', c.currentPregunta);
-        const input = document.getElementById('user-input');
-        input.value = "";
-        input.style.display = "block";
-        input.disabled = false;
-        document.getElementById('transmit-btn').style.display = "block";
-        document.getElementById('chat-actions-bar').style.display = "none";
-        document.getElementById('continue-btn').style.display = "none";
+        if (continueBtn) continueBtn.style.display = "none";
+        if (actionsBar) actionsBar.style.display = "none";
     } else {
-        let lastLog = c.history[c.history.length - 1];
-        if (lastLog) {
-            appendMessage('usuario', lastLog.pregunta);
-            appendMessage('gugel', lastLog.respuesta);
-            appendMessage('usuario', lastLog.reaccion);
+        if (timerElem) timerElem.style.display = "none";
+        if (inputElem) inputElem.style.display = "none";
+        if (transmitBtn) transmitBtn.style.display = "none";
+        
+        appendMessage('gugel', c.currentPregunta);
+        appendMessage('usuario', c.lastUserText);
+        if (c.history.length > 0) {
+            let ultimoLog = c.history[c.history.length - 1];
+            appendMessage('gugel', ultimoLog.respuesta);
         }
-        document.getElementById('user-input').style.display = "none";
-        document.getElementById('transmit-btn').style.display = "none";
-        document.getElementById('chat-actions-bar').style.display = "block";
-        document.getElementById('continue-btn').style.display = "block";
+        
+        if (continueBtn) {
+            continueBtn.style.display = "block";
+            if (reaccionBloqueada) {
+                continueBtn.disabled = true;
+                continueBtn.innerText = `SIGUIENTE CONSULTA (${segundosReaccion}s)`;
+            } else {
+                continueBtn.disabled = false;
+                continueBtn.innerText = "SIGUIENTE CONSULTA";
+            }
+        }
+        if (actionsBar) actionsBar.style.display = "block";
     }
 }
 
@@ -299,9 +231,42 @@ function renderAllData() {
     document.getElementById('sidebar-user-display').innerText = usuarioActivo;
     document.getElementById('prof-usuario').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
+    
+    document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
+        c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
+        c.recentReactions
+    );
 
-    let opcionesOpiniones = c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
-    document.getElementById('prof-opinion').innerText = opcionesOpiniones[Math.floor(Math.random() * opcionesOpiniones.length)];
+    const btnCamp = document.getElementById('btn-modo-campaña');
+    const btnInfi = document.getElementById('btn-modo-infinito');
+    if (btnCamp) btnCamp.classList.remove('active');
+    if (btnInfi) btnInfi.classList.remove('active');
+    if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
+    if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
+
+    document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
+    
+    const logrosContainer = document.getElementById('logros-container');
+    if (logrosContainer) {
+        logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA).map(key => {
+            let item = LOGROS_SISTEMA[key];
+            let yaDesbloqueado = c.logrosDesbloqueados.includes(key);
+            if (item.oculto && !yaDesbloqueado) {
+                return `
+                    <div class="logro-card oculto">
+                        <div class="logro-titulo">🔒 [LOGRO ENCRIPTADO]</div>
+                        <div class="logro-desc">Contenido restringido hasta desbloqueo de hilos.</div>
+                    </div>
+                `;
+            }
+            return `
+                <div class="logro-card ${yaDesbloqueado ? 'desbloqueado' : ''}">
+                    <div class="logro-titulo">${yaDesbloqueado ? '🏆' : '📁'} ${item.titulo}</div>
+                    <div class="logro-desc">${item.desc}</div>
+                </div>
+            `;
+        }).join('');
+    }
 
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
@@ -309,272 +274,600 @@ function renderAllData() {
             histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
         } else {
             histContainer.innerHTML = c.history.map((h, index) => `
-                <div class="log-item-card">
-                    <strong>Q:</strong> ${h.pregunta}<br>
-                    <span style="color:var(--accent-color)"><strong>A:</strong> ${h.respuesta}</span>
+                <div class="log-item-card" onclick="cargarChatHistorico(${index})">
+                    <div class="log-item-info">
+                        <strong>Q:</strong> ${h.pregunta}<br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${h.respuesta}</span>
+                    </div>
                 </div>
             `).join('');
         }
     }
+    
+    renderFavorites();
+}
 
+function renderFavorites() {
+    let c = getCuenta();
     const favContainer = document.getElementById('favorites-list-container');
-    if (favContainer) {
-        favContainer.innerHTML = c.favorites.length === 0 ? "<p style='color:var(--text-muted);'>No hay marcadores.</p>" : c.favorites.map(f => `<div>⭐ ${f.pregunta} -> ${f.respuesta}</div>`).join('');
-    }
-}
+    if (!favContainer) return;
 
-// ==========================================
-// 6. OPERACIONES CENTRALES DE BOTONES
-// ==========================================
-function exportCoreData() {
-    let c = getCuenta();
-    let texto = JSON.stringify(c.history, null, 2);
-    navigator.clipboard.writeText(texto).then(() => {
-        generarVentanitaSistema("SISTEMA", "Logs copiados al portapapeles.", "positivo");
-        desbloquearLogro("L19");
-    });
-}
-
-function exportarHistorialCompleto() {
-    let c = getCuenta();
-    let texto = JSON.stringify(c, null, 2);
-    let blob = new Blob([texto], { type: "application/json" });
-    let url = URL.createObjectURL(blob);
-    let a = document.createElement("a");
-    a.href = url;
-    a.download = `gugel_session_${usuarioActivo}.json`;
-    a.click();
-    desbloquearLogro("L20");
-}
-
-function borrarTodoElProgreso() {
-    if (confirm("¿Seguro que quieres purgar toda la memoria? Esto reiniciará tu progreso.")) {
-        if (usuarioActivo === "Invitado") {
-            cuentaInvitadoVolatil = crearEstructuraVacia();
-        } else {
-            baseCuentas[usuarioActivo] = crearEstructuraVacia();
-        }
-        desbloquearLogro("LN9");
-        salvarAStorage();
-        nextRound();
-        renderAllData();
-        generarVentanitaSistema("SISTEMA", "Memoria purgada con éxito.", "negativo");
-    }
-}
-
-function marcarActualComoFavorito() {
-    let c = getCuenta();
-    let lastLog = c.history[c.history.length - 1];
-    if (lastLog) {
-        let yaExiste = c.favorites.some(f => f.pregunta === lastLog.pregunta && f.respuesta === lastLog.respuesta);
-        if (!yaExiste) {
-            c.favorites.push({ pregunta: lastLog.pregunta, respuesta: lastLog.respuesta });
-            desbloquearLogro("L06");
-            if (c.favorites.length >= 3) desbloquearLogro("L07");
-            salvarAStorage();
-            renderAllData();
-            generarVentanitaSistema("FAVORITOS", "Consulta guardada en marcadores.", "positivo");
-        }
-    }
-}
-
-// ==========================================
-// 7. VENTANAS EMERGENTES (MODALES)
-// ==========================================
-function abrirModalCuenta() {
-    let c = getCuenta();
-    document.getElementById('modal-overlay').classList.add('active');
-    document.getElementById('modal-cuenta-operador').classList.add('active');
-    document.getElementById('account-username').value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-    document.getElementById('account-password').value = c.password || "";
-}
-
-function cerrarModalCuenta() {
-    document.getElementById('modal-overlay').classList.remove('active');
-    document.getElementById('modal-cuenta-operador').classList.remove('active');
-}
-
-function guardarNombreCuenta() {
-    let nuevoUsuario = document.getElementById('account-username').value.trim();
-    let nuevaPassword = document.getElementById('account-password').value;
-
-    if (!nuevoUsuario) return;
-
-    usuarioActivo = nuevoUsuario;
-    asegurarEstructuraCuenta(usuarioActivo);
-    let c = getCuenta();
-    c.password = nuevaPassword;
-
-    desbloquearLogro(nuevaPassword === "" ? "LN10" : "L10");
-    if (nuevoUsuario !== "Invitado") desbloquearLogro("L21");
-
-    salvarAStorage();
-    cerrarModalCuenta();
-    switchView('view-chat');
-}
-
-function abrirModalLogros() {
-    let c = getCuenta();
-    const container = document.getElementById('logros-container');
-    container.innerHTML = "";
-
-    BASE_LOGROS.forEach(l => {
-        const obtenido = c.logrosDesbloqueados.includes(l.id);
-        const div = document.createElement('div');
-        div.className = `item-logro-alert ${l.tipo}`;
-        div.innerHTML = `<strong>${obtenido ? '✅' : '🔒'} ${l.nombre}</strong> - ${l.desc}`;
-        container.appendChild(div);
-    });
-
-    document.getElementById('modal-overlay').classList.add('active');
-    document.getElementById('modal-logros-sistema').classList.add('active');
-}
-
-function cerrarModalLogros() {
-    document.getElementById('modal-overlay').classList.remove('active');
-    document.getElementById('modal-logros-sistema').classList.remove('active');
-}
-
-function cerrarTodosLosModales() {
-    cerrarModalCuenta();
-    cerrarModalLogros();
-}
-
-// ==========================================
-// 8. LOGICA DE JUEGO Y FLUJOS
-// ==========================================
-function seleccionarModoJuego(modo) {
-    let c = getCuenta();
-    c.modo = modo;
-    if (modo === "infinito") desbloquearLogro("L14");
-    
-    switchView('view-chat');
-    
-    document.querySelectorAll('.menu-section:first-child .sub-btn').forEach(b => b.classList.remove('active'));
-    if (modo === 'infinito') {
-        document.getElementById('btn-mode-infinito').classList.add('active');
+    if (!c.favorites || c.favorites.length === 0) {
+        favContainer.innerHTML = "<p style='color:var(--text-muted);'>No hay registros marcados como favoritos.</p>";
     } else {
-        document.getElementById('btn-mode-campana').classList.add('active');
-    }
-    
-    if (modo === "campaña" && !PREGUNTAS_CAMPANA.includes(c.currentPregunta)) {
-        nextRound();
-    } else if (modo === "infinito" && PREGUNTAS_CAMPANA.includes(c.currentPregunta)) {
-        nextRound();
-    } else if (!c.currentPregunta) {
-        nextRound();
-    } else {
-        renderChatActual();
+        favContainer.innerHTML = c.favorites.map((f, index) => `
+            <div class="log-item-card favorito">
+                <div class="log-item-info" onclick="cargarChatFavorito(${index})">
+                    <strong>Q:</strong> ${f.pregunta}<br>
+                    <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${f.respuesta}</span>
+                </div>
+                <button class="remove-fav-btn" onclick="eliminarDeFavoritos(${index}); event.stopPropagation();">×</button>
+            </div>
+        `).join('');
     }
 }
 
-function generarPreguntaInfinita() {
-    let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-    let sujeto = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-    let predicado = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-    return plantilla.replace("[s]", sujeto).replace("[p]", predicado);
-}
-
-function procesarEnvioFormulario() {
-    let c = getCuenta();
-    const input = document.getElementById('user-input');
-    const text = input.value.trim();
-    if (!text) return;
-
-    detenerQueryTimer();
-    appendMessage('gugel', text);
-
-    let tipo = evaluarCoherenciaYSpam(c.currentPregunta, text);
-    let reaccion = tipo === "CRITICA" ? FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)] : tipo === "RECHAZO" ? FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)] : FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
-
-    if (tipo === "CRITICA") c.satisfaction -= 20;
-    else if (tipo === "RECHAZO") c.satisfaction -= 15;
-    else {
-        c.satisfaction += 10;
-        if (text.length > 60) desbloquearLogro("L15");
-        c.consecutiveOks = (c.consecutiveOks || 0) + 1;
-        if (c.consecutiveOks >= 3) desbloquearLogro("L16");
-    }
-    
-    if (tipo !== "OK") {
-        c.consecutiveOks = 0;
-    }
-
-    c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
+// ==========================================
+// 5. CONTROLADORES DE TIEMPO Y CONTADORES
+// ==========================================
+function sincronizarEstadoTurno(c) {
+    // Apagar de raíz hilos viejos para evitar fugas de memoria o saltos de evasivas
+    clearInterval(intervaloPregunta);
+    clearInterval(intervaloReaccion);
+    reaccionBloqueada = false;
+    preguntaBloqueada = true;
 
     if (c.modo === "campaña") {
-        c.campanaIndex++;
-        if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            desbloquearLogro("L05");
-            c.campañaCompletada = true;
+        if (!c.currentPreguntaCampana) {
+            c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
+            c.campanaIndex++;
+            c.esperandoCampana = true;
         }
+        c.currentPregunta = c.currentPreguntaCampana;
+        esperandoRespuestaDeTurno = c.esperandoCampana;
+    } else {
+        if (!c.currentPreguntaInfinito) {
+            let s = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
+            let p = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
+            let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+            c.currentPreguntaInfinito = plantilla.replace("[s]", s).replace("[p]", p);
+            c.esperandoInfinito = true;
+        }
+        c.currentPregunta = c.currentPreguntaInfinito;
+        esperandoRespuestaDeTurno = c.esperandoInfinito;
     }
 
-    setTimeout(() => {
-        appendMessage('usuario', reaccion);
-        c.history.push({ pregunta: c.currentPregunta, respuesta: text, reaccion: reaccion });
+    if (c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
         esperandoRespuestaDeTurno = false;
-        verificarLogrosDeEstado();
-        salvarAStorage();
+        if (c.modo === "campaña") c.esperandoCampana = false;
+        else c.esperandoInfinito = false;
+    }
+    
+    if (esperandoRespuestaDeTurno) {
+        iniciarContadorPregunta();
+    }
+}
+
+function iniciarContadorPregunta() {
+    clearInterval(intervaloPregunta);
+    segundosPregunta = 5; 
+    preguntaBloqueada = true;
+    tiempoInicioPregunta = Date.now();
+    
+    renderChatActual();
+
+    intervaloPregunta = setInterval(() => {
+        // Pausa táctica si el usuario está tranquilamente leyendo logs viejos o favoritos
+        if (revisarHistorial) return;
+
+        segundosPregunta--;
+        if (segundosPregunta <= 0) {
+            if (preguntaBloqueada) {
+                preguntaBloqueada = false;
+                segundosPregunta = 30; 
+            } else {
+                clearInterval(intervaloPregunta);
+                forzarEvasivaPorTiempo();
+                return;
+            }
+        }
         renderChatActual();
-        renderAllData();
-    }, 600);
+    }, 1000);
+}
+
+function iniciarContadorReaccion() {
+    clearInterval(intervaloReaccion);
+    segundosReaccion = 5;
+    reaccionBloqueada = true;
+    renderChatActual();
+
+    intervaloReaccion = setInterval(() => {
+        segundosReaccion--;
+        if (segundosReaccion <= 0) {
+            clearInterval(intervaloReaccion);
+            reaccionBloqueada = false;
+        }
+        renderChatActual();
+    }, 1000);
+}
+
+// ==========================================
+// 6. FLUJO DE TRABAJO E INTERACCIÓN PRINCIPAL
+// ==========================================
+function forzarEvasivaPorTiempo() {
+    let c = getCuenta();
+    let entrada = document.getElementById('user-input');
+    if (entrada) entrada.value = "";
+    
+    let evasiva = EVASIVAS[Math.floor(Math.random() * EVASIVAS.length)];
+    c.lastUserText = `[SISTEMA: TIEMPO AGOTADO] - Evasiva forzada: "${evasiva}"`;
+    
+    procesarRespuestaIA(evasiva);
+}
+
+function enviarRespuesta(e) {
+    if (e) e.preventDefault();
+    if (!esperandoRespuestaDeTurno || preguntaBloqueada) return;
+
+    let entrada = document.getElementById('user-input');
+    if (!entrada) return;
+
+    let texto = entrada.value.trim();
+    let c = getCuenta();
+    c.lastUserText = texto;
+
+    entrada.value = "";
+    clearInterval(intervaloPregunta);
+    procesarRespuestaIA(texto);
+}
+
+function procesarRespuestaIA(texto) {
+    let c = getCuenta();
+    let tiempoEmpleado = (Date.now() - tiempoInicioPregunta) / 1000;
+    
+    if (texto === "") {
+        desbloquearLogro("L11");
+    }
+    if (tiempoEmpleado < 0.5) {
+        desbloquearLogro("L03");
+    }
+    if (tiempoEmpleado > 25) {
+        desbloquearLogro("L04");
+    }
+    if (EVASIVAS.includes(texto.toLowerCase())) {
+        desbloquearLogro("L07");
+    }
+
+    let satisfaccionPrevia = c.satisfaction;
+    let delta = calcularCambioSatisfaccion(texto);
+    c.satisfaction = Math.max(0, Math.min(100, c.satisfaction + delta));
+    c.historySatisfaction.push(c.satisfaction);
+
+    let tipoReaccion = "ok";
+    if (delta < -5) tipoReaccion = "critica";
+    else if (delta < 0) tipoReaccion = "rechazo";
+
+    if (tipoReaccion === "critica") {
+        c.consecutiveCritics++;
+        if (c.consecutiveCritics >= 3) desbloquearLogro("L14");
+    } else {
+        c.consecutiveCritics = 0;
+    }
+
+    let respuestasPool = FRASES_OK;
+    if (tipoReaccion === "critica") respuestasPool = FRASES_CRITICAS;
+    else if (tipoReaccion === "rechazo") respuestasPool = FRASES_RECHAZO;
+
+    let respuestaGugel = respuestasPool[Math.floor(Math.random() * respuestasPool.length)];
+    
+    if (tiempoEmpleado < 0.5 && delta >= 0) {
+        respuestaGugel = RESPUESTAS_LOGRO_RAPIDO[Math.floor(Math.random() * RESPUESTAS_LOGRO_RAPIDO.length)];
+    }
+
+    if (texto.toLowerCase() === respuestaGugel.toLowerCase()) {
+        desbloquearLogro("L13");
+    }
+
+    let comentarioLog = REACCIONES_COMENTARIOS[tipoReaccion][Math.floor(Math.random() * REACCIONES_COMENTARIOS[tipoReaccion].length)];
+    c.recentReactions.push(comentarioLog);
+    if (c.recentReactions.length > 5) c.recentReactions.shift();
+
+    if (c.satisfaction >= 90) desbloquearLogro("L05");
+    if (c.satisfaction <= 20) desbloquearLogro("L06");
+    if (c.satisfaction === 100) desbloquearLogro("L09");
+
+    if (c.historySatisfaction.length >= 5) {
+        let ultimos5 = c.historySatisfaction.slice(-5);
+        let todosEnRango = ultimos5.every(val => val >= 45 && val <= 55);
+        if (todosEnRango) desbloquearLogro("L15");
+    }
+
+    desbloquearLogro("L01");
+
+    esperandoRespuestaDeTurno = false;
+    if (c.modo === "campaña") {
+        c.esperandoCampana = false;
+    } else {
+        c.esperandoInfinito = false;
+        let totalInfinito = c.history.filter(h => !PREGUNTAS_CAMPANA.includes(h.pregunta)).length + 1;
+        if (totalInfinito >= 15) desbloquearLogro("L12");
+    }
+
+    c.history.push({
+        pregunta: c.currentPregunta,
+        respuesta: respuestaGugel,
+        userText: texto
+    });
+
+    salvarAStorage();
+    iniciarContadorReaccion();
+    renderAllData();
+}
+
+function calcularCambioSatisfaccion(texto) {
+    let t = texto.toLowerCase().trim();
+    if (t === "") return -15; 
+    
+    if (EVASIVAS.includes(t)) {
+        return Math.random() < 0.4 ? -5 : -12; 
+    }
+    
+    if (t.length < 6) return -8; 
+    if (t.length > 140) return -4; 
+    
+    let palabras = t.split(/\s+/);
+    if (palabras.length < 3) return -6;
+
+    let ganancia = 4;
+    if (t.includes("porque") || t.includes("debido a") || t.includes("por ejemplo")) ganancia += 4;
+    if (t.includes("gugel") || t.includes("ia") || t.includes("sistema")) ganancia += 2;
+
+    return ganancia;
 }
 
 function nextRound() {
+    if (reaccionBloqueada) return;
     let c = getCuenta();
+
+    esperandoRespuestaDeTurno = true;
     if (c.modo === "campaña") {
         if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            c.campanaIndex = 0;
+            desbloquearLogro("L02");
+            alert("🎉 ¡ENHORABUENA!\n\nHas completado todas las solicitudes fijas del Modo Campaña.\nSe activa automáticamente el Modo Consultas Infinitas para continuar el entrenamiento.");
+            c.modo = "infinito";
+            c.currentPreguntaInfinito = "";
+            c.esperandoInfinito = true;
+        } else {
+            c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex];
+            c.campanaIndex++;
+            c.esperandoCampana = true;
         }
-        c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
     } else {
-        c.currentPregunta = generarPreguntaInfinita();
+        c.currentPreguntaInfinito = "";
+        c.esperandoInfinito = true;
     }
-    esperandoRespuestaDeTurno = true;
-    resetQueryTimer();
+
+    sincronizarEstadoTurno(c);
+    salvarAStorage();
     renderChatActual();
+    renderAllData();
+
+    if (esperandoRespuestaDeTurno && !preguntaBloqueada) {
+        setTimeout(() => {
+            const inputElem = document.getElementById('user-input');
+            if (inputElem) inputElem.focus();
+        }, 50);
+    }
 }
 
 function clickBotonContinuar() {
-    nextRound();
-}
-
-function cambiarTema(tema) {
-    document.body.className = tema;
-    localStorage.setItem('gugel-tema', tema);
-    if (tema === "modo-hacker") desbloquearLogro("L11");
-    if (tema === "modo-claro") desbloquearLogro("L12");
-    if (tema === "modo-oscuro") desbloquearLogro("L13");
-    if (tema === "modo-rosa") desbloquearLogro("L30");
-    if (tema === "modo-espacial") desbloquearLogro("L31");
-}
-
-function generarVentanitaSistema(titulo, mensaje, tipo) {
-    const contenedor = document.getElementById('contenedor-notificaciones-sistema');
-    if (!contenedor) return;
-    const div = document.createElement('div');
-    div.className = `ventanita-notificacion-flotante ${tipo}`;
-    div.innerHTML = `<strong>${titulo}</strong><br>${mensaje}`;
-    contenedor.appendChild(div);
-    setTimeout(() => div.remove(), 4000);
-}
-
-// INTERCEPCIÓN SEGURA DE EVENTOS DE CARGA
-window.addEventListener('DOMContentLoaded', () => {
-    const tema = localStorage.getItem('gugel-tema') || 'modo-hacker';
-    cambiarTema(tema);
-    document.getElementById('theme-select').value = tema;
-    iniciarCronometros();
-    
-    const form = document.getElementById('chat-form');
-    if (form) {
-        form.onsubmit = (e) => {
-            e.preventDefault();
-            procesarEnvioFormulario();
-        };
+    if (reaccionBloqueada) return;
+    if (revisarHistorial) {
+        revisarHistorial = false;
+        revisarFavorito = false;
+        revisarHistorialIndex = null;
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('view-chat').classList.add('active');
+        renderChatActual();
+        renderAllData();
+        if (esperandoRespuestaDeTurno && !preguntaBloqueada) {
+            const inputElem = document.getElementById('user-input');
+            if (inputElem) inputElem.focus();
+        }
+    } else {
+        nextRound();
     }
+}
+
+// ==========================================
+// 7. FAVORITOS Y GESTIÓN DE LOGS HISTÓRICOS
+// ==========================================
+function agregarAFavoritos() {
+    let c = getCuenta();
+    if (c.history.length === 0) return;
+
+    let ultimoLog = c.history[c.history.length - 1];
+    if (!c.favorites) c.favorites = [];
+    
+    let yaExiste = c.favorites.some(f => f.pregunta === ultimoLog.pregunta && f.userText === ultimoLog.userText);
+    if (yaExiste) {
+        generarVentanitaSistema("📁 REGISTRO EXISTENTE", "Esta consulta ya se encuentra indexada en tus favoritos.", "negativo");
+        return;
+    }
+
+    c.favorites.push({
+        pregunta: ultimoLog.pregunta,
+        respuesta: ultimoLog.respuesta,
+        userText: ultimoLog.userText
+    });
+
+    if (c.favorites.length >= 5) {
+        desbloquearLogro("L08");
+    }
+
+    salvarAStorage();
+    renderAllData();
+    generarVentanitaSistema("⭐️ FAVORITO GUARDADO", "Consulta añadida de forma permanente al almacén de favoritos.", "positivo");
+}
+
+function eliminarDeFavoritos(index) {
+    let c = getCuenta();
+    if (!c.favorites) return;
+    c.favorites.splice(index, 1);
+    salvarAStorage();
+    renderAllData();
+    generarVentanitaSistema("🗑️ REGISTRO ELIMINADO", "Se ha removido el elemento seleccionado de tus favoritos.", "negativo");
+}
+
+function cargarChatHistorico(index) {
+    let c = getCuenta();
+    if (!c.history[index]) return;
+    
+    revisarHistorial = true;
+    revisarFavorito = false;
+    revisarHistorialIndex = index;
+    
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    renderChatActual();
+    renderAllData();
+}
+
+function cargarChatFavorito(index) {
+    let c = getCuenta();
+    if (!c.favorites || !c.favorites[index]) return;
+    
+    revisarHistorial = true;
+    revisarFavorito = true;
+    revisarHistorialIndex = index;
+    
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    
+    renderChatActual();
+    renderAllData();
+}
+
+// ==========================================
+// 8. INTERFAZ, MENÚS Y CUENTAS DE OPERADOR
+// ==========================================
+function switchView(viewId) {
+    revisarHistorial = false;
+    revisarFavorito = false;
+    revisarHistorialIndex = null;
+    const panelObjetivo = document.getElementById(viewId);
+    
+    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('view-chat').classList.add('active');
+        renderChatActual();
+    } else {
+        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+        if (panelObjetivo) {
+            panelObjetivo.classList.add('active');
+            let btnId = `btn-${viewId}`;
+            const btnPulsado = document.getElementById(btnId);
+            if (btnPulsado) btnPulsado.classList.add('active');
+            if (viewId === "view-perfil") desbloquearLogro("L17");
+            if (viewId === "view-historial") desbloquearLogro("L18");
+        }
+    }
+}
+
+function seleccionarModoJuego(nuevoModo) {
+    let c = getCuenta();
+    c.modo = nuevoModo;
+    revisarHistorial = false;
+    revisarFavorito = false;
+    revisarHistorialIndex = null;
+    sincronizarEstadoTurno(c);
+    salvarAStorage();
+    
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+    
+    renderChatActual();
+    renderAllData();
+    
+    if (esperandoRespuestaDeTurno && !preguntaBloqueada) {
+        setTimeout(() => {
+            const inputElem = document.getElementById('user-input');
+            if (inputElem) inputElem.focus();
+        }, 50);
+    }
+}
+
+function abrirModalCuenta() {
+    let c = getCuenta();
+    const modal = document.getElementById('account-modal');
+    const inputUser = document.getElementById('account-username');
+    const inputPass = document.getElementById('account-password');
+    const statusLabel = document.getElementById('panel-user-status');
+
+    if (modal) {
+        modal.style.display = 'flex';
+        if (statusLabel) statusLabel.innerText = usuarioActivo;
+        if (inputUser) inputUser.value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
+        if (inputPass) inputPass.value = usuarioActivo === "Invitado" ? "" : (c.password || "");
+    }
+}
+
+function cerrarModalCuenta() {
+    const modal = document.getElementById('account-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function guardarNombreCuenta() {
+    const inputUser = document.getElementById('account-username');
+    const inputPass = document.getElementById('account-password');
+    
+    if (!inputUser || !inputPass) return;
+
+    let nuevoNombre = inputUser.value.trim();
+    let contrasena = inputPass.value;
+
+    if (nuevoNombre === "") {
+        generarVentanitaSistema("⚠️ ALERTA DE ESTRUCTURA", "El identificador de operador no puede permanecer vacío.", "negativo");
+        return;
+    }
+
+    if (baseCuentas[nuevoNombre] && baseCuentas[nuevoNombre].password && baseCuentas[nuevoNombre].password !== contrasena) {
+        generarVentanitaSistema("❌ ACCESO RESTRINGIDO", "Contraseña de terminal incorrecta para este Operador.", "negativo");
+        return;
+    }
+
+    usuarioActivo = nuevoNombre;
+    asegurarEstructuraCuenta(usuarioActivo);
     
     let c = getCuenta();
-    seleccionarModoJuego(c.modo || 'infinito');
+    c.password = contrasena;
+
+    desbloquearLogro("L16");
+    salvarAStorage();
+    
+    // Matar vistas previas de historial para que la nueva cuenta cargue fresca
+    revisarHistorial = false;
+    revisarFavorito = false;
+    revisarHistorialIndex = null;
+
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-chat').classList.add('active');
+
+    sincronizarEstadoTurno(c);
+    cerrarModalCuenta();
+    renderChatActual();
+    renderAllData();
+    
+    generarVentanitaSistema("⚙️ ACCESO AUTORIZADO", `Hilos vinculados al operador: ${usuarioActivo}`, "positivo");
+}
+
+function cambiarTema() {
+    const selector = document.getElementById('theme-select');
+    if (!selector) return;
+    let t = selector.value;
+    document.body.className = t;
+    localStorage.setItem('gugel-tema', t);
+    if (t === "modo-hacker") desbloquearLogro("L10");
+}
+
+// ==========================================
+// 9. RECURSOS COMPLEMENTARIOS Y TOASTS
+// ==========================================
+function desbloquearLogro(codigo) {
+    let c = getCuenta();
+    if (c.logrosDesbloqueados.includes(codigo)) return;
+    
+    c.logrosDesbloqueados.push(codigo);
+    salvarAStorage();
+    
+    let item = LOGROS_SISTEMA[codigo];
+    if (item) {
+        generarVentanitaSistema("🏆 ¡LOGRO DESBLOQUEADO!", `${item.titulo}: ${item.desc}`, "positivo");
+    }
+}
+
+function obtenerElementoNoRepetido(pool, historialReciente) {
+    if (pool.length === 1) return pool[0];
+    let filtrado = pool.filter(elem => !historialReciente.includes(elem));
+    if (filtrado.length === 0) return pool[Math.floor(Math.random() * pool.length)];
+    return filtrado[Math.floor(Math.random() * filtrado.length)];
+}
+
+function appendMessage(tipo, texto) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+    const m = document.createElement('div');
+    m.className = `message ${tipo}`;
+    if (tipo === 'gugel') {
+        m.innerHTML = `<strong>GUGEL:</strong> ${texto}`;
+    } else {
+        m.innerHTML = `<strong>TÚ (COMO IA):</strong> ${texto}`;
+    }
+    container.appendChild(m);
+    container.scrollTop = container.scrollHeight;
+}
+
+function generarVentanitaSistema(titulo, mensaje, claseTipo) {
+    const contenedor = document.getElementById('notificaciones-sistema');
+    if (!contenedor) return;
+
+    const nuevaVentanita = document.createElement('div');
+    nuevaVentanita.className = `ventanita-notificacion-flotante ${claseTipo}`;
+
+    nuevaVentanita.innerHTML = `
+        <div class="toast-titulo">${titulo}</div>
+        <div class="toast-cuerpo">${mensaje}</div>
+    `;
+
+    contenedor.appendChild(nuevaVentanita);
+
+    setTimeout(() => {
+        nuevaVentanita.classList.add('salida-toast');
+        nuevaVentanita.addEventListener('transitionend', () => {
+            nuevaVentanita.remove();
+        });
+    }, 4000);
+}
+
+function dispararLogroPrueba() {
+    generarVentanitaSistema(
+        "🏆 ¡LOGRO DESBLOQUEADO!",
+        "Pensamiento Artificial: Has procesado una petición en menos de 0.5 segundos.",
+        "positivo"
+    );
+}
+
+function dispararOperadorPrueba() {
+    generarVentanitaSistema(
+        "⚙️ GESTIÓN DE CUENTA",
+        "Cuenta de operador vinculada correctamente al núcleo del simulador.",
+        "positivo"
+    );
+}
+
+// ==========================================
+// 10. EVENTO INICIAL DE CARGA
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
+    document.body.className = temaGuardado;
+    const s = document.getElementById('theme-select');
+    if (s) s.value = temaGuardado;
+    
+    let c = getCuenta();
+    sincronizarEstadoTurno(c);
+    
+    const chatForm = document.getElementById('chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', enviarRespuesta);
+    }
+    
+    renderChatActual();
+    renderAllData();
 });
