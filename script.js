@@ -69,7 +69,7 @@ let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null;
 
-let esperandoRespuestaDeTurno = true;
+let esperandoRespuesta DeTurno = true;
 let revisarHistorial = false;
 let revisarFavorito = false;
 let revisarHistorialIndex = null;
@@ -228,14 +228,23 @@ function renderChatActual() {
 
 function renderAllData() {
     let c = getCuenta();
-    document.getElementById('sidebar-user-display').innerText = usuarioActivo;
-    document.getElementById('prof-usuario').innerText = usuarioActivo;
-    document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
     
-    document.getElementById('prof-opinion').innerText = obtenerElementoNoRepetido(
-        c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
-        c.recentReactions
-    );
+    const userDisplay = document.getElementById('sidebar-user-display');
+    if (userDisplay) userDisplay.innerText = usuarioActivo;
+    
+    const profUsuario = document.getElementById('prof-usuario');
+    if (profUsuario) profUsuario.innerText = usuarioActivo;
+    
+    const profSatis = document.getElementById('prof-satisfaction');
+    if (profSatis) profSatis.innerText = `${c.satisfaction}%`;
+    
+    const profOpin = document.getElementById('prof-opinion');
+    if (profOpin) {
+        profOpin.innerText = obtenerElementoNoRepetido(
+            c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
+            c.recentReactions
+        );
+    }
 
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
@@ -244,14 +253,14 @@ function renderAllData() {
     if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
     if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
 
-    document.getElementById('logros-count').innerText = c.logrosDesbloqueados.length;
+    const logrosCount = document.getElementById('logros-count');
+    if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados.length;
     
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
         if (c.logrosDesbloqueados.length === 0) {
             logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Ningún logro registrado en esta cuenta todavía.</p>";
         } else {
-            // Filtrado estricto para que los logros bloqueados no ocupen espacio en el DOM
             logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA)
                 .filter(key => c.logrosDesbloqueados.includes(key))
                 .map(key => {
@@ -266,12 +275,20 @@ function renderAllData() {
         }
     }
 
+    // RENDERIZADO DEL BÚFER DE LOGS CON HERRAMIENTAS DE COPIADO Y EXPORTACIÓN
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
         if (c.history.length === 0) {
             histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
         } else {
-            histContainer.innerHTML = c.history.map((h, index) => `
+            let controlesHtml = `
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; width: 100%;">
+                    <button class="sub-btn" onclick="copiarHistorialPortapapeles()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--accent-color); color: var(--accent-text); padding: 8px; font-weight: bold;">📋 COPIAR TODO</button>
+                    <button class="sub-btn" onclick="exportarHistorialJSON()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--bg-inner); border: 1px solid var(--bubble-border); padding: 8px; color: var(--text-primary);">📥 EXPORTAR JSON</button>
+                </div>
+            `;
+            
+            let listaHtml = c.history.map((h, index) => `
                 <div class="log-item-card" onclick="cargarChatHistorico(${index})">
                     <div class="log-item-info">
                         <strong>Q:</strong> ${h.pregunta}<br>
@@ -279,6 +296,8 @@ function renderAllData() {
                     </div>
                 </div>
             `).join('');
+            
+            histContainer.innerHTML = controlesHtml + listaHtml;
         }
     }
     
@@ -647,6 +666,48 @@ function cargarChatFavorito(index) {
     renderAllData();
 }
 
+// HERRAMIENTA: COPIAR TODO EL HISTORIAL AL PORTAPAPELES
+function copiarHistorialPortapapeles() {
+    let c = getCuenta();
+    if (!c.history || c.history.length === 0) {
+        generarVentanitaSistema("⚠️ ERROR DE EXTRACCIÓN", "No hay registros en el búfer de logs para copiar.", "negativo");
+        return;
+    }
+    
+    let formateado = c.history.map((h, i) => {
+        return `--- REGISTRO #${i + 1} ---\nSOLICITUD DE GUGEL: ${h.pregunta}\nTÚ (COMO IA): ${h.userText || '[Vacío]'}\nFEEDBACK GENERADO: ${h.respuesta}\n`;
+    }).join('\n');
+    
+    navigator.clipboard.writeText(formateado).then(() => {
+        generarVentanitaSistema("📋 COPIADO CON ÉXITO", "Todo el historial de simulaciones se ha volcado en el portapapeles.", "positivo");
+    }).catch(() => {
+        generarVentanitaSistema("❌ FALLO DE SUBSISTEMA", "No se ha podido acceder al portapapeles del sistema operativo.", "negativo");
+    });
+}
+
+// HERRAMIENTA: EXPORTAR HISTORIAL COMPLETO COMO ARCHIVO JSON
+function exportarHistorialJSON() {
+    let c = getCuenta();
+    if (!c.history || c.history.length === 0) {
+        generarVentanitaSistema("⚠️ OPERACIÓN ABORTADA", "El búfer está vacío. No hay datos estructurales que exportar.", "negativo");
+        return;
+    }
+    
+    let contenidoJson = JSON.stringify(c.history, null, 2);
+    let blob = new Blob([contenidoJson], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
+    
+    let linkDescarga = document.createElement('a');
+    linkDescarga.href = url;
+    linkDescarga.download = `gugel_logs_${usuarioActivo.toLowerCase()}_${Date.now()}.json`;
+    document.body.appendChild(linkDescarga);
+    linkDescarga.click();
+    document.body.removeChild(linkDescarga);
+    URL.revokeObjectURL(url);
+    
+    generarVentanitaSistema("📥 EXPORTACIÓN REALIZADA", "Archivo JSON generado y descargado correctamente.", "positivo");
+}
+
 // ==========================================
 // 8. INTERFAZ, MENÚS Y CUENTAS DE OPERADOR
 // ==========================================
@@ -673,6 +734,8 @@ function switchView(viewId) {
             if (viewId === "view-historial") desbloquearLogro("L18");
         }
     }
+    // CORRECCIÓN ESENCIAL: Forzar actualización de listas al cambiar de pestaña
+    renderAllData();
 }
 
 function seleccionarModoJuego(nuevoModo) {
@@ -698,29 +761,75 @@ function seleccionarModoJuego(nuevoModo) {
     }
 }
 
+// NUEVO GESTOR DE CUENTAS DINÁMICO EN BASE A LA CAPTURA (TOAST FLOTANTE INTEGRADO)
 function abrirModalCuenta() {
-    let c = getCuenta();
-    const modal = document.getElementById('account-modal');
-    const inputUser = document.getElementById('account-username');
-    const inputPass = document.getElementById('account-password');
-    const statusLabel = document.getElementById('panel-user-status');
+    cerrarModalCuenta(); // Prevenir duplicados en pantalla
 
-    if (modal) {
-        modal.style.display = 'flex';
-        if (statusLabel) statusLabel.innerText = usuarioActivo;
-        if (inputUser) inputUser.value = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-        if (inputPass) inputPass.value = usuarioActivo === "Invitado" ? "" : (c.password || "");
-    }
+    let c = getCuenta();
+    let aliasPrevio = usuarioActivo === "Invitado" ? "" : usuarioActivo;
+    let clavePrevia = usuarioActivo === "Invitado" ? "" : (c.password || "");
+
+    // Capa de fondo oscura (Overlay)
+    const overlay = document.createElement('div');
+    overlay.id = 'custom-account-popup-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.82)';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = '99999';
+
+    // Contenedor principal con el estilo exacto de los Toasts positivos de la captura
+    const popup = document.createElement('div');
+    popup.className = 'ventanita-notificacion-flotante positivo';
+    popup.style.width = '360px';
+    popup.style.animation = 'none'; // Desactivar animación de salida automática
+    popup.style.pointerEvents = 'auto';
+
+    popup.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div class="toast-titulo" style="font-size: 1rem; margin: 0; font-weight: bold;">⚙️ SUBSISTEMA DE OPERADORES</div>
+            <button onclick="cerrarModalCuenta()" style="background: none; border: none; color: var(--text-primary); font-size: 1.4rem; cursor: pointer; font-family: monospace; line-height: 1;">×</button>
+        </div>
+        <div class="toast-cuerpo" style="display: flex; flex-direction: column; gap: 12px;">
+            <p style="margin: 0 0 6px 0; font-size: 0.85rem;">Terminal activa: <strong style="color:var(--text-primary);">${usuarioActivo}</strong></p>
+            
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold;">Alias de Operador:</label>
+                <input type="text" id="custom-account-username" value="${aliasPrevio}" placeholder="Ej: Operador_Alpha" style="width: 100%; box-sizing: border-box; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--bubble-border); padding: 7px; font-family: 'Courier New', monospace; outline: none;">
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
+                <input type="password" id="custom-account-password" value="${clavePrevia}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--bubble-border); padding: 7px; font-family: 'Courier New', monospace; outline: none;">
+            </div>
+            
+            <button class="sub-btn" onclick="guardarNombreCuentaCustom()" style="margin-top: 10px; text-align: center; background: var(--accent-color); color: var(--accent-text); font-family: 'Courier New', monospace; font-weight: bold; padding: 10px; width: 100%; border: none; cursor: pointer;">AUTENTICAR / REGISTRAR TERMINAL</button>
+        </div>
+    `;
+
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+    
+    // Autoenfoque en el campo de texto
+    setTimeout(() => {
+        const inputUser = document.getElementById('custom-account-username');
+        if (inputUser) inputUser.focus();
+    }, 50);
 }
 
 function cerrarModalCuenta() {
-    const modal = document.getElementById('account-modal');
-    if (modal) modal.style.display = 'none';
+    const overlay = document.getElementById('custom-account-popup-overlay');
+    if (overlay) overlay.remove();
 }
 
-function guardarNombreCuenta() {
-    const inputUser = document.getElementById('account-username');
-    const inputPass = document.getElementById('account-password');
+function guardarNombreCuentaCustom() {
+    const inputUser = document.getElementById('custom-account-username');
+    const inputPass = document.getElementById('custom-account-password');
     
     if (!inputUser || !inputPass) return;
 
@@ -862,6 +971,13 @@ window.addEventListener('DOMContentLoaded', () => {
     const chatForm = document.getElementById('chat-form');
     if (chatForm) {
         chatForm.addEventListener('submit', enviarRespuesta);
+    }
+
+    // Asegurar vinculación del click del panel del monitor de sesión si hiciese falta
+    const sidebarUser = document.getElementById('sidebar-user-display');
+    if (sidebarUser) {
+        sidebarUser.style.cursor = 'pointer';
+        sidebarUser.addEventListener('click', abrirModalCuenta);
     }
     
     renderChatActual();
