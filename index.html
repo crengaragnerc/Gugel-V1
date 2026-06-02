@@ -8,102 +8,145 @@
 </head>
 <body class="modo-hacker">
 
-    <div id=\"app-container\">
+    <div id="app-container">
+        <!-- BARRA LATERAL (ESTRUCTURA ORIGINAL CONFIGURADA) -->
         <aside id="sidebar">
             <div class="menu-section">
                 <div class="section-title">🕹️ MODOS DE CONSULTA</div>
-                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">📌 Panel de Campaña</button>
-                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">♾️ Consultas Infinitas</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">⏱️ NÚCLEO DE TIEMPO</div>
-                <div class="timer-display">
-                    <span>Tiempo Consulta:</span>
-                    <strong id="cronometro-consulta">00s</strong>
-                </div>
-                <div class="timer-display">
-                    <span>Sesión Activa:</span>
-                    <strong id="cronometro-global">00:00</strong>
-                </div>
+                <button id="btn-view-chat" class="sub-btn active" onclick="seleccionarModoJuego('infinito')">∞ Consultas Infinitas</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">👤 MONITOR DE SESIÓN</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="abrirModal('modal-cuenta')">ESTADO ANALÍTICO / CUENTA</button>
+                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">🏆 REGISTRO INTERNO</div>
-                <button id="btn-view-logros" class="sub-btn" onclick="abrirModal('modal-logros')">LOGROS DEL SISTEMA</button>
+                <button id="btn-logros-modal" class="sub-btn" onclick="abrirModalLogros()">LOGROS DEL SISTEMA</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">🎨 PERSONALIZACIÓN</div>
-                <select id="theme-select" onchange="cambiarTema Global(this.value)">
-                    <option value="modo-hacker">Modo Hacker</option>
-                    <option value="modo-oscuro">Modo Oscuro</option>
-                    <option value="modo-claro">Modo Claro</option>
-                </select>
+                <div class="section-title">📂 REGISTRO CENTRAL</div>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
+            </div>
+
+            <!-- ESTADO DEL OPERADOR Y ACCIÓN -->
+            <div class="sidebar-footer">
+                <div class="operator-label">Operador: <span id="sidebar-user-display">Invitado</span></div>
+                <button id="btn-cuenta-modal" class="sub-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
+                
+                <!-- LECTURA DE TEMPORIZADORES (TEXTO PLANO DE SISTEMA) -->
+                <div class="system-status-readout">
+                    <div>Tiempo Consulta: <span id="timer-consulta-val">0s</span></div>
+                    <div>Sesión Activa: <span id="timer-global-val">00:00</span></div>
+                </div>
             </div>
         </aside>
 
+        <!-- PANEL PRINCIPAL DE TRABAJO -->
         <main id="main-panel">
             <header id="main-header">
-                <h1>GUGEL INTERACTIVE TERMINAL v1.0</h1>
-                <div id="user-display-status">Operador: <span id="status-alias">Invitado</span></div>
+                <div class="logo-title">GUGEL</div>
+                <!-- SECTOR DE COMPATIBILIDAD PARA LOS 5 TEMAS -->
+                <div class="theme-selector-container">
+                    <select id="theme-select" class="theme-dropdown" onchange="cambiarTema(this.value)">
+                        <option value="modo-hacker">Modo Hacker</option>
+                        <option value="modo-oscuro">Modo Oscuro</option>
+                        <option value="modo-claro">Modo Claro</option>
+                        <option value="modo-rosa">Modo Rosa</option>
+                        <option value="modo-espacial">Modo Espacial</option>
+                    </select>
+                </div>
             </header>
 
-            <section id="pantalla-interaccion">
-                <div id="historial-consultas">
-                    <div class="sistema-msg">>>> Sistema inicializado. Esperando peticiones del usuario humano...</div>
-                </div>
-
-                <div id="interfaz-respuesta">
-                    <div class="input-container">
-                        <span class="prompt">>></span>
-                        <input type="text" id="input-ia" placeholder="Escribe tu respuesta artificial aquí..." autocomplete="off" onkeydown="detectarEnvio(event)">
-                        <button id="btn-enviar" onclick="procesarRespuestaIA()">PROCESAR</button>
+            <!-- CONTENEDOR DE PANELES INTERCAMBIABLES (SWITCHVIEW) -->
+            <div id="content-area">
+                
+                <!-- PANEL 1: PANTALLA DE CHAT ACTIVO -->
+                <section id="view-chat" class="content-panel active">
+                    <div id="chat-messages"></div>
+                    
+                    <div class="chat-controls-wrapper">
+                        <form id="chat-form" autocomplete="off">
+                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." />
+                            <button type="submit" id="transmit-btn">ENVIAR</button>
+                        </form>
+                        
+                        <div id="chat-actions-bar" style="display: none;">
+                            <button class="action-inline-btn" onclick="marcarActualComoFavorito()">⭐ Guardar en Favoritos</button>
+                        </div>
+                        <button id="continue-btn" style="display: none;" onclick="clickBotonContinuar()">SIGUIENTE CONSULTA</button>
                     </div>
-                </div>
-            </section>
+                </section>
+
+                <!-- PANEL 2: ESTADO ANALÍTICO -->
+                <section id="view-perfil" class="content-panel">
+                    <h2>ESTADO ANALÍTICO DEL SISTEMA</h2>
+                    <div class="stats-box">
+                        <p><strong>Identificación Operador:</strong> <span id="prof-usuario">Invitado</span></p>
+                        <p><strong>Satisfacción del Núcleo:</strong> <span id="prof-satisfaction">50%</span></p>
+                        <p><strong>Estado Mental de Gugel:</strong> <span id="prof-opinion">(Estable)</span></p>
+                    </div>
+                </section>
+
+                <!-- PANEL 3: BÚFER DE LOGS / HISTORIAL -->
+                <section id="view-historial" class="content-panel">
+                    <h2>BÚFER CENTRAL DE LOGS</h2>
+                    <div class="button-row">
+                        <button class="action-inline-btn" onclick="exportCoreData()">Copiar Logs</button>
+                        <button class="action-inline-btn" onclick="exportarHistorialCompleto()">Descargar Archivo</button>
+                        <button class="action-inline-btn destructivo" onclick="borrarTodoElProgreso()">Purgar Memoria</button>
+                    </div>
+                    <h3>Historial de Turnos</h3>
+                    <div id="history-list-container"></div>
+                    <h3>Marcadores Guardados</h3>
+                    <div id="favorites-list-container"></div>
+                </section>
+
+            </div>
         </main>
     </div>
 
-    <div id="modal-overlay" class="capa-fondo-modal" onclick="cerrarTodosLosModales()"></div>
+    <!-- CAPA GENERAL DE FONDO PARA EMERGENCIAS MODALES -->
+    <div id="modal-overlay" class="modal-overlay-layer" onclick="cerrarTodosLosModales()"></div>
 
-    <div id="modal-cuenta" class="modal-emergente">
-        <div class="modal-header">
-            <h3>⚙️ CONTROL DE OPERADOR</h3>
-            <button class="close-modal-btn" onclick="cerrarModal('modal-cuenta')">×</button>
-        </div>
-        <div class="modal-body">
-            <p>Estado actual: <strong id="panel-user-status">Invitado</strong></p>
-            <div class="account-form-block">
-                <div class="form-group">
-                    <label for="account-username">Código/Alias de Operador:</label>
-                    <input type="text" id="account-username" placeholder="Ej: Operador_Alpha" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="account-password">Contraseña de Terminal:</label>
-                    <input type="password" id="account-password" placeholder="••••••••">
-                </div>
-                <button class="action-btn" onclick="guardarNombreCuenta()">ACCEDER / REGISTRAR CUENTA</button>
+    <!-- VENTANITA EMERGENTE (MODAL): GESTIÓN DE CUENTA -->
+    <div id="modal-cuenta-operador" class="modal-alert-frame">
+        <div class="modal-alert-header">crengaragnerc.github.io dice</div>
+        <div class="modal-alert-body">
+            <div class="modal-alert-title">[CONFIGURACIÓN DE CREDENCIALES]</div>
+            <div class="form-alert-group">
+                <label>Código de Operador:</label>
+                <input type="text" id="account-username" placeholder="Alias...">
             </div>
+            <div class="form-alert-group">
+                <label>Clave de Acceso:</label>
+                <input type="password" id="account-password" placeholder="Contraseña...">
+            </div>
+        </div>
+        <div class="modal-alert-footer">
+            <button class="modal-alert-confirm-btn" onclick="guardarNombreCuenta()">Aceptar</button>
+            <button class="modal-alert-cancel-btn" onclick="cerrarModalCuenta()">Cancelar</button>
         </div>
     </div>
 
-    <div id="modal-logros" class="modal-emergente">
-        <div class="modal-header">
-            <h3>🏆 LOGROS DEL NÚCLEO</h3>
-            <button class="close-modal-btn" onclick="cerrarModal('modal-logros')">×</button>
-        </div>
-        <div class="modal-body" id="contenedor-logros-lista">
+    <!-- VENTANITA EMERGENTE (MODAL): LISTADO DE LOGROS -->
+    <div id="modal-logros-sistema" class="modal-alert-frame">
+        <div class="modal-alert-header">crengaragnerc.github.io dice</div>
+        <div class="modal-alert-body">
+            <div class="modal-alert-title">[LOGROS DEL SISTEMA FLOTANTE]</div>
+            <div id="logros-container" class="modal-scroll-content">
+                <!-- Se inyecta dinámicamente -->
             </div>
+        </div>
+        <div class="modal-alert-footer">
+            <button class="modal-alert-confirm-btn" onclick="cerrarModalLogros()">Aceptar</button>
+        </div>
     </div>
 
-    <div id="notificaciones-sistema"></div>
+    <!-- NOTIFICACIONES TOAST FLOTANTES -->
+    <div id="contenedor-notificaciones-sistema"></div>
 
-    <script src="script.js"></script>
 </body>
 </html>
