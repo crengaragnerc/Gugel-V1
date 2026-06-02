@@ -53,7 +53,7 @@ const LOGROS_SISTEMA = {
     "L09": { titulo: "Fidelidad Absoluta", desc: "Has alcanzado el 100% exacto de satisfacción del cliente.", oculto: false },
     "L10": { titulo: "Modo Hacker Activo", desc: "Has cambiado la interfaz visual al tema de terminal de hacker.", oculto: true },
     "L11": { titulo: "Silencio Administrativo", desc: "Has enviado una respuesta completamente vacía al usuario.", oculto: true },
-    "L12": { titulo: "Persistencia Infinita", desc: "Has procesado un total de 15 consultas en el modo infinito.", oculto: false },
+    "L12": { titulo: "Persistencia Infinita", desc: "Has processed un total de 15 consultas en el modo infinito.", oculto: false },
     "L13": { titulo: "Lector de Mentes", desc: "Tu respuesta coincide exactamente con una de las frases analíticas del usuario.", oculto: true },
     "L14": { titulo: "Crítica Destructiva", desc: "Has recibido 3 valoraciones críticas consecutivas por parte del usuario.", oculto: false },
     "L15": { titulo: "Estabilidad del Sistema", desc: "Has mantenido la satisfacción entre el 45% y el 55% durante 5 turnos seguidos.", oculto: true },
@@ -85,9 +85,14 @@ let tiempoInicioPregunta = 0;
 // ==========================================
 // 3. GESTIÓN DE CUENTAS Y ESTRUCTURAS
 // ==========================================
-if (localStorage.getItem('gugel-multiverse-v4')) {
-    baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4'));
-    if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
+try {
+    if (localStorage.getItem('gugel-multiverse-v4')) {
+        baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4')) || {};
+        if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
+    }
+} catch (e) {
+    console.error("Error al parsear el almacenamiento local:", e);
+    baseCuentas = {};
 }
 
 function crearEstructuraVacia() {
@@ -120,24 +125,27 @@ function getCuenta() {
 }
 
 function asegurarEstructuraCuenta(nombre) {
+    let plantilla = crearEstructuraVacia();
+    let cuentaDestino;
+
     if (nombre === "Invitado") {
         if (!cuentaInvitadoVolatil) {
-            cuentaInvitadoVolatil = crearEstructuraVacia();
+            cuentaInvitadoVolatil = plantilla;
         }
+        cuentaDestino = cuentaInvitadoVolatil;
     } else {
         if (!baseCuentas[nombre]) {
-            baseCuentas[nombre] = crearEstructuraVacia();
-        } else {
-            if (baseCuentas[nombre].esperandoCampana === undefined) baseCuentas[nombre].esperandoCampana = true;
-            if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
-            if (!baseCuentas[nombre].favorites) baseCuentas[nombre].favorites = [];
-            if (!baseCuentas[nombre].history) baseCuentas[nombre].history = [];
-            if (!baseCuentas[nombre].recentReactions) baseCuentas[nombre].recentReactions = [];
-            if (!baseCuentas[nombre].historySatisfaction) baseCuentas[nombre].historySatisfaction = [50];
-            if (baseCuentas[nombre].consecutiveCritics === undefined) baseCuentas[nombre].consecutiveCritics = 0;
-            if (!baseCuentas[nombre].logrosDesbloqueados) baseCuentas[nombre].logrosDesbloqueados = [];
+            baseCuentas[nombre] = plantilla;
         }
+        cuentaDestino = baseCuentas[nombre];
     }
+
+    // Inyección defensiva de claves ausentes debido a herencia de versiones antiguas
+    Object.keys(plantilla).forEach(key => {
+        if (cuentaDestino[key] === undefined) {
+            cuentaDestino[key] = plantilla[key];
+        }
+    });
 }
 
 function salvarAStorage() {
@@ -209,7 +217,7 @@ function renderChatActual() {
         
         appendMessage('gugel', c.currentPregunta);
         appendMessage('usuario', c.lastUserText);
-        if (c.history && c.history.length > 0) {
+        if (c.history.length > 0) {
             let ultimoLog = c.history[c.history.length - 1];
             appendMessage('gugel', ultimoLog.respuesta);
         }
@@ -256,11 +264,11 @@ function renderAllData() {
     if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
 
     const logrosCount = document.getElementById('logros-count');
-    if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados.length;
+    if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados ? c.logrosDesbloqueados.length : 0;
     
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        if (c.logrosDesbloqueados.length === 0) {
+        if (!c.logrosDesbloqueados || c.logrosDesbloqueados.length === 0) {
             logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Ningún logro registrado en esta cuenta todavía.</p>";
         } else {
             logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA)
@@ -268,9 +276,9 @@ function renderAllData() {
                 .map(key => {
                     let item = LOGROS_SISTEMA[key];
                     return `
-                        <div class="logro-card unlocked" style="margin-bottom:8px; padding:10px; background:var(--bg-inner); border-left:3px solid gold;">
+                        <div class="logro-card desbloqueado">
                             <div class="logro-titulo">🏆 ${item.titulo}</div>
-                            <div class="logro-desc" style="font-size:0.85rem; color:var(--text-muted);">${item.desc}</div>
+                            <div class="logro-desc">${item.desc}</div>
                         </div>
                     `;
                 }).join('');
@@ -352,7 +360,7 @@ function sincronizarEstadoTurno(c) {
         esperandoRespuestaDeTurno = c.esperandoInfinito;
     }
 
-    if (c.history && c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
+    if (c.history.length > 0 && c.history[c.history.length - 1].pregunta === c.currentPregunta) {
         esperandoRespuestaDeTurno = false;
         if (c.modo === "campaña") c.esperandoCampana = false;
         else c.esperandoInfinito = false;
@@ -506,7 +514,6 @@ function procesarRespuestaIA(texto) {
         if (totalInfinito >= 15) desbloquearLogro("L12");
     }
 
-    if (!c.history) c.history = [];
     c.history.push({
         pregunta: c.currentPregunta,
         respuesta: respuestaGugel,
@@ -631,7 +638,7 @@ function cargarChatFavorito(index) {
 
 function agregarAFavoritos() {
     let c = getCuenta();
-    if (!c.history || c.history.length === 0) return;
+    if (c.history.length === 0) return;
 
     let ultimoLog = c.history[c.history.length - 1];
     if (!c.favorites) c.favorites = [];
@@ -890,8 +897,9 @@ function desbloquearLogro(codigo) {
 }
 
 function obtenerElementoNoRepetido(pool, historialReciente) {
+    let h = historialReciente || [];
     if (pool.length === 1) return pool[0];
-    let filtrado = pool.filter(elem => !historialReciente.includes(elem));
+    let filtrado = pool.filter(elem => !h.includes(elem));
     if (filtrado.length === 0) return pool[Math.floor(Math.random() * pool.length)];
     return filtrado[Math.floor(Math.random() * filtrado.length)];
 }
@@ -945,5 +953,66 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
+    // 1. Sincronizar estado interno
     let c = getCuenta();
-    sincronizarEstado
+    sincronizarEstadoTurno(c);
+    
+    // 2. Renderizar el estado visual del chat principal
+    renderChatActual();
+    
+    // 3. Vincular el formulario de envío de mensajes
+    const chatForm = document.getElementById('chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', enviarRespuesta);
+    }
+
+    // 4. Vincular clics de elementos estáticos
+    const sidebarUser = document.getElementById('sidebar-user-display');
+    if (sidebarUser) {
+        sidebarUser.style.cursor = 'pointer';
+        sidebarUser.addEventListener('click', abrirModalCuenta);
+    }
+    
+    // 5. Renderizado diferido de datos secundarios
+    setTimeout(() => {
+        renderAllData();
+    }, 100);
+});
+
+// Vinculación al objeto global window para su lectura desde el HTML
+window.cargarChatHistorico = cargarChatHistorico;
+window.cargarChatFavorito = cargarChatFavorito;
+window.eliminarDeFavoritos = eliminarDeFavoritos;
+window.switchView = switchView;
+window.seleccionarModoJuego = seleccionarModoJuego;
+window.abrirModalCuenta = abrirModalCuenta;
+window.cerrarModalCuenta = cerrarModalCuenta;
+window.guardarNombreCuentaCustom = guardarNombreCuentaCustom;
+window.cambiarTema = cambiarTema;
+window.clickBotonContinuar = clickBotonContinuar;
+window.nextRound = nextRound;
+window.enviarRespuesta = enviarRespuesta;
+
+// Mapeos y alias de compatibilidad directa para los botones del HTML
+window.agregarAFavoritos = agregarAFavoritos;
+window.marcarActualComoFavorito = agregarAFavoritos;
+window.copiarHistorialPortapapeles = copiarHistorialPortapapeles;
+window.exportCoreData = copiarHistorialPortapapeles;
+window.exportarHistorialJSON = exportarHistorialJSON;
+window.exportarHistorialCompleto = exportarHistorialJSON;
+
+window.marcarHistoricoComoFavorito = function(index) {
+    let c = getCuenta();
+    if (!c.history || !c.history[index]) return;
+    let log = c.history[index];
+    if (!c.favorites) c.favorites = [];
+    let yaExiste = c.favorites.some(f => f.pregunta === log.pregunta && f.userText === log.userText);
+    if (yaExiste) {
+        generarVentanitaSistema("📁 REGISTRO EXISTENTE", "Esta consulta ya está en tus favoritos.", "negativo");
+        return;
+    }
+    c.favorites.push({ pregunta: log.pregunta, respuesta: log.respuesta, userText: log.userText });
+    salvarAStorage();
+    renderAllData();
+    generarVentanitaSistema("⭐️ FAVORITO GUARDADO", "Consulta enviada al almacén de favoritos.", "positivo");
+};
