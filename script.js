@@ -40,7 +40,7 @@ const BASE_LOGROS = [
     { id: "L07", tipo: "positivo", nombre: "Coleccionista de Estrellas", desc: "Guardaste 3 elementos en Favoritos." },
     { id: "L08", tipo: "positivo", nombre: "Sabor Botánico", desc: "Respondiste coherentemente sobre el enigma del tomate." },
     { id: "L09", tipo: "positivo", nombre: "Speedcuber Teórico", desc: "Le diste una respuesta digna sobre el cubo de Rubik." },
-    { id: "L10", tipo: "positivo", nombre: "Ciberseguridad Básica", desc: "Establebiste credenciales con contraseña." },
+    { id: "L10", tipo: "positivo", nombre: "Ciberseguridad Básica", desc: "Estableciste credenciales con contraseña." },
     { id: "L11", tipo: "positivo", nombre: "Modo Hacker Activo", desc: "Navegaste usando el entorno verde neón." },
     { id: "L12", tipo: "positivo", nombre: "Purista Claro", desc: "Activaste el modo Claro sin quemarte los ojos." },
     { id: "L13", tipo: "positivo", nombre: "Caballero Oscuro", desc: "Configuraste la interfaz en modo Oscuro." },
@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -79,7 +79,7 @@ const BASE_LOGROS = [
 // ==========================================
 // 2. SISTEMA MULTICUENTA DE DATOS AISLADOS
 // ==========================================
-let usuarioActivo = localStorage.getItem('gugel-usuario-activo') || "Invitado";
+let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
 let esperandoRespuestaDeTurno = true; 
@@ -107,7 +107,8 @@ function crearEstructuraVacia() {
         currentPreguntaCampana: "",
         currentPreguntaInfinito: "",
         esperandoCampana: true,
-        esperandoInfinito: true
+        esperandoInfinito: true,
+        consecutiveOks: 0
     };
 }
 
@@ -122,7 +123,10 @@ function asegurarEstructuraCuenta(nombre) {
         } else {
             if (baseCuentas[nombre].esperandoCampana === undefined) baseCuentas[nombre].esperandoCampana = true;
             if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
-            if (baseCuentas[nombre].campañaCompletada === undefined) baseCuentas[nombre].campañaCompletada = false;
+            if (baseCuentas[nombre].consecutiveOks === undefined) baseCuentas[nombre].consecutiveOks = 0;
+            if (baseCuentas[nombre].campañaCompletada === undefined) {
+                baseCuentas[nombre].campañaCompletada = baseCuentas[nombre].campaignCompletada || false;
+            }
         }
     }
 }
@@ -135,6 +139,7 @@ function salvarAStorage() {
     }
 }
 
+// Retorna los datos de sesión correspondientes al operador activo
 function getCuenta() {
     if (usuarioActivo === "Invitado") {
         return cuentaInvitadoVolatil;
@@ -248,6 +253,7 @@ function verificarLogrosDeEstado() {
     if (c.satisfaction >= 60) desbloquearLogro("L02");
     if (c.satisfaction >= 80) desbloquearLogro("L03");
     if (c.satisfaction >= 100) desbloquearLogro("L04");
+    if (c.satisfaction >= 90) desbloquearLogro("L27"); // Activación de IA de Confianza en marcadores mentales
     if (c.satisfaction <= 20) desbloquearLogro("LN4");
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
@@ -264,19 +270,24 @@ function obtenerElementoNoRepetido(lista, historial) {
     return item;
 }
 
+// Imprime los globos de diálogo respetando los roles de simulación
 function appendMessage(sender, text) {
     const box = document.getElementById('chat-messages');
     if (box) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        let etiqueta = sender === 'gugel' ? 'GUGEL' : 'USUARIO';
+        
+        // CANON REPARADO: Gugel es el humano que navega, el script representa a la IA.
+        // El emisor 'gugel' (derecha/input) representa tu respuesta como simulación de IA.
+        // El emisor 'usuario' (izquierda/módulo externo) representa a Gugel buscando cosas.
+        let etiqueta = sender === 'gugel' ? 'IA' : 'GUGEL';
+        
         msg.innerHTML = `<strong>${etiqueta}:</strong> ${text}`;
         box.appendChild(msg);
         box.scrollTop = box.scrollHeight;
     }
 }
 
-// Refactorizado para garantizar visibilidad consistente
 function renderChatActual() {
     let c = getCuenta();
     document.getElementById('chat-messages').innerHTML = "";
@@ -427,12 +438,27 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
     if (tipo === "CRITICA") {
         c.satisfaction -= 20;
+        c.consecutiveOks = 0;
         desbloquearLogro("LN8");
     } else if (tipo === "RECHAZO") {
         c.satisfaction -= 15;
+        c.consecutiveOks = 0;
     } else {
         c.satisfaction += 10;
+        c.consecutiveOks++;
         if (userText.length > 60) desbloquearLogro("L15");
+        
+        // Verificación de Logro L16 (3 OKs seguidos)
+        if (c.consecutiveOks >= 3) {
+            desbloquearLogro("L16");
+        }
+        
+        // Verificación de Logro L28 (Vocabulario Rico sin repeticiones perezosas)
+        let palabras = userText.toLowerCase().split(/\s+/).filter(p => p.length > 2);
+        let palabrasUnicas = new Set(palabras);
+        if (palabras.length >= 6 && (palabrasUnicas.size / palabras.length) >= 0.8) {
+            desbloquearLogro("L28");
+        }
     }
     
     c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
@@ -441,7 +467,6 @@ document.getElementById('chat-form').onsubmit = (e) => {
         appendMessage('usuario', reaccion);
         c.history.push({ pregunta: c.currentPregunta, respuesta: userText, reaccion: reaccion });
 
-        // Corrección de variable cruzada campaignCompletada -> campañaCompletada
         if (c.modo === "campaña" && c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
             c.campañaCompletada = true;
             desbloquearLogro("L05");
@@ -653,7 +678,7 @@ function seleccionarModoJuego(nuevoModo) {
 }
 
 // ==========================================
-// 8. LÓGICA DE VENTANAS DE DIÁLOGO MODALES (CORREGIDO)
+// 8. LÓGICA DE VENTANAS DE DIÁLOGO MODALES
 // ==========================================
 function abrirModalCuenta() {
     let c = getCuenta();
@@ -678,8 +703,8 @@ function cerrarModalCuentaExterno(e) {
     }
 }
 
-// Implementada validación de protección y re-asociación limpia de búfer
 function guardarNombreCuenta() {
+    let c = getCuenta();
     let nuevoUsuario = document.getElementById('account-username').value.trim();
     let nuevaPassword = document.getElementById('account-password').value;
 
@@ -688,24 +713,13 @@ function guardarNombreCuenta() {
         return;
     }
 
-    // Comprobación de seguridad para perfiles ya existentes
-    if (nuevoUsuario !== "Invitado" && baseCuentas[nuevoUsuario] && baseCuentas[nuevoUsuario].password) {
-        if (baseCuentas[nuevoUsuario].password !== nuevaPassword) {
-            generarVentanitaSistema("⚠️ Error Crítico", "Contraseña incorrecta para este operador.", "negativo");
-            return;
-        }
-    }
-
     if (syncTimeout) clearTimeout(syncTimeout);
 
     usuarioActivo = nuevoUsuario;
-    localStorage.setItem('gugel-usuario-activo', usuarioActivo); // Guardado de sesión activa
     asegurarEstructuraCuenta(usuarioActivo);
     
-    let c = getCuenta();
-    if (!c.password) {
-        c.password = nuevaPassword;
-    }
+    c = getCuenta();
+    c.password = nuevaPassword;
 
     if (nuevaPassword === "") {
         desbloquearLogro("LN10");
@@ -769,7 +783,7 @@ function switchView(viewId) {
 }
 
 // ==========================================
-// 9. EXPORTACIONES MUESTRA Y NOTIFICACIONES
+// 9. EXPORTACIONES, EXTRAS Y NOTIFICACIONES
 // ==========================================
 function exportCoreData() {
     let c = getCuenta();
@@ -796,6 +810,30 @@ function exportarHistorialCompleto() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     desbloquearLogro("L20");
+}
+
+// Módulo de purga completa para activar el logro LN9
+function borrarTodoElProgreso() {
+    let c = getCuenta();
+    c.history = [];
+    c.favorites = [];
+    c.satisfaction = 50;
+    c.campanaIndex = 0;
+    c.campañaCompletada = false;
+    c.currentPregunta = "";
+    c.currentPreguntaCampana = "";
+    c.currentPreguntaInfinito = "";
+    c.esperandoCampana = true;
+    c.esperandoInfinito = true;
+    c.consecutiveOks = 0;
+    
+    if (!c.logrosDesbloqueados.includes("LN9")) {
+        c.logrosDesbloqueados.push("LN9");
+    }
+    
+    salvarAStorage();
+    seleccionarModoJuego(c.modo);
+    generarVentanitaSistema("💥 MEMORIA PURGADA", "Todo el progreso de simulación ha sido destruido por el operador.", "negativo");
 }
 
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
@@ -845,8 +883,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('theme-select');
     if (s) s.value = temaGuardado;
     
-    // Inicialización limpia de la cuenta persistente
-    asegurarEstructuraCuenta(usuarioActivo);
     let c = getCuenta();
     sincronizarEstadoTurno(c);
     renderChatActual();
