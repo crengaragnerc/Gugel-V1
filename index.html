@@ -24,46 +24,56 @@
             <div class="menu-section">
                 <div class="section-title">REGISTRO INTERNO</div>
                 <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-title">REGISTRO CENTRAL</div>
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
             </div>
 
-            <div class="sidebar-footer" style="margin-top:auto; padding-top:20px; border-top:1px solid var(--bubble-border);">
-                <div>OPERADOR: <span id="sidebar-user-display" style="font-weight:bold; color:var(--accent-color);">Invitado</span></div>
-                <div style="margin-top:10px;">
-                    <label for="theme-select" style="font-size:0.75rem; color:var(--text-muted);">TEMA:</label>
-                    <select id="theme-select" onchange="cambiarTema()" style="background:var(--bg-inner); color:var(--text-primary); border:1px solid var(--bubble-border); font-family:monospace; font-size:0.8rem; padding:2px; width:100%;">
-                        <option value="modo-hacker">Terminal Hacker</option>
-                        <option value="modo-oscuro">Modo Oscuro</option>
-                        <option value="modo-claro">Modo Claro</option>
-                        <option value="modo-espacio">Cosmos Espacial</option>
-                    </select>
-                </div>
+            <div class="menu-section-footer">
+                <div class="account-badge-sidebar">Operador: <span id="sidebar-user-display">Invitado</span></div>
+                <button id="btn-open-cuenta" class="sub-btn account-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
             </div>
         </aside>
 
         <main id="main-content">
-            <div id="panels-container">
+            <header id="top-bar">
+                <div class="brand-top">GUGEL Core</div>
+                <div class="theme-selector">
+                    <select id="theme-select" onchange="cambiarTema(this.value)">
+                        <option value="modo-hacker">Modo Hacker</option>
+                        <option value="modo-claro">Modo Claro</option>
+                        <option value="modo-oscuro">Modo Oscuro</option>
+                        <option value="modo-rosa">Modo Rosa</option>
+                        <option value="modo-espacial">Modo Espacial</option>
+                    </select>
+                </div>
+            </header>
+
+            <div id="display-workspace">
                 <section id="view-chat" class="content-panel active">
-                    <div id="chat-box" class="card">
-                        <div id="chat-messages"></div>
-                        <div id="timer-lock-info" style="text-align:center; color:var(--text-muted); font-style:italic; margin-top:10px;"></div>
-                        <form id="chat-form" style="margin-top:15px; display:flex; gap:10px;">
-                            <input type="text" id="user-input" placeholder="Escribe tu respuesta analítica aquí..." style="flex:1; background:var(--bg-inner); color:var(--text-primary); border:1px solid var(--bubble-border); padding:10px; font-family:monospace;" autocomplete="off">
-                            <button type="submit" id="transmit-btn" class="action-btn">TRANSMITIR</button>
-                        </form>
-                        <div id="chat-actions-bar" style="display:none; margin-top:10px; text-align:right;">
-                            <button class="mini-fav-btn" onclick="agregarAFavoritos()">⭐ Guardar en Favoritos</button>
-                        </div>
+                    <div id="chat-messages"></div>
+                    <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
+                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">Guardar consulta en favoritos</button>
                     </div>
+                    <form id="chat-form">
+                        <div id="timer-lock-info" style="display:none; color:var(--accent-color); margin-bottom: 10px; font-size: 0.85rem; font-weight: bold; font-family: 'Courier New', monospace;"></div>
+                        <div class="input-wrapper">
+                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                            <button type="submit" id="transmit-btn">ENVIAR</button>
+                        </div>
+                    </form>
                 </section>
 
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
-                        <h3>Estado Analítico del Sistema</h3>
-                        <p><strong>Operador Actual:</strong> <span id="prof-usuario">Invitado</span></p>
-                        <p><strong>Satisfacción Global:</strong> <span id="prof-satisfaction">50%</span></p>
-                        <p><strong>Dictamen del Usuario:</strong></p>
-                        <blockquote id="prof-opinion" style="font-style:italic; color:var(--text-muted); border-left:3px solid var(--accent-color); padding-left:10px; margin:10px 0;"></blockquote>
+                        <h3>Estado Analítico del Operador</h3>
+                        <p><strong>Identificador de Cuenta Activa:</strong> <span id="prof-usuario">Invitado</span></p>
+                        <div class="opinion-box" id="opinion-container">
+                            <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
+                        </div>
+                        <p><strong>Satisfacción del Sujeto:</strong> <span id="prof-satisfaction">50%</span></p>
                     </div>
                 </section>
 
@@ -77,9 +87,9 @@
                 <section id="view-historial" class="content-panel">
                     <div class="card">
                         <h3>Búfer de Logs y Favoritos</h3>
-                        <div class="action-bar" style="margin-bottom:15px; display:flex; gap:10px;">
-                            <button class="action-btn" onclick="copiarHistorialPortapapeles()">Copiar Logs al Portapapeles</button>
-                            <button class="action-btn" onclick="exportarHistorialJSON()">EXPORTAR SESIÓN COMPLETA</button>
+                        <div class="action-bar">
+                            <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
+                            <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
                         </div>
                         
                         <h4>MARCADORES FAVORITOS</h4>
@@ -92,7 +102,7 @@
             </div>
 
             <footer id="bottom-bar">
-                <button id="continue-btn" onclick="clickBotonContinuar()" style="display:none; width:100%; padding:12px; background:var(--accent-color); color:var(--accent-text); border:none; font-family:monospace; font-weight:bold; cursor:pointer;">SIGUIENTE CONSULTA</button>
+                <button id="continue-btn" onclick="clickBotonContinuar()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
     </div>
