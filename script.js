@@ -82,8 +82,6 @@ let preguntaBloqueada = true;
 let reaccionBloqueada = false;
 let tiempoInicioPregunta = 0;
 
-let syncTimeout = null;
-
 // ==========================================
 // 3. GESTIÓN DE CUENTAS Y ESTRUCTURAS
 // ==========================================
@@ -115,6 +113,7 @@ function crearEstructuraVacia() {
 
 function getCuenta() {
     if (usuarioActivo === "Invitado") {
+        if (!cuentaInvitadoVolatil) cuentaInvitadoVolatil = crearEstructuraVacia();
         return cuentaInvitadoVolatil;
     }
     return baseCuentas[usuarioActivo];
@@ -132,6 +131,7 @@ function asegurarEstructuraCuenta(nombre) {
             if (baseCuentas[nombre].esperandoCampana === undefined) baseCuentas[nombre].esperandoCampana = true;
             if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
             if (!baseCuentas[nombre].favorites) baseCuentas[nombre].favorites = [];
+            if (!baseCuentas[nombre].history) baseCuentas[nombre].history = [];
         }
     }
 }
@@ -160,7 +160,6 @@ function renderChatActual() {
     const continueBtn = document.getElementById('continue-btn');
     const actionsBar = document.getElementById('chat-actions-bar');
 
-    // SI ESTAMOS REVISANDO UN CHAT HISTÓRICO O FAVORITO
     if (revisarHistorial) {
         let log = revisarFavorito ? c.favorites[revisarHistorialIndex] : c.history[revisarHistorialIndex];
         if (log) {
@@ -182,7 +181,6 @@ function renderChatActual() {
         return;
     }
     
-    // RENDERIZADO EN TIEMPO REAL DEL TURNO ACTUAL
     if (esperandoRespuestaDeTurno) {
         appendMessage('gugel', c.currentPregunta);
         if (timerElem) {
@@ -228,102 +226,23 @@ function renderChatActual() {
 
 function renderAllData() {
     let c = getCuenta();
-
-    // Actualizar elementos de texto del usuario del sistema
-    const userDisplays = ['sidebar-user-display', 'prof-usuario', 'panel-user-status'];
-    userDisplays.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = usuarioActivo;
-    });
-
-    const satEl = document.getElementById('prof-satisfaction');
-    if (satEl) satEl.innerText = `${c.satisfaction}%`;
-
-    const opEl = document.getElementById('prof-opinion');
-    if (opEl) {
-        opEl.innerText = obtenerElementoNoRepetido(
-            c.satisfaction < 35 ? OPINIONES_BAJA : 
-            c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
-            c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA, 
+    
+    const userDisplay = document.getElementById('sidebar-user-display');
+    if (userDisplay) userDisplay.innerText = usuarioActivo;
+    
+    const profUsuario = document.getElementById('prof-usuario');
+    if (profUsuario) profUsuario.innerText = usuarioActivo;
+    
+    const profSatis = document.getElementById('prof-satisfaction');
+    if (profSatis) profSatis.innerText = `${c.satisfaction}%`;
+    
+    const profOpin = document.getElementById('prof-opinion');
+    if (profOpin) {
+        profOpin.innerText = obtenerElementoNoRepetido(
+            c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
             c.recentReactions
         );
     }
-
-    // Control de estado de botones de modo
-    const btnCamp = document.getElementById('btn-modo-campaña');
-    const btnInfi = document.getElementById('btn-modo-infinito');
-    if (btnCamp) btnCamp.classList.remove('active');
-    if (btnInfi) btnInfi.classList.remove('active');
-    if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
-    if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
-
-    const logrosCount = document.getElementById('logros-count');
-    if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados.length;
-
-    // Render de Logros
-    const logrosContainer = document.getElementById('logros-container');
-    if (logrosContainer) {
-        const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
-        if (unlockedLogros.length === 0) {
-            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has registrado logros en este perfil.</p>`;
-        } else {
-            logrosContainer.innerHTML = unlockedLogros.map(logro => `
-                <div class="item-logro ${logro.tipo}">
-                    <strong>${logro.tipo === 'negativo' ? '⚠️ ' : '🏆 '}${logro.nombre}</strong><br>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">${logro.desc}</span>
-                </div>
-            `).join('');
-        }
-    }
-
-    // ==========================================
-    // RENDER DEL BÚFER DE LOGS (HISTORIAL)
-    // ==========================================
-    // Intentamos buscar por ID o por una clase común en tu sección de logs
-    const histContainer = document.getElementById('history-list-container') || document.querySelector('.history-list-container');
-    if (histContainer) {
-        if (!c.history || c.history.length === 0) {
-            histContainer.innerHTML = "<p style='color:#a0a0a0; font-style:italic; padding-top:10px;'>Búfer de logs vacío. Las consultas aparecerán aquí.</p>";
-        } else {
-            histContainer.innerHTML = c.history.map((h, index) => `
-                <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; background:rgba(255,255,255,0.05); margin-bottom:8px; padding:10px; border-radius:4px; border-left:3px solid var(--accent-color, #00ff00);">
-                    <div class="log-item-info">
-                        <strong>Q (Gugel):</strong> ${h.pregunta}<br>
-                        <span style="font-size:0.85rem; color: #00ff00;"><strong>A (Tú):</strong> ${h.respuesta}</span><br>
-                        <span style="font-size:0.8rem; color: #888; font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
-                    </div>
-                    <div class="log-item-action" onclick="event.stopPropagation();" style="margin-top:5px;">
-                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})" style="background:transparent; border:1px solid #ffd700; color:#ffd700; cursor:pointer; font-size:0.75rem; padding:2px 6px; border-radius:3px;">⭐ Guardar</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-    }
-
-    // Render de Favoritos
-    const favContainer = document.getElementById('favorites-list-container') || document.querySelector('.favorites-list-container');
-    if (favContainer) {
-        if (!c.favorites || c.favorites.length === 0) {
-            favContainer.innerHTML = "<p style='color:#a0a0a0; font-style:italic; padding-top:10px;'>No hay marcadores guardados.</p>";
-        } else {
-            favContainer.innerHTML = c.favorites.map(f => `
-                <div style="margin-bottom:10px; border-left:2px solid #ffd700; padding-left:10px; background: rgba(255,215,0,0.03); padding:8px; border-radius:4px;">
-                    <strong>⭐ Q:</strong> ${f.pregunta}<br>
-                    <strong>A:</strong> ${f.respuesta}
-                </div>
-            `).join('');
-        }
-    }
-
-    const contBtn = document.getElementById('continue-btn');
-    if (contBtn) {
-        if (revisandoHistorial) {
-            contBtn.innerText = "VOLVER AL CHAT ACTIVO";
-        } else {
-            contBtn.innerText = "SIGUIENTE CONSULTA";
-        }
-    }
-}
 
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
@@ -356,18 +275,18 @@ function renderAllData() {
 
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
-        if (c.history.length === 0) {
-            histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
+        if (!c.history || c.history.length === 0) {
+            histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding: 10px 0;'>Búfer de logs vacío. Responde consultas para rellenarlo.</p>";
         } else {
             let controlesHtml = `
                 <div style="display: flex; gap: 10px; margin-bottom: 15px; width: 100%;">
-                    <button class="sub-btn" onclick="copiarHistorialPortapapeles()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--accent-color); color: var(--accent-text); padding: 8px; font-weight: bold;">📋 COPIAR TODO</button>
-                    <button class="sub-btn" onclick="exportarHistorialJSON()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--bg-inner); border: 1px solid var(--bubble-border); padding: 8px; color: var(--text-primary);">📥 EXPORTAR JSON</button>
+                    <button class="sub-btn" onclick="copiarHistorialPortapapeles()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--accent-color); color: var(--accent-text); padding: 8px; font-weight: bold; border:none; cursor:pointer;">📋 COPIAR TODO</button>
+                    <button class="sub-btn" onclick="exportarHistorialJSON()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--bg-inner); border: 1px solid var(--bubble-border); padding: 8px; color: var(--text-primary); cursor:pointer;">📥 EXPORTAR JSON</button>
                 </div>
             `;
             
             let listaHtml = c.history.map((h, index) => `
-                <div class="log-item-card" onclick="cargarChatHistorico(${index})">
+                <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; margin-bottom:8px; padding:10px; background:rgba(255,255,255,0.03); border:1px solid var(--bubble-border); border-radius:4px;">
                     <div class="log-item-info">
                         <strong>Q:</strong> ${h.pregunta}<br>
                         <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${h.respuesta}</span>
@@ -388,15 +307,15 @@ function renderFavorites() {
     if (!favContainer) return;
 
     if (!c.favorites || c.favorites.length === 0) {
-        favContainer.innerHTML = "<p style='color:var(--text-muted);'>No hay registros marcados como favoritos.</p>";
+        favContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding:10px 0;'>No hay registros marcados como favoritos.</p>";
     } else {
         favContainer.innerHTML = c.favorites.map((f, index) => `
-            <div class="log-item-card favorito">
-                <div class="log-item-info" onclick="cargarChatFavorito(${index})">
+            <div class="log-item-card favorito" style="position:relative; margin-bottom:8px; padding:10px; background:rgba(255,215,0,0.02); border:1px solid rgba(255,215,0,0.2); border-radius:4px;">
+                <div class="log-item-info" onclick="cargarChatFavorito(${index})" style="cursor:pointer; padding-right:30px;">
                     <strong>Q:</strong> ${f.pregunta}<br>
                     <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${f.respuesta}</span>
                 </div>
-                <button class="remove-fav-btn" onclick="eliminarDeFavoritos(${index}); event.stopPropagation();">×</button>
+                <button class="remove-fav-btn" onclick="eliminarDeFavoritos(${index}); event.stopPropagation();" style="position:absolute; right:10px; top:10px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">×</button>
             </div>
         `).join('');
     }
@@ -531,7 +450,6 @@ function procesarRespuestaIA(texto) {
         desbloquearLogro("L07");
     }
 
-    let satisfaccionPrevia = c.satisfaction;
     let delta = calcularCambioSatisfaccion(texto);
     c.satisfaction = Math.max(0, Math.min(100, c.satisfaction + delta));
     c.historySatisfaction.push(c.satisfaction);
@@ -677,7 +595,7 @@ function clickBotonContinuar() {
 // ==========================================
 function cargarChatHistorico(index) {
     let c = getCuenta();
-    if (!c.history[index]) return;
+    if (!c.history || !c.history[index]) return;
     
     revisarHistorial = true;
     revisarFavorito = false;
@@ -781,7 +699,7 @@ function exportarHistorialJSON() {
     document.body.removeChild(linkDescarga);
     URL.revokeObjectURL(url);
     
-    generarVentanitaSistema("📥 EXPORTACIÓN REALIZADA", "Archivo JSON generado y downloaded correctamente.", "positivo");
+    generarVentanitaSistema("📥 EXPORTACIÓN REALIZADA", "Archivo JSON generado y descargado correctamente.", "positivo");
 }
 
 // ==========================================
@@ -810,6 +728,7 @@ function switchView(viewId) {
             if (viewId === "view-historial") desbloquearLogro("L18");
         }
     }
+    // Forzamos la actualización de datos completa al cambiar de vista para rellenar los contenedores dinámicos
     renderAllData();
 }
 
