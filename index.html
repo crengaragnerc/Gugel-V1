@@ -5,30 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUGEL: simulador de IA</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
 <body class="modo-hacker">
 
     <div id="app-container">
-        <!-- BARRA LATERAL (ESTRUCTURA ORIGINAL CONFIGURADA) -->
+        <!-- BARRA LATERAL -->
         <aside id="sidebar">
             <div class="menu-section">
-                <div class="section-title">🕹️ MODOS DE CONSULTA</div>
+                <div class="section-title">MODOS DE CONSULTA</div>
                 <button id="btn-mode-infinito" class="sub-btn active" onclick="seleccionarModoJuego('infinito')">∞ Consultas Infinitas</button>
-                <button id="btn-mode-campana" class="sub-btn" onclick="seleccionarModoJuego('campaña')">⏱️ Modo Campaña</button>
+                <button id="btn-mode-campana" class="sub-btn" onclick="seleccionarModoJuego('campaña')">⏱ Modo Campaña</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">👤 MONITOR DE SESIÓN</div>
+                <div class="section-title">MONITOR DE SESIÓN</div>
                 <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">🏆 REGISTRO INTERNO</div>
+                <div class="section-title">REGISTRO INTERNO</div>
                 <button id="btn-logros-modal" class="sub-btn" onclick="abrirModalLogros()">LOGROS DEL SISTEMA</button>
             </div>
 
             <div class="menu-section">
-                <div class="section-title">📂 REGISTRO CENTRAL</div>
+                <div class="section-title">REGISTRO CENTRAL</div>
                 <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
             </div>
 
@@ -37,7 +38,6 @@
                 <div class="operator-label">Operador: <span id="sidebar-user-display">Invitado</span></div>
                 <button id="btn-cuenta-modal" class="sub-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
                 
-                <!-- LECTURA DE TEMPORIZADORES (TEXTO PLANO DE SISTEMA) -->
                 <div class="system-status-readout">
                     <div>Tiempo Consulta: <span id="timer-consulta-val">0s</span></div>
                     <div>Sesión Active: <span id="timer-global-val">00:00</span></div>
@@ -49,7 +49,6 @@
         <main id="main-panel">
             <header id="main-header">
                 <div class="logo-title">GUGEL</div>
-                <!-- SECTOR DE COMPATIBILIDAD PARA LOS 5 TEMAS -->
                 <div class="theme-selector-container">
                     <select id="theme-select" class="theme-dropdown" onchange="cambiarTema(this.value)">
                         <option value="modo-hacker">Modo Hacker</option>
@@ -61,7 +60,7 @@
                 </div>
             </header>
 
-            <!-- CONTENEDOR DE PANELES INTERCAMBIABLES (SWITCHVIEW) -->
+            <!-- CONTENEDOR DE PANELES INTERCAMBIABLES -->
             <div id="content-area">
                 
                 <!-- PANEL 1: PANTALLA DE CHAT ACTIVO -->
@@ -109,10 +108,10 @@
         </main>
     </div>
 
-    <!-- CAPA GENERAL DE FONDO PARA EMERGENCIAS MODALES -->
+    <!-- CAPA GENERAL DE FONDO PARA MODALES -->
     <div id="modal-overlay" class="modal-overlay-layer" onclick="cerrarTodosLosModales()"></div>
 
-    <!-- VENTANITA EMERGENTE (MODAL): GESTIÓN DE CUENTA -->
+    <!-- MODAL: GESTIÓN DE CUENTA -->
     <div id="modal-cuenta-operador" class="modal-alert-frame">
         <div class="modal-alert-header">crengaragnerc.github.io dice</div>
         <div class="modal-alert-body">
@@ -132,14 +131,12 @@
         </div>
     </div>
 
-    <!-- VENTANITA EMERGENTE (MODAL): LISTADO DE LOGROS -->
+    <!-- MODAL: LISTADO DE LOGROS -->
     <div id="modal-logros-sistema" class="modal-alert-frame">
         <div class="modal-alert-header">crengaragnerc.github.io dice</div>
         <div class="modal-alert-body">
             <div class="modal-alert-title">[LOGROS DEL SISTEMA FLOTANTE]</div>
-            <div id="logros-container" class="modal-scroll-content">
-                <!-- Se inyecta dinámicamente -->
-            </div>
+            <div id="logros-container" class="modal-scroll-content"></div>
         </div>
         <div class="modal-alert-footer">
             <button class="modal-alert-confirm-btn" onclick="cerrarModalLogros()">Aceptar</button>
