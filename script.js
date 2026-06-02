@@ -145,25 +145,6 @@ function getCuenta() {
     return usuarioActivo === "Invitado" ? cuentaInvitadoVolatil : baseCuentas[usuarioActivo];
 }
 
-function sincronizarEstadoTurno(c) {
-    if (c.modo === "campaña") {
-        if (!c.currentPreguntaCampana) {
-            c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex] || PREGUNTAS_CAMPANA[0];
-            c.campanaIndex++;
-            c.esperandoCampana = true;
-        }
-        c.currentPregunta = c.currentPreguntaCampana;
-        esperandoRespuestaDeTurno = c.esperandoCampana;
-    } else {
-        if (!c.currentPreguntaInfinito) {
-            c.currentPreguntaInfinito = generarPreguntaInfinita();
-            c.esperandoInfinito = true;
-        }
-        c.currentPregunta = c.currentPreguntaInfinito;
-        esperandoRespuestaDeTurno = c.esperandoInfinito;
-    }
-}
-
 // ==========================================
 // 3. NÚCLEO DE TIEMPO (CRONÓMETROS ACTIVOS)
 // ==========================================
@@ -268,7 +249,6 @@ function verificarLogrosDeEstado() {
 function switchView(viewId) {
     revisandoHistorial = false;
     
-    // Remover clase active de todos los paneles y botones laterales
     document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
 
@@ -297,9 +277,14 @@ function appendMessage(sender, text) {
 
 function renderChatActual() {
     let c = getCuenta();
-    document.getElementById('chat-messages').innerHTML = "";
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    chatMessages.innerHTML = "";
 
     if (esperandoRespuestaDeTurno) {
+        if (!c.currentPregunta) {
+            c.currentPregunta = c.modo === "campaña" ? PREGUNTAS_CAMPANA[c.campanaIndex] : generarPreguntaInfinita();
+        }
         appendMessage('usuario', c.currentPregunta);
         const input = document.getElementById('user-input');
         input.value = "";
@@ -326,7 +311,6 @@ function renderAllData() {
     let c = getCuenta();
     document.getElementById('sidebar-user-display').innerText = usuarioActivo;
     document.getElementById('prof-usuario').innerText = usuarioActivo;
-    document.getElementById('panel-user-status').innerText = usuarioActivo;
     document.getElementById('prof-satisfaction').innerText = `${c.satisfaction}%`;
 
     let opcionesOpiniones = c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
@@ -338,7 +322,7 @@ function renderAllData() {
             histContainer.innerHTML = "<p style='color:var(--text-muted);'>Búfer de logs vacío.</p>";
         } else {
             histContainer.innerHTML = c.history.map((h, index) => `
-                <div class="log-item-card" onclick="cargarChatHistorico(${index})">
+                <div class="log-item-card">
                     <strong>Q:</strong> ${h.pregunta}<br>
                     <span style="color:var(--accent-color)"><strong>A:</strong> ${h.respuesta}</span>
                 </div>
@@ -415,14 +399,31 @@ function cerrarTodosLosModales() {
 }
 
 // ==========================================
-// 7. FLUJO DE RONDAS Y LOGICA COMÚN
+// 7. FLUJO DE RONDAS Y LÓGICA COMÚN
 // ==========================================
 function seleccionarModoJuego(modo) {
     let c = getCuenta();
     c.modo = modo;
     if (modo === "infinito") desbloquearLogro("L14");
+    
     switchView('view-chat');
-    nextRound();
+    
+    document.querySelectorAll('.menu-section:first-child .sub-btn').forEach(b => b.classList.remove('active'));
+    if (modo === 'infinito') {
+        document.getElementById('btn-mode-infinito').classList.add('active');
+    } else {
+        document.getElementById('btn-mode-campana').classList.add('active');
+    }
+    
+    if (modo === "campaña" && !PREGUNTAS_CAMPANA.includes(c.currentPregunta)) {
+        nextRound();
+    } else if (modo === "infinito" && PREGUNTAS_CAMPANA.includes(c.currentPregunta)) {
+        nextRound();
+    } else if (!c.currentPregunta) {
+        nextRound();
+    } else {
+        renderChatActual();
+    }
 }
 
 function generarPreguntaInfinita() {
@@ -443,15 +444,30 @@ document.getElementById('chat-form').onsubmit = (e) => {
     appendMessage('gugel', text);
 
     let tipo = evaluarCoherenciaYSpam(c.currentPregunta, text);
-    let reaccion = tipo === "CRITICA" ? FRASES_CRITICAS[0] : tipo === "RECHAZO" ? FRASES_RECHAZO[0] : FRASES_OK[0];
+    let reaccion = tipo === "CRITICA" ? FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)] : tipo === "RECHAZO" ? FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)] : FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
 
     if (tipo === "CRITICA") c.satisfaction -= 20;
     else if (tipo === "RECHAZO") c.satisfaction -= 15;
     else {
         c.satisfaction += 10;
         if (text.length > 60) desbloquearLogro("L15");
+        c.consecutiveOks = (c.consecutiveOks || 0) + 1;
+        if (c.consecutiveOks >= 3) desbloquearLogro("L16");
     }
+    
+    if (tipo !== "OK") {
+        c.consecutiveOks = 0;
+    }
+
     c.satisfaction = Math.max(0, Math.min(100, c.satisfaction));
+
+    if (c.modo === "campaña") {
+        c.campanaIndex++;
+        if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
+            desbloquearLogro("L05");
+            c.campañaCompletada = true;
+        }
+    }
 
     setTimeout(() => {
         appendMessage('usuario', reaccion);
@@ -466,7 +482,14 @@ document.getElementById('chat-form').onsubmit = (e) => {
 
 function nextRound() {
     let c = getCuenta();
-    c.currentPregunta = c.modo === "campaña" ? PREGUNTAS_CAMPANA[c.campanaIndex] : generarPreguntaInfinita();
+    if (c.modo === "campaña") {
+        if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
+            c.campanaIndex = 0;
+        }
+        c.currentPregunta = PREGUNTAS_CAMPANA[c.campanaIndex];
+    } else {
+        c.currentPregunta = generarPreguntaInfinita();
+    }
     esperandoRespuestaDeTurno = true;
     resetQueryTimer();
     renderChatActual();
@@ -501,6 +524,7 @@ window.addEventListener('DOMContentLoaded', () => {
     cambiarTema(tema);
     document.getElementById('theme-select').value = tema;
     iniciarCronometros();
-    renderChatActual();
-    renderAllData();
+    
+    let c = getCuenta();
+    seleccionarModoJuego(c.modo || 'infinito');
 });
