@@ -81,7 +81,7 @@ body {
     height: 100vh;
 }
 
-/* BARRA LATERAL ORIGINAL */
+/* BARRA LATERAL */
 #sidebar {
     width: 280px;
     background-color: var(--bg-panel);
@@ -136,7 +136,6 @@ body {
     font-size: 0.9rem;
 }
 
-/* TEXTO PLANO PARA CRONÓMETROS */
 .system-status-readout {
     font-size: 0.8rem;
     color: var(--text-muted);
@@ -274,7 +273,7 @@ body {
     color: #ffffff;
 }
 
-/* VENTANAS EMERGENTES (MODAL EXACTO AL NATIVO) */
+/* VENTANAS EMERGENTES */
 .modal-overlay-layer {
     display: none;
     position: fixed;
@@ -397,7 +396,6 @@ body {
     cursor: pointer;
 }
 
-/* HISTORIAL CARDS */
 .log-item-card {
     background-color: var(--bg-panel);
     border: 1px solid var(--bubble-border);
@@ -406,7 +404,6 @@ body {
     margin-bottom: 10px;
 }
 
-/* TOASTS FLOTANTES */
 #contenedor-notificaciones-sistema {
     position: fixed;
     bottom: 20px;
