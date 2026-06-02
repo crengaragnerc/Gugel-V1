@@ -69,7 +69,7 @@ let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null;
 
-let esperandoRespuesta DeTurno = true;
+let esperandoRespuestaDeTurno = true; // CORREGIDO: Espacio eliminado para evitar SyntaxError catastrófico
 let revisarHistorial = false;
 let revisarFavorito = false;
 let revisarHistorialIndex = null;
