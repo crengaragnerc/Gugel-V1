@@ -273,28 +273,33 @@ function renderAllData() {
         }
     }
 
+    // ==========================================
+    // 4. RENDERIZADO CORREGIDO DEL BÚFER
+    // ==========================================
     const histContainer = document.getElementById('history-list-container');
     if (histContainer) {
+        // Aseguramos que limpiamos antes de rellenar
+        histContainer.innerHTML = ""; 
+        
+        let c = getCuenta();
+        
         if (!c.history || c.history.length === 0) {
-            histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding: 10px 0;'>Búfer de logs vacío. Responde consultas para rellenarlo.</p>";
+            histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Búfer de logs vacío. Realiza consultas para generar registros.</p>";
         } else {
-            let controlesHtml = `
-                <div style="display: flex; gap: 10px; margin-bottom: 15px; width: 100%;">
-                    <button class="sub-btn" onclick="copiarHistorialPortapapeles()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--accent-color); color: var(--accent-text); padding: 8px; font-weight: bold; border:none; cursor:pointer;">📋 COPIAR TODO</button>
-                    <button class="sub-btn" onclick="exportarHistorialJSON()" style="flex: 1; text-align: center; font-size: 0.8rem; background: var(--bg-inner); border: 1px solid var(--bubble-border); padding: 8px; color: var(--text-primary); cursor:pointer;">📥 EXPORTAR JSON</button>
-                </div>
-            `;
-            
-            let listaHtml = c.history.map((h, index) => `
-                <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; margin-bottom:8px; padding:10px; background:rgba(255,255,255,0.03); border:1px solid var(--bubble-border); border-radius:4px;">
+            // Usamos un bucle seguro para mapear los logs
+            let htmlLogs = c.history.map((h, index) => `
+                <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; margin-bottom:10px; padding:10px; background:var(--bg-inner); border-left:3px solid var(--accent-color);">
                     <div class="log-item-info">
-                        <strong>Q:</strong> ${h.pregunta}<br>
-                        <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${h.respuesta}</span>
+                        <strong style="color:var(--accent-color);">Q:</strong> ${h.pregunta}<br>
+                        <span style="font-size:0.85rem;"><strong>A:</strong> ${h.respuesta}</span><br>
+                        <span style="font-size:0.75rem; color: var(--text-muted);"><em>Reacción:</em> "${h.reaccion}"</span>
+                    </div>
+                    <div class="log-item-action" onclick="event.stopPropagation();" style="margin-top:5px;">
+                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar</button>
                     </div>
                 </div>
             `).join('');
-            
-            histContainer.innerHTML = controlesHtml + listaHtml;
+            histContainer.innerHTML = htmlLogs;
         }
     }
     
