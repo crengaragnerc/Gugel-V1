@@ -132,6 +132,10 @@ function asegurarEstructuraCuenta(nombre) {
             if (baseCuentas[nombre].esperandoInfinito === undefined) baseCuentas[nombre].esperandoInfinito = true;
             if (!baseCuentas[nombre].favorites) baseCuentas[nombre].favorites = [];
             if (!baseCuentas[nombre].history) baseCuentas[nombre].history = [];
+            if (!baseCuentas[nombre].recentReactions) baseCuentas[nombre].recentReactions = [];
+            if (!baseCuentas[nombre].historySatisfaction) baseCuentas[nombre].historySatisfaction = [50];
+            if (baseCuentas[nombre].consecutiveCritics === undefined) baseCuentas[nombre].consecutiveCritics = 0;
+            if (!baseCuentas[nombre].logrosDesbloqueados) baseCuentas[nombre].logrosDesbloqueados = [];
         }
     }
 }
