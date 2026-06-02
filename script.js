@@ -1,6 +1,3 @@
-// ==========================================
-// 1. CONSTANTES, PLANTILLAS Y DICCIONARIOS
-// ==========================================
 const PLANTILLAS_PREGUNTAS = ["[s] [p]", "porque [s] [p]", "como hacer que [s] [p]", "que pasa si [s] [p]", "ayuda mi [s] [p]"];
 const PREGUNTAS_CAMPANA = ["como hacer cubo rubik", "cagar verde normal", "que se celebra 15 de agosto y porque", "no dormir una noche que pasa", "xq agua es liquida", "como allanar un barranco", "tomate fruta verdura?", "cancion tan tan tan tann nombre", "como saber si alguien te ha bloqueado", "porque no carga una pagina web"];
 
@@ -53,7 +50,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -62,8 +59,6 @@ const BASE_LOGROS = [
     { id: "L29", tipo: "positivo", nombre: "Persistencia", desc: "Superaste 12 rounds totales combinadas." },
     { id: "L30", tipo: "positivo", nombre: "Mundo Algodón", desc: "Activaste el reluciente Tema Rosa." },
     { id: "L31", tipo: "positivo", nombre: "Odisea del Espacio", desc: "Estableciste la terminal en órbita con el Modo Espacial." },
-    
-    // LOGROS NEGATIVOS
     { id: "LN1", tipo: "negativo", nombre: "Aporrea-Teclados", desc: "Enviaste una secuencia incoherente sospechosa de spam." },
     { id: "LN2", tipo: "negativo", nombre: "IA Evasiva", desc: "Respondiste usando términos perezosos o monosílabos evasivos." },
     { id: "LN3", tipo: "negativo", nombre: "Incoherencia Total", desc: "Tu respuesta no tenía absoluta relación con los conceptos buscados." },
@@ -76,9 +71,6 @@ const BASE_LOGROS = [
     { id: "LN10", tipo: "negativo", nombre: "Operador Sospechoso", desc: "Dejaste la contraseña vacía al registrarte." }
 ];
 
-// ==========================================
-// 2. GESTIÓN DE DATOS Y OPERADORES
-// ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
 let cuentaInvitadoVolatil = null; 
@@ -170,9 +162,6 @@ function sincronizarEstadoTurno(c) {
     }
 }
 
-// ==========================================
-// 3. MOTOR DE COHERENCIA Y LOGROS
-// ==========================================
 function evaluarCoherenciaYSpam(pregunta, respuesta) {
     let resp = respuesta.toLowerCase().trim();
     let preg = pregunta.toLowerCase();
@@ -320,9 +309,6 @@ function guardarNombreCuenta() {
     generarVentanitaSistema("⚙️ CONEXIÓN ESTABLECIDA", `Operador "${usuarioActivo}" sincronizado en el núcleo central.`, "positivo");
 }
 
-// ==========================================
-// 4. GESTIÓN DEL CICLO DE RONDAS (CHAT)
-// ==========================================
 function renderChatActual() {
     let c = getCuenta();
     const messagesContainer = document.getElementById('chat-messages');
@@ -500,9 +486,6 @@ function nextRound() {
     if (uInput) uInput.focus();
 }
 
-// ==========================================
-// 5. NAVEGACIÓN, TEMAS Y VISTAS SECUNDARIAS
-// ==========================================
 function cargarChatHistorico(index) {
     let c = getCuenta();
     let log = c.history[index];
@@ -584,14 +567,15 @@ function cambiarTema(nuevoTema) {
 function switchView(viewId) {
     revisarHistorial = false;
     const panelObjetivo = document.getElementById(viewId);
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
     
     if (panelObjetivo && panelObjetivo.classList.contains('active')) {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('view-chat').classList.add('active');
         renderChatActual();
     } else {
         document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
         if (panelObjetivo) {
             panelObjetivo.classList.add('active');
             let btnId = `btn-${viewId}`;
@@ -756,9 +740,6 @@ function renderAllData() {
     renderFavorites();
 }
 
-// ==========================================
-// 6. EVENTO INICIAL DE CARGA
-// ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
     document.body.className = temaGuardado;
