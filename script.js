@@ -228,23 +228,102 @@ function renderChatActual() {
 
 function renderAllData() {
     let c = getCuenta();
-    
-    const userDisplay = document.getElementById('sidebar-user-display');
-    if (userDisplay) userDisplay.innerText = usuarioActivo;
-    
-    const profUsuario = document.getElementById('prof-usuario');
-    if (profUsuario) profUsuario.innerText = usuarioActivo;
-    
-    const profSatis = document.getElementById('prof-satisfaction');
-    if (profSatis) profSatis.innerText = `${c.satisfaction}%`;
-    
-    const profOpin = document.getElementById('prof-opinion');
-    if (profOpin) {
-        profOpin.innerText = obtenerElementoNoRepetido(
-            c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA,
+
+    // Actualizar elementos de texto del usuario del sistema
+    const userDisplays = ['sidebar-user-display', 'prof-usuario', 'panel-user-status'];
+    userDisplays.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = usuarioActivo;
+    });
+
+    const satEl = document.getElementById('prof-satisfaction');
+    if (satEl) satEl.innerText = `${c.satisfaction}%`;
+
+    const opEl = document.getElementById('prof-opinion');
+    if (opEl) {
+        opEl.innerText = obtenerElementoNoRepetido(
+            c.satisfaction < 35 ? OPINIONES_BAJA : 
+            c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : 
+            c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA, 
             c.recentReactions
         );
     }
+
+    // Control de estado de botones de modo
+    const btnCamp = document.getElementById('btn-modo-campaña');
+    const btnInfi = document.getElementById('btn-modo-infinito');
+    if (btnCamp) btnCamp.classList.remove('active');
+    if (btnInfi) btnInfi.classList.remove('active');
+    if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
+    if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
+
+    const logrosCount = document.getElementById('logros-count');
+    if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados.length;
+
+    // Render de Logros
+    const logrosContainer = document.getElementById('logros-container');
+    if (logrosContainer) {
+        const unlockedLogros = BASE_LOGROS.filter(l => c.logrosDesbloqueados.includes(l.id));
+        if (unlockedLogros.length === 0) {
+            logrosContainer.innerHTML = `<p style="color:var(--text-muted); font-style:italic;">No has registrado logros en este perfil.</p>`;
+        } else {
+            logrosContainer.innerHTML = unlockedLogros.map(logro => `
+                <div class="item-logro ${logro.tipo}">
+                    <strong>${logro.tipo === 'negativo' ? '⚠️ ' : '🏆 '}${logro.nombre}</strong><br>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${logro.desc}</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    // ==========================================
+    // RENDER DEL BÚFER DE LOGS (HISTORIAL)
+    // ==========================================
+    // Intentamos buscar por ID o por una clase común en tu sección de logs
+    const histContainer = document.getElementById('history-list-container') || document.querySelector('.history-list-container');
+    if (histContainer) {
+        if (!c.history || c.history.length === 0) {
+            histContainer.innerHTML = "<p style='color:#a0a0a0; font-style:italic; padding-top:10px;'>Búfer de logs vacío. Las consultas aparecerán aquí.</p>";
+        } else {
+            histContainer.innerHTML = c.history.map((h, index) => `
+                <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; background:rgba(255,255,255,0.05); margin-bottom:8px; padding:10px; border-radius:4px; border-left:3px solid var(--accent-color, #00ff00);">
+                    <div class="log-item-info">
+                        <strong>Q (Gugel):</strong> ${h.pregunta}<br>
+                        <span style="font-size:0.85rem; color: #00ff00;"><strong>A (Tú):</strong> ${h.respuesta}</span><br>
+                        <span style="font-size:0.8rem; color: #888; font-style: italic;"><strong>Reacción:</strong> "${h.reaccion}"</span>
+                    </div>
+                    <div class="log-item-action" onclick="event.stopPropagation();" style="margin-top:5px;">
+                        <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})" style="background:transparent; border:1px solid #ffd700; color:#ffd700; cursor:pointer; font-size:0.75rem; padding:2px 6px; border-radius:3px;">⭐ Guardar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Render de Favoritos
+    const favContainer = document.getElementById('favorites-list-container') || document.querySelector('.favorites-list-container');
+    if (favContainer) {
+        if (!c.favorites || c.favorites.length === 0) {
+            favContainer.innerHTML = "<p style='color:#a0a0a0; font-style:italic; padding-top:10px;'>No hay marcadores guardados.</p>";
+        } else {
+            favContainer.innerHTML = c.favorites.map(f => `
+                <div style="margin-bottom:10px; border-left:2px solid #ffd700; padding-left:10px; background: rgba(255,215,0,0.03); padding:8px; border-radius:4px;">
+                    <strong>⭐ Q:</strong> ${f.pregunta}<br>
+                    <strong>A:</strong> ${f.respuesta}
+                </div>
+            `).join('');
+        }
+    }
+
+    const contBtn = document.getElementById('continue-btn');
+    if (contBtn) {
+        if (revisandoHistorial) {
+            contBtn.innerText = "VOLVER AL CHAT ACTIVO";
+        } else {
+            contBtn.innerText = "SIGUIENTE CONSULTA";
+        }
+    }
+}
 
     const btnCamp = document.getElementById('btn-modo-campaña');
     const btnInfi = document.getElementById('btn-modo-infinito');
