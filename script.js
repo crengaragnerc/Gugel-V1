@@ -53,7 +53,7 @@ const BASE_LOGROS = [
     { id: "L20", tipo: "positivo", nombre: "Exportador de Datos", desc: "Descargaste el archivo físico de sesión." },
     { id: "L21", tipo: "positivo", nombre: "Identidad Protegida", desc: "Cambiaste el nombre de Invitado a un alias único." },
     { id: "L22", tipo: "positivo", nombre: "Insomnio Explicado", desc: "Aclaraste qué pasa si no se duerme en toda la noche." },
-    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solución para el barranco." },
+    { id: "L23", tipo: "positivo", nombre: "Ingeniería de Caminos", desc: "Diste una solution para el barranco." },
     { id: "L24", tipo: "positivo", nombre: "Musicólogo digital", desc: "Ayudaste a descifrar el 'tan tan tan tann'." },
     { id: "L25", tipo: "positivo", nombre: "Desbloqueador de Redes", desc: "Aclaraste las dudas sobre bloqueos." },
     { id: "L26", tipo: "positivo", nombre: "Soporte de Red", desc: "Solucionaste el fallo de carga de la web." },
@@ -77,7 +77,7 @@ const BASE_LOGROS = [
 ];
 
 // ==========================================
-// 2. SISTEMA MULTICUENTA DE DATOS AISLADOS
+// 2. GESTIÓN DE DATOS Y OPERADORES
 // ==========================================
 let usuarioActivo = "Invitado";
 let baseCuentas = {};
@@ -247,11 +247,7 @@ function verificarLogrosDeEstado() {
     if (c.satisfaction === 0) desbloquearLogro("LN5");
 }
 
-// ==========================================
-// 4. VENTANAS DEL SISTEMA Y GESTIÓN MULTICUENTA
-// ==========================================
 function generarVentanitaSistema(titulo, mensaje, tipo = "positivo") {
-    // Adiós al código complejo de toasts flotantes, ahora es un alert clásico de toda la vida
     alert(`[${tipo.toUpperCase()}] ${titulo}\n\n${mensaje}`);
 }
 
@@ -292,7 +288,7 @@ function abrirModalCuenta() {
 }
 
 // ==========================================
-// 5. RENDERIZADO DEL CHAT Y GAMEPLAY
+// 4. CORRECCIÓN DEL CICLO DE RONDAS (CHAT)
 // ==========================================
 function renderChatActual() {
     let c = getCuenta();
@@ -313,8 +309,8 @@ function renderChatActual() {
         appendMessage('usuario', c.lastUserText);
         if (c.history.length > 0) {
             let ultimoLog = c.history[c.history.length - 1];
-            appendMessage('gugel', ultimoLog.respuesta);
-            appendMessage('usuario', ultimoLog.reaccion);
+            // SOLUCIÓN: Fusionamos la respuesta y la reacción dentro de la misma burbuja de Gugel
+            appendMessage('gugel', `${ultimoLog.respuesta} <br><span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">(${ultimoLog.reaccion})</span>`);
         }
         document.getElementById('user-input').style.display = "none";
         document.getElementById('transmit-btn').style.display = "none";
@@ -361,16 +357,16 @@ function enviarRespuesta(event) {
 
     if (tipoResultado === "CRITICA") {
         respuestaGugel = FRASES_CRITICAS[Math.floor(Math.random() * FRASES_CRITICAS.length)];
-        reaccion = "¡Gugel se ha enfadado muchísimo!";
+        reaccion = "Gugel se ha enfadado muchísimo";
         c.satisfaction -= 25;
         desbloquearLogro("LN8");
     } else if (tipoResultado === "RECHAZO") {
         respuestaGugel = FRASES_RECHAZO[Math.floor(Math.random() * FRASES_RECHAZO.length)];
-        reaccion = "Gugel arruga el morro descontento.";
+        reaccion = "Gugel arruga el morro descontento";
         c.satisfaction -= 12;
     } else {
         respuestaGugel = FRASES_OK[Math.floor(Math.random() * FRASES_OK.length)];
-        reaccion = "Gugel asiente satisfecho con tu respuesta.";
+        reaccion = "Gugel asiente satisfecho con tu respuesta";
         c.satisfaction += 10;
         
         if (c.history.length >= 2) {
@@ -390,9 +386,7 @@ function enviarRespuesta(event) {
     appendMessage('usuario', userText);
     
     setTimeout(() => {
-        appendMessage('gugel', respuestaGugel);
-        appendMessage('usuario', reaccion);
-        
+        // SOLUCIÓN: Eliminamos los appendMessage manuales duplicados y dejamos que renderChatActual() dibuje la estructura unificada de 3 elementos
         c.history.push({
             pregunta: c.currentPregunta,
             respuesta: respuestaGugel,
@@ -481,7 +475,7 @@ function nextRound() {
 }
 
 // ==========================================
-// 6. NAVEGACIÓN, TEMAS Y UTILIDADES DE DATOS
+// 5. NAVEGACIÓN, TEMAS Y HISTORIAL UNIFICADO
 // ==========================================
 function cargarChatHistorico(index) {
     let c = getCuenta();
@@ -495,8 +489,8 @@ function cargarChatHistorico(index) {
     
     appendMessage('gugel', log.pregunta);
     appendMessage('usuario', log.userText || "...");
-    appendMessage('gugel', log.respuesta);
-    appendMessage('usuario', log.reaccion);
+    // SOLUCIÓN: Estructura unificada también en la vista de historial
+    appendMessage('gugel', `${log.respuesta} <br><span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">(${log.reaccion})</span>`);
     
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
@@ -634,8 +628,8 @@ function cargarChatFavorito(index) {
     
     appendMessage('gugel', fav.pregunta);
     appendMessage('usuario', fav.userText || "...");
-    appendMessage('gugel', fav.respuesta);
-    appendMessage('usuario', fav.reaccion);
+    // SOLUCIÓN: Estructura unificada también en la vista de favoritos
+    appendMessage('gugel', `${fav.respuesta} <br><span style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">(${fav.reaccion})</span>`);
     
     document.getElementById('user-input').style.display = "none";
     document.getElementById('transmit-btn').style.display = "none";
@@ -739,7 +733,7 @@ function renderAllData() {
 }
 
 // ==========================================
-// 7. EVENTO INICIAL DE CARGA
+// 6. EVENTO INICIAL DE CARGA
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const temaGuardado = localStorage.getItem('gugel-tema') || 'modo-hacker';
