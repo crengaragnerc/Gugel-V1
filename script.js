@@ -248,24 +248,22 @@ function renderAllData() {
     
     const logrosContainer = document.getElementById('logros-container');
     if (logrosContainer) {
-        logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA).map(key => {
-            let item = LOGROS_SISTEMA[key];
-            let yaDesbloqueado = c.logrosDesbloqueados.includes(key);
-            if (item.oculto && !yaDesbloqueado) {
-                return `
-                    <div class="logro-card oculto">
-                        <div class="logro-titulo">🔒 [LOGRO ENCRIPTADO]</div>
-                        <div class="logro-desc">Contenido restringido hasta desbloqueo de hilos.</div>
-                    </div>
-                `;
-            }
-            return `
-                <div class="logro-card ${yaDesbloqueado ? 'desbloqueado' : ''}">
-                    <div class="logro-titulo">${yaDesbloqueado ? '🏆' : '📁'} ${item.titulo}</div>
-                    <div class="logro-desc">${item.desc}</div>
-                </div>
-            `;
-        }).join('');
+        if (c.logrosDesbloqueados.length === 0) {
+            logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Ningún logro registrado en esta cuenta todavía.</p>";
+        } else {
+            // Filtrado estricto para que los logros bloqueados no ocupen espacio en el DOM
+            logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA)
+                .filter(key => c.logrosDesbloqueados.includes(key))
+                .map(key => {
+                    let item = LOGROS_SISTEMA[key];
+                    return `
+                        <div class="logro-card desbloqueado">
+                            <div class="logro-titulo">🏆 ${item.titulo}</div>
+                            <div class="logro-desc">${item.desc}</div>
+                        </div>
+                    `;
+                }).join('');
+        }
     }
 
     const histContainer = document.getElementById('history-list-container');
@@ -311,7 +309,6 @@ function renderFavorites() {
 // 5. CONTROLADORES DE TIEMPO Y CONTADORES
 // ==========================================
 function sincronizarEstadoTurno(c) {
-    // Apagar de raíz hilos viejos para evitar fugas de memoria o saltos de evasivas
     clearInterval(intervaloPregunta);
     clearInterval(intervaloReaccion);
     reaccionBloqueada = false;
@@ -357,7 +354,6 @@ function iniciarContadorPregunta() {
     renderChatActual();
 
     intervaloPregunta = setInterval(() => {
-        // Pausa táctica si el usuario está tranquilamente leyendo logs viejos o favoritos
         if (revisarHistorial) return;
 
         segundosPregunta--;
@@ -750,7 +746,6 @@ function guardarNombreCuenta() {
     desbloquearLogro("L16");
     salvarAStorage();
     
-    // Matar vistas previas de historial para que la nueva cuenta cargue fresca
     revisarHistorial = false;
     revisarFavorito = false;
     revisarHistorialIndex = null;
@@ -813,6 +808,7 @@ function appendMessage(tipo, texto) {
     container.scrollTop = container.scrollHeight;
 }
 
+// Ventanitas flotantes (Toasts) de estado del sistema
 function generarVentanitaSistema(titulo, mensaje, claseTipo) {
     const contenedor = document.getElementById('notificaciones-sistema');
     if (!contenedor) return;
