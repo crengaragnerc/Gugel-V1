@@ -9,104 +9,113 @@
 <body class="modo-hacker">
 
     <div id="app-container">
+        <!-- Barra lateral de navegación del sistema -->
         <aside id="sidebar">
             <div class="menu-section">
                 <div class="section-title">MODOS DE CONSULTA</div>
-                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">Panel de Campaña</button>
-                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">Consultas Infinitas</button>
+                <button id="btn-modo-campaña" class="sub-btn" onclick="seleccionarModoJuego('campaña')">Preguntas predeterminadas</button>
+                <button id="btn-modo-infinito" class="sub-btn" onclick="seleccionarModoJuego('infinito')">Preguntas infinitas</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">MONITOR DE SESIÓN</div>
-                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADO ANALÍTICO</button>
+                <button id="btn-view-perfil" class="sub-btn" onclick="switchView('view-perfil')">ESTADÍSTICAS</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">REGISTRO INTERNO</div>
-                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS DEL SISTEMA</button>
+                <button id="btn-view-logros" class="sub-btn" onclick="switchView('view-logros')">LOGROS</button>
             </div>
 
             <div class="menu-section">
                 <div class="section-title">REGISTRO CENTRAL</div>
-                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">BÚFER DE LOGS</button>
+                <button id="btn-view-historial" class="sub-btn" onclick="switchView('view-historial')">HISTORIAL DE CHATS</button>
             </div>
 
             <div class="menu-section-footer">
                 <div class="account-badge-sidebar">Operador: <span id="sidebar-user-display">Invitado</span></div>
-                <button id="btn-open-cuenta" class="sub-btn account-btn" onclick="abrirModalCuenta()">GESTIÓN DE CUENTA</button>
+                <button id="btn-open-cuenta" class="sub-btn account-btn" onclick="abrirModalCuenta()">REGISTRARSE</button>
             </div>
         </aside>
 
+        <!-- Contenedor principal de pantallas -->
         <main id="main-content">
             <header id="top-bar">
                 <div class="brand-top">GUGEL Core</div>
                 <div class="theme-selector">
                     <select id="theme-select" onchange="cambiarTema(this.value)">
-                        <option value="modo-hacker">Modo Hacker</option>
-                        <option value="modo-claro">Modo Claro</option>
-                        <option value="modo-oscuro">Modo Oscuro</option>
-                        <option value="modo-rosa">Modo Rosa</option>
-                        <option value="modo-espacial">Modo Espacial</option>
+                        <option value="modo-hacker">Tema hacker</option>
+                        <option value="modo-claro">Tema claro</option>
+                        <option value="modo-oscuro">Tema oscuro</option>
+                        <option value="modo-rosa">Tema rosa</option>
+                        <option value="modo-espacial">Tema espacial</option>
                     </select>
                 </div>
             </header>
 
-            <div id="display-workspace">
+            <div id="content-area">
+                <!-- PANTALLA PRINCIPAL: Terminal de Chat -->
                 <section id="view-chat" class="content-panel active">
                     <div id="chat-messages"></div>
-                    <div id="chat-actions-bar" style="display:none; margin-bottom: 15px;">
-                        <button id="btn-add-favorite" class="fav-btn" onclick="marcarActualComoFavorito()">Guardar consulta en favoritos</button>
+                    <div id="timer-lock-info"></div>
+                    
+                    <div id="chat-actions-bar" style="display:none; margin-bottom:10px;">
+                        <button class="action-btn" onclick="marcarActualComoFavorito()">⭐ Marcar Consulta como Favorito</button>
                     </div>
-                    <form id="chat-form">
-                        <div id="timer-lock-info" style="display:none; color:var(--accent-color); margin-bottom: 10px; font-size: 0.85rem; font-weight: bold; font-family: monospace;"></div>
+                    
+                    <form id="chat-form" onsubmit="enviarRespuesta(event)">
                         <div class="input-wrapper">
-                            <input type="text" id="user-input" placeholder="Introduce tu respuesta..." required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                            <button type="submit" id="transmit-btn">ENVIAR</button>
+                            <input type="text" id="user-input" placeholder="Escribe tu respuesta como IA aquí..." autocomplete="off">
+                            <button type="submit" id="transmit-btn">TRANSMITIR</button>
                         </div>
                     </form>
                 </section>
 
+                <!-- PANTALLA: Perfil y Estadísticas -->
                 <section id="view-perfil" class="content-panel">
                     <div class="card">
-                        <h3>Estado Analítico del Operador</h3>
-                        <p><strong>Identificador de Cuenta Activa:</strong> <span id="prof-usuario">Invitado</span></p>
-                        <div class="opinion-box" id="opinion-container">
-                            <strong>OPINIÓN DE GUGEL:</strong> <span id="prof-opinion">(analizando conexiones...)</span>
-                        </div>
-                        <p><strong>Satisfacción del Sujeto:</strong> <span id="prof-satisfaction">50%</span></p>
+                        <h3>Estadísticas del Núcleo</h3>
+                        <p><strong>Identificador del Operador:</strong> <span id="prof-usuario">Invitado</span></p>
+                        <p><strong>Índice de Satisfacción Global:</strong> <span id="prof-satisfaction">50%</span></p>
+                        <h4 style="margin-top:15px;">Última Reseña del Sujeto:</h4>
+                        <p id="prof-opinion" style="font-style:italic; color:var(--accent-color); margin-top:5px; background:var(--bg-inner); padding:10px; border-left:3px solid var(--bubble-border);"></p>
                     </div>
                 </section>
 
+                <!-- PANTALLA: Registro de Logros -->
                 <section id="view-logros" class="content-panel">
                     <div class="card">
-                        <h3>Logros del Sistema (<span id="logros-count">0</span>/40)</h3>
+                        <h3>Logros (<span id="logros-count">0</span>/40)</h3>
                         <div id="logros-container" class="list-container"></div>
                     </div>
                 </section>
 
+                <!-- PANTALLA: Historial de Chats e Historial -->
                 <section id="view-historial" class="content-panel">
                     <div class="card">
-                        <h3>Búfer de Logs y Favoritos</h3>
+                        <h3>Historial de chats y Favoritos</h3>
                         <div class="action-bar">
                             <button class="action-btn" onclick="exportCoreData()">Copiar Logs al Portapapeles</button>
                             <button class="action-btn" onclick="exportarHistorialCompleto()">EXPORTAR SESIÓN COMPLETA</button>
                         </div>
                         
-                        <h4>MARCADORES FAVORITOS</h4>
+                        <h4 style="margin-top:20px;">MARCADORES FAVORITOS</h4>
                         <div id="favorites-list-container" class="list-container" style="margin-bottom:20px; border-bottom:2px solid var(--bubble-border); padding-bottom:15px;"></div>
 
-                        <h4>HISTORIAL DE CONSULTAS GENERAL (Haz clic para cargar en el chat)</h4>
+                        <h4 style="margin-top:10px;">HISTORIAL DE CHATS GENERAL (Haz clic para cargar en el chat)</h4>
                         <div id="history-list-container" class="list-container"></div>
                     </div>
                 </section>
             </div>
 
+            <!-- Barra inferior con disparadores de flujo -->
             <footer id="bottom-bar">
                 <button id="continue-btn" onclick="clickBotonContinuar()" style="display:none;">SIGUIENTE CONSULTA</button>
             </footer>
         </main>
     </div>
 
+    <!-- Contenedor global de notificaciones emergentes -->
     <div id="notificaciones-sistema"></div>
 
     <script src="script.js"></script>
