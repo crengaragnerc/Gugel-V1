@@ -100,6 +100,7 @@ body {
     flex-direction: column;
     padding: 20px 10px;
     justify-content: space-between;
+    flex-shrink: 0;
 }
 
 .menu-section {
@@ -154,55 +155,86 @@ body {
     display: flex;
     flex-direction: column;
     background-color: var(--bg-main);
+    overflow: hidden;
 }
 
 #top-bar {
-    height: 50px;
+    height: 60px;
     border-bottom: 2px solid var(--bubble-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
+    flex-shrink: 0;
 }
 
 .brand-top {
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
 }
 
-.theme-selector select {
+#theme-select {
     background: var(--bg-inner);
     color: var(--text-primary);
     border: 1px solid var(--bubble-border);
-    padding: 4px 8px;
+    padding: 5px 10px;
     font-family: var(--font-family);
     outline: none;
     border-radius: 4px;
+    cursor: pointer;
 }
 
-#display-workspace {
+#content-area {
     flex: 1;
-    padding: 20px;
-    overflow-y: auto;
     position: relative;
+    overflow: hidden;
 }
 
 .content-panel {
-    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
+    padding: 20px;
+    display: none;
+    overflow-y: auto;
 }
 
 .content-panel.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ==========================================
-   COMPONENTES DEL CHAT Y TARJETAS
+   COMPONENTES INTERNOS Y TARJETAS
    ========================================== */
-#chat-messages {
-    height: calc(100% - 80px);
+.card {
+    background-color: var(--bg-inner);
+    border: 2px solid var(--bubble-border);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card h3 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--bubble-border);
+    padding-bottom: 5px;
+}
+
+.list-container {
+    max-height: 400px;
     overflow-y: auto;
-    border: 1px solid var(--bubble-border);
+    margin-top: 10px;
+}
+
+#chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    border: 2px solid var(--bubble-border);
     background: var(--bg-inner);
     padding: 15px;
     border-radius: 6px;
@@ -215,6 +247,7 @@ body {
     border-radius: 6px;
     line-height: 1.4;
     max-width: 85%;
+    word-wrap: break-word;
 }
 
 .message.gugel {
@@ -228,6 +261,14 @@ body {
     border-right: 4px solid var(--text-muted);
     margin-left: auto;
     text-align: right;
+}
+
+#timer-lock-info {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    font-style: italic;
 }
 
 .input-wrapper {
@@ -263,53 +304,48 @@ body {
 }
 
 #continue-btn:disabled {
-    opacity: 0.5;
+    background: var(--bg-inner);
+    color: var(--text-muted);
+    border: 1px solid var(--bubble-border);
     cursor: not-allowed;
 }
 
-.card {
+.logro-card {
+    background: rgba(0,0,0,0.2);
+    border: 1px dashed var(--bubble-border);
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.logro-card.desbloqueado {
+    border-style: solid;
+    border-left: 4px solid #gold;
     background: var(--bg-inner);
-    border: 1px solid var(--bubble-border);
-    border-radius: 6px;
-    padding: 20px;
-    min-height: 100%;
 }
 
-.card h3 {
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    border-bottom: 1px dashed var(--bubble-border);
-    padding-bottom: 8px;
+.logro-titulo {
+    font-weight: bold;
+    color: var(--accent-color);
+    font-size: 0.95rem;
 }
 
-.card h4 {
-    margin: 20px 0 10px 0;
-    font-size: 0.9rem;
-    color: var(--text-muted);
+.logro-desc {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    opacity: 0.85;
+    margin-top: 2px;
 }
 
 .action-bar {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
-}
-
-.action-btn {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-}
-
-/* ==========================================
-   SISTEMA DE LOGS, LISTAS Y TOASTS
-   ========================================== */
-.list-container {
-    max-height: 400px;
-    overflow-y: auto;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
 }
 
 .log-item-card {
-    border-radius: 4px;
-    transition: transform 0.1s;
+    transition: transform 0.1s ease;
 }
 
 .log-item-card:hover {
@@ -337,6 +373,7 @@ body {
     border-top: 2px solid var(--bubble-border);
     display: flex;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 #notificaciones-sistema {
@@ -358,32 +395,104 @@ body {
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     transition: all 0.3s ease-out;
-    animation: entrada-toast 0.3s forwards;
-    pointer-events: auto;
+}
+
+.ventanita-notificacion-flotante.positivo {
+    border-color: var(--accent-color);
 }
 
 .ventanita-notificacion-flotante.negativo {
     border-color: #e53e3e;
 }
 
-.toast-titulo {
-    font-weight: bold;
-    font-size: 0.85rem;
-    margin-bottom: 4px;
-    color: var(--accent-color);
-}
+/* ==========================================
+   OPTIMIZACIÓN DE ADAPTABILIDAD PARA MÓVILES
+   ========================================== */
+@media (max-width: 768px) {
+    #app-container {
+        flex-direction: column; /* Disposición vertical para pantallas táctiles */
+    }
 
-.toast-cuerpo {
-    font-size: 0.8rem;
-    line-height: 1.3;
-}
+    #sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 2px solid var(--bubble-border);
+        padding: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
 
-.salida-toast {
-    opacity: 0;
-    transform: translateX(40px);
-}
+    .menu-section {
+        margin-bottom: 5px;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
 
-@keyframes entrada-toast {
-    from { opacity: 0; transform: translateX(40px); }
-    to { opacity: 1; transform: translateX(0); }
+    .section-title {
+        display: none; /* Esconde títulos redundantes en móvil */
+    }
+
+    .sub-btn {
+        display: inline-block;
+        width: auto;
+        margin-bottom: 0;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    .menu-section-footer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 5px;
+        border-top: 1px dashed var(--bubble-border);
+        padding-top: 5px;
+    }
+
+    .account-badge-sidebar {
+        margin-bottom: 0;
+        font-size: 0.75rem;
+    }
+
+    .account-btn {
+        padding: 4px 8px;
+    }
+
+    #top-bar {
+        height: 50px;
+        padding: 0 12px;
+    }
+
+    .brand-top {
+        font-size: 1rem;
+    }
+
+    .content-panel {
+        padding: 12px;
+    }
+
+    .input-wrapper {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #transmit-btn {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .action-bar {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .action-btn {
+        width: 100%;
+        text-align: center;
+    }
 }
