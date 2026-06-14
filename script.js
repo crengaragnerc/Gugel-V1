@@ -36,1009 +36,577 @@ const FRASES_OK = [
     "perfecto me cuadra la explicacion",
     "entendido gracias por la ayuda",
     "vale ya veo por donde vas",
-    "ahora si pirula bien gracias",
-    "directo al grano me gusta",
-    "ok me guardo la informacion"
+    "ahora si pirula bien"
 ];
 
-const FRASES_RECHAZO = [
-    "un poco corta la respuesta no?", 
-    "me he quedado un poco igual la verdad", 
-    "explicate un poco mejor que no me entero",
-    "esto se queda a medias falta texto",
-    "esperaba algo mas detallado",
-    "no me convence mucho esta respuesta",
-    "eso no arregla mi duda exactamente"
-];
-
-const FRASES_CRITICAS = [
-    "pero que dices? eso no tiene sentido", 
-    "te has inventado la respuesta o que xd", 
-    "estas repitiendo lo mismo y no ayuda", 
-    "vaya liada de respuesta no tiene nada que ver",
-    "has tardado un monton para no decir nada",
-    "vaya desastre no entiende la pregunta",
-    "esta respuesta es malisima no me sirve para nada"
-];
-
-// Variantes de interacción basadas en la longitud de la respuesta
 const FRASES_MUCHO_TEXTO = [
-    "bua mucho texto me da pereza leer tanto xd",
-    "vaya biblia me has soltado no me da la vida",
-    "demasiada chapa para una pregunta tan simple",
-    "me he perdido a mitad del parrafo de todo lo que has escrito"
+    "mucho texto bro resume", 
+    "uf que biblia paso de leer todo eso", 
+    "te he pedido una respuesta no el quijote", 
+    "demasiadas palabras me explota la cabeza", 
+    "menudo textaco recortalo un poco anda"
 ];
 
 const FRASES_DOS_PALABRAS = [
-    "solo dos palabras? curratelo un poco mas",
-    "te ha faltado bastante desarrollo aqui",
-    "te has quedado a gusto con la respuesta que corta es",
-    "un poco racano con las palabras no?"
+    "que soso eres estirate mas", 
+    "con dos palabras no me solucionas nada", 
+    "escribe algo mas flojo", 
+    "vaya respuesta mas corta e inutil", 
+    "curratelo un poco mas que no cuesta nada"
 ];
 
-const EVASIVAS = ["porque si", "no se", "por que si", "ni idea", "jaja", "ño", "si", "no", "uwu", "xd", "quizas", "error 404", "procesando...", "recalculando", "pfff"];
-
-const INFINITO_SUJETOS = [
-    "mi gato vader", "cubo rubik 3x3", "fingerboard rampa", "servidor minecraft", 
-    "piezas lego star wars", "mi cuenta discord", "teclado mecanico", "router fibra", 
-    "mi ultima neurona", "internet pueblo", "mando ps5", "bateria movil",
-    "conexion wifi", "pantalla oled", "rodamiento del finger", "bloque comandos"
+const FRASES_POCOS_DATOS = [
+    "das poca info bro detalla mas", 
+    "se mas especifico no leo mentes", 
+    "me faltan datos clave para enterarme", 
+    "explicalo mejor que no soy cientifico", 
+    "esta respuesta se queda a medias"
 ];
 
-const INFINITO_PREDICADOS = [
-    "hace ruido raro malo", "gira lento como arreglar", "no enciende luz roja", "va a pedales xq", 
-    "piezas atascadas ayuda", "no carga fotos", "teclas no van", "va lento lluvia", 
-    "no funciona xq", "explota si caliento", "se desconecta solo", "gasta rapido xq",
-    "hace maullido raro", "tiene holgura sucia", "esta roto por dentro", "no responde nada"
+const FRASES_BUCLADO = [
+    "eso ya me lo has dicho no te repitas", 
+    "deja el copia pega que pareces un bot", 
+    "¿hola? ¿bucle en la matrix? cambia de respuesta", 
+    "te estas repitiendo mas que el ajo"
 ];
 
-const RESPUESTAS_LOGRO_RAPIDO = [
-    "bua que rapido lo has puesto",
-    "procesado al momento me sirve",
-    "eso es velocidad y lo demas son tonterias"
+const FRASES_ENFADADO = [
+    "vaya mierda de IA eres de verdad", 
+    "no das una me tienes harto", 
+    "menuda perdida de tiempo hablar contigo", 
+    "como no mejores te apago de un botonazo"
 ];
 
-const REACCIONES_COMENTARIOS = {
-    critica: [
-        "el usuario se esta cabreando bastante", 
-        "alerta: respuesta sin ningun sentido", 
-        "la paciencia del usuario esta bajo minimos",
-        "vaya desastre de procesamiento de datos",
-        "se detectan picos de enfado en el chat"
-    ],
-    rechazo: [
-        "al usuario no le convence la respuesta", 
-        "el usuario ha puesto cara rara", 
-        "esta respuesta se ha quedado muy floja",
-        "el usuario suspira fuertemente",
-        "desviacion de respuesta detectada"
-    ],
-    ok: [
-        "todo correcto el usuario esta contento", 
-        "satisfaccion subiendo buena respuesta", 
-        "el usuario lo ha entendido a la primera",
-        "el usuario asiente con la cabeza",
-        "informacion guardada correctamente"
-    ]
-};
-
-const OPINIONES_BAJA = [
-    "«Bastante mala. Le pides ayuda con algo y te contesta con evasivas que no vienen a cuento.»",
-    "«Inutil. No se entera de nada de lo que le dices y las respuestas no tienen logica.»",
-    "«Un desastre total. Es como hablar con un bot roto que se inventa las cosas.»",
-    "«No entiende las consultas basicas. Se queda a medias o te ignora.»"
-];
-const OPINIONES_MEDIA_BAJA = [
-    "«A veces acierta, pero la mayoria de las veces se va por las ramas. Regular.»",
-    "«Es un poco vaga respondiendo. Si no le insistes mucho no te soluciona nada.»",
-    "«Cumple a duras penas. Como le des una respuesta un poco corta se rompe por completo.»",
-    "«Un simulador curioso, pero la IA que controlamos pierde el hilo muy facilmente.»"
-];
-const OPINIONES_MEDIA_ALT_A = [
-    "«Bastante decente. Si sabes como guiarla te da respuestas utiles para salir del paso.»",
-    "«Me gusta el estilo que tiene. No es perfecta, pero cumple bien con lo que le pides.»",
-    "«Rendimiento estable. Las respuestas del operador mantienen bien la satisfaccion.»",
-    "«Una buena herramienta de entrenamiento, responde con coherencia casi siempre.»"
-];
-const OPINIONES_ALTA = [
-    "«¡Increible simulacion! El procesamiento es buenisimo y las respuestas se adaptan genial.»",
-    "«La mejor IA que he probado. Entiende perfectamente las consultas y da soluciones buenas.»",
-    "«Logica impecable. Si detallas bien los argumentos, la barra de satisfaccion vuela al 100%.»",
-    "«Una delicia de optimizacion de datos. El sistema de logros añade un reto muy bueno.»"
+const FRASES_FELIZ = [
+    "bua eres la mejor IA del mundo mundial", 
+    "que puto genio me encanta", 
+    "servidor optimizado me asombras", 
+    "asi da gusto hablar con una maquina"
 ];
 
-const LOGROS_SISTEMA = {
-    "L01": { titulo: "Primer Contacto", desc: "Has respondido con éxito a tu primera consulta del simulador.", oculto: false },
-    "L02": { titulo: "Operador de Campaña", desc: "Has completado con éxito las 10 consultas del panel de campaña.", oculto: false },
-    "L03": { titulo: "Pensamiento Artificial", desc: "Has respondido a una consulta en menos de 0.5 segundos.", oculto: false },
-    "L04": { titulo: "Análisis Reflexivo", desc: "Has tardado más de 25 segundos en meditar tu respuesta.", oculto: false },
-    "L05": { titulo: "Mente Cuadrada", desc: "Has superado el 90% de satisfacción global del usuario.", oculto: false },
-    "L06": { titulo: "Crisis de Identidad", desc: "Tu satisfacción ha caído por debajo del 20%. El usuario te odia.", oculto: false },
-    "L07": { titulo: "La Evasiva Perfecta", desc: "Has respondido usando exactamente un término de la lista de evasivas oficiales.", oculto: false },
-    "L08": { titulo: "Coleccionista de Datos", desc: "Has guardado al menos 5 consultas diferentes en tu sección de Favoritos.", oculto: false },
-    "L09": { titulo: "Fidelidad Absoluta", desc: "Has alcanzó el 100% exacto de satisfacción del cliente.", oculto: false },
-    "L10": { titulo: "Tema Hacker Activo", desc: "Has cambiado la interfaz visual al tema de terminal de hacker.", oculto: true },
-    "L11": { titulo: "Silencio Administrativo", desc: "Has enviado una respuesta completamente vacía al usuario.", oculto: true },
-    "L12": { titulo: "Persistencia Infinita", desc: "Has procesado un total de 15 consultas en el modo infinito.", oculto: false },
-    "L13": { titulo: "Lector de Mentes", desc: "Tu respuesta coincide exactamente con una de las frases analíticas del usuario.", oculto: true },
-    "L14": { titulo: "Crítica Destructiva", desc: "Has recibido 3 valoraciones críticas consecutivas por parte del usuario.", oculto: false },
-    "L15": { titulo: "Estabilidad del Sistema", desc: "Has mantenido la satisfacción entre el 45% y el 55% durante 5 turnos seguidos.", oculto: true },
-    "L16": { titulo: "Administrador Concienzudo", desc: "Has registrado de forma oficial un Alias de Operador personalizado.", oculto: false },
-    "L17": { titulo: "Auditor Interno", desc: "Has inspeccionado las Estadísticas del sistema.", oculto: true },
-    "L18": { titulo: "Historiador de Datos", desc: "Has abierto el Historial de chats por primera vez.", oculto: true },
-    "L19": { titulo: "Maestro Constructor", desc: "Has respondido incluyendo la palabra 'lego' o 'bloque' para solucionar un problema.", oculto: false },
-    "L20": { titulo: "Lubricación Avanzada", desc: "Has mencionado 'cubo', 'rubik' o 'capas' para dar soporte técnico a Gugel.", oculto: false },
-    "L21": { titulo: "Truco de Salón", desc: "Has integrado de forma óptima términos de 'fingerboard' o 'skate' en tus respuestas.", oculto: false },
-    "L22": { titulo: "El Ojo de Vader", desc: "Has redactado una instrucción directa que incluye la palabra 'gato' o 'felino'.", oculto: false },
-    "L23": { titulo: "Lógica Multicapa", desc: "Has utilizado un conector explicativo ('porque', 'debido a') en una reseña de satisfacción alta.", oculto: true },
-    "L24": { titulo: "Procesador de Texto Largo", desc: "Tu respuesta enviada al buffer ha superado los 120 caracteres de longitud.", oculto: false },
-    "L25": { titulo: "Operador Conciso", desc: "Has resuelto con éxito un turno con una respuesta de exactamente 3 palabras.", oculto: true },
-    "L26": { titulo: "Universo Paralelo", desc: "Has usado el término 'universo', 'sistema' o 'planeta' en tus cadenas de texto.", oculto: false },
-    "L27": { titulo: "Respuesta Meticulosa", desc: "Has redactado una solución que tiene la misma longitud exacta que la consulta cruda.", oculto: true },
-    "L28": { titulo: "Estética Rosa", desc: "Has interactuado con los sistemas simulados vistiendo la interfaz con el Tema Rosa.", oculto: true },
-    "L29": { titulo: "Explorador del Cosmos", desc: "Has cargado y ejecutado operaciones bajo la atmósfera del Tema Espacial.", oculto: true },
-    "L30": { titulo: "Inversión de Roles", desc: "Has finalizado una respuesta usando un signo de interrogación contra el sujeto.", oculto: false },
-    "L31": { titulo: "Ensalada de Datos", desc: "Has provocado una respuesta del núcleo mencionando 'tomate' o 'zanahoria'.", oculto: false },
-    "L32": { titulo: "Control Extremo de Daños", desc: "Has recuperado la satisfacción de un nivel crítico (<25%) a un rango estable (>60%).", oculto: false },
-    "L33": { titulo: "Archivo Redundante", desc: "Has intentado guardar un log en favoritos que ya se encontraba registrado.", oculto: true },
-    "L34": { titulo: "Purista de Datos", desc: "Has enviado una respuesta interactiva sin utilizar signos de puntuación.", oculto: false },
-    "L35": { titulo: "Resiliencia de Red", desc: "Has completado 8 consultas continuas sin bajar del 70% de valoración.", oculto: false },
-    "L36": { titulo: "Evasión Consecutiva", desc: "Has encadenado dos respuestas consecutivas usando términos puramente evasivos.", oculto: true },
-    "L37": { titulo: "Bucle de Sheldon", desc: "Tu barra de satisfacción global ha terminado en un número par perfecto tras un análisis extenso.", oculto: true },
-    "L38": { titulo: "Inspector de Respuestas", desc: "Has cargado un chat histórico desde el Historial de chats para su revisión.", oculto: true },
-    "L39": { titulo: "Superador de Límites", desc: "Has alcanzado un total de 30 consultas procesadas con éxito en el Core.", oculto: false },
-    "L40": { titulo: "GUGEL Core Max", desc: "Has completado con éxito el desbloqueo de la mitad de los logros del sistema (20 logros).", oculto: false }
+const SUJETOS = [
+    "mi gato", "el wifi", "mi pc", "el rubik", "el profe", "mi madre", "un alien", "el vecino", "la nevera", "un platano",
+    "el agua", "mi cerebro", "un pato", "el sol", "un calcetin", "la tostadora", "el bitcoin", "mi coche", "un fantasma", "el fortnite"
+];
+
+const PREDICADOS = [
+    "exploto de la nada", "vuela por la habitacion", "no funciona", "me mira raro", "esta verde", "habla en latin", "gira solo", "huele a queso", "desaparecio ayer", "brilla mucho",
+    "tiene bateria infinita", "quiere dominar el mundo", "flota en el aire", "hace ruidos de motor", "esta lloviendo", "tiene hipo", "se derritio", "me insulta", "corre a 100kmh", "muerde"
+];
+
+// ==========================================
+// 2. ESTADO GLOBAL DEL JUEGO
+// ==========================================
+let G_ESTADO = {
+    modoActual: 'campaña', 
+    rondaCampañayIndice: 0,
+    satisfaccionActual: 50,
+    consultasAtendidas: 0,
+    puntosTotales: 0,
+    ultimaRespuesta: '',
+    preguntaActual: '',
+    motivoFeedback: 'ok',
+    favoritos: [],
+    historialCompleto: []
 };
 
 // ==========================================
-// 2. VARIABLES DE ESTADO GLOBAL
+// 3. GESTIÓN DE CUENTA Y LOCALSTORAGE
 // ==========================================
-let usuarioActivo = "Invitado";
-let baseCuentas = {};
-let cuentaInvitadoVolatil = null;
-
-let esperandoRespuestaDeTurno = true;
-let revisarHistorial = false;
-let revisarFavorito = false;
-let revisarHistorialIndex = null;
-
-let segundosPregunta = 5; 
-let segundosReaccion = 5;
-let intervaloPregunta = null;
-let intervaloReaccion = null;
-let preguntaBloqueada = true;
-let reaccionBloqueada = false;
-let tiempoInicioPregunta = 0;
-
-// ==========================================
-// 3. GESTIÓN DE CUENTAS Y ESTRUCTURAS
-// ==========================================
-try {
-    if (localStorage.getItem('gugel-multiverse-v4')) {
-        baseCuentas = JSON.parse(localStorage.getItem('gugel-multiverse-v4')) || {};
-        if (baseCuentas["Invitado"]) delete baseCuentas["Invitado"]; 
-    }
-} catch (e) {
-    console.error("Error al parsear el almacenamiento local:", e);
-    baseCuentas = {};
-}
-
-function crearEstructuraVacia() {
-    return {
-        modo: "campaña",
-        campanaIndex: 0,
-        satisfaction: 50,
-        currentPregunta: "",
-        currentPreguntaCampana: "",
-        currentPreguntaInfinito: "",
-        lastUserText: "",
-        esperandoCampana: true,
-        esperandoInfinito: true,
-        history: [],
-        favorites: [],
-        logrosDesbloqueados: [],
-        recentReactions: [],
-        recentOpinions: [], 
-        consecutiveCritics: 0,
-        historySatisfaction: [50],
-        password: ""
-    };
-}
-
 function getCuenta() {
-    if (usuarioActivo === "Invitado") {
-        if (!cuentaInvitadoVolatil) cuentaInvitadoVolatil = crearEstructuraVacia();
-        return cuentaInvitadoVolatil;
+    let c = localStorage.getItem('gugel_cuenta');
+    if (!c) {
+        c = { nombre: 'User_' + Math.floor(Math.random() * 9000 + 1000), rango: 'Novato de las Consultas', xp: 0 };
+        localStorage.setItem('gugel_cuenta', JSON.stringify(c));
+    } else {
+        c = JSON.parse(c);
     }
-    return baseCuentas[usuarioActivo];
+    return c;
 }
 
-function asegurarEstructuraCuenta(nombre) {
-    let plantilla = crearEstructuraVacia();
-    let cuentaDestino;
+function guardarCuenta(c) {
+    localStorage.setItem('gugel_cuenta', JSON.stringify(c));
+}
 
-    if (nombre === "Invitado") {
-        if (!cuentaInvitadoVolatil) cuentaInvitadoVolatil = plantilla;
-        cuentaDestino = cuentaInvitadoVolatil;
+function sincronizarEstadoTurno(cuenta) {
+    // Espacio reservado para sincronizaciones
+}
+
+// ==========================================
+// 4. LÓGICA E INFRAESTRUCTURA DEL JUEGO
+// ==========================================
+function seleccionarModoJuego(modo) {
+    G_ESTADO.modoActual = modo;
+    
+    document.getElementById('btn-modo-campaña').classList.remove('active');
+    document.getElementById('btn-modo-infinito').classList.remove('active');
+    
+    if (modo === 'campaña') {
+        document.getElementById('btn-modo-campaña').classList.add('active');
+        G_ESTADO.rondaCampañayIndice = 0;
     } else {
-        if (!baseCuentas[nombre]) baseCuentas[nombre] = plantilla;
-        cuentaDestino = baseCuentas[nombre];
+        document.getElementById('btn-modo-infinito').classList.add('active');
     }
+    
+    G_ESTADO.satisfaccionActual = 50;
+    G_ESTADO.consultasAtendidas = 0;
+    G_ESTADO.puntosTotales = 0;
+    G_ESTADO.ultimaRespuesta = '';
+    
+    switchView('view-chat');
+    nextRound();
+}
 
-    Object.keys(plantilla).forEach(key => {
-        if (cuentaDestino[key] === undefined || cuentaDestino[key] === null) {
-            cuentaDestino[key] = plantilla[key];
-        } else if (Array.isArray(plantilla[key]) && !Array.isArray(cuentaDestino[key])) {
-            cuentaDestino[key] = [];
-        }
+function generarPreguntaInfinito() {
+    let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
+    let suj = SUJETOS[Math.floor(Math.random() * SUJETOS.length)];
+    
+    // FILTRADO INTELIGENTE: Evita que el humano mezcle tonterías sin lógica, manteniendo la gracia directa de internet
+    let predicadosFiltrados = PREDICADOS.filter(pred => {
+        if ((suj === "el wifi" || suj === "el bitcoin" || suj === "el fortnite") && 
+            ["habla en latin", "tiene hipo", "muerde", "me insulta", "hace ruidos de motor", "se derritio", "me mira raro"].includes(pred)) return false;
+        if (suj === "el agua" && 
+            ["corre a 100kmh", "tiene bateria infinita", "no funciona", "tiene hipo", "me insulta", "muerde", "me mira raro", "habla en latin"].includes(pred)) return false;
+        if (suj === "el sol" && 
+            ["no funciona", "tiene hipo", "me insulta", "muerde", "tiene bateria infinita", "huele a queso"].includes(pred)) return false;
+        if (suj === "el rubik" && 
+            ["habla en latin", "tiene hipo", "me insulta", "muerde", "esta lloviendo"].includes(pred)) return false;
+        if (["el profe", "mi madre", "el vecino"].includes(suj) && 
+            ["tiene bateria infinita", "se derritio", "gira solo", "esta lloviendo"].includes(pred)) return false;
+        return true;
     });
-}
-
-function salvarAStorage() {
-    if (usuarioActivo !== "Invitado") {
-        localStorage.setItem('gugel-multiverse-v4', JSON.stringify(baseCuentas));
-    }
-}
-
-asegurarEstructuraCuenta(usuarioActivo);
-
-// ==========================================
-// 4. SISTEMA DE RENDERIZADO AISLADO EN BLOQUES
-// ==========================================
-function renderChatActual() {
-    let c = getCuenta();
-    const messagesContainer = document.getElementById('chat-messages');
-    if (!messagesContainer) return;
     
-    messagesContainer.innerHTML = "";
+    if (predicadosFiltrados.length === 0) predicadosFiltrados = PREDICADOS;
+    let pred = predicadosFiltrados[Math.floor(Math.random() * predicadosFiltrados.length)];
     
-    const timerElem = document.getElementById('timer-lock-info');
-    const inputElem = document.getElementById('user-input');
-    const transmitBtn = document.getElementById('transmit-btn');
-    const continueBtn = document.getElementById('continue-btn');
-    const actionsBar = document.getElementById('chat-actions-bar');
-
-    if (revisarHistorial) {
-        let log = revisarFavorito ? c.favorites[revisarHistorialIndex] : c.history[revisarHistorialIndex];
-        if (log) {
-            appendMessage('gugel', log.pregunta);
-            appendMessage('usuario', log.userText || "...");
-            appendMessage('gugel', log.respuesta);
-            
-            if (inputElem) inputElem.style.display = "none";
-            if (transmitBtn) transmitBtn.style.display = "none";
-            if (actionsBar) actionsBar.style.display = "none";
-            if (timerElem) timerElem.style.display = "none";
-            
-            if (continueBtn) {
-                continueBtn.style.display = "block";
-                continueBtn.disabled = false;
-                continueBtn.innerText = "VOLVER AL CHAT ACTIVO";
-            }
-        }
-        return;
-    }
-    
-    if (esperandoRespuestaDeTurno) {
-        appendMessage('gugel', c.currentPregunta);
-        if (timerElem) {
-            if (preguntaBloqueada) {
-                timerElem.style.display = "block";
-                timerElem.innerText = `⏳ Procesando buffers de entrada... (${segundosPregunta}s)`;
-                if (inputElem) inputElem.style.display = "none";
-                if (transmitBtn) transmitBtn.style.display = "none";
-            } else {
-                timerElem.style.display = "none";
-                timerElem.innerText = "";
-                if (inputElem) inputElem.style.display = "block";
-                if (transmitBtn) transmitBtn.style.display = "block";
-            }
-        }
-        if (continueBtn) continueBtn.style.display = "none";
-        if (actionsBar) actionsBar.style.display = "none";
-    } else {
-        if (timerElem) timerElem.style.display = "none";
-        if (inputElem) inputElem.style.display = "none";
-        if (transmitBtn) transmitBtn.style.display = "none";
-        
-        appendMessage('gugel', c.currentPregunta);
-        appendMessage('usuario', c.lastUserText);
-        if (c.history.length > 0) {
-            let ultimoLog = c.history[c.history.length - 1];
-            appendMessage('gugel', ultimoLog.respuesta);
-        }
-        
-        if (continueBtn) {
-            continueBtn.style.display = "block";
-            if (reaccionBloqueada) {
-                continueBtn.disabled = true;
-                continueBtn.innerText = `SIGUIENTE CONSULTA (${segundosReaccion}s)`;
-            } else {
-                continueBtn.disabled = false;
-                continueBtn.innerText = "SIGUIENTE CONSULTA";
-            }
-        }
-        if (actionsBar) actionsBar.style.display = "block";
-    }
-}
-
-function renderAllData() {
-    let c = getCuenta();
-    
-    try {
-        const btnCamp = document.getElementById('btn-modo-campaña');
-        const btnInfi = document.getElementById('btn-modo-infinito');
-        if (btnCamp) {
-            if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-                btnCamp.style.display = 'none';
-            } else {
-                btnCamp.style.display = ''; 
-            }
-        }
-        if (btnCamp) btnCamp.classList.remove('active');
-        if (btnInfi) btnInfi.classList.remove('active');
-        if (c.modo === "campaña" && btnCamp) btnCamp.classList.add('active');
-        if (c.modo === "infinito" && btnInfi) btnInfi.classList.add('active');
-    } catch (err) {
-        console.error("Fallo controlado en sección Modos:", err);
-    }
-
-    try {
-        const userDisplay = document.getElementById('sidebar-user-display');
-        if (userDisplay) userDisplay.innerText = usuarioActivo;
-        
-        const profUsuario = document.getElementById('prof-usuario');
-        if (profUsuario) profUsuario.innerText = usuarioActivo;
-        
-        const profSatis = document.getElementById('prof-satisfaction');
-        if (profSatis) profSatis.innerText = `${c.satisfaction}%`;
-        
-        const profOpin = document.getElementById('prof-opinion');
-        if (profOpin) {
-            let poolInteres = c.satisfaction < 35 ? OPINIONES_BAJA : c.satisfaction < 55 ? OPINIONES_MEDIA_BAJA : c.satisfaction < 80 ? OPINIONES_MEDIA_ALT_A : OPINIONES_ALTA;
-            let opElegida = obtenerElementoNoRepetido(poolInteres, c.recentOpinions);
-            profOpin.innerText = opElegida;
-            
-            c.recentOpinions.push(opElegida);
-            if (c.recentOpinions.length > 4) c.recentOpinions.shift();
-        }
-    } catch (err) {
-        console.error("Fallo controlado en sección Perfil:", err);
-    }
-
-    try {
-        const logrosCount = document.getElementById('logros-count');
-        if (logrosCount) logrosCount.innerText = c.logrosDesbloqueados ? c.logrosDesbloqueados.length : 0;
-        
-        const logrosContainer = document.getElementById('logros-container');
-        if (logrosContainer) {
-            if (!c.logrosDesbloqueados || c.logrosDesbloqueados.length === 0) {
-                logrosContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic;'>Ningún logro registrado en esta cuenta todavía.</p>";
-            } else {
-                logrosContainer.innerHTML = Object.keys(LOGROS_SISTEMA)
-                    .filter(key => Array.isArray(c.logrosDesbloqueados) && c.logrosDesbloqueados.includes(key))
-                    .map(key => {
-                        let item = LOGROS_SISTEMA[key];
-                        return `
-                            <div class="logro-card desbloqueado">
-                                <div class="logro-titulo">🏆 ${item.titulo}</div>
-                                <div class="logro-desc">${item.desc}</div>
-                            </div>
-                        `;
-                    }).join('');
-            }
-        }
-    } catch (err) {
-        console.error("Fallo controlado en sección Logros:", err);
-    }
-
-    try {
-        const histContainer = document.getElementById('history-list-container');
-        if (histContainer) {
-            histContainer.innerHTML = ""; 
-            
-            if (!c.history || !Array.isArray(c.history) || c.history.length === 0) {
-                histContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding: 10px 0;'>Historial de chats vacío. Realiza consultas para generar registros.</p>";
-            } else {
-                histContainer.innerHTML = c.history.map((h, index) => `
-                    <div class="log-item-card" onclick="cargarChatHistorico(${index})" style="cursor:pointer; margin-bottom:10px; padding:12px; background:var(--bg-inner); border-left:3px solid var(--accent-color); border-radius:4px;">
-                        <div class="log-item-info">
-                            <strong style="color:var(--accent-color);">Q:</strong> ${h.pregunta || ''}<br>
-                            <span style="font-size:0.85rem;"><strong>A:</strong> ${h.userText || ''}</span><br>
-                            <span style="font-size:0.75rem; color: var(--text-muted);"><em>Reacción:</em> "${h.reaccion || 'Analizada'}"</span>
-                        </div>
-                        <div class="log-item-action" onclick="event.stopPropagation();" style="margin-top:8px;">
-                            <button class="mini-fav-btn" onclick="marcarHistoricoComoFavorito(${index})">⭐ Guardar en Favoritos</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-    } catch (err) {
-        console.error("Error recuperado al pintar el Historial Central:", err);
-    }
-    
-    try { renderFavorites(); } catch (err) {}
-}
-
-function renderFavorites() {
-    let c = getCuenta();
-    const favContainer = document.getElementById('favorites-list-container');
-    if (!favContainer) return;
-
-    if (!c.favorites || !Array.isArray(c.favorites) || c.favorites.length === 0) {
-        favContainer.innerHTML = "<p style='color:var(--text-muted); font-style:italic; padding:10px 0;'>No hay registros marcados como favoritos.</p>";
-    } else {
-        favContainer.innerHTML = c.favorites.map((f, index) => `
-            <div class="log-item-card favorito" style="position:relative; margin-bottom:8px; padding:12px; background:rgba(255,215,0,0.01); border:1px solid var(--bubble-border); border-radius:4px;">
-                <div class="log-item-info" onclick="cargarChatFavorito(${index})" style="cursor:pointer; padding-right:30px;">
-                    <strong>Q:</strong> ${f.pregunta || ''}<br>
-                    <span style="font-size:0.85rem; color:var(--text-muted);">Resp: ${f.respuesta || ''}</span>
-                </div>
-                <button class="remove-fav-btn" onclick="eliminarDeFavoritos(${index}); event.stopPropagation();" style="position:absolute; right:12px; top:12px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem; line-height:1;">×</button>
-            </div>
-        `).join('');
-    }
-}
-
-// ==========================================
-// 5. CONTROLADORES DE TIEMPO Y CONTADORES
-// ==========================================
-function sincronizarEstadoTurno(c) {
-    clearInterval(intervaloPregunta);
-    clearInterval(intervaloReaccion);
-    reaccionBloqueada = false;
-    preguntaBloqueada = true;
-
-    if (c.modo === "campaña" && c.campanaIndex < PREGUNTAS_CAMPANA.length) {
-        if (!c.currentPreguntaCampana) {
-            c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex];
-        }
-        c.currentPregunta = c.currentPreguntaCampana;
-    } else {
-        c.modo = "infinito";
-        if (!c.currentPreguntaInfinito || c.esperandoInfinito) {
-            let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
-            let suj = INFINITO_SUJETOS[Math.floor(Math.random() * INFINITO_SUJETOS.length)];
-            let pred = INFINITO_PREDICADOS[Math.floor(Math.random() * INFINITO_PREDICADOS.length)];
-            c.currentPreguntaInfinito = plantilla.replace("[s]", suj).replace("[p]", pred);
-            c.esperandoInfinito = false;
-        }
-        c.currentPregunta = c.currentPreguntaInfinito;
-    }
-
-    segundosPregunta = 5; 
-    renderChatActual();
-
-    intervaloPregunta = setInterval(() => {
-        segundosPregunta--;
-        if (segundosPregunta <= 0) {
-            clearInterval(intervaloPregunta);
-            preguntaBloqueada = false;
-            tiempoInicioPregunta = Date.now();
-            renderChatActual();
-            setTimeout(() => {
-                const inputElem = document.getElementById('user-input');
-                if (inputElem) inputElem.focus();
-            }, 20);
-        } else {
-            const timerElem = document.getElementById('timer-lock-info');
-            if (timerElem) timerElem.innerText = `⏳ Procesando buffers de entrada... (${segundosPregunta}s)`;
-        }
-    }, 1000);
-}
-
-function iniciarCuentaAtrasReaccion() {
-    clearInterval(intervaloReaccion);
-    reaccionBloqueada = true;
-    segundosReaccion = 5;
-    renderChatActual();
-
-    intervaloReaccion = setInterval(() => {
-        segundosReaccion--;
-        if (segundosReaccion <= 0) {
-            clearInterval(intervaloReaccion);
-            reaccionBloqueada = false;
-            renderChatActual();
-        } else {
-            const continueBtn = document.getElementById('continue-btn');
-            if (continueBtn && !revisarHistorial) {
-                continueBtn.innerText = `SIGUIENTE CONSULTA (${segundosReaccion}s)`;
-            }
-        }
-    }, 1000);
-}
-
-// ==========================================
-// 6. FLUJO DE LOGS INTERACTIVOS Y RESPUESTAS
-// ==========================================
-function calcularCambioSatisfaccion(texto) {
-    let minus = texto.toLowerCase();
-    if (minus === "") return -15;
-    if (EVASIVAS.includes(minus)) return -8;
-    
-    let puntos = 0;
-    if (minus.length < 8) puntos -= 6;
-    if (minus.length > 90) puntos -= 3;
-    
-    if (minus.includes("porque") || minus.includes("debido a") || minus.includes("ya que") || minus.includes("por ejemplo")) {
-        puntos += 12;
-    }
-    if (minus.includes("gugel") || minus.includes("ia") || minus.includes("algoritmo") || minus.includes("sistema")) {
-        puntos += 6;
-    }
-    return puntos === 0 ? 2 : puntos;
-}
-
-function enviarRespuesta(e) {
-    if (e) e.preventDefault();
-    if (!esperandoRespuestaDeTurno || preguntaBloqueada) return;
-
-    let entrada = document.getElementById('user-input');
-    if (!entrada) return;
-    
-    let texto = entrada.value.trim();
-    let c = getCuenta();
-    
-    if (texto.toLowerCase() === c.currentPregunta.toLowerCase()) {
-        generarVentanitaSistema("⚠️ ERROR DE PARADOJA", "No puedes responder a la IA usando su propia pregunta.", "negativo");
-        entrada.value = "";
-        return;
-    }
-    
-    c.lastUserText = texto;
-    entrada.value = "";
-    
-    clearInterval(intervaloPregunta);
-    procesarRespuestaIA(texto);
-}
-
-function procesarRespuestaIA(texto) {
-    let c = getCuenta();
-    let minus = texto.toLowerCase();
-    let tiempoEmpleado = (Date.now() - tiempoInicioPregunta) / 1000;
-
-    let listaPalabras = texto.split(/\s+/).filter(Boolean);
-    let totalPalabras = listaPalabras.length;
-
-    if (texto === "") desbloquearLogro("L11");
-    if (tiempoEmpleado < 0.5) desbloquearLogro("L03");
-    if (tiempoEmpleado > 25) desbloquearLogro("L04");
-    if (EVASIVAS.includes(minus)) desbloquearLogro("L07");
-    
-    if (minus.includes("lego") || minus.includes("bloque")) desbloquearLogro("L19");
-    if (minus.includes("cubo") || minus.includes("rubik") || minus.includes("capa")) desbloquearLogro("L20");
-    if (minus.includes("fingerboard") || minus.includes("skate")) desbloquearLogro("L21");
-    if (minus.includes("gato") || minus.includes("felino")) desbloquearLogro("L22");
-    if (texto.length > 120) desbloquearLogro("L24");
-    if (totalPalabras === 3) desbloquearLogro("L25");
-    if (minus.includes("universo") || minus.includes("sistema") || minus.includes("planeta")) desbloquearLogro("L26");
-    if (texto.length === c.currentPregunta.length) desbloquearLogro("L27");
-    if (minus.includes("?") || minus.includes("¿")) desbloquearLogro("L30");
-    if (minus.includes("tomate") || minus.includes("zanahoria")) desbloquearLogro("L31");
-    if (!/[.,\/#!$%\^&\*;:{}=\-_`~()]/g.test(texto) && texto !== "") desbloquearLogro("L34");
-
-    let delta = calcularCambioSatisfaccion(texto);
-    c.satisfaction = Math.max(0, Math.min(100, c.satisfaction + delta));
-    c.historySatisfaction.push(c.satisfaction);
-
-    if (c.satisfaction >= 90) desbloquearLogro("L05");
-    if (c.satisfaction <= 20) desbloquearLogro("L06");
-    if (c.satisfaction === 100) desbloquearLogro("L09");
-    if (c.satisfaction % 2 === 0 && texto.length > 40) desbloquearLogro("L37");
-
-    let tipoReaccion = "ok";
-    if (delta < -5) tipoReaccion = "critica";
-    else if (delta < 0) tipoReaccion = "rechazo";
-
-    if (tipoReaccion === "critica") {
-        c.consecutiveCritics++;
-        if (c.consecutiveCritics >= 3) desbloquearLogro("L14");
-    } else {
-        c.consecutiveCritics = 0;
-    }
-
-    let respuestasPool = FRASES_OK;
-    if (tipoReaccion === "critica") respuestasPool = FRASES_CRITICAS;
-    else if (tipoReaccion === "rechazo") respuestasPool = FRASES_RECHAZO;
-
-    let respuestaGugel = respuestasPool[Math.floor(Math.random() * respuestasPool.length)];
-
-    if (tipoReaccion === "ok") {
-        if (minus.includes("lego") || minus.includes("bloque")) {
-            respuestaGugel = "vale me sirve asi puedo encajar mejor las piezas de lego";
-            desbloquearLogro("L23");
-        } else if (minus.includes("cubo") || minus.includes("rubik") || minus.includes("capa")) {
-            respuestaGugel = "ah ok tocara echarle lubricante a las capas del rubik a ver si gira bien";
-            desbloquearLogro("L23");
-        } else if (minus.includes("fingerboard") || minus.includes("skate") || minus.includes("rampa")) {
-            respuestaGugel = "entendido tocara limpiar los rodamientos de la rampa del finger";
-        } else if (minus.includes("gato") || minus.includes("vader") || minus.includes("felino")) {
-            respuestaGugel = "buena info vigilare al gato vader por si acaso";
-        }
-    } else {
-        if (minus.includes("lego") || minus.includes("rubik") || minus.includes("gato")) {
-            respuestaGugel = "me dices cosas raras y sigo teniendo el problema con el cubo o el gato igual";
-        }
-    }
-
-    if (texto !== "") {
-        if (totalPalabras <= 2) {
-            respuestaGugel = FRASES_DOS_PALABRAS[Math.floor(Math.random() * FRASES_DOS_PALABRAS.length)];
-        } else if (texto.length > 120) {
-            respuestaGugel = FRASES_MUCHO_TEXTO[Math.floor(Math.random() * FRASES_MUCHO_TEXTO.length)];
-        }
-    }
-
-    if (tiempoEmpleado < 0.5 && delta >= 0) {
-        respuestaGugel = RESPUESTAS_LOGRO_RAPIDO[Math.floor(Math.random() * RESPUESTAS_LOGRO_RAPIDO.length)];
-    }
-
-    let poolComentariosInternos = REACCIONES_COMENTARIOS[tipoReaccion];
-    let comentarioElegidoSystem = poolComentariosInternos[Math.floor(Math.random() * poolComentariosInternos.length)];
-
-    c.history.push({
-        pregunta: c.currentPregunta,
-        userText: texto,
-        respuesta: respuestaGugel,
-        reaccion: comentarioElegidoSystem,
-        satisfact: c.satisfaction
-    });
-
-    if (c.history.length >= 15) desbloquearLogro("L12");
-    if (c.history.length >= 30) desbloquearLogro("L39");
-
-    esperandoRespuestaDeTurno = false;
-    iniciarCuentaAtrasReaccion();
-    salvarAStorage();
-    renderChatActual();
-    renderAllData();
+    let texto = plantilla.replace("[s]", suj).replace("[p]", pred);
+    return texto;
 }
 
 function nextRound() {
-    if (reaccionBloqueada) return;
-    let c = getCuenta();
-    esperandoRespuestaDeTurno = true;
-    
-    if (c.modo === "campaña") {
-        c.campanaIndex++;
-        if (c.campanaIndex >= PREGUNTAS_CAMPANA.length) {
-            desbloquearLogro("L02");
-            alert("🎉 ¡CAMPANA COMPLETADA!\n\nHas resuelto las 10 consultas de las preguntas predeterminadas.\nCambiando a Preguntas infinitas de forma automatica.");
-            c.modo = "infinito";
-            c.currentPreguntaInfinito = "";
-            c.esperandoInfinito = true;
-        } else {
-            c.currentPreguntaCampana = PREGUNTAS_CAMPANA[c.campanaIndex];
-            c.esperandoCampana = true;
-        }
-    } else {
-        c.currentPreguntaInfinito = "";
-        c.esperandoInfinito = true;
+    let input = document.getElementById('user-input');
+    if (input) {
+        input.value = '';
+        input.disabled = false;
+        input.focus();
     }
-
-    sincronizarEstadoTurno(c);
-    salvarAStorage();
-    renderChatActual();
+    
+    document.getElementById('continue-btn').style.display = 'none';
+    
+    let box = document.getElementById('chat-history-box');
+    box.innerHTML = '';
+    
+    let preg = '';
+    if (G_ESTADO.modoActual === 'campaña') {
+        if (G_ESTADO.rondaCampañayIndice >= PREGUNTAS_CAMPANA.length) {
+            box.innerHTML = `<div class="system-alert">¡HAS COMPLETADO TODAS LAS PREGUNTAS DE CAMPAÑA! Pasa al modo infinito para seguir entrenando.</div>`;
+            if (input) input.disabled = true;
+            return;
+        }
+        preg = PREGUNTAS_CAMPANA[G_ESTADO.rondaCampañayIndice];
+    } else {
+        preg = generarPreguntaInfinito();
+    }
+    
+    G_ESTADO.preguntaActual = preg;
+    
+    let bHumano = document.createElement('div');
+    bHumano.className = 'bubble bubble-human';
+    bHumano.innerHTML = `<div class="bubble-author">Humano Preguntón</div><div>${preg}</div>`;
+    box.appendChild(bHumano);
+    
     renderAllData();
+}
+
+function enviarRespuesta() {
+    let input = document.getElementById('user-input');
+    if (!input || input.disabled) return;
+    
+    let texto = input.value.trim();
+    if (!texto) {
+        crearNotificacion('Escribe una respuesta para enviar a la IA', 'warning');
+        return;
+    }
+    
+    input.disabled = true;
+    
+    let box = document.getElementById('chat-history-box');
+    let bIA = document.createElement('div');
+    bIA.className = 'bubble bubble-ia';
+    bIA.innerHTML = `<div class="bubble-author">Tú (GUGEL IA)</div><div>${texto}</div>`;
+    box.appendChild(bIA);
+    
+    let delta = calcularCambioSatisfaccion(texto);
+    G_ESTADO.satisfaccionActual += delta;
+    
+    if (G_ESTADO.satisfaccionActual > 100) G_ESTADO.satisfaccionActual = 100;
+    if (G_ESTADO.satisfaccionActual < 0) G_ESTADO.satisfaccionActual = 0;
+    
+    G_ESTADO.consultasAtendidas++;
+    let ptos = Math.max(0, delta * 2);
+    G_ESTADO.puntosTotales += ptos;
+    
+    let c = getCuenta();
+    c.xp += ptos;
+    if (c.xp > 500 && c.rango === 'Novato de las Consultas') c.rango = 'Procesador Avanzado';
+    if (c.xp > 1500 && c.rango === 'Procesador Avanzado') c.rango = 'Mente Suprema de Silicio';
+    guardarCuenta(c);
+    
+    let reaccion = obtenerReaccionHumano(G_ESTADO.motivoFeedback);
+    
+    let bReacc = document.createElement('div');
+    bReacc.className = 'bubble bubble-human';
+    bReacc.style.borderLeft = '4px solid var(--accent-color)';
+    bReacc.innerHTML = `<div class="bubble-author">Humano Reacciona (${G_ESTADO.motivoFeedback.toUpperCase()})</div><div>${reaccion}</div>`;
+    box.appendChild(bReacc);
+    
+    let registroItem = {
+        id: 'log_' + Date.now(),
+        modo: G_ESTADO.modoActual,
+        pregunta: G_ESTADO.preguntaActual,
+        respuesta: texto,
+        satisfaccionResultante: G_ESTADO.satisfaccionActual,
+        feedback: G_ESTADO.motivoFeedback,
+        delta: delta,
+        timestamp: new Date().toLocaleTimeString()
+    };
+    G_ESTADO.historialCompleto.push(registroItem);
+    
+    if (G_ESTADO.modoActual === 'campaña') {
+        G_ESTADO.rondaCampañayIndice++;
+    }
+    
+    document.getElementById('continue-btn').style.display = 'block';
+    box.scrollTop = box.scrollHeight;
+    renderAllData();
+}
+
+function calcularCambioSatisfaccion(texto) {
+    let minus = texto.toLowerCase();
+    
+    // Si repite la misma respuesta exacta, penalización
+    if (minus === G_ESTADO.ultimaRespuesta.toLowerCase()) {
+        G_ESTADO.motivoFeedback = "buclado";
+        return -15;
+    }
+    G_ESTADO.ultimaRespuesta = minus;
+    
+    // 1. DETECCIÓN REAL DE LONGITUD: Solo se activa si de verdad rompe las reglas
+    if (minus.length > 300) {
+        G_ESTADO.motivoFeedback = "mucho_texto";
+        return -8;
+    }
+    if (minus.split(/\s+/).filter(Boolean).length <= 2) {
+        G_ESTADO.motivoFeedback = "dos_palabras";
+        return -5;
+    }
+    if (minus.length < 15) {
+        G_ESTADO.motivoFeedback = "pocos_datos";
+        return -4;
+    }
+    
+    // 2. IA Simulada: Campaña coherente
+    if (G_ESTADO.modoActual === "campaña") {
+        let idx = G_ESTADO.rondaCampañayIndice;
+        let preg = PREGUNTAS_CAMPANA[idx];
+        
+        if (preg.includes("rubik") && (minus.includes("capa") || minus.includes("algoritmo") || minus.includes("girar") || minus.includes("blanca"))) return 15;
+        if (preg.includes("verde") && (minus.includes("medico") || minus.includes("doctor") || minus.includes("comida") || minus.includes("normal"))) return 15;
+        if (preg.includes("15 de agosto") && (minus.includes("fiesta") || minus.includes("asuncion") || minus.includes("feriado") || minus.includes("agosto"))) return 15;
+        if (preg.includes("no dormir") && (minus.includes("sueño") || minus.includes("cansado") || minus.includes("salud") || minus.includes("morir") || minus.includes("cerebro"))) return 15;
+        if (preg.includes("agua") && (minus.includes("liquida") || minus.includes("molecula") || minus.includes("h2o") || minus.includes("temperatura"))) return 15;
+        if (preg.includes("barranco") && (minus.includes("tierra") || minus.includes("permiso") || minus.includes("obra") || minus.includes("maquina"))) return 15;
+        if (preg.includes("tomate") && (minus.includes("fruta") || minus.includes("botanica") || minus.includes("semilla") || minus.includes("verdura"))) return 15;
+        if (preg.includes("tan tan tan") && (minus.includes("beethoven") || minus.includes("quinta") || minus.includes("sinfonia") || minus.includes("destino"))) return 15;
+        if (preg.includes("bloqueado") && (minus.includes("foto") || minus.includes("mensaje") || minus.includes("whatsapp") || minus.includes("perfil"))) return 15;
+        if (preg.includes("pagina web") && (minus.includes("internet") || minus.includes("wifi") || minus.includes("servidor") || minus.includes("cache") || minus.includes("router"))) return 15;
+    }
+    
+    // 3. COHERENCIA PARA MODO INFINITO: Evalúa según el tema de la pregunta generada aleatoriamente
+    if (G_ESTADO.modoActual === "infinito") {
+        let pregInf = G_ESTADO.preguntaActual.toLowerCase();
+        let aciertosInfinito = 0;
+        
+        if ((pregInf.includes("pc") || pregInf.includes("tostadora") || pregInf.includes("wifi") || pregInf.includes("nevera")) && 
+            (minus.includes("cable") || minus.includes("enchufe") || minus.includes("reinicia") || minus.includes("tecnico") || minus.includes("corriente") || minus.includes("pantalla") || minus.includes("internet"))) {
+            aciertosInfinito += 2;
+        }
+        if ((pregInf.includes("gato") || pregInf.includes("pato") || pregInf.includes("profe") || pregInf.includes("madre") || pregInf.includes("vecino")) && 
+            (minus.includes("comida") || minus.includes("veterinario") || minus.includes("habla") || minus.includes("psicologo") || minus.includes("tranquilo") || minus.includes("medico") || minus.includes("dormir"))) {
+            aciertosInfinito += 2;
+        }
+        if ((pregInf.includes("rubik")) && 
+            (minus.includes("giro") || minus.includes("algoritmo") || minus.includes("capa") || minus.includes("color") || minus.includes("resolver"))) {
+            aciertosInfinito += 2;
+        }
+        if ((pregInf.includes("exploto") || pregInf.includes("derritio") || pregInf.includes("fuego")) && 
+            (minus.includes("bomberos") || minus.includes("agua") || minus.includes("quemo") || minus.includes("peligro") || minus.includes("apaga"))) {
+            aciertosInfinito += 2;
+        }
+        if ((pregInf.includes("latin") || pregInf.includes("insulta") || pregInf.includes("mira raro")) && 
+            (minus.includes("miedo") || minus.includes("iglesia") || minus.includes("fantasma") || minus.includes("exorcista") || minus.includes("traduce") || minus.includes("habla"))) {
+            aciertosInfinito += 2;
+        }
+
+        if (aciertosInfinito >= 2) {
+            G_ESTADO.motivoFeedback = "ok";
+            return 14;
+        }
+    }
+    
+    // 4. Verificación de palabras clave genéricas secundarias
+    let palabrasClaveAceptables = [
+        "porque", "debido", "puedes", "debes", "solucion", "ejemplo", "reparar", "evitar", "consejo", "recomiendo",
+        "funciona", "sistema", "error", "configurar", "gira", "gato", "internet", "revisa", "cable", "pantalla"
+    ];
+    
+    let coincidencias = palabrasClaveAceptables.filter(p => minus.includes(p)).length;
+    if (coincidencias >= 2) {
+        G_ESTADO.motivoFeedback = "ok";
+        return 12;
+    } else if (coincidencias === 1) {
+        G_ESTADO.motivoFeedback = "ok";
+        return 5;
+    }
+    
+    // FALLBACK GENERAL NEUTRAL: Si el texto está bien de tamaño pero no tiene claves, no miente diciendo "pocos datos"
+    G_ESTADO.motivoFeedback = "ok";
+    let rng = Math.random();
+    return rng > 0.5 ? 8 : 4;
+}
+
+function obtenerReaccionHumano(motivo) {
+    let frases = FRASES_OK;
+    if (motivo === "mucho_texto") frases = FRASES_MUCHO_TEXTO;
+    if (motivo === "dos_palabras") frases = FRASES_DOS_PALABRAS;
+    if (motivo === "pocos_datos") frases = FRASES_POCOS_DATOS;
+    if (motivo === "buclado") frases = FRASES_BUCLADO;
+    
+    if (G_ESTADO.satisfaccionActual < 30 && Math.random() > 0.4) frases = FRASES_ENFADADO;
+    if (G_ESTADO.satisfaccionActual > 85 && Math.random() > 0.5) frases = FRASES_FELIZ;
+    
+    return frases[Math.floor(Math.random() * frases.length)];
 }
 
 function clickBotonContinuar() {
-    if (reaccionBloqueada) return;
-    if (revisarHistorial) {
-        revisarHistorial = false;
-        revisarFavorito = false;
-        revisarHistorialIndex = null;
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-        renderChatActual();
-        renderAllData();
-    } else {
-        nextRound();
-    }
+    nextRound();
 }
 
 // ==========================================
-// 7. FAVORITOS Y GESTIÓN DE LOGS HISTÓRICOS
+// 5. INTERFAZ GRÁFICA Y RENDERIZADO
 // ==========================================
-function cargarChatHistorico(index) {
-    let c = getCuenta();
-    if (!c.history || !c.history[index]) return;
-    revisarHistorial = true;
-    revisarFavorito = false;
-    revisarHistorialIndex = index;
+function switchView(viewId) {
+    let paneles = document.querySelectorAll('.content-panel');
+    paneles.forEach(p => p.classList.remove('active'));
     
-    desbloquearLogro("L38");
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    renderChatActual();
-    renderAllData();
+    let target = document.getElementById(viewId);
+    if (target) target.classList.add('active');
+    
+    document.getElementById('btn-view-perfil').classList.remove('active');
+    document.getElementById('btn-view-logros').classList.remove('active');
+    document.getElementById('btn-view-historial').classList.remove('active');
+    
+    if (viewId === 'view-perfil') document.getElementById('btn-view-perfil').classList.add('active');
+    if (viewId === 'view-logros') document.getElementById('btn-view-logros').classList.add('active');
+    if (viewId === 'view-historial') document.getElementById('btn-view-historial').classList.add('active');
 }
 
-function cargarChatFavorito(index) {
-    let c = getCuenta();
-    if (!c.favorites || !c.favorites[index]) return;
-    revisarHistorial = true;
-    revisarFavorito = true;
-    revisarHistorialIndex = index;
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    renderChatActual();
-    renderAllData();
-}
-
-function marcarActualComoFavorito() {
-    let c = getCuenta();
-    if (c.history.length === 0) return;
-    let ultimoLog = c.history[c.history.length - 1];
+function renderAllData() {
+    let cuenta = getCuenta();
     
-    if (!c.favorites) c.favorites = [];
-    let yaExiste = c.favorites.some(f => f.pregunta === ultimoLog.pregunta && f.userText === ultimoLog.userText);
+    document.getElementById('acc-name-sidebar').innerText = cuenta.nombre;
+    document.getElementById('acc-badge-sidebar').innerText = cuenta.rango;
     
-    if (yaExiste) {
-        desbloquearLogro("L33");
-        generarVentanitaSistema("📁 REGISTRO EXISTENTE", "Esta consulta ya está en tus favoritos.", "negativo");
-        return;
+    document.getElementById('p-nombre').innerText = cuenta.nombre;
+    document.getElementById('p-rango').innerText = cuenta.rango;
+    document.getElementById('p-xp').innerText = cuenta.xp + ' XP';
+    
+    document.getElementById('stat-consultas').innerText = G_ESTADO.consultasAtendidas;
+    document.getElementById('stat-puntos').innerText = G_ESTADO.puntosTotales;
+    document.getElementById('stat-modo').innerText = G_ESTADO.modoActual.toUpperCase();
+    
+    let barra = document.getElementById('satisfaction-fill');
+    if (barra) {
+        barra.style.width = G_ESTADO.satisfaccionActual + '%';
+        if (G_ESTADO.satisfaccionActual < 35) {
+            barra.style.backgroundColor = '#ff3333';
+        } else if (G_ESTADO.satisfaccionActual > 75) {
+            barra.style.backgroundColor = '#39ff14';
+        } else {
+            barra.style.backgroundColor = '#ffcc00';
+        }
     }
-    c.favorites.push(ultimoLog);
-    if (c.favorites.length >= 5) desbloquearLogro("L08");
-    if (c.favorites.length >= 10) desbloquearLogro("L32");
     
-    generarVentanitaSistema("⭐ FAVORITO REGISTRADO", "Consulta volcada en tu marcador permanente.", "positivo");
-    salvarAStorage();
-    renderAllData();
+    let lblSat = document.getElementById('satisfaction-label');
+    if (lblSat) lblSat.innerText = G_ESTADO.satisfaccionActual + '%';
+    
+    renderHistorialListas();
+    renderLogros(cuenta);
 }
 
-function marcarHistoricoComoFavorito(index) {
-    let c = getCuenta();
-    if (!c.history || !c.history[index]) return;
-    let log = c.history[index];
-    if (!c.favorites) c.favorites = [];
+function renderLogros(cuenta) {
+    let contenedor = document.getElementById('logros-list-container');
+    if (!contenedor) return;
+    contenedor.innerHTML = '';
     
-    let yaExiste = c.favorites.some(f => f.pregunta === log.pregunta && f.userText === log.userText);
-    if (yaExiste) {
-        desbloquearLogro("L33");
-        generarVentanitaSistema("📁 REGISTRO EXISTENTE", "Esta consulta ya está en tus favoritos.", "negativo");
-        return;
-    }
-    c.favorites.push(log);
-    if (c.favorites.length >= 5) desbloquearLogro("L08");
-    if (c.favorites.length >= 10) desbloquearLogro("L32");
+    const LOGROS_DEF = [
+        { id: 'l1', titulo: 'Primer Contacto', desc: 'Atiende tu primera consulta de un humano.', req: () => G_ESTADO.consultasAtendidas >= 1 },
+        { id: 'l2', titulo: 'IA de Confianza', desc: 'Llega a los 500 puntos de experiencia totales.', req: () => cuenta.xp >= 500 },
+        { id: 'l3', titulo: 'Súper Eficiente', desc: 'Alcanza el 100% de satisfacción en cualquier ronda.', req: () => G_ESTADO.satisfaccionActual >= 100 },
+        { id: 'l4', titulo: 'Paciencia Infinita', desc: 'Atiende un total de 15 consultas en esta sesión.', req: () => G_ESTADO.consultasAtendidas >= 15 },
+        { id: 'l5', titulo: 'Hacker del Código', desc: 'Consigue el rango máximo de Mente Suprema de Silicio.', req: () => cuenta.rango === 'Mente Suprema de Silicio' }
+    ];
     
-    generarVentanitaSistema("⭐ FAVORITO REGISTRADO", "Guardado desde el historial de chats.", "positivo");
-    salvarAStorage();
-    renderAllData();
-}
-
-function eliminarDeFavoritos(index) {
-    let c = getCuenta();
-    if (!c.favorites || !c.favorites[index]) return;
-    c.favorites.splice(index, 1);
-    generarVentanitaSistema("🗑️ MARCADOR ELIMINADO", "Registro purgado con éxito de favoritos.", "positivo");
-    salvarAStorage();
-    renderAllData();
-}
-
-function copiarHistorialPortapapeles() {
-    let c = getCuenta();
-    if (!c.history || c.history.length === 0) {
-        generarVentanitaSistema("⚠️ OPERACIÓN RECHAZADA", "No hay logs para copiar.", "negativo");
-        return;
-    }
-    let formateado = c.history.map((h, i) => {
-        return `--- REGISTRO #${i + 1} ---\nSOLICITUD: ${h.pregunta}\nRESPUESTA IA: ${h.userText || '[Vacío]'}\nFEEDBACK GUGEL: ${h.respuesta}\n`;
-    }).join('\n');
-
-    navigator.clipboard.writeText(formateado).then(() => {
-        generarVentanitaSistema("📋 COPIADO CON ÉXITO", "Historial volcado al portapapeles.", "positivo");
-    }).catch(() => {
-        generarVentanitaSistema("❌ FALLO DE SUBSISTEMA", "Error al acceder al portapapeles.", "negativo");
+    LOGROS_DEF.forEach(log => {
+        let obtenido = log.req();
+        let div = document.createElement('div');
+        div.className = `logro-card ${obtenido ? 'unlocked' : ''}`;
+        div.innerHTML = `
+            <div class="logro-icon">${obtenido ? '✅' : '🔒'}</div>
+            <div>
+                <div class="logro-title">${log.titulo}</div>
+                <div class="logro-desc">${log.desc}</div>
+            </div>
+        `;
+        contenedor.appendChild(div);
     });
 }
 
-function exportarHistorialJSON() {
-    let c = getCuenta();
-    if (!c.history || c.history.length === 0) {
-        generarVentanitaSistema("⚠️ ABORTADO", "El búfer está vacío.", "negativo");
-        return;
-    }
-    let contenidoJson = JSON.stringify(c.history, null, 2);
-    let blob = new Blob([contenidoJson], { type: "application/json" });
-    let url = URL.createObjectURL(blob);
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = `gugel_chats_${usuarioActivo.toLowerCase()}_${Date.now()}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    generarVentanitaSistema("📥 EXPORTACIÓN REALIZADA", "Archivo JSON generado correctamente.", "positivo");
-}
-
-// ==========================================
-// 8. INTERFAZ, MENÚS Y CUENTAS DE OPERADOR
-// ==========================================
-function switchView(viewId) {
-    revisarHistorial = false;
-    revisarFavorito = false;
-    revisarHistorialIndex = null;
+function renderHistorialListas() {
+    let cHist = document.getElementById('history-list-container');
+    let cFav = document.getElementById('favorites-list-container');
     
-    if (viewId === "view-perfil") desbloquearLogro("L17");
-    if (viewId === "view-historial") desbloquearLogro("L18");
-
-    const panelObjetivo = document.getElementById(viewId);
-    if (panelObjetivo && panelObjetivo.classList.contains('active')) {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('view-chat').classList.add('active');
-        renderChatActual();
-    } else {
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-        if (panelObjetivo) {
-            panelObjetivo.classList.add('active');
-            let botonSidebar = document.querySelector(`[onclick="switchView('${viewId}')"]`);
-            if (botonSidebar) botonSidebar.classList.add('active');
+    if (!cHist || !cFav) return;
+    
+    cHist.innerHTML = '';
+    cFav.innerHTML = '';
+    
+    if (G_ESTADO.historialCompleto.length === 0) {
+        cHist.innerHTML = '<div style="opacity:0.5; font-size:0.85rem;">No hay registros disponibles todavía.</div>';
+    }
+    
+    G_ESTADO.historialCompleto.forEach(item => {
+        let div = document.createElement('div');
+        div.className = 'history-item';
+        
+        let esFav = G_ESTADO.favoritos.includes(item.id);
+        
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <span class="badge-history-mode">${item.modo.toUpperCase()} (${item.timestamp})</span>
+                <div>
+                    <button class="action-btn-small" onclick="marcarActualComoFavorito('${item.id}')">${esFav ? '★ Quitar' : '☆ Favorito'}</button>
+                </div>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-primary);"><strong>Q:</strong> ${item.pregunta}</div>
+            <div style="font-size:0.8rem; opacity:0.85;"><strong>A:</strong> ${item.respuesta}</div>
+            <div style="font-size:0.75rem; margin-top:3px; color:var(--text-muted);">Feedback: ${item.feedback.toUpperCase()} | Sat: ${item.satisfaccionResultante}% (${item.delta >= 0 ? '+' : ''}${item.delta})</div>
+        `;
+        
+        cHist.appendChild(div);
+        
+        if (esFav) {
+            let divFav = div.cloneNode(true);
+            cFav.appendChild(divFav);
         }
+    });
+    
+    if (G_ESTADO.favoritos.length === 0) {
+        cFav.innerHTML = '<div style="opacity:0.5; font-size:0.85rem;">No has marcado ninguna consulta como destacada.</div>';
     }
 }
 
-function seleccionarModoJuego(modo) {
-    let c = getCuenta();
-    c.modo = modo;
-    revisarHistorial = false;
-    revisarFavorito = false;
-    revisarHistorialIndex = null;
-    
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('view-chat').classList.add('active');
-    
-    sincronizarEstadoTurno(c);
-    salvarAStorage();
-    renderChatActual();
-    renderAllData();
-}
-
-function cambiarTema(nuevoTema) {
-    if (!nuevoTema) return;
-    document.body.className = nuevoTema;
-    if (nuevoTema === "modo-hacker") desbloquearLogro("L10");
-    if (nuevoTema === "modo-rosa") desbloquearLogro("L28");
-    if (nuevoTema === "modo-espacial") desbloquearLogro("L29");
+function marcarActualComoFavorito(id) {
+    let idx = G_ESTADO.favoritos.indexOf(id);
+    if (idx > -1) {
+        G_ESTADO.favoritos.splice(idx, 1);
+        crearNotificacion('Eliminado de tus marcadores favoritos', 'info');
+    } else {
+        G_ESTADO.favoritos.push(id);
+        crearNotificacion('¡Guardado en marcadores favoritos!', 'success');
+    }
+    renderHistorialListas();
 }
 
 function abrirModalCuenta() {
-    let aliasPrevio = usuarioActivo === "Invitado" ? "" : usuarioActivo;
-    let clavePrevia = usuarioActivo === "Invitado" ? "" : (baseCuentas[usuarioActivo]?.password || "");
-
-    let overlay = document.createElement('div');
-    overlay.id = "custom-modal-overlay";
-    overlay.style = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); z-index:99999; display:flex; align-items:center; justify-content:center; padding:15px;";
-    
-    let popup = document.createElement('div');
-    popup.className = "card";
-    popup.style = "width:100%; max-width:420px; background:var(--bg-inner); border:2px solid var(--bubble-border); padding:20px; box-shadow: 0 4px 20px rgba(0,0,0,0.6);";
-    popup.innerHTML = `
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <div class="toast-titulo" style="font-size: 1rem; margin: 0; font-weight: bold;">⚙️ SUBSISTEMA DE REGISTRO</div>
-            <button onclick="cerrarModalCuenta()" style="background: none; border: none; color: var(--text-primary); font-size: 1.4rem; cursor: pointer; font-family: monospace; line-height: 1;">×</button>
-        </div>
-        <div class="toast-cuerpo" style="display: flex; flex-direction: column; gap: 12px;">
-            <p style="margin: 0 0 6px 0; font-size: 0.85rem;">Terminal activa: <strong style="color:var(--text-primary);">${usuarioActivo}</strong></p>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold;">Alias de Operador:</label>
-                <input type="text" id="custom-account-username" value="${aliasPrevio}" placeholder="Ej: Operador_Alpha" style="width: 100%; box-sizing: border-box; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--bubble-border); padding: 7px; font-family: 'Courier New', monospace; outline: none;">
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold;">Contraseña de Terminal:</label>
-                <input type="password" id="custom-account-password" value="${clavePrevia}" placeholder="••••••••" style="width: 100%; box-sizing: border-box; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--bubble-border); padding: 7px; font-family: 'Courier New', monospace; outline: none;">
-            </div>
-            <button class="sub-btn" onclick="guardarNombreCuentaCustom()" style="margin-top: 10px; text-align: center; background: var(--accent-color); color: var(--accent-text); font-family: 'Courier New', monospace; font-weight: bold; padding: 10px; width: 100%; border: none; cursor: pointer;">REGISTRAR TERMINAL</button>
-        </div>
-    `;
-    overlay.appendChild(popup);
-    document.body.appendChild(overlay);
+    let m = document.getElementById('modal-cuenta');
+    if (m) m.style.display = 'flex';
 }
 
 function cerrarModalCuenta() {
-    const o = document.getElementById('custom-modal-overlay');
-    if (o) o.remove();
+    let m = document.getElementById('modal-cuenta');
+    if (m) m.style.display = 'none';
 }
 
 function guardarNombreCuentaCustom() {
-    const userIn = document.getElementById('custom-account-username');
-    const passIn = document.getElementById('custom-account-password');
-    if (!userIn || !passIn) return;
-
-    let nombre = userIn.value.trim();
-    let clave = passIn.value;
-
-    if (nombre === "" || nombre.toLowerCase() === "invitado") {
-        usuarioActivo = "Invitado";
-        cerrarModalCuenta();
-        sincronizarEstadoTurno(getCuenta());
-        renderChatActual();
-        renderAllData();
+    let inp = document.getElementById('input-custom-name');
+    if (!inp) return;
+    let nom = inp.value.trim();
+    if (!nom) {
+        crearNotificacion('El nombre no puede estar vacío', 'warning');
         return;
     }
-
-    if (baseCuentas[nombre]) {
-        if (baseCuentas[nombre].password !== clave) {
-            generarVentanitaSistema("❌ ACCESO DENEGADO", "Clave de terminal incorrecta para este alias.", "negativo");
-            return;
-        }
-    } else {
-        baseCuentas[nombre] = crearEstructuraVacia();
-        baseCuentas[nombre].password = clave;
-    }
-
-    usuarioActivo = nombre;
-    asegurarEstructuraCuenta(usuarioActivo);
-    desbloquearLogro("L16");
-    salvarAStorage();
-    cerrarModalCuenta();
-    
-    sincronizarEstadoTurno(getCuenta());
-    renderChatActual();
-    renderAllData();
-}
-
-// ==========================================
-// 9. AUXILIARES E INYECTORES DEL DOM
-// ==========================================
-function desbloquearLogro(codigo) {
     let c = getCuenta();
-    if (!c.logrosDesbloqueados) c.logrosDesbloqueados = [];
-    if (c.logrosDesbloqueados.includes(codigo)) return;
-
-    c.logrosDesbloqueados.push(codigo);
-    let item = LOGROS_SISTEMA[codigo];
-    
-    if (item) {
-        generarVentanitaSistema("🏆 ¡LOGRO DESBLOQUEADO!", `${item.titulo}: ${item.desc}`, "positivo");
-    }
-
-    if (c.logrosDesbloqueados.length >= 20) {
-        desbloquearLogro("L40");
-    }
-    salvarAStorage();
+    c.nombre = nom;
+    guardarCuenta(c);
+    cerrarModalCuenta();
     renderAllData();
+    crearNotificacion('Nombre de perfil actualizado correctamente', 'success');
 }
 
-function obtenerElementoNoRepetido(pool, historialReciente) {
-    let h = Array.isArray(historialReciente) ? historialReciente : [];
-    if (!Array.isArray(pool) || pool.length === 0) return "...";
-    if (pool.length === 1) return pool[0];
-    let filtrado = pool.filter(elem => !h.includes(elem));
-    if (filtrado.length === 0) return pool[Math.floor(Math.random() * pool.length)];
-    return filtrado[Math.floor(Math.random() * filtrado.length)];
-}
-
-function appendMessage(tipo, texto) {
-    const container = document.getElementById('chat-messages');
-    if (!container) return;
-    const m = document.createElement('div');
-    m.className = `message ${tipo}`;
-    if (tipo === 'gugel') {
-        m.innerHTML = `<strong>GUGEL:</strong> ${texto}`;
+function cambiarTema() {
+    let b = document.body;
+    if (b.classList.contains('modo-hacker')) {
+        b.classList.remove('modo-hacker');
+        b.classList.add('modo-claro');
+        crearNotificacion('Activado Interfaz Visual Limpia', 'info');
     } else {
-        m.innerHTML = `<strong>TÚ (COMO IA):</strong> ${texto}`;
+        b.classList.remove('modo-claro');
+        b.classList.add('modo-hacker');
+        crearNotificacion('Activado Consola de Datos Hacker', 'success');
     }
-    container.appendChild(m);
-    container.scrollTop = container.scrollHeight;
 }
 
-function generarVentanitaSistema(titulo, mensaje, claseTipo) {
-    let contenedor = document.getElementById('notificaciones-sistema');
-    if (!contenedor) {
-        contenedor = document.createElement('div');
-        contenedor.id = 'notificaciones-sistema';
-        document.body.appendChild(contenedor);
+function copiarHistorialPortapapeles() {
+    let textoLog = G_ESTADO.historialCompleto.map(h => `[${h.timestamp}] [${h.modo.toUpperCase()}] Q: ${h.pregunta} | A: ${h.respuesta} | F: ${h.feedback}`).join('\n');
+    if (!textoLog) {
+        crearNotificacion('Historial vacío para exportar', 'warning');
+        return;
     }
+    navigator.clipboard.writeText(textoLog).then(() => {
+        crearNotificacion('Logs copiados al portapapeles con éxito', 'success');
+    }).catch(() => {
+        crearNotificacion('Error técnico al copiar logs', 'danger');
+    });
+}
 
-    const t = document.createElement('div');
-    t.className = `ventanita-notificacion-flotante ${claseTipo || ''}`;
+function exportCoreData() {
+    copiarHistorialPortapapeles();
+}
+
+function exportarHistorialCompleto() {
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(G_ESTADO, null, 2));
+    let dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", `gugel_session_export_${Date.now()}.json`);
+    dlAnchorElem.click();
+    crearNotificacion('Sesión completa descargada en JSON', 'success');
+}
+
+function crearNotificacion(mensaje, tipo) {
+    let contenedor = document.getElementById('notificaciones-sistema');
+    if (!contenedor) return;
+    
+    let t = document.createElement('div');
+    let claseTipo = '';
+    let titulo = 'SISTEMA';
+    
+    if (tipo === 'success') { claseTipo = 'toast-success'; titulo = 'ÉXITO'; }
+    if (tipo === 'warning') { claseTipo = 'toast-warning'; titulo = 'AVISO'; }
+    if (tipo === 'danger') { claseTipo = 'toast-danger'; titulo = 'ERROR'; }
+    if (tipo === 'info') { claseTipo = 'toast-info'; titulo = 'INFO'; }
+    
+    t.className = `toast-componente ${claseTipo || ''}`;
     t.innerHTML = `
         <div style="font-weight:bold; font-size:0.85rem; margin-bottom:3px; display:flex; align-items:center; gap:5px;">
             <span>${titulo}</span>
@@ -1073,8 +641,5 @@ window.enviarRespuesta = enviarRespuesta;
 window.agregarAFavoritos = marcarActualComoFavorito;
 window.marcarActualComoFavorito = marcarActualComoFavorito;
 window.copiarHistorialPortapapeles = copiarHistorialPortapapeles;
-window.exportCoreData = copiarHistorialPortapapeles;
-window.exportarHistorialJSON = exportarHistorialJSON;
-window.exportarHistorialCompleto = exportarHistorialJSON;
-window.marcarHistoricoComoFavorito = marcarHistoricoComoFavorito;
-window.eliminarDeFavoritos = eliminarDeFavoritos;
+window.exportCoreData = exportCoreData;
+window.exportarHistorialCompleto = exportarHistorialCompleto;
