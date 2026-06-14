@@ -106,6 +106,7 @@ let G_ESTADO = {
     ultimaRespuesta: '',
     preguntaActual: '',
     motivoFeedback: 'ok',
+    ultimaReaccion: 'Ninguna consulta atendida todavía.',
     favoritos: [],
     historialCompleto: []
 };
@@ -194,16 +195,19 @@ function nextRound() {
     
     let btnCont = document.getElementById('continue-btn');
     if (btnCont) btnCont.style.display = 'none';
+
+    let actionsBar = document.getElementById('chat-actions-bar');
+    if (actionsBar) actionsBar.style.display = 'none';
     
-    let box = document.getElementById('chat-history-box');
-    if (!box) return; // Protección anti-cuelgues si cambia la estructura de vistas
+    let box = document.getElementById('chat-messages'); // CORREGIDO: ID exacto del HTML
+    if (!box) return;
     
     box.innerHTML = '';
     
     let preg = '';
     if (G_ESTADO.modoActual === 'campaña') {
         if (G_ESTADO.rondaCampañayIndice >= PREGUNTAS_CAMPANA.length) {
-            box.innerHTML = `<div class="system-alert">¡HAS COMPLETADO TODAS LAS PREGUNTAS DE CAMPAÑA! Pasa al modo infinito para seguir entrenando.</div>`;
+            box.innerHTML = `<div class="message gugel" style="border-left-color: #ff3333;">¡HAS COMPLETADO TODAS LAS PREGUNTAS DE CAMPAÑA! Pasa al modo infinito para seguir entrenando.</div>`;
             if (input) input.disabled = true;
             return;
         }
@@ -215,14 +219,16 @@ function nextRound() {
     G_ESTADO.preguntaActual = preg;
     
     let bHumano = document.createElement('div');
-    bHumano.className = 'bubble bubble-human';
-    bHumano.innerHTML = `<div class="bubble-author">Humano Preguntón</div><div>${preg}</div>`;
+    bHumano.className = 'message usuario'; // CORREGIDO: Clase del CSS
+    bHumano.innerHTML = `<strong>Humano Preguntón:</strong> ${preg}`;
     box.appendChild(bHumano);
     
     renderAllData();
 }
 
-function enviarRespuesta() {
+function enviarRespuesta(event) {
+    if (event) event.preventDefault(); // CORREGIDO: Evita que la página se recargue sola
+    
     let input = document.getElementById('user-input');
     if (!input || input.disabled) return;
     
@@ -234,11 +240,11 @@ function enviarRespuesta() {
     
     input.disabled = true;
     
-    let box = document.getElementById('chat-history-box');
+    let box = document.getElementById('chat-messages'); // CORREGIDO: ID exacto del HTML
     if (box) {
         let bIA = document.createElement('div');
-        bIA.className = 'bubble bubble-ia';
-        bIA.innerHTML = `<div class="bubble-author">Tú (GUGEL IA)</div><div>${texto}</div>`;
+        bIA.className = 'message gugel'; // CORREGIDO: Clase del CSS
+        bIA.innerHTML = `<strong>Tú (GUGEL IA):</strong> ${texto}`;
         box.appendChild(bIA);
     }
     
@@ -259,12 +265,12 @@ function enviarRespuesta() {
     guardarCuenta(c);
     
     let reaccion = obtenerReaccionHumano(G_ESTADO.motivoFeedback);
+    G_ESTADO.ultimaReaccion = reaccion; // Guardamos para la tarjeta de perfil
     
     if (box) {
         let bReacc = document.createElement('div');
-        bReacc.className = 'bubble bubble-human';
-        bReacc.style.borderLeft = '4px solid var(--accent-color)';
-        bReacc.innerHTML = `<div class="bubble-author">Humano Reacciona (${G_ESTADO.motivoFeedback.toUpperCase()})</div><div>${reaccion}</div>`;
+        bReacc.className = 'message usuario'; // CORREGIDO: Clase del CSS
+        bReacc.innerHTML = `<strong>Humano Reacciona [${G_ESTADO.motivoFeedback.toUpperCase()}]:</strong> ${reaccion}`;
         box.appendChild(bReacc);
     }
     
@@ -272,7 +278,6 @@ function enviarRespuesta() {
         id: 'log_' + Date.now(),
         modo: G_ESTADO.modoActual,
         pregunta: G_ESTADO.preguntaActual,
-        textorespuesta: texto, // Evita conflictos de renderizado
         respuesta: texto,
         satisfaccionResultante: G_ESTADO.satisfaccionActual,
         feedback: G_ESTADO.motivoFeedback,
@@ -287,6 +292,9 @@ function enviarRespuesta() {
     
     let btnCont = document.getElementById('continue-btn');
     if (btnCont) btnCont.style.display = 'block';
+
+    let actionsBar = document.getElementById('chat-actions-bar');
+    if (actionsBar) actionsBar.style.display = 'block';
     
     if (box) box.scrollTop = box.scrollHeight;
     renderAllData();
@@ -397,7 +405,7 @@ function clickBotonContinuar() {
 }
 
 // ==========================================
-// 5. INTERFAZ GRÁFICA Y RENDERIZADO PROTEGIDO
+// 5. INTERFAZ GRÁFICA Y RENDERIZADO FIEL AL HTML
 // ==========================================
 function switchView(viewId) {
     let paneles = document.querySelectorAll('.content-panel');
@@ -422,47 +430,25 @@ function switchView(viewId) {
 function renderAllData() {
     let cuenta = getCuenta();
     
-    // COMPROBACIONES DE SEGURIDAD INTERNA (Evitan crasheos si los IDs difieren de index.html)
-    let elSidebarName = document.getElementById('acc-name-sidebar') || document.getElementById('account-name-sidebar');
-    let elSidebarBadge = document.getElementById('acc-badge-sidebar') || document.getElementById('account-badge-sidebar');
-    if (elSidebarName) elSidebarName.innerText = cuenta.nombre;
-    if (elSidebarBadge) elSidebarBadge.innerText = cuenta.rango;
+    // Sincronización exacta con los IDs de tu index.html
+    let elSidebarName = document.getElementById('sidebar-user-display');
+    if (elSidebarName) elSidebarName.innerText = `${cuenta.nombre} [${cuenta.rango}]`;
     
-    let elPNombre = document.getElementById('p-nombre');
-    let elPRango = document.getElementById('p-rango');
-    let elPXp = document.getElementById('p-xp');
-    if (elPNombre) elPNombre.innerText = cuenta.nombre;
-    if (elPRango) elPRango.innerText = cuenta.rango;
-    if (elPXp) elPXp.innerText = cuenta.xp + ' XP';
+    let elProfUsuario = document.getElementById('prof-usuario');
+    if (elProfUsuario) elProfUsuario.innerText = `${cuenta.nombre} (${cuenta.xp} XP)`;
     
-    let elStatCols = document.getElementById('stat-consultas');
-    let elStatPtos = document.getElementById('stat-puntos');
-    let elStatModo = document.getElementById('stat-modo');
-    if (elStatCols) elStatCols.innerText = G_ESTADO.consultasAtendidas;
-    if (elStatPtos) elStatPtos.innerText = G_ESTADO.puntosTotales;
-    if (elStatModo) elStatModo.innerText = G_ESTADO.modoActual.toUpperCase();
+    let elProfSat = document.getElementById('prof-satisfaction');
+    if (elProfSat) elProfSat.innerText = G_ESTADO.satisfaccionActual + '%';
     
-    let barra = document.getElementById('satisfaction-fill');
-    if (barra) {
-        barra.style.width = G_ESTADO.satisfaccionActual + '%';
-        if (G_ESTADO.satisfaccionActual < 35) {
-            barra.style.backgroundColor = '#ff3333';
-        } else if (G_ESTADO.satisfaccionActual > 75) {
-            barra.style.backgroundColor = '#39ff14';
-        } else {
-            barra.style.backgroundColor = '#ffcc00';
-        }
-    }
-    
-    let lblSat = document.getElementById('satisfaction-label');
-    if (lblSat) lblSat.innerText = G_ESTADO.satisfaccionActual + '%';
+    let elProfOpinion = document.getElementById('prof-opinion');
+    if (elProfOpinion) elProfOpinion.innerText = G_ESTADO.ultimaReaccion;
     
     renderHistorialListas();
     renderLogros(cuenta);
 }
 
 function renderLogros(cuenta) {
-    let contenedor = document.getElementById('logros-list-container');
+    let contenedor = document.getElementById('logros-container'); // CORREGIDO: ID exacto de tu HTML
     if (!contenedor) return;
     contenedor.innerHTML = '';
     
@@ -474,19 +460,23 @@ function renderLogros(cuenta) {
         { id: 'l5', titulo: 'Hacker del Código', desc: 'Consigue el rango máximo de Mente Suprema de Silicio.', req: () => cuenta.rango === 'Mente Suprema de Silicio' }
     ];
     
+    let unlockedCount = 0;
+    
     LOGROS_DEF.forEach(log => {
         let obtenido = log.req();
+        if (obtenido) unlockedCount++;
+        
         let div = document.createElement('div');
-        div.className = `logro-card ${obtenido ? 'unlocked' : ''}`;
+        div.className = `logro-card ${obtenido ? 'desbloqueado' : ''}`; // CORREGIDO: Clase del CSS
         div.innerHTML = `
-            <div class="logro-icon">${obtenido ? '✅' : '🔒'}</div>
-            <div>
-                <div class="logro-title">${log.titulo}</div>
-                <div class="logro-desc">${log.desc}</div>
-            </div>
+            <div class="logro-titulo">${obtenido ? '✅' : '🔒'} ${log.titulo}</div>
+            <div class="logro-desc">${log.desc}</div>
         `;
         contenedor.appendChild(div);
     });
+    
+    let countEl = document.getElementById('logros-count');
+    if (countEl) countEl.innerText = unlockedCount;
 }
 
 function renderHistorialListas() {
@@ -499,25 +489,28 @@ function renderHistorialListas() {
     cFav.innerHTML = '';
     
     if (G_ESTADO.historialCompleto.length === 0) {
-        cHist.innerHTML = '<div style="opacity:0.5; font-size:0.85rem;">No hay registros disponibles todavía.</div>';
+        cHist.innerHTML = '<div style="opacity:0.5; font-size:0.85rem; padding: 10px;">No hay registros disponibles todavía.</div>';
     }
     
     G_ESTADO.historialCompleto.forEach(item => {
         let div = document.createElement('div');
-        div.className = 'history-item';
+        div.className = 'card log-item-card'; // CORREGIDO: Usando clases nativas de tu CSS
+        div.style.marginBottom = '10px';
         
         let esFav = G_ESTADO.favoritos.includes(item.id);
         
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <span class="badge-history-mode">${item.modo.toUpperCase()} (${item.timestamp})</span>
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:bold;">${item.modo.toUpperCase()} (${item.timestamp})</span>
                 <div>
-                    <button class="action-btn-small" onclick="marcarActualComoFavorito('${item.id}')">${esFav ? '★ Quitar' : '☆ Favorito'}</button>
+                    <button class="mini-fav-btn" onclick="marcarActualComoFavorito('${item.id}')">${esFav ? '★ Quitar' : '☆ Favorito'}</button>
                 </div>
             </div>
-            <div style="font-size:0.8rem; color:var(--text-primary);"><strong>Q:</strong> ${item.pregunta}</div>
-            <div style="font-size:0.8rem; opacity:0.85;"><strong>A:</strong> ${item.respuesta}</div>
-            <div style="font-size:0.75rem; margin-top:3px; color:var(--text-muted);">Feedback: ${item.feedback.toUpperCase()} | Sat: ${item.satisfaccionResultante}% (${item.delta >= 0 ? '+' : ''}${item.delta})</div>
+            <div style="font-size:0.85rem; margin-top:5px;"><strong>Humano:</strong> ${item.pregunta}</div>
+            <div style="font-size:0.85rem; opacity:0.85; color:var(--text-muted);"><strong>GUGEL IA:</strong> ${item.respuesta}</div>
+            <div style="font-size:0.75rem; margin-top:5px; border-top: 1px dashed var(--bubble-border); padding-top:3px; opacity:0.7;">
+                Feedback: ${item.feedback.toUpperCase()} | Satisfacción: ${item.satisfaccionResultante}%
+            </div>
         `;
         
         cHist.appendChild(div);
@@ -529,11 +522,20 @@ function renderHistorialListas() {
     });
     
     if (G_ESTADO.favoritos.length === 0) {
-        cFav.innerHTML = '<div style="opacity:0.5; font-size:0.85rem;">No has marcado ninguna consulta como destacada.</div>';
+        cFav.innerHTML = '<div style="opacity:0.5; font-size:0.85rem; padding: 10px;">No has marcado ninguna consulta como destacada.</div>';
     }
 }
 
 function marcarActualComoFavorito(id) {
+    // Si se hace clic desde la interfaz principal sin pasar ID, marcamos la última consulta jugada
+    if (!id) {
+        if (G_ESTADO.historialCompleto.length === 0) {
+            crearNotificacion('No hay ninguna consulta activa en el historial.', 'warning');
+            return;
+        }
+        id = G_ESTADO.historialCompleto[G_ESTADO.historialCompleto.length - 1].id;
+    }
+    
     let idx = G_ESTADO.favoritos.indexOf(id);
     if (idx > -1) {
         G_ESTADO.favoritos.splice(idx, 1);
@@ -546,42 +548,37 @@ function marcarActualComoFavorito(id) {
 }
 
 function abrirModalCuenta() {
-    let m = document.getElementById('modal-cuenta');
-    if (m) m.style.display = 'flex';
+    // Implementación básica por si creas la modal en el HTML más adelante
+    let customName = prompt("Introduce tu nombre de Operador de Silicio:");
+    if (customName && customName.trim()) {
+        let c = getCuenta();
+        c.nombre = customName.trim();
+        guardarCuenta(c);
+        renderAllData();
+        crearNotificacion('Operador registrado con éxito', 'success');
+    }
 }
 
 function cerrarModalCuenta() {
-    let m = document.getElementById('modal-cuenta');
-    if (m) m.style.display = 'none';
+    // Reservado para futuras modales estructuradas
 }
 
 function guardarNombreCuentaCustom() {
-    let inp = document.getElementById('input-custom-name');
-    if (!inp) return;
-    let nom = inp.value.trim();
-    if (!nom) {
-        crearNotificacion('El nombre no puede estar vacío', 'warning');
-        return;
-    }
-    let c = getCuenta();
-    c.nombre = nom;
-    guardarCuenta(c);
-    cerrarModalCuenta();
-    renderAllData();
-    crearNotificacion('Nombre de perfil actualizado correctamente', 'success');
+    // Reservado para futuras modales estructuradas
 }
 
-function cambiarTema() {
+// CORREGIDO: Ahora acepta el valor directo del selector del HTML y limpia de verdad
+function cambiarTema(nuevoTema) {
+    if (!nuevoTema) return;
     let b = document.body;
-    if (b.classList.contains('modo-hacker')) {
-        b.classList.remove('modo-hacker');
-        b.classList.add('modo-claro');
-        crearNotificacion('Activado Interfaz Visual Limpia', 'info');
-    } else {
-        b.classList.remove('modo-claro');
-        b.classList.add('modo-hacker');
-        crearNotificacion('Activado Consola de Datos Hacker', 'success');
-    }
+    const temas = ['modo-hacker', 'modo-claro', 'modo-oscuro', 'modo-rosa', 'modo-espacial'];
+    
+    // Limpiamos cualquier tema anterior
+    temas.forEach(t => b.classList.remove(t));
+    
+    // Añadimos el nuevo
+    b.classList.add(nuevoTema);
+    crearNotificacion(`Consola actualizada al tema: ${nuevoTema.replace('modo-', '').toUpperCase()}`, 'success');
 }
 
 function copiarHistorialPortapapeles() {
@@ -610,42 +607,37 @@ function exportarHistorialCompleto() {
     crearNotificacion('Sesión completa descargada en JSON', 'success');
 }
 
+// CORREGIDO: Usa exactamente las clases definidas en tu archivo style.css
 function crearNotificacion(mensaje, tipo) {
     let contenedor = document.getElementById('notificaciones-sistema');
     if (!contenedor) return;
     
     let t = document.createElement('div');
-    let claseTipo = '';
-    let titulo = 'SISTEMA';
+    t.className = 'ventanita-notificacion-flotante';
     
-    if (tipo === 'success') { claseTipo = 'toast-success'; titulo = 'ÉXITO'; }
-    if (tipo === 'warning') { claseTipo = 'toast-warning'; titulo = 'AVISO'; }
-    if (tipo === 'danger') { claseTipo = 'toast-danger'; titulo = 'ERROR'; }
-    if (tipo === 'info') { claseTipo = 'toast-info'; titulo = 'INFO'; }
+    if (tipo === 'success' || tipo === 'info') {
+        t.classList.add('positivo');
+    } else if (tipo === 'warning' || tipo === 'danger') {
+        t.classList.add('negativo');
+    }
     
-    t.className = `toast-componente ${claseTipo || ''}`;
-    t.innerHTML = `
-        <div style="font-weight:bold; font-size:0.85rem; margin-bottom:3px; display:flex; align-items:center; gap:5px;">
-            <span>${titulo}</span>
-        </div>
-        <div style="font-size:0.8rem; opacity:0.95; line-height:1.3;">${mensaje}</div>
-    `;
-    
+    t.innerHTML = `<div style="font-size:0.8rem; line-height:1.3;">${mensaje}</div>`;
     contenedor.appendChild(t);
     
     setTimeout(() => {
         t.style.opacity = '0';
-        t.style.transform = 'translateY(-10px)';
         setTimeout(() => t.remove(), 300);
-    }, 2000); 
+    }, 2500); 
 }
 
 window.addEventListener('DOMContentLoaded', () => {
     let c = getCuenta();
     sincronizarEstadoTurno(c);
     renderAllData();
+    nextRound(); // CORREGIDO: Carga la primera pregunta directamente al iniciar el juego
 });
 
+// Exposición global limpia de funciones para los atributos onclick de tu HTML
 window.switchView = switchView;
 window.seleccionarModoJuego = seleccionarModoJuego;
 window.abrirModalCuenta = abrirModalCuenta;
@@ -655,7 +647,6 @@ window.cambiarTema = cambiarTema;
 window.clickBotonContinuar = clickBotonContinuar;
 window.nextRound = nextRound;
 window.enviarRespuesta = enviarRespuesta;
-window.agregarAFavoritos = marcarActualComoFavorito;
 window.marcarActualComoFavorito = marcarActualComoFavorito;
 window.copiarHistorialPortapapeles = copiarHistorialPortapapeles;
 window.exportCoreData = exportCoreData;
