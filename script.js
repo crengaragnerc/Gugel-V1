@@ -138,14 +138,17 @@ function sincronizarEstadoTurno(cuenta) {
 function seleccionarModoJuego(modo) {
     G_ESTADO.modoActual = modo;
     
-    document.getElementById('btn-modo-campaña').classList.remove('active');
-    document.getElementById('btn-modo-infinito').classList.remove('active');
+    let btnCampana = document.getElementById('btn-modo-campaña');
+    let btnInfinito = document.getElementById('btn-modo-infinito');
+    
+    if (btnCampana) btnCampana.classList.remove('active');
+    if (btnInfinito) btnInfinito.classList.remove('active');
     
     if (modo === 'campaña') {
-        document.getElementById('btn-modo-campaña').classList.add('active');
+        if (btnCampana) btnCampana.classList.add('active');
         G_ESTADO.rondaCampañayIndice = 0;
     } else {
-        document.getElementById('btn-modo-infinito').classList.add('active');
+        if (btnInfinito) btnInfinito.classList.add('active');
     }
     
     G_ESTADO.satisfaccionActual = 50;
@@ -161,7 +164,6 @@ function generarPreguntaInfinito() {
     let plantilla = PLANTILLAS_PREGUNTAS[Math.floor(Math.random() * PLANTILLAS_PREGUNTAS.length)];
     let suj = SUJETOS[Math.floor(Math.random() * SUJETOS.length)];
     
-    // FILTRADO INTELIGENTE: Evita que el humano mezcle tonterías sin lógica, manteniendo la gracia directa de internet
     let predicadosFiltrados = PREDICADOS.filter(pred => {
         if ((suj === "el wifi" || suj === "el bitcoin" || suj === "el fortnite") && 
             ["habla en latin", "tiene hipo", "muerde", "me insulta", "hace ruidos de motor", "se derritio", "me mira raro"].includes(pred)) return false;
@@ -179,8 +181,7 @@ function generarPreguntaInfinito() {
     if (predicadosFiltrados.length === 0) predicadosFiltrados = PREDICADOS;
     let pred = predicadosFiltrados[Math.floor(Math.random() * predicadosFiltrados.length)];
     
-    let texto = plantilla.replace("[s]", suj).replace("[p]", pred);
-    return texto;
+    return plantilla.replace("[s]", suj).replace("[p]", pred);
 }
 
 function nextRound() {
@@ -191,9 +192,12 @@ function nextRound() {
         input.focus();
     }
     
-    document.getElementById('continue-btn').style.display = 'none';
+    let btnCont = document.getElementById('continue-btn');
+    if (btnCont) btnCont.style.display = 'none';
     
     let box = document.getElementById('chat-history-box');
+    if (!box) return; // Protección anti-cuelgues si cambia la estructura de vistas
+    
     box.innerHTML = '';
     
     let preg = '';
@@ -231,10 +235,12 @@ function enviarRespuesta() {
     input.disabled = true;
     
     let box = document.getElementById('chat-history-box');
-    let bIA = document.createElement('div');
-    bIA.className = 'bubble bubble-ia';
-    bIA.innerHTML = `<div class="bubble-author">Tú (GUGEL IA)</div><div>${texto}</div>`;
-    box.appendChild(bIA);
+    if (box) {
+        let bIA = document.createElement('div');
+        bIA.className = 'bubble bubble-ia';
+        bIA.innerHTML = `<div class="bubble-author">Tú (GUGEL IA)</div><div>${texto}</div>`;
+        box.appendChild(bIA);
+    }
     
     let delta = calcularCambioSatisfaccion(texto);
     G_ESTADO.satisfaccionActual += delta;
@@ -254,16 +260,19 @@ function enviarRespuesta() {
     
     let reaccion = obtenerReaccionHumano(G_ESTADO.motivoFeedback);
     
-    let bReacc = document.createElement('div');
-    bReacc.className = 'bubble bubble-human';
-    bReacc.style.borderLeft = '4px solid var(--accent-color)';
-    bReacc.innerHTML = `<div class="bubble-author">Humano Reacciona (${G_ESTADO.motivoFeedback.toUpperCase()})</div><div>${reaccion}</div>`;
-    box.appendChild(bReacc);
+    if (box) {
+        let bReacc = document.createElement('div');
+        bReacc.className = 'bubble bubble-human';
+        bReacc.style.borderLeft = '4px solid var(--accent-color)';
+        bReacc.innerHTML = `<div class="bubble-author">Humano Reacciona (${G_ESTADO.motivoFeedback.toUpperCase()})</div><div>${reaccion}</div>`;
+        box.appendChild(bReacc);
+    }
     
     let registroItem = {
         id: 'log_' + Date.now(),
         modo: G_ESTADO.modoActual,
         pregunta: G_ESTADO.preguntaActual,
+        textorespuesta: texto, // Evita conflictos de renderizado
         respuesta: texto,
         satisfaccionResultante: G_ESTADO.satisfaccionActual,
         feedback: G_ESTADO.motivoFeedback,
@@ -276,22 +285,22 @@ function enviarRespuesta() {
         G_ESTADO.rondaCampañayIndice++;
     }
     
-    document.getElementById('continue-btn').style.display = 'block';
-    box.scrollTop = box.scrollHeight;
+    let btnCont = document.getElementById('continue-btn');
+    if (btnCont) btnCont.style.display = 'block';
+    
+    if (box) box.scrollTop = box.scrollHeight;
     renderAllData();
 }
 
 function calcularCambioSatisfaccion(texto) {
     let minus = texto.toLowerCase();
     
-    // Si repite la misma respuesta exacta, penalización
     if (minus === G_ESTADO.ultimaRespuesta.toLowerCase()) {
         G_ESTADO.motivoFeedback = "buclado";
         return -15;
     }
     G_ESTADO.ultimaRespuesta = minus;
     
-    // 1. DETECCIÓN REAL DE LONGITUD: Solo se activa si de verdad rompe las reglas
     if (minus.length > 300) {
         G_ESTADO.motivoFeedback = "mucho_texto";
         return -8;
@@ -305,7 +314,6 @@ function calcularCambioSatisfaccion(texto) {
         return -4;
     }
     
-    // 2. IA Simulada: Campaña coherente
     if (G_ESTADO.modoActual === "campaña") {
         let idx = G_ESTADO.rondaCampañayIndice;
         let preg = PREGUNTAS_CAMPANA[idx];
@@ -322,7 +330,6 @@ function calcularCambioSatisfaccion(texto) {
         if (preg.includes("pagina web") && (minus.includes("internet") || minus.includes("wifi") || minus.includes("servidor") || minus.includes("cache") || minus.includes("router"))) return 15;
     }
     
-    // 3. COHERENCIA PARA MODO INFINITO: Evalúa según el tema de la pregunta generada aleatoriamente
     if (G_ESTADO.modoActual === "infinito") {
         let pregInf = G_ESTADO.preguntaActual.toLowerCase();
         let aciertosInfinito = 0;
@@ -354,7 +361,6 @@ function calcularCambioSatisfaccion(texto) {
         }
     }
     
-    // 4. Verificación de palabras clave genéricas secundarias
     let palabrasClaveAceptables = [
         "porque", "debido", "puedes", "debes", "solucion", "ejemplo", "reparar", "evitar", "consejo", "recomiendo",
         "funciona", "sistema", "error", "configurar", "gira", "gato", "internet", "revisa", "cable", "pantalla"
@@ -369,10 +375,8 @@ function calcularCambioSatisfaccion(texto) {
         return 5;
     }
     
-    // FALLBACK GENERAL NEUTRAL: Si el texto está bien de tamaño pero no tiene claves, no miente diciendo "pocos datos"
     G_ESTADO.motivoFeedback = "ok";
-    let rng = Math.random();
-    return rng > 0.5 ? 8 : 4;
+    return Math.random() > 0.5 ? 8 : 4;
 }
 
 function obtenerReaccionHumano(motivo) {
@@ -393,7 +397,7 @@ function clickBotonContinuar() {
 }
 
 // ==========================================
-// 5. INTERFAZ GRÁFICA Y RENDERIZADO
+// 5. INTERFAZ GRÁFICA Y RENDERIZADO PROTEGIDO
 // ==========================================
 function switchView(viewId) {
     let paneles = document.querySelectorAll('.content-panel');
@@ -402,28 +406,41 @@ function switchView(viewId) {
     let target = document.getElementById(viewId);
     if (target) target.classList.add('active');
     
-    document.getElementById('btn-view-perfil').classList.remove('active');
-    document.getElementById('btn-view-logros').classList.remove('active');
-    document.getElementById('btn-view-historial').classList.remove('active');
+    let bPerfil = document.getElementById('btn-view-perfil');
+    let bLogros = document.getElementById('btn-view-logros');
+    let bHistorial = document.getElementById('btn-view-historial');
     
-    if (viewId === 'view-perfil') document.getElementById('btn-view-perfil').classList.add('active');
-    if (viewId === 'view-logros') document.getElementById('btn-view-logros').classList.add('active');
-    if (viewId === 'view-historial') document.getElementById('btn-view-historial').classList.add('active');
+    if (bPerfil) bPerfil.classList.remove('active');
+    if (bLogros) bLogros.classList.remove('active');
+    if (bHistorial) bHistorial.classList.remove('active');
+    
+    if (viewId === 'view-perfil' && bPerfil) bPerfil.classList.add('active');
+    if (viewId === 'view-logros' && bLogros) bLogros.classList.add('active');
+    if (viewId === 'view-historial' && bHistorial) bHistorial.classList.add('active');
 }
 
 function renderAllData() {
     let cuenta = getCuenta();
     
-    document.getElementById('acc-name-sidebar').innerText = cuenta.nombre;
-    document.getElementById('acc-badge-sidebar').innerText = cuenta.rango;
+    // COMPROBACIONES DE SEGURIDAD INTERNA (Evitan crasheos si los IDs difieren de index.html)
+    let elSidebarName = document.getElementById('acc-name-sidebar') || document.getElementById('account-name-sidebar');
+    let elSidebarBadge = document.getElementById('acc-badge-sidebar') || document.getElementById('account-badge-sidebar');
+    if (elSidebarName) elSidebarName.innerText = cuenta.nombre;
+    if (elSidebarBadge) elSidebarBadge.innerText = cuenta.rango;
     
-    document.getElementById('p-nombre').innerText = cuenta.nombre;
-    document.getElementById('p-rango').innerText = cuenta.rango;
-    document.getElementById('p-xp').innerText = cuenta.xp + ' XP';
+    let elPNombre = document.getElementById('p-nombre');
+    let elPRango = document.getElementById('p-rango');
+    let elPXp = document.getElementById('p-xp');
+    if (elPNombre) elPNombre.innerText = cuenta.nombre;
+    if (elPRango) elPRango.innerText = cuenta.rango;
+    if (elPXp) elPXp.innerText = cuenta.xp + ' XP';
     
-    document.getElementById('stat-consultas').innerText = G_ESTADO.consultasAtendidas;
-    document.getElementById('stat-puntos').innerText = G_ESTADO.puntosTotales;
-    document.getElementById('stat-modo').innerText = G_ESTADO.modoActual.toUpperCase();
+    let elStatCols = document.getElementById('stat-consultas');
+    let elStatPtos = document.getElementById('stat-puntos');
+    let elStatModo = document.getElementById('stat-modo');
+    if (elStatCols) elStatCols.innerText = G_ESTADO.consultasAtendidas;
+    if (elStatPtos) elStatPtos.innerText = G_ESTADO.puntosTotales;
+    if (elStatModo) elStatModo.innerText = G_ESTADO.modoActual.toUpperCase();
     
     let barra = document.getElementById('satisfaction-fill');
     if (barra) {
